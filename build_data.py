@@ -497,6 +497,26 @@ def build(cfg: dict,
     return meta
 
 
+def aggiorna_stati(out_dir: Path = DATA_DIR) -> bool:
+    """Riepilogo degli stati per l'avviso del mattino (data/stati.json), calcolato con signals.js."""
+    import shutil
+    import subprocess
+    node = shutil.which("node")
+    if not node:
+        log("Node non disponibile: stati.json non aggiornato")
+        return False
+    try:
+        r = subprocess.run([node, str(ROOT / "stati.js"), str(out_dir)], capture_output=True, text=True, timeout=180)
+    except Exception as e:  # noqa: BLE001
+        log(f"stati.json non aggiornato ({e})")
+        return False
+    if r.returncode != 0:
+        log(f"stati.json non aggiornato: {(r.stderr or r.stdout).strip()[:300]}")
+        return False
+    log(r.stdout.strip())
+    return True
+
+
 def main() -> int:
     cfg = load_config()
     current = fetch_current_constituents()
@@ -511,6 +531,7 @@ def main() -> int:
         log(f"ERRORE: {e}")
         return 1
     log(f"Fatto. Dati al {meta['aggiornato']}.")
+    aggiorna_stati()
     return 0
 
 

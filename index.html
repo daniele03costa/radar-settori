@@ -7,6 +7,12 @@
   <meta name="description" content="Settori S&P 500 ed ETF globali: ampiezza di mercato, zone blu e trigger, forza relativa, mappa dei possibili minimi e storico degli stati.">
   <meta name="theme-color" content="#0c0d10">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Radar Settori">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,6 +21,7 @@
   <script>
     try {
       var t = localStorage.getItem("radar.tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+      if (t === "light") document.querySelector('meta[name="theme-color"]').content = "#fbfbfc";
       if (localStorage.getItem("radar.cvd") === "true") document.documentElement.dataset.cvd = "1";
     } catch (e) {}
   </script>
@@ -47,6 +54,7 @@
         <a href="#btm" data-view="btm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><circle cx="8" cy="15" r="1.8" class="fill"/><circle cx="13" cy="10" r="1.8" class="fill"/><circle cx="17" cy="13" r="1.8" class="fill"/></svg><span>Bottom Map</span><kbd>3</kbd></a>
         <a href="#sec" data-view="sec"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/></svg><span>Settore</span><kbd>4</kbd></a>
         <a href="#alr" data-view="alr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>Alert</span><kbd>5</kbd></a>
+        <a href="#tit" data-view="tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" stroke-linejoin="round"/></svg><span>I miei titoli</span><kbd>6</kbd></a>
       </nav>
 
       <div class="side-head">
@@ -98,6 +106,7 @@
           </div>
         </header>
         <section class="kpis" id="mon-kpi" aria-label="Riepilogo"></section>
+        <article class="card novita" id="mon-novita" aria-live="polite"></article>
         <div class="mon-grid">
           <article class="card">
             <div class="card-title"><h2>Settori, prima i più vicini a un segnale</h2><span class="muted small-inline">clic per aprire il settore</span></div>
@@ -333,8 +342,27 @@
             <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della vista Settore prepara il testo da incollare.</li>
             <li>I parametri degli stati si cambiano alla voce <code>"parametri"</code> dello stesso file (nomi in cima a <code>signals.js</code>).</li>
             <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>universi.json</code>: vengono letti al successivo aggiornamento.</li>
+            <li>La lista di «I miei titoli» sta in <code>miei-titoli.txt</code>, un ticker di Yahoo Finance per riga: i prezzi arrivano con l'aggiornamento successivo.</li>
+            <li>Ogni aggiornamento scrive anche <code>data/stati.json</code>, il riepilogo degli stati che legge l'avviso del mattino.</li>
           </ol>
         </details>
+      </section>
+
+      <!-- ======================= 6 I MIEI TITOLI ======================= -->
+      <section class="view" id="view-tit" data-view="tit" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Vista 6 · I miei titoli</div>
+            <h1>I titoli che segui</h1>
+            <p class="view-sub">Trend sulle medie, calo dal massimo e forza relativa dei titoli della tua lista, anche fuori dall'S&amp;P 500.</p>
+          </div>
+          <a class="btn-link" id="tit-modifica" href="miei-titoli.txt" target="_blank" rel="noopener" title="Apre il file miei-titoli.txt su GitHub: un ticker per riga">Modifica la lista ↗</a>
+        </header>
+        <article class="card tit-dettaglio" id="tit-dettaglio" hidden></article>
+        <article class="card">
+          <div class="table-wrap"><table class="tbl tit-tbl" id="tit-tabella"></table></div>
+          <p class="small tit-nota" id="tit-nota"></p>
+        </article>
       </section>
 
       <footer>
@@ -353,18 +381,23 @@
       </div>
       <div class="guida-grid">
         <section>
-          <h3>Le cinque viste</h3>
+          <h3>Le sei viste</h3>
           <ul>
             <li><b>Monitor</b>: tutti i settori insieme, con lo stato e quello che manca al prossimo passaggio.</li>
             <li><b>Rotazione</b>: chi sta guadagnando o perdendo forza rispetto a un termine di confronto, per settori, MAG7 ed ETF in euro.</li>
             <li><b>Bottom Map</b>: profondità del ribasso contro distanza dal livello blu, con la scia delle ultime settimane.</li>
             <li><b>Settore</b>: grafici, tutti i titoli del settore (mappa e tabella), episodi di zona blu e livello regolabile.</li>
             <li><b>Alert</b>: la striscia degli stati dal 2005, lo storico completo dei cambi di stato e le statistiche.</li>
+            <li><b>I miei titoli</b>: i titoli della tua lista (anche europei), con trend, calo dal massimo, forza relativa e, per le azioni dell'S&amp;P 500, lo stato del settore. La lista sta nel file <code>miei-titoli.txt</code>.</li>
           </ul>
           <h3>Parlare con Claude</h3>
           <ul>
             <li>Con l'estensione <b>Claude in Chrome</b> apri Claude di fianco al sito e gli chiedi di quello che vedi.</li>
             <li><b>Copia per Claude</b> (in alto a destra, o tasto <kbd>C</kbd>) copia anche i numeri che nei grafici non si leggono: incollali nella chat con Ctrl+V.</li>
+          </ul>
+          <h3>Sul telefono</h3>
+          <ul>
+            <li>iPhone: Safari → <b>Condividi</b> → <b>Aggiungi alla schermata Home</b>. Android: Chrome → <b>⋮</b> → <b>Installa app</b>. Si apre come un'app, subito e anche senza rete (con gli ultimi dati scaricati).</li>
           </ul>
         </section>
         <section>
@@ -374,17 +407,18 @@
             <li>Il ticker o il nome di <b>qualsiasi azione dell'S&amp;P 500</b> (<code>AAPL</code>, <code>coca cola</code>, <code>BRK.B</code>) apre il suo settore con il titolo in evidenza e la sua scheda.</li>
             <li>Gli ETF della rotazione (<code>EIMI</code> anche senza borsa, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; se serve si passa all'universo giusto, e se è il termine di confronto attuale se ne sceglie un altro.</li>
             <li>Un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
-            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
+            <li>I ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) aprono il loro grafico in «I miei titoli».</li>
+            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
           </ul>
-          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code> per le viste. Il pulsante Indietro del browser funziona.</p>
+          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
         </section>
         <section>
           <h3>Tastiera</h3>
           <ul class="keys">
-            <li><kbd>1</kbd> … <kbd>5</kbd> vai alla vista</li>
+            <li><kbd>1</kbd> … <kbd>6</kbd> vai alla vista</li>
             <li><kbd>←</kbd> <kbd>→</kbd> periodo nella vista Settore, data nella Rotazione</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
-            <li><kbd>Esc</kbd> toglie il titolo evidenziato</li>
+            <li><kbd>Esc</kbd> toglie il titolo evidenziato o chiude il grafico del titolo</li>
             <li><kbd>?</kbd> apre questa guida</li>
             <li><kbd>C</kbd> copia i dati della pagina per Claude</li>
             <li>Se il cursore è sull'elenco delle viste, le frecce passano da una vista all'altra.</li>
@@ -407,6 +441,7 @@
   <script src="view-rotazione.js"></script>
   <script src="view-bottom.js"></script>
   <script src="view-alert.js"></script>
+  <script src="view-titoli.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>
 </body>

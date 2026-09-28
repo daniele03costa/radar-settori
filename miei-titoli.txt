@@ -1,0 +1,9 @@
+# I miei titoli: uno per riga, il ticker come su Yahoo Finance e poi, se vuoi, il nome.
+# Azioni americane senza suffisso (MSFT, BRK-B). Milano .MI (ENEL.MI), Xetra .DE, Parigi .PA,
+# Amsterdam .AS, Madrid .MC, Londra .L, Zurigo .SW, Copenaghen .CO.
+# Le righe che iniziano con # non contano. I prezzi arrivano con l'aggiornamento successivo.
+# Attenzione: il repository è pubblico, quindi questa lista la può vedere chiunque.
+MSFT Microsoft
+NVDA Nvidia
+ENEL.MI Enel
+ASML.AS ASML

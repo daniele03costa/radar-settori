@@ -8,8 +8,8 @@
   const R = window.Radar, S = window.Signals, Cal = window.Calendario;
   const { $, $$, num, esc, dataIt } = R;
 
-  const VISTE = ["mon", "rot", "btm", "sec", "alr"];
-  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr" };
+  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit"];
+  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit" };
   let vistaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
 
@@ -48,12 +48,18 @@
     const low = h.toLowerCase();
     if (VISTE.includes(low)) return { vista: low };
     if (ALIAS[low]) return { vista: ALIAS[low] };
+    // #tit/ENEL.MI apre un titolo della lista personale
+    const [primo, ...resto] = low.split("/");
+    if ((primo === "tit" || ALIAS[primo] === "tit") && resto.length) return { vista: "tit", param: resto.join("/").toUpperCase() };
     const up = h.toUpperCase();
     const [etf, titolo] = up.split("/");
     if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: titolo ? `${etf}/${titolo}` : etf };
     // il ticker di un'azione dell'S&P 500 porta al suo settore
     const az = R._mappaTitoli && (R._mappaTitoli.get(up) || R._mappaTitoli.get(up.replace(/[.\/]/g, "-")));
     if (az) return { vista: "sec", param: `${az.etf}/${az.t}` };
+    // un titolo della lista personale (#ENEL.MI)
+    const mio = R._mappaMiei && (R._mappaMiei.get(up) || R._mappaMiei.get(up.replace(/\..*$/, "")));
+    if (mio) return { vista: "tit", param: mio.t };
     return { vista: "mon" };
   }
 
@@ -77,7 +83,7 @@
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
-  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto" };
+  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli" };
   // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
   const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
   const PAROLE_VUOTE = new Set(["INC", "CORP", "CORPORATION", "COMPANY", "COMPANIES", "GROUP", "HOLDINGS", "HOLDING", "THE", "PLC", "LTD", "TRUST", "CLASS", "INCORPORATED", "INTERNATIONAL"]);
@@ -90,6 +96,7 @@
     add(["BTM", "BOTTOM"], { etichetta: "BTM", descr: "Bottom Map", tipo: "vista", fai: () => R.vai("#btm") });
     add(["SEC", "SETTORE"], { etichetta: "SEC", descr: "Pagina del settore", tipo: "vista", fai: () => R.vai("#sec") });
     add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert, lo storico degli stati", tipo: "vista", fai: () => R.vai("#alr") });
+    add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA"], { etichetta: "MIEI", descr: "I miei titoli, la tua lista", tipo: "vista", fai: () => R.vai("#tit") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
     add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
     add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
@@ -114,6 +121,22 @@
       // un indirizzo con il ticker di un'azione (#AAPL) si può aprire solo adesso
       if (location.hash && leggiRotta().vista === "sec" && vistaCorrente === "mon") applicaRotta();
     } catch (e) { /* senza elenco restano settori e comandi */ }
+    // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
+    try {
+      const lista = await leggiListaMiei();
+      R._mappaMiei = new Map();
+      for (const x of lista) {
+        const base = x.t.replace(/\..*$/, "");
+        R._mappaMiei.set(x.t, x);
+        if (!R._mappaMiei.has(base)) R._mappaMiei.set(base, x);
+        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+        add([x.t, base, x.nome, ...parole], {
+          etichetta: x.t, descr: x.nome || x.t, tipo: "mio",
+          fai: () => R.vai("#tit/" + x.t),
+        });
+      }
+      if (location.hash && leggiRotta().vista === "tit" && vistaCorrente === "mon") applicaRotta();
+    } catch (e) { /* senza lista restano settori e comandi */ }
     try {
       const gruppi = await R.viste.rot.gruppi();
       const u = await R.dati.universi();
@@ -159,6 +182,23 @@
       }
     } catch (e) { /* senza universi restano settori e comandi */ }
     indice = out;
+  }
+
+  // miei-titoli.txt: un ticker per riga, poi il nome; le righe con # non contano
+  async function leggiListaMiei() {
+    const r = await fetch("miei-titoli.txt", { cache: "no-cache" });
+    if (!r.ok) return [];
+    const visti = new Set(), out = [];
+    for (const riga of (await r.text()).split(/\r?\n/)) {
+      const pulita = riga.replace(/#.*$/, "").trim();
+      if (!pulita) continue;
+      const [t, ...nome] = pulita.split(/\s+/);
+      const tk = t.toUpperCase().replace(/,/g, "");
+      if (!tk || visti.has(tk)) continue;
+      visti.add(tk);
+      out.push({ t: tk, nome: nome.join(" ") });
+    }
+    return out;
   }
 
   function cerca(testo) {
@@ -215,6 +255,8 @@
 
   function impostaTema(t) {
     document.documentElement.dataset.theme = t;
+    const colore = $('meta[name="theme-color"]');
+    if (colore) colore.content = t === "light" ? "#fbfbfc" : "#0c0d10";   // barra del telefono
     R.store.set("_", 0);
     try { localStorage.setItem("radar.tema", t); } catch (e) { /* ignora */ }
     $("#tema-label").textContent = t === "light" ? "Scuro" : "Chiaro";
@@ -248,6 +290,32 @@
     const scaricati = R.meta && R.meta.generato ? new Date(R.meta.generato) : null;
     box.title = voci.map(v => `${v.nome}: chiusura del ${dataIt(v.data)}${v.r.sedute ? `, attesa quella del ${dataIt(v.r.attesa)}` : ""}`).join("\n") +
       (scaricati && !isNaN(scaricati) ? `\nUltimo aggiornamento: ${scaricati.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}` : "");
+  }
+
+  // ---------------- app sul telefono ----------------
+
+  // il service worker (sw.js) tiene una copia del sito: si apre subito, anche senza rete
+  function registraApp() {
+    if (!("serviceWorker" in navigator)) return;
+    if (location.protocol !== "https:" && location.hostname !== "localhost") return;
+    navigator.serviceWorker.addEventListener("message", e => {
+      if (e.data && e.data.tipo === "nuova-versione") mostraNuovaVersione();
+    });
+    window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+  }
+
+  function mostraNuovaVersione() {
+    if ($("#nuova-versione")) return;
+    const el = document.createElement("div");
+    el.id = "nuova-versione";
+    el.className = "nuova-versione";
+    el.setAttribute("role", "status");
+    el.innerHTML = `<span>C'è una versione nuova del sito.</span><button type="button" class="nv-si">Ricarica</button><button type="button" class="nv-no" aria-label="Più tardi" title="Più tardi">×</button>`;
+    el.addEventListener("click", e => {
+      if (e.target.closest(".nv-si")) location.reload();
+      else if (e.target.closest(".nv-no")) el.remove();
+    });
+    document.body.append(el);
   }
 
   // ---------------- avvio ----------------
@@ -331,7 +399,7 @@
       if (e.key === "/") { e.preventDefault(); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
       if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
-      if (/^[1-5]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
+      if (/^[1-6]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
       if (v && v.tasto && v.tasto(e)) e.preventDefault();
@@ -339,6 +407,7 @@
   }
 
   async function avvia() {
+    registraApp();
     collegaEventi();
     try {
       R.meta = await R.dati.meta();

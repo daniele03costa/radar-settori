@@ -128,6 +128,16 @@ def test_build_outputs():
         nuovo = next(r for r in elenco if r["t"] == "NUOVO")
         assert nuovo.get("senza_prezzi") is True
         assert sum(1 for r in elenco if r.get("senza_prezzi")) == 1
+        # riepilogo degli stati per l'avviso del mattino (serve Node)
+        import shutil
+        if shutil.which("node"):
+            assert bd.aggiorna_stati(out)
+            st = json.loads((out / "stati.json").read_text())
+            assert st["aggiornato"] == meta["aggiornato"] and len(st["settori"]) == 11
+            assert all(s["stato"] in ("normale", "attenzione", "blu", "trigger", "fallito", "cooldown") for s in st["settori"])
+            assert all(s["titoli_che_mancano"] >= 0 for s in st["settori"])
+            assert all(c["data"] == st["aggiornato"] for c in st["cambi_ultima_seduta"])
+            assert st["prossima_seduta"] > st["aggiornato"]
 
 
 def test_incomplete_last_session_is_dropped():

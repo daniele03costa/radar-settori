@@ -22,6 +22,7 @@
         const p = b.indici.map(i => serie[i]);
         const r = Rot.calcola(p, bench, "nuova");
         out[s.etf] = Rot.misure(r.ratio, r.mom, p.length - 1);
+        if (out[s.etf]) out[s.etf].provvisoria = b.provvisoria;
       }
       return out;
     } catch (e) {
@@ -111,10 +112,71 @@
     return { righe, indice };
   }
 
+  // ---------- novità dell'ultima seduta ----------
+  function novita(righe, indice) {
+    const P = R.parametri();
+    const pill = s => `<span class="st-pill st-${s}">${S.STATI[s]}</span>`;
+    const conta = (t, testo) => t ? `${t.sopra} ${t.sopra === 1 ? "titolo" : "titoli"} su ${t.n}` : testo;
+    const cambi = [], attenzione = [], movimenti = [], rotazione = [], prima = [];
+    let dataUltima = null, dataPrima = null;
+    for (const r of righe) {
+      const d = r.d, a = r.a, t = d.date.length - 1;
+      if (t < 5) continue;
+      dataUltima = d.date[t];
+      dataPrima = d.date[t - 1];
+      const ieri = R.titoliLivello(d.b200[t - 1], d.n[t - 1], r.lv), oggi = r.tl;
+      const s0 = a.stati[t - 1], s1 = a.stati[t];
+      if (s0 && s1 && s0 !== s1) {
+        const extra = s1 === "blu" ? `: ${conta(oggi)} sopra la media 200, livello ${num(r.lv, 0)}%`
+          : s1 === "trigger" ? `: ${(a.episodi[a.episodi.length - 1] || { motivi: [] }).motivi.map(m => R.MOTIVI_BREVI[m] || m).join(" + ")}`
+          : s1 === "attenzione" ? `: a ${oggi ? R.titoli(oggi.mancano) : "—"} dal livello blu, drawdown ${R.art("al", num(r.pctDD, 0) + "°")} percentile` : "";
+        cambi.push({ stato: s1, html: `<b>${r.etf}</b> ${esc(r.nome)}: da ${pill(s0)} a ${pill(s1)}${extra}` });
+      }
+      // cambi di stato nelle quattro sedute precedenti
+      for (let i = Math.max(1, t - 4); i < t; i++) {
+        if (a.stati[i] && a.stati[i - 1] && a.stati[i] !== a.stati[i - 1]) prima.push(`${r.etf} ${S.STATI[a.stati[i - 1]].toLowerCase()} → ${S.STATI[a.stati[i]].toLowerCase()} (${dataIt(d.date[i]).slice(0, 5)})`);
+      }
+      // ingresso nella fascia di attenzione o molto vicino al livello
+      const distIeri = d.b200[t - 1] == null ? null : d.b200[t - 1] - r.lv;
+      if (s1 === s0 && r.dist != null && distIeri != null && r.dist > 0 && r.dist <= P.fasciaAttenzione && distIeri > P.fasciaAttenzione) {
+        attenzione.push({ html: `<b>${r.etf}</b> entra nella fascia dei ${P.fasciaAttenzione} punti dal livello blu: ne mancano ${num(r.dist, 1)}, cioè ${oggi ? R.titoli(oggi.mancano) : "—"}` });
+      } else if (s1 === s0 && oggi && ieri && oggi.mancano > 0 && oggi.mancano <= 3 && ieri.mancano > 3) {
+        attenzione.push({ html: `<b>${r.etf}</b> è a ${R.titoli(oggi.mancano)} dal livello blu` });
+      }
+      // movimenti forti dell'ampiezza in una seduta
+      const dP = d.b200[t] != null && d.b200[t - 1] != null ? d.b200[t] - d.b200[t - 1] : null;
+      const dT = oggi && ieri ? oggi.sopra - ieri.sopra : null;
+      if (dP != null && (Math.abs(dP) >= 8 || Math.abs(dT) >= 5)) movimenti.push({ dP, html: `<b>${r.etf}</b> ${R.segnato(dP, 1)} punti in un giorno (${R.segnato(dT, 0)} ${Math.abs(dT) === 1 ? "titolo" : "titoli"}): ora ${conta(oggi)} sopra la media 200` });
+      // rotazione: cambio di quadrante nell'ultima settimana
+      if (r.rot && r.rot.durata === 1 && r.rot.precedente) {
+        rotazione.push(`${r.etf} da ${NOMI_Q[r.rot.precedente].toLowerCase()} a ${NOMI_Q[r.rot.quadrante].toLowerCase()}${r.rot.provvisoria ? " (settimana in corso)" : ""}`);
+      }
+    }
+    movimenti.sort((x, y) => Math.abs(y.dP) - Math.abs(x.dP));
+    const giorno = s => s ? new Date(s + "T12:00:00Z").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" }) : "—";
+    const righeHtml = [];
+    for (const c of cambi) righeHtml.push(`<li class="st-${c.stato}"><i></i><span>${c.html}</span></li>`);
+    for (const x of attenzione) righeHtml.push(`<li class="st-attenzione"><i></i><span>${x.html}</span></li>`);
+    for (const m of movimenti.slice(0, 3)) righeHtml.push(`<li class="mov ${m.dP < 0 ? "giu" : "su"}"><i></i><span>${m.html}</span></li>`);
+    if (rotazione.length) righeHtml.push(`<li class="rot"><i></i><span>Rotazione contro SPY, cambi di quadrante: ${rotazione.join("; ")}</span></li>`);
+    let sp = "";
+    if (indice && indice.b200 && indice.b200.length > 1) {
+      const N = indice.b200.length;
+      const dI = indice.b200[N - 1] - indice.b200[N - 2];
+      sp = `S&amp;P 500 intero: ${num(indice.b200[N - 1], 1)}% dei titoli sopra la media 200 (${R.segnato(dI, 1)} punti).`;
+    }
+    const vuoto = !cambi.length && !attenzione.length && !movimenti.length && !rotazione.length;
+    return `
+      <div class="card-title"><h2>Novità della seduta di ${giorno(dataUltima)}</h2><span class="muted small-inline">rispetto a ${giorno(dataPrima)}</span></div>
+      ${vuoto ? `<p class="novita-vuota">Nessun cambio di stato e nessun movimento forte dell'ampiezza.</p>` : `<ul class="novita-lista">${righeHtml.join("")}</ul>`}
+      <p class="novita-piede">${sp}${prima.length ? ` Nei giorni prima: ${prima.join(", ")}.` : ""}</p>`;
+  }
+
   async function disegna() {
     const { righe, indice } = await calcola();
     if (!visibile) return;
     const P = R.parametri();
+    $("#mon-novita").innerHTML = novita(righe, indice);
 
     const dataDati = righe[0] ? righe[0].d.date[righe[0].d.date.length - 1] : R.meta.aggiornato;
     $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella vista Settore.`;
@@ -200,6 +262,10 @@
       const N = indice.b200.length;
       out.push(`S&P 500 intero: ${num(indice.b200[N - 1], 1)}% dei titoli sopra la media 200 (un mese fa ${num(indice.b200[Math.max(0, N - 22)], 1)}%, un anno fa ${num(indice.b200[Math.max(0, N - 253)], 1)}%).`);
     }
+    const nov = novita(righe, indice)
+      .replace(/<\/h2>/g, "\n").replace(/<li[^>]*>/g, "\n- ").replace(/<\/(li|p)>/g, "")
+      .replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+    out.push("Novità (riquadro in cima al Monitor): " + nov);
     out.push("Settori, dal più vicino a un segnale:");
     out.push("ETF | settore | stato | titoli sopra la media 200 oggi (un mese fa) | livello blu | punti dal livello blu | drawdown dal massimo a 52 settimane (percentile della storia) | rotazione settimanale contro SPY");
     for (const r of righe) {

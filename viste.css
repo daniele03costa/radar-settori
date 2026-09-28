@@ -104,6 +104,19 @@ details.card ol { padding-left: 20px; margin-bottom: 0; }
 details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
 
 /* ============ Monitor ============ */
+.novita .card-title { margin-bottom: 10px; }
+.novita h2::first-letter { text-transform: uppercase; }
+.novita-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.novita-lista li { display: grid; grid-template-columns: 14px 1fr; align-items: baseline; gap: 8px; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.novita-lista li > i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--faint)); transform: translateY(-1px); }
+.novita-lista li b { color: var(--ink); font-weight: 650; }
+.novita-lista li .st-pill { font-size: 12px; vertical-align: 0; }
+.novita-lista li.mov.giu > i { background: var(--neg); }
+.novita-lista li.mov.su > i { background: var(--pos); }
+.novita-lista li.rot > i { background: var(--q-miglioramento); border-radius: 2px; }
+.novita-vuota { margin: 0; color: var(--ink-2); font-size: 13.5px; }
+.novita-piede { margin: 10px 0 0 !important; font-size: 12.5px; color: var(--muted); }
+.novita-piede:empty { display: none; }
 .mon-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
 @media (max-width: 1599px) {
   .mon-grid { grid-template-columns: minmax(0, 1fr); }
@@ -260,10 +273,37 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
 .keys { list-style: none; padding-left: 0 !important; }
 .empty-note { padding: 40px 10px; text-align: center; color: var(--muted); }
 
+/* ============ 6 · i miei titoli ============ */
+.tit-tbl td { padding-top: 10px; padding-bottom: 10px; }
+.tit-tbl .spark { display: block; width: 132px; height: 30px; }
+.tit-tbl .quad, .tit-num .quad { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ink-2); }
+.tit-tbl .quad i, .tit-num .quad i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.tit-num .quad { font-size: 14px; font-weight: 600; color: var(--ink); }
+.tit-num.largo { grid-column: span 2; }
+.tit-nome { display: block; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tit-nome .muted { font-weight: 400; }
+.valuta { margin-left: 2px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.tit-nota { margin: 12px 0 0; }
+.tit-dettaglio { scroll-margin-top: 16px; }
+.tit-dettaglio .card-head { align-items: flex-start; }
+.tit-dettaglio .card-head .sub { margin: 4px 0 0; max-width: 820px; }
+.tit-numeri { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 8px; margin: 2px 0 14px; }
+.tit-num { display: flex; flex-direction: column; gap: 3px; padding: 9px 11px; border-radius: 10px; background: var(--surface-2); min-width: 0; }
+.tit-num span { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tit-num b { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 4px; }
+.tit-num b .dir { width: 14px; height: 14px; }
+.tit-legenda { margin-bottom: 6px; }
+.tit-grafico { position: relative; }
+.tit-grafico svg { display: block; }
+.tit-pannello { font-size: 11.5px; font-weight: 600; fill: var(--muted); }
+
 /* ============ schermi più piccoli ============ */
 @media (max-width: 1280px) {
   .mon-grid, .btm-grid { grid-template-columns: minmax(0, 1fr); }
   .guida-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 1400px) {
+  .tit-tbl th:nth-child(2), .tit-tbl td:nth-child(2) { display: none; }   /* il grafico c'è nel dettaglio */
 }
 @media (max-width: 1100px) {
   .lower { grid-template-columns: minmax(0, 1fr); }
@@ -278,7 +318,8 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
   .topbar { margin: 0 0 18px; }
   .guida-grid { grid-template-columns: 1fr; }
   .select { min-width: 140px; }
-  .mon-tbl .spark { width: 96px; }
+  .mon-tbl .spark, .tit-tbl .spark { width: 96px; }
+  .card { scroll-margin-top: 112px; }   /* sotto la barra fissa in alto */
   #alr-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
@@ -290,6 +331,10 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
   .seg-label { display: none; }
   .seg-wrap button { padding: 0 8px; font-size: 12px; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); }
+  .tit-nome { max-width: 170px; }
+  #mon-kpi { grid-template-columns: minmax(0, 1fr); }   /* le tessere del Monitor hanno frasi lunghe */
+  .tit-tbl th:nth-child(2), .tit-tbl td:nth-child(2) { display: none; }
+  .tit-numeri { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ============ stampa: sempre nero su bianco ============ */
@@ -299,7 +344,7 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
     --line: #ddd; --line-2: #ccc; --grid: rgba(0, 0, 0, .08); --price: #000; --tail: rgba(0, 0, 0, .4); --tail-line: rgba(0, 0, 0, .5);
   }
   body { background: #fff !important; color: #000; }
-  .sidebar, .topbar, .controls, .rot-controls, .foot-btns, #rot-play, details.maint, .filter, .copia-btn, .avviso { display: none !important; }
+  .sidebar, .topbar, .controls, .rot-controls, .foot-btns, #rot-play, details.maint, .filter, .copia-btn, .avviso, .nuova-versione { display: none !important; }
   .shell { display: block; }
   .main { padding: 0; max-width: none; }
   .card, .kpi { box-shadow: none; break-inside: avoid; }

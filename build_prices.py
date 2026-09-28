@@ -367,6 +367,103 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
     return {"aggiornato": last, "correzioni": len(fixes)}
 
 
+# ---------------------------------------------------------------------------
+# «I miei titoli»: la lista personale in miei-titoli.txt
+# ---------------------------------------------------------------------------
+
+LISTA_MIEI = ROOT / "miei-titoli.txt"
+BENCH_MIEI = {"usa": "SPY", "europa": "IUSQ.DE"}     # S&P 500 in dollari, azionario mondiale (ACWI) in euro
+VALUTE = {"MI": "EUR", "DE": "EUR", "F": "EUR", "PA": "EUR", "AS": "EUR", "MC": "EUR", "BR": "EUR", "LS": "EUR",
+          "VI": "EUR", "HE": "EUR", "IR": "EUR", "L": "GBp", "SW": "CHF", "CO": "DKK", "ST": "SEK", "OL": "NOK",
+          "TO": "CAD", "T": "JPY", "HK": "HKD", "AX": "AUD"}
+
+
+def leggi_lista(path: Path) -> List[Tuple[str, str]]:
+    """Una riga per titolo: ticker di Yahoo Finance e, se c'è, il nome. Le righe con # non contano."""
+    if not path.exists():
+        return []
+    out, visti = [], set()
+    for riga in path.read_text(encoding="utf-8").splitlines():
+        riga = riga.split("#", 1)[0].strip()
+        if not riga:
+            continue
+        parti = riga.replace("\t", " ").split(None, 1)
+        t = parti[0].strip().upper().replace(",", "")
+        if not t or t in visti:
+            continue
+        visti.add(t)
+        out.append((t, parti[1].strip() if len(parti) > 1 else ""))
+    return out
+
+
+def mercato_di(ticker: str) -> Tuple[str, str]:
+    """(mercato, valuta): senza suffisso è un titolo americano in dollari."""
+    if "." in ticker:
+        suff = ticker.rsplit(".", 1)[1]
+        if suff in VALUTE:
+            return ("europa" if VALUTE[suff] in ("EUR", "GBp", "CHF", "DKK", "SEK", "NOK") else "altro"), VALUTE[suff]
+        return "altro", ""                            # borsa non in elenco: valuta sconosciuta
+    return "usa", "USD"
+
+
+def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str], pd.DataFrame],
+               adesso: Optional[pd.Timestamp] = None, anni: int = 3) -> Optional[dict]:
+    titoli = leggi_lista(lista)
+    if not titoli:
+        log("I miei titoli: lista vuota")
+        return None
+    inizio = (pd.Timestamp.now() - pd.DateOffset(years=anni)).strftime("%Y-%m-%d")
+    simboli = [t for t, _ in titoli] + [b for b in BENCH_MIEI.values() if b not in {t for t, _ in titoli}]
+    log(f"I miei titoli: scarico {len(titoli)} titoli…")
+    raw = downloader(simboli, inizio)
+    if raw is None or raw.empty:
+        log("I miei titoli: nessun dato, resta il file già pubblicato")
+        return None
+
+    def serie(t: str) -> Optional[dict]:
+        if t not in raw.columns:
+            return None
+        s = raw[t].dropna()
+        s = s[s > 0]
+        mercato, valuta = mercato_di(t)
+        # Toronto chiude con Wall Street; le borse asiatiche chiudono prima di quelle europee
+        oggi = seduta_in_corso("NYSE" if mercato == "usa" or t.endswith(".TO") else "Borsa Italiana", adesso)
+        if oggi is not None:
+            s = s[s.index < oggi]                     # solo chiusure
+        if len(s) < 5:
+            return None
+        return {"date": [d.strftime("%Y-%m-%d") for d in s.index], "prezzi": [round_price(v) for v in s.to_numpy()],
+                "mercato": mercato, "valuta": valuta}
+
+    voci, mancanti = [], []
+    for t, nome in titoli:
+        x = serie(t)
+        if x is None:
+            mancanti.append(t)
+            continue
+        voci.append({"t": t, "nome": nome, **x})
+    bench = {}
+    for chiave, b in BENCH_MIEI.items():
+        x = serie(b)
+        if x is not None:
+            bench[chiave] = {"t": b, **x}
+    if not voci:
+        log(f"I miei titoli: nessun prezzo trovato ({', '.join(mancanti)})")
+        return None
+    payload = {
+        "aggiornato": max(v["date"][-1] for v in voci),
+        "generato": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "titoli": voci,
+        "confronti": bench,
+        "mancanti": mancanti,
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    log(f"I miei titoli: {len(voci)} pubblicati" + (f", non trovati: {', '.join(mancanti)}" if mancanti else ""))
+    return {"titoli": len(voci), "mancanti": mancanti}
+
+
 def main() -> int:
     u = load_universe()
     start = u.get("inizio", "2019-01-01")
@@ -377,6 +474,10 @@ def main() -> int:
     r2 = build_market("Globali", syms, info, start, yahoo_prices, DATA_DIR / "prezzi_globali.json",
                       fx_downloader=yahoo_prices, last_quotes=yahoo_last_quotes, calendar_name="Borsa Italiana")
     ok = r1 is not None or r2 is not None
+    try:
+        build_miei(LISTA_MIEI, DATA_DIR / "prezzi_miei.json", yahoo_prices)
+    except Exception as e:  # noqa: BLE001
+        log(f"I miei titoli: errore ({e}), resta il file già pubblicato")
     return 0 if ok else 1
 
 

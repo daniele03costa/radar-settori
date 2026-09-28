@@ -123,6 +123,25 @@ def test_too_few_responses_keeps_file():
         assert not out.exists()
 
 
+def test_my_stocks_list_and_prices():
+    with tempfile.TemporaryDirectory() as d:
+        lista = Path(d) / "miei-titoli.txt"
+        lista.write_text("# commento\nmsft Microsoft\n\nENEL.MI Enel  # a Milano\nNONESISTE\nMSFT doppione\n", encoding="utf-8")
+        assert bp.leggi_lista(lista) == [("MSFT", "Microsoft"), ("ENEL.MI", "Enel"), ("NONESISTE", "")]
+        assert bp.mercato_di("ENEL.MI") == ("europa", "EUR") and bp.mercato_di("BRK-B") == ("usa", "USD")
+        assert bp.mercato_di("7203.T") == ("altro", "JPY") and bp.mercato_di("PETR4.SA") == ("altro", "")
+        syms = ["MSFT", "ENEL.MI", "SPY", "IUSQ.DE"]
+        df = fake_market(syms, "2023-01-01")
+        out = Path(d) / "prezzi_miei.json"
+        r = bp.build_miei(lista, out, lambda s, st: df.reindex(columns=s), adesso=pd.Timestamp("2026-09-25 13:45", tz="UTC"))
+        p = json.loads(out.read_text())
+        assert r["mancanti"] == ["NONESISTE"] and p["mancanti"] == ["NONESISTE"]
+        assert [x["t"] for x in p["titoli"]] == ["MSFT", "ENEL.MI"]
+        assert p["titoli"][1]["valuta"] == "EUR" and p["titoli"][0]["mercato"] == "usa"
+        assert p["titoli"][0]["date"][-1] == "2026-09-24"          # seduta di oggi ancora aperta
+        assert set(p["confronti"]) == {"usa", "europa"}
+
+
 def test_crypto_alignment_max_age():
     cal = pd.bdate_range("2026-01-05", "2026-01-16")
     s = pd.Series([100.0, 101.0], index=pd.to_datetime(["2026-01-03", "2026-01-11"]))

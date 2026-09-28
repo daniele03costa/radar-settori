@@ -80,6 +80,8 @@
       .catch(() => R.dati.tuttiSettori().then(tutti => Object.entries(tutti).flatMap(([etf, d]) =>
         (d.titoli || []).map(t => ({ t: t.t, nome: t.nome, etf }))))),
     prezzi: mercato => carica(mercato === "globale" ? "data/prezzi_globali.json" : "data/prezzi_usa.json", { cache: "no-cache" }),
+    // i titoli della lista personale (miei-titoli.txt), con i due termini di confronto
+    miei: () => carica("data/prezzi_miei.json", { cache: "no-cache" }),
   };
 
   // ---------- livelli blu e analisi ----------
