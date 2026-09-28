@@ -13,6 +13,8 @@
     log: R.store.get("log", false),
     ordine: R.store.get("ordine", { col: "v200", dir: -1 }),
     filtro: "",
+    titolo: null,
+    mancante: null,     // azione cercata che non ha ancora abbastanza prezzi
     dati: null,
     analisi: null,
     visibile: false,
@@ -35,7 +37,7 @@
         { id: "ampiezza", altezza: small ? 160 : big ? 240 : 210, formato: v => num(v, 0) + "%", formatoPill: v => num(v, 1) + "%" },
       ],
       tooltip,
-      etichettaZona: "ZONA BLU",
+      etichettaZona: "Zona blu",
     });
   }
 
@@ -138,7 +140,7 @@
     if (stato === "blu" && ep) {
       const dur = N - 1 - ep.inizio;
       const servono = (dur > P.zonaLunga || ep.falliti.length) ? 2 : 1;
-      testo = `Zona blu dal ${dataIt(d.date[ep.inizio])} (${R.sedute(dur)}) · per il trigger ${servono === 1 ? "serve 1 conferma" : "servono 2 conferme"}`;
+      testo = `Zona blu dal ${dataIt(d.date[ep.inizio])} (${dur ? R.sedute(dur) : "da oggi"}) · per il trigger ${servono === 1 ? "serve 1 conferma" : "servono 2 conferme"}`;
     } else if (stato === "trigger" && ep && ep.segnale != null) {
       testo = `Trigger del ${dataIt(d.date[ep.segnale])} · in verifica (${N - 1 - ep.segnale}/${P.verifica} sedute)`;
     } else if (stato === "fallito") {
@@ -181,33 +183,34 @@
       ? `<b>${n}</b> ${n === 1 ? "zona blu" : "zone blu"} dal ${dataIt(primo)} con livello blu <b>${num(lv, 0)}%</b>` +
         (a.casi3 ? ` · a 3 mesi dal trigger: mediana <b class="${cls(a.mediana3)}">${pct(a.mediana3, 1)}</b>, in guadagno <b>${num(a.positivi3, 0)}%</b> su ${a.casi3} ${a.casi3 === 1 ? "caso" : "casi"}` : "")
       : `Nessuna zona blu dal ${dataIt(primo)} con livello ${num(lv, 0)}%. Prova ad alzare il livello.`;
-    const head = `<thead><tr>
-      <th>Inizio zona blu</th><th>Ampiezza minima</th><th>Drawdown all'ingresso</th><th>+3M dall'ingresso</th>
-      <th>Trigger</th><th style="text-align:left">Conferme</th><th>+1M</th><th>+3M</th><th>+6M</th><th>Calo max 3M</th>
-    </tr></thead>`;
+    const head = `<thead>
+      <tr class="grp"><th colspan="4" class="l">Ingresso in zona blu</th><th colspan="6" class="l">Trigger</th></tr>
+      <tr><th class="l">Data</th><th>Ampiezza min.</th><th>Drawdown</th><th>+3M</th>
+      <th class="l">Data</th><th class="l">Conferme</th><th>+1M</th><th>+3M</th><th>+6M</th><th>Calo max 3M</th></tr>
+    </thead>`;
     const rows = a.episodi.slice().reverse().map(e => {
       let seg, motivo;
       if (e.segnale != null) {
         seg = dataIt(d.date[e.segnale]);
         if (e.stato === "verifica") seg += ` <span class="tag ok">in verifica</span>`;
-        motivo = e.motivi.map(m => S.MOTIVI[m]).join(" + ");
+        motivo = R.tagMotivi(e.motivi);
       } else {
         seg = `<span class="tag warn">in attesa</span>`; motivo = "—";
       }
       if (e.falliti.length) seg += `<small class="muted sub-line">${e.falliti.length} ${e.falliti.length === 1 ? "trigger fallito" : "trigger falliti"} prima</small>`;
       const td = v => `<td class="${cls(v)}">${pct(v, 1)}</td>`;
       return `<tr class="${e.segnale == null ? "open" : ""}">
-        <td>${dataIt(d.date[e.inizio])}</td>
+        <td class="l">${dataIt(d.date[e.inizio])}</td>
         <td>${num(e.minB, 1)}%</td>
-        <td class="${cls(e.ddInizio)}">${pct(e.ddInizio, 1)}</td>
+        <td>${pct(e.ddInizio, 1)}</td>
         ${td(e.r3Inizio)}
-        <td>${seg}</td>
-        <td class="txt">${motivo}</td>
+        <td class="l">${seg}</td>
+        <td class="conf">${motivo}</td>
         ${td(e.r1)}${td(e.r3)}${td(e.r6)}
-        <td class="${cls(e.caloMax)}">${e.caloMax == null ? "—" : pct(e.caloMax, 1)}</td>
+        <td>${e.caloMax == null ? "—" : pct(e.caloMax, 1)}</td>
       </tr>`;
     }).join("");
-    $("#episodi").innerHTML = head + `<tbody>${rows || `<tr><td colspan="10" class="muted" style="text-align:left;font-family:var(--font-ui)">Nessun episodio</td></tr>`}</tbody>`;
+    $("#episodi").innerHTML = head + `<tbody>${rows || `<tr><td colspan="10" class="muted" style="text-align:left">Nessun episodio</td></tr>`}</tbody>`;
   }
 
   function disegnaKpi() {
@@ -220,17 +223,23 @@
     const dist = b200 == null ? null : b200 - lv;
     const ultimo = d.close[N - 1];
     const vsMa = ultimo != null && d.ma200[N - 1] ? (ultimo / d.ma200[N - 1] - 1) * 100 : null;
-    const meter = (v, k) => `<div class="meter"><i style="width:${Math.max(0, Math.min(100, v || 0))}%;background:${k}"></i><s style="left:${Math.min(100, lv)}%"></s></div>`;
-    const tile = (k, l, v, sub, extra = "") => `<div class="kpi" style="--k:${k}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${sub}</div>${extra}</div>`;
-    const distCol = dist == null ? "var(--line-2)" : dist <= 0 ? "var(--st-blu)" : dist <= 10 ? "var(--st-attenzione)" : "var(--pos)";
+    const anno = a => a.slice(Math.max(0, N - 252));
+    const c = R.colori();
+    const tile = (k, l, v, sub, extra = "") => `<div class="kpi" style="--k:${k}"><div class="l"><i></i>${l}</div><div class="v">${v}</div><div class="s">${sub}</div>${extra}</div>`;
+    const distCol = dist == null ? "var(--faint)" : dist <= 0 ? "var(--st-blu)" : dist <= 10 ? "var(--st-attenzione)" : "var(--faint)";
     $("#kpi").innerHTML =
-      tile("var(--price)", `Ultimo ${d.etf}`, num(ultimo, 2), `<span class="${cls(vsMa)}">${vsMa == null ? "—" : pct(vsMa, 1)}</span> vs media 200`) +
-      tile("var(--b200)", "Sopra M200", sopra == null ? "—" : `${sopra}<small>/${n}</small>`, `${num(b200, 1)}% del settore`, meter(b200, "var(--b200)")) +
-      tile("var(--b50)", "Sopra M50", `${num(b50, 1)}<small>%</small>`, "breve periodo", meter(b50, "var(--b50)")) +
-      tile(distCol, "Dal livello blu", dist == null ? "—" : `<span style="color:${distCol}">${R.segnato(dist, 1)}</span><small> pt</small>`,
-        dist != null && dist <= 0 ? "sotto il livello blu" : `livello blu ${num(lv, 0)}%`) +
-      tile("var(--dd)", "Drawdown 52s", `<span class="${rank != null && rank > 80 ? "neg" : ""}">${pct(dd, 1)}</span>`, "dal massimo a 52 settimane") +
-      tile("var(--accent-2)", "Profondità DD", rank == null ? "—" : `${num(rank, 0)}<small>° perc.</small>`, "rispetto alle sedute passate");
+      tile("var(--price)", `Ultimo ${d.etf}`, num(ultimo, 2), `<span class="${cls(vsMa)}">${vsMa == null ? "—" : pct(vsMa, 1)}</span> sulla media 200`,
+        R.sparkline(anno(d.close), { colore: c.price })) +
+      tile("var(--b200)", "Titoli sopra la media 200", sopra == null ? "—" : `${sopra}<small> su ${n}</small>`, `${num(b200, 1)}% · ultimi 12 mesi`,
+        R.sparkline(anno(d.b200), { colore: c.b200, livello: lv, min: 0, area: true })) +
+      tile("var(--b50)", "Titoli sopra la media 50", `${num(b50, 1)}<small>%</small>`, "ultimi 12 mesi",
+        R.sparkline(anno(d.b50), { colore: c.b50, min: 0, max: 100 })) +
+      tile(distCol, "Distanza dal livello blu", dist == null ? "—" : `${R.segnato(dist, 1)}<small> punti</small>`,
+        dist != null && dist <= 0 ? "al livello blu o sotto" : `livello blu al ${num(lv, 0)}%`,
+        `<div class="meter"><i style="width:${Math.max(0, Math.min(100, b200 || 0))}%;background:var(--b200)"></i><s style="left:${Math.min(100, lv)}%"></s></div>`) +
+      tile("var(--dd)", "Drawdown a 52 settimane", `<span class="${rank != null && rank > 80 ? "neg" : ""}">${pct(dd, 1)}</span>`,
+        rank == null ? "" : `${num(rank, 0)}° percentile della storia`,
+        R.sparkline(anno(d.dd), { colore: c.dd, max: 0, area: true }));
   }
 
   function disegnaLivello() {
@@ -267,38 +276,74 @@
     const sopra = titoli.filter(t => t.v200 != null && t.v200 > 0).length;
     const { col, dir } = st.ordine;
     const f = st.filtro.trim().toLowerCase();
-    const list = titoli
-      .filter(t => !f || t.t.toLowerCase().includes(f) || (t.nome || "").toLowerCase().includes(f))
-      .slice()
-      .sort((a, b) => {
-        if (col === "t") return dir * a.t.localeCompare(b.t);
-        const x = a[col], y = b[col];
-        if (x == null) return 1; if (y == null) return -1;
-        return dir * (x - y);
-      });
-    const th = (k, lab) => `<th class="sortable" data-col="${k}" aria-sort="${col === k ? (dir > 0 ? "ascending" : "descending") : "none"}">${lab}</th>`;
-    const bar = v => {
-      if (v == null) return "";
-      const w = Math.min(50, Math.abs(v) * 1.5);
-      return `<span class="minibar"><i style="left:${v >= 0 ? 50 : 50 - w}%;width:${w}%;background:${v >= 0 ? "var(--pos)" : "var(--neg)"}"></i></span>`;
+    const trova = t => !f || t.t.toLowerCase().includes(f) || (t.nome || "").toLowerCase().includes(f);
+    const ordina = (a, b) => {
+      if (col === "t") return dir * a.t.localeCompare(b.t);
+      const x = a[col], y = b[col];
+      if (x == null) return 1; if (y == null) return -1;
+      return dir * (x - y);
     };
+    const list = titoli.filter(trova).sort(ordina);
+    const th = (k, lab, left) => `<th class="sortable${left ? " l" : ""}" data-col="${k}" aria-sort="${col === k ? (dir > 0 ? "ascending" : "descending") : "none"}">${lab}</th>`;
+    const tv = t => `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(t.replace(/-/g, "."))}`;
+    // mappa a tessere: tutti i titoli, dal più forte al più debole rispetto alla media 200
+    const tessere = titoli.slice().sort((a, b) => (b.v200 ?? -999) - (a.v200 ?? -999)).map(t => {
+      const c = R.divergente(t.v200, 20);
+      return `<button type="button" class="tile${t.t === st.titolo ? " on" : ""}${f && !trova(t) ? " off" : ""}" data-t="${esc(t.t)}" style="--c:${c.bg};--tc:${c.testo}"
+        title="${esc(t.nome)}: ${pct(t.v200, 1)} dalla media 200, ${pct(t.v50, 1)} dalla media 50, ${pct(t.dd52, 1)} dal massimo a 52 settimane"><b>${esc(t.t)}</b><span>${t.v200 == null ? "—" : pct(t.v200, 1)}</span></button>`;
+    }).join("");
+    const sel = st.titolo && titoli.find(t => t.t === st.titolo);
+    const classifica = titoli.filter(t => t.v200 != null).sort((a, b) => b.v200 - a.v200);
+    const posto = sel ? classifica.findIndex(t => t.t === sel.t) + 1 : 0;
+    const scheda = sel ? `<div class="stock-detail">
+        <div><b>${esc(sel.t)}</b> <span class="sd-name">${esc(sel.nome)}</span></div>
+        <div class="controls"><a class="btn-link" href="${tv(sel.t)}" target="_blank" rel="noopener">Grafico su TradingView ↗</a><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi la scheda">×</button></div>
+        <div class="sd-vals"><span>Ultimo <b>${num(sel.ultimo, 2)}</b></span><span>vs media 200 <b class="${cls(sel.v200)}">${pct(sel.v200, 1)}</b></span>
+          <span>vs media 50 <b class="${cls(sel.v50)}">${pct(sel.v50, 1)}</b></span><span>dal massimo a 52 settimane <b>${pct(sel.dd52, 1)}</b></span>
+          ${posto ? `<span>${posto}° su ${classifica.length} nel settore</span>` : ""}</div>
+      </div>` : st.mancante ? `<div class="stock-detail avviso">
+        <div><b>${esc(st.mancante.t)}</b> <span class="sd-name">${esc(st.mancante.nome || "")}</span></div>
+        <div class="controls"><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi l'avviso">×</button></div>
+        <div class="sd-vals">È nell'S&amp;P 500 ma Yahoo Finance non ha ancora abbastanza prezzi (servono almeno 50 sedute): comparirà qui con i prossimi aggiornamenti.</div>
+      </div>` : "";
+    const riga = t => `<tr data-t="${esc(t.t)}" class="${t.t === st.titolo ? "hl" : ""}">
+        <td class="l"><span class="stk"><a href="${tv(t.t)}" target="_blank" rel="noopener" title="${esc(t.nome)} su TradingView">${esc(t.t)}</a><span class="nm">${esc(t.nome)}</span></span></td>
+        <td class="${cls(t.v200)}">${pct(t.v200, 1)}</td>
+        <td class="${cls(t.v50)}">${pct(t.v50, 1)}</td>
+        <td>${pct(t.dd52, 1)}</td>
+      </tr>`;
+    const tabella = righe => `<div class="stock-col"><table class="tbl stock-tbl">
+        <thead><tr>${th("t", "Titolo", true)}${th("v200", "vs media 200")}${th("v50", "vs media 50")}${th("dd52", "Dal massimo")}</tr></thead>
+        <tbody>${righe.map(riga).join("")}</tbody></table></div>`;
+    // tabella completa, divisa in due colonne quando è lunga
+    const meta = Math.ceil(list.length / 2);
+    const parti = list.length > 12 ? [list.slice(0, meta), list.slice(meta)] : [list];
     const hadFocus = document.activeElement && document.activeElement.id === "filtro-titoli";
     $("#titoli-card").innerHTML = `
-      <h2>Titoli del settore</h2>
-      <p class="sub">${sopra} su ${titoli.length} sopra la media 200 · al ${dataIt(d.date[N - 1])} · in cima chi è più sopra, in fondo chi è più sotto</p>
-      <input class="filter" id="filtro-titoli" type="search" placeholder="Cerca titolo…" value="${esc(st.filtro)}" aria-label="Cerca titolo">
-      <div class="stock-list">
-        <table class="tbl">
-          <thead><tr>${th("t", "Titolo")}${th("v200", "vs M200")}${th("v50", "vs M50")}${th("dd52", "DD 52s")}</tr></thead>
-          <tbody>${list.map(t => `<tr>
-            <td><a href="https://www.tradingview.com/chart/?symbol=${encodeURIComponent(t.t.replace(/-/g, "."))}" target="_blank" rel="noopener" title="${esc(t.nome)} su TradingView">${esc(t.t)}</a><small>${esc(t.nome)}</small></td>
-            <td class="${cls(t.v200)}">${pct(t.v200, 1)}${bar(t.v200)}</td>
-            <td class="${cls(t.v50)}">${pct(t.v50, 1)}</td>
-            <td class="${cls(t.dd52)}">${pct(t.dd52, 1)}</td>
-          </tr>`).join("") || `<tr><td colspan="4" class="muted">Nessun titolo</td></tr>`}</tbody>
-        </table>
-      </div>`;
+      <div class="card-head titoli-head">
+        <div>
+          <div class="card-title"><h2>Titoli del settore</h2></div>
+          <p class="sub">${titoli.length} azioni dell'S&amp;P 500, <b>${sopra}</b> sopra la media 200. Clic su una tessera per la scheda del titolo.</p>
+        </div>
+        <input class="filter" id="filtro-titoli" type="search" placeholder="Filtra per ticker o nome…" value="${esc(st.filtro)}" aria-label="Filtra i titoli">
+      </div>
+      <div class="tiles">${tessere}</div>
+      <div class="tile-scale"><span>−20% o meno</span><i></i><span>+20% o più</span><span class="muted">· distanza dalla media 200</span></div>
+      ${scheda}
+      ${list.length ? `<div class="stock-cols">${parti.map(tabella).join("")}</div>` : `<p class="muted">Nessun titolo con questo filtro.</p>`}
+      <p class="small">Dati al ${dataIt(d.date[N - 1])}. Clic su un ticker per il grafico su TradingView, sulla riga per la scheda. Un titolo quotato da meno di 200 sedute non ha ancora la media 200 e non entra nella percentuale.</p>`;
     if (hadFocus) { const inp = $("#filtro-titoli"); inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+  }
+
+  function mostraTitolo(t, scorri) {
+    st.titolo = t || null;
+    st.mancante = null;
+    disegnaTitoli();
+    if (t && scorri) {
+      const riga = document.querySelector(`#titoli-card tr[data-t="${CSS.escape(t)}"]`);
+      const box = document.querySelector("#titoli-card .stock-detail") || riga;
+      if (box) box.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
   }
 
   function ricalcola() {
@@ -351,17 +396,24 @@
     $("#soglia-card").addEventListener("input", e => { if (e.target.id === "soglia-range") $("#soglia-val").textContent = e.target.value + "%"; });
     $("#soglia-card").addEventListener("change", e => { if (e.target.id === "soglia-range") R.impostaLivello(st.dati.etf, Number(e.target.value)); });
     $("#titoli-card").addEventListener("click", e => {
+      if (e.target.id === "chiudi-titolo") { mostraTitolo(null); return; }
+      const tile = e.target.closest(".tile[data-t]");
+      if (tile) { mostraTitolo(tile.dataset.t === st.titolo ? null : tile.dataset.t, false); return; }
       const th = e.target.closest("th[data-col]");
-      if (!th) return;
-      const col = th.dataset.col;
-      st.ordine = { col, dir: st.ordine.col === col ? -st.ordine.dir : (col === "t" ? 1 : -1) };
-      R.store.set("ordine", st.ordine);
-      disegnaTitoli();
+      if (th) {
+        const col = th.dataset.col;
+        st.ordine = { col, dir: st.ordine.col === col ? -st.ordine.dir : (col === "t" ? 1 : -1) };
+        R.store.set("ordine", st.ordine);
+        disegnaTitoli();
+        return;
+      }
+      const tr = e.target.closest("tr[data-t]");
+      if (tr && !e.target.closest("a")) mostraTitolo(tr.dataset.t === st.titolo ? null : tr.dataset.t, false);
     });
     $("#titoli-card").addEventListener("input", e => { if (e.target.id === "filtro-titoli") { st.filtro = e.target.value; disegnaTitoli(); } });
 
     R.on("livelli", etf => { if (st.visibile && st.dati && etf === st.dati.etf) ricalcola(); });
-    R.on("tema", () => { if (st.visibile && st.dati) disegnaGrafici(); });
+    R.on("tema", () => { if (st.visibile && st.dati) { disegnaGrafici(); disegnaKpi(); disegnaTitoli(); } });
     const taglia = () => window.matchMedia("(max-width: 720px)").matches ? "s" :
       window.matchMedia("(min-height: 900px) and (min-width: 1280px)").matches ? "l" : "m";
     let ultima = taglia();
@@ -373,7 +425,9 @@
 
   async function mostra(param) {
     st.visibile = true;
-    let etf = (param || st.etf || "").toUpperCase();
+    const [p0, p1] = String(param || "").split("/");
+    let etf = (p0 || st.etf || "").toUpperCase();
+    const titolo = p1 ? p1.toUpperCase() : null;
     if (!R.meta.settori.some(s => s.etf === etf)) etf = R.meta.settori[0].etf;
     st.etf = etf;
     R.store.set("settore", etf);
@@ -386,9 +440,18 @@
     if (st.etf !== etf || !st.visibile) return;
     const nuovo = st.dati !== d;
     st.dati = d;
-    if (nuovo) st.filtro = "";
+    if (nuovo) { st.filtro = ""; st.titolo = null; }
+    st.mancante = null;
     ricalcola();
+    if (titolo && (d.titoli || []).some(t => t.t === titolo)) { st.filtro = ""; mostraTitolo(titolo, true); return; }
+    if (titolo) {
+      // nell'indice ma senza abbastanza prezzi: lo si dice invece di non mostrare niente
+      const x = R._mappaTitoli && R._mappaTitoli.get(titolo);
+      st.titolo = null;
+      st.mancante = { t: titolo, nome: x ? x.nome : "" };
+    }
     disegnaTitoli();
+    if (st.mancante) { const box = document.querySelector("#titoli-card .stock-detail"); if (box) box.scrollIntoView({ block: "center", behavior: "smooth" }); }
   }
 
   function nascondi() { st.visibile = false; }

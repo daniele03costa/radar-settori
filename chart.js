@@ -189,10 +189,10 @@
     }
 
     _pill(ctx, x, y, text, bg, maxW) {
-      ctx.font = `600 11.5px ${css("--font-mono")}`;
+      ctx.font = `600 11px ${css("--font")}`;
       const tw = Math.min(ctx.measureText(text).width + 12, maxW);
       ctx.fillStyle = bg;
-      roundRect(ctx, x, y - 10, tw, 20, 5); ctx.fill();
+      roundRect(ctx, x, y - 9, tw, 18, 5); ctx.fill();
       ctx.fillStyle = textOn(bg);
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       ctx.fillText(text, x + 6, y + 0.5);
@@ -210,7 +210,7 @@
       const { i0, i1 } = this.state;
       const plotR = g.w - g.right, plotB = g.h - g.bottom;
       const grid = css("--grid"), muted = css("--muted");
-      const mono = css("--font-mono");
+      const mono = css("--font");
 
       // zone di washout
       const zone = this.state.zone || [];
@@ -223,9 +223,9 @@
         ctx.fillStyle = css("--zona-bordo");
         ctx.fillRect(xa, g.top - 8, 1.5, plotB - g.top + 8);
         if (pane.id === this.panes[0].id && w > 66) {
-          ctx.font = `700 10px ${css("--font-ui")}`;
+          ctx.font = `600 10.5px ${css("--font")}`;
           ctx.fillStyle = css("--soglia"); ctx.textAlign = "left"; ctx.textBaseline = "top";
-          ctx.fillText(this.opts.etichettaZona || "ZONA", xa + 6, g.top - 4);
+          ctx.fillText(this.opts.etichettaZona || "zona", xa + 6, g.top - 4);
         }
       }
 
@@ -233,7 +233,7 @@
       const ticks = data.log ? logTicks(range[0], range[1]) : niceTicks(range[0], range[1], pane.altezza > 200 ? 5 : pane.altezza > 130 ? 4 : 3);
       const pillsY = (data.serie || []).filter(s => s.pill).map(s => lastVal(s.valori, i0, i1)).filter(v => v != null).map(v => y(v))
         .concat((data.linee || []).filter(h => h.etichetta).map(h => y(h.y)));
-      ctx.font = `12px ${mono}`;
+      ctx.font = `11px ${mono}`;
       ctx.textAlign = "left"; ctx.textBaseline = "middle";
       for (const t of ticks) {
         const yy = Math.round(y(t)) + 0.5;
@@ -246,7 +246,7 @@
       }
 
       // griglia verticale + etichette asse x
-      ctx.font = `12px ${css("--font-ui")}`;
+      ctx.font = `11px ${css("--font")}`;
       for (const t of this._xTicks(g)) {
         const xx = Math.round(this._x(t.i, g)) + 0.5;
         ctx.strokeStyle = grid; ctx.lineWidth = 1;
@@ -339,7 +339,7 @@
         if (mi != null) {
           const xx = this._x(mi, g), yy = y(s.valori[mi]);
           const txt = data.notaMinimo(s.valori[mi]);
-          ctx.font = `600 12px ${css("--font-ui")}`;
+          ctx.font = `600 12px ${css("--font")}`;
           const tw = ctx.measureText(txt).width + 14;
           let tx = xx + 10; if (tx + tw > plotR - 4) tx = xx - 10 - tw; tx = Math.max(g.left + 2, tx);
           const ty = Math.min(yy, plotB - 12);
@@ -385,7 +385,7 @@
         if (i == null || !pane._data) continue;
         const xx = Math.round(this._x(i, g)) + 0.5;
         const plotB = g.h - g.bottom;
-        ctx.strokeStyle = css("--cross"); ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = css("--cross"); ctx.lineWidth = 1; ctx.setLineDash([]);
         ctx.beginPath(); ctx.moveTo(xx, g.top - 8); ctx.lineTo(xx, plotB); ctx.stroke();
         ctx.setLineDash([]);
         for (const s of pane._data.serie) {
@@ -398,7 +398,7 @@
         if (pane.last && this.state) {
           const d = this.state.date[i];
           const txt = `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}`;
-          ctx.font = `600 12px ${css("--font-mono")}`;
+          ctx.font = `600 12px ${css("--font")}`;
           const tw = ctx.measureText(txt).width + 14;
           const bx = Math.max(2, Math.min(g.w - g.right - tw, xx - tw / 2));
           ctx.fillStyle = css("--ink");

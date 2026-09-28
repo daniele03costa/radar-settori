@@ -4,13 +4,13 @@ Sito statico (GitHub Pages) per seguire i settori dell'S&P 500 e un gruppo di ET
 
 | Vista | A cosa serve |
 |---|---|
-| **1 · Monitor** | Tutti gli 11 settori in una tabella, ordinati da chi è più vicino a un segnale. Per ognuno: stato, % di titoli sopra la media 200 (con il valore di un mese fa), distanza dal livello blu, drawdown (in rosso se è tra il 20% più profondo della storia) e quadrante di rotazione contro SPY. A fianco, cosa manca a ogni settore per cambiare stato. |
+| **1 · Monitor** | Tutti gli 11 settori in una tabella, ordinati da chi è più vicino a un segnale. Per ognuno: stato, andamento degli ultimi 6 mesi della quota di titoli sopra la media 200, valore di oggi e variazione in un mese, distanza dal livello blu, drawdown (in rosso se è tra il 20% più profondo della storia) e quadrante di rotazione contro SPY. In più, cosa manca a ogni settore per cambiare stato. |
 | **2 · Rotazione** | Grafico della forza relativa (RS-Ratio) e della sua variazione (RS-Momentum) contro un termine di confronto, con scia, animazione nel tempo, tabella (quadrante, direzione, velocità, distanza, durata, quadrante precedente), tabella dei prezzi e andamento base 100 su 3M/6M/1A/2A. Universi: settori S&P 500, MAG7, e ETF in euro per asset class, fattori, regioni e paesi. Per le asset class c'è il portafoglio di riferimento con pesi modificabili. |
 | **3 · Bottom Map** | Ogni settore è un punto: profondità del drawdown rispetto alla sua storia contro distanza dal livello blu, con la scia delle ultime settimane. |
-| **4 · Settore** | Prezzo con media 200, drawdown e ampiezza (medie 200, 50, 20) con zone blu e trigger; livello blu regolabile; storico degli episodi; titoli del settore. |
-| **5 · Alert** | Tutti i cambi di stato dal 2005, filtrabili per tipo e settore, con statistiche riassuntive e le regole. |
+| **4 · Settore** | Prezzo con media 200, drawdown e ampiezza (medie 200, 50, 20) con zone blu e trigger; livello blu regolabile; storico degli episodi; tutti i titoli del settore, come mappa a tessere e tabella completa, con la scheda del singolo titolo. |
+| **5 · Alert** | La striscia degli stati di ogni settore dal 2005 e tutti i cambi di stato, filtrabili per tipo e settore, con statistiche riassuntive e le regole. |
 
-In più: barra dei comandi (tasto `/`), scorciatoie da tastiera (`1`–`5`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone.
+In più: barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`5`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone.
 
 I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions.
 
@@ -51,8 +51,8 @@ Dopo un paio di minuti il sito è su `https://TUO-NOME-UTENTE.github.io/radar-se
 
 ## Uso rapido
 
-- **Barra dei comandi** (`/`): il ticker di un ETF settoriale apre il settore; qualsiasi altro titolo degli universi (anche senza il suffisso di borsa), il suo nome breve o una parola del nome lo evidenzia nella rotazione; un termine di confronto (`SPY`, `QQQ`, `RSP`, `ACWI`, `PTF`) apre la rotazione contro di lui; `MON` `ROT`/`RRG` `BTM` `SEC` `ALRT` `HELP` aprono viste e guida; `CHIARO` `SCURO` `TEMA` cambiano il tema.
-- **Indirizzi**: `#XLU` apre un settore; `#mon` `#rot` `#btm` `#sec` `#alr` le viste. Il pulsante Indietro funziona.
+- **Barra dei comandi** (`/`): il ticker di un ETF settoriale apre il settore; il ticker o il nome di qualsiasi azione dell'S&P 500 (`AAPL`, `coca cola`) apre il suo settore con il titolo in evidenza; gli ETF della rotazione (anche senza il suffisso di borsa), il loro nome breve o una parola del nome li evidenziano nella rotazione; un termine di confronto (`SPY`, `QQQ`, `RSP`, `ACWI`, `PTF`) apre la rotazione contro di lui; `MON` `ROT`/`RRG` `BTM` `SEC` `ALRT` `HELP` aprono viste e guida; `CHIARO` `SCURO` `TEMA` cambiano il tema.
+- **Indirizzi**: `#XLU` apre un settore, `#XLK/AAPL` o `#AAPL` un'azione nel suo settore; `#mon` `#rot` `#btm` `#sec` `#alr` le viste. Il pulsante Indietro funziona.
 - **Tasti**: `1`–`5` viste · `←` `→` periodo (Settore) o data (Rotazione) · `Spazio` animazione · `Esc` toglie l'evidenza · `?` guida. I tasti rapidi si disattivano dalla guida.
 - Livello blu, pesi del portafoglio, universo e tema scelti restano solo nel browser di chi li cambia.
 
@@ -98,7 +98,7 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 
 | File | Contenuto |
 |---|---|
-| `build_data.py` | ampiezza dei settori e dell'intero indice, ETF settoriali, fotografia dei titoli → `data/meta.json`, `data/indice.json`, `data/settori/*.json` |
+| `build_data.py` | ampiezza dei settori e dell'intero indice, ETF settoriali, fotografia dei titoli, elenco di tutte le azioni per la ricerca → `data/meta.json`, `data/indice.json`, `data/settori/*.json`, `data/titoli.json` |
 | `build_prices.py` | prezzi per la rotazione → `data/prezzi_usa.json`, `data/prezzi_globali.json` (calendario a maggioranza, bitcoin, cambi, correzione di prezzi anomali, controlli di qualità) |
 | `requirements.txt` | librerie Python usate dall'aggiornamento |
 | `.github/workflows/aggiorna-dati.yml` | aggiornamento automatico |

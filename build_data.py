@@ -375,6 +375,7 @@ def build(cfg: dict,
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "settori").mkdir(parents=True, exist_ok=True)
     summary = []
+    elenco_titoli: List[dict] = []
     last_date = calendar[-1]
 
     for sec in sectors:
@@ -402,6 +403,7 @@ def build(cfg: dict,
 
         current_members = [t for t in tick if t in cur_set]
         snap = stock_snapshot(closes[current_members], current_members, names)
+        elenco_titoli.extend({"t": r["t"], "nome": r["nome"], "etf": etf} for r in snap)
 
         payload = {
             "etf": etf,
@@ -436,6 +438,20 @@ def build(cfg: dict,
         })
         log(f"{etf}: {len(tick)} titoli nella storia, {len(current_members)} attuali, "
             f"sopra MA200 oggi {last_b200}% · soglia {level}%")
+
+    # elenco di tutte le azioni attuali dell'indice con il loro settore (per la ricerca nel sito);
+    # chi non ha ancora abbastanza prezzi resta nell'elenco con un avviso
+    gics_etf = {s["gics"]: s["etf"] for s in sectors}
+    presenti = {r["t"] for r in elenco_titoli}
+    for t, g in zip(current["ticker"], current["gics"]):
+        if t not in presenti and gics_etf.get(g):
+            elenco_titoli.append({"t": t, "nome": names.get(t, t), "etf": gics_etf[g], "senza_prezzi": True})
+    elenco_titoli.sort(key=lambda r: r["t"])
+    with open(out_dir / "titoli.json", "w", encoding="utf-8") as f:
+        json.dump({"aggiornato": last_date.strftime("%Y-%m-%d"), "titoli": elenco_titoli},
+                  f, ensure_ascii=False, separators=(",", ":"))
+    senza = sum(1 for r in elenco_titoli if r.get("senza_prezzi"))
+    log(f"Elenco titoli: {len(elenco_titoli)} azioni" + (f", {senza} ancora senza prezzi sufficienti" if senza else ""))
 
     # ampiezza dell'intero indice (tutti i membri con prezzi, qualunque settore)
     all_tick = [t for t in stk.columns if t in have]

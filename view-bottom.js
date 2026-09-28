@@ -7,10 +7,11 @@
   "use strict";
 
   const R = window.Radar, S = window.Signals, Rot = window.Rotazione;
-  const { $, num, pct, esc, svg } = R;
+  const { $, num, pct, esc, svg, dataIt } = R;
   let visibile = false;
   let settimane = R.store.get("btm.coda", 8);
   let evidenza = null;
+  let voci = [];
 
   function punti(d, a, lv, k) {
     const b = Rot.barre(d.date, "settimanali", x => window.Calendario.successiva(x, "nyse"));
@@ -26,7 +27,7 @@
     const tutti = await R.dati.tuttiSettori();
     if (!visibile) return;
     const P = R.parametri();
-    const voci = R.meta.settori.map(s => {
+    voci = R.meta.settori.map(s => {
       const d = tutti[s.etf], a = R.analisiSync(s.etf, d), lv = R.livello(s.etf);
       const N = d.date.length;
       return { etf: s.etf, nome: s.nome, d, a, lv, stato: a.statoOggi || "normale", pts: punti(d, a, lv, settimane), n: d.n[N - 1] };
@@ -34,8 +35,10 @@
 
     // --- grafico ---
     const box = $("#btm-grafico");
-    const W = Math.max(520, box.clientWidth || 900), H = Math.round(Math.min(640, Math.max(420, W * 0.62)));
-    const m = { l: 58, r: 18, t: 18, b: 52 };
+    const W = Math.max(300, box.clientWidth || 900);
+    const stretto = W < 560;
+    const H = stretto ? Math.round(W * 1.05) : Math.round(Math.min(620, Math.max(420, W * 0.6)));
+    const m = stretto ? { l: 40, r: 10, t: 12, b: 44 } : { l: 52, r: 16, t: 14, b: 50 };
     const pw = W - m.l - m.r, ph = H - m.t - m.b;
     let ymin = -12, ymax = 45;
     for (const v of voci) for (const p of v.pts) { ymin = Math.min(ymin, p.y - 4); ymax = Math.max(ymax, p.y + 6); }
@@ -47,17 +50,15 @@
     const g = svg("g");
     root.append(g);
 
-    // zone
+    // zone: fascia di attenzione (in alto a sinistra e in basso) e zona blu
     g.append(svg("rect", { x: X(100), y: m.t, width: X(P.ddAttenzione) - X(100), height: ph, class: "bm-att" }));
     g.append(svg("rect", { x: m.l, y: Y(P.fasciaAttenzione), width: pw, height: Y(0) - Y(P.fasciaAttenzione), class: "bm-att" }));
-    g.append(svg("rect", { x: X(100), y: Y(0), width: X(P.ddIngresso) - X(100), height: Y(ymin) - Y(0), class: "bm-blu" }));
-    g.append(svg("text", { x: X(100) + 10, y: Y(ymin) - 12, class: "bm-zlabel" }, "ZONA BLU"));
-    g.append(svg("text", { x: X(100) + 10, y: m.t + 16, class: "bm-alabel" }, "ATTENZIONE"));
+    g.append(svg("rect", { x: X(100), y: Y(0), width: X(P.ddIngresso) - X(100), height: Y(ymin) - Y(0), class: "bm-blu", rx: 2 }));
 
     // griglia
     for (let p = 0; p <= 100; p += 10) {
       g.append(svg("line", { x1: X(p), x2: X(p), y1: m.t, y2: m.t + ph, class: "bm-grid" }));
-      g.append(svg("text", { x: X(p), y: m.t + ph + 18, class: "bm-tick", "text-anchor": "middle" }, p + "°"));
+      if (!stretto || p % 20 === 0) g.append(svg("text", { x: X(p), y: m.t + ph + 18, class: "bm-tick", "text-anchor": "middle" }, p + "°"));
     }
     const passo = (ymax - ymin) > 80 ? 20 : 10;
     for (let v = Math.ceil(ymin / passo) * passo; v <= ymax; v += passo) {
@@ -66,42 +67,64 @@
     }
     g.append(svg("line", { x1: m.l, x2: m.l + pw, y1: Y(0), y2: Y(0), class: "bm-zero" }));
     g.append(svg("line", { x1: X(P.ddIngresso), x2: X(P.ddIngresso), y1: m.t, y2: m.t + ph, class: "bm-zero" }));
-    g.append(svg("text", { x: m.l + pw / 2, y: H - 8, class: "bm-axis", "text-anchor": "middle" }, "← più profondo      Profondità del drawdown (percentile della storia del settore)      meno profondo →"));
-    g.append(svg("text", { x: 14, y: m.t + ph / 2, class: "bm-axis", "text-anchor": "middle", transform: `rotate(-90 14 ${m.t + ph / 2})` }, "Punti sopra il livello blu"));
+    g.append(svg("rect", { x: m.l, y: m.t, width: pw, height: ph, class: "rg-frame" }));
+    g.append(svg("text", { x: X(100) + 12, y: Y(ymin) - 12, class: "bm-zlabel" }, "Zona blu"));
+    g.append(svg("text", { x: X(100) + 12, y: m.t + 20, class: "bm-alabel" }, "Attenzione"));
+    g.append(svg("text", { x: m.l, y: H - 10, class: "bm-axis", "text-anchor": "start" }, "← più profondo"));
+    if (!stretto) g.append(svg("text", { x: m.l + pw / 2, y: H - 10, class: "bm-axis", "text-anchor": "middle" }, "Profondità del drawdown · percentile della storia del settore"));
+    g.append(svg("text", { x: m.l + pw, y: H - 10, class: "bm-axis", "text-anchor": "end" }, "meno profondo →"));
+    g.append(svg("text", { x: 13, y: m.t + ph / 2, class: "bm-axis", "text-anchor": "middle", transform: `rotate(-90 13 ${m.t + ph / 2})` }, "Punti sopra il livello blu"));
 
-    // settori
+    // settori: scia grigia che sfuma, testa colorata per stato
     const occupati = [];
+    for (const v of voci) {
+      const h = v.pts[v.pts.length - 1];
+      if (h) occupati.push([X(h.x) - 8, Y(h.y) - 8, X(h.x) + 8, Y(h.y) + 8]);
+    }
     const livelloEtichette = svg("g");
     for (const v of voci) {
       if (!v.pts.length) continue;
       const col = `var(--st-${v.stato})`;
-      const grp = svg("g", { class: "bm-sec" + (evidenza && evidenza !== v.etf ? " dim" : ""), "data-etf": v.etf, tabindex: "0" });
-      if (v.pts.length > 1) {
-        grp.append(svg("polyline", { points: v.pts.map(p => `${X(p.x)},${Y(p.y)}`).join(" "), class: "bm-tail", style: `stroke:${col}` }));
-        v.pts.slice(0, -1).forEach((p, k) => grp.append(svg("circle", {
-          cx: X(p.x), cy: Y(p.y), r: 2.2 + (2 * k) / v.pts.length, class: "bm-dot", style: `fill:${col};opacity:${0.25 + (0.5 * k) / v.pts.length}`,
-        })));
+      const dim = evidenza && evidenza !== v.etf;
+      const grp = svg("g", { class: "bm-sec" + (dim ? " dim" : ""), "data-etf": v.etf, tabindex: "0" });
+      const n = v.pts.length - 1;
+      for (let j = 1; j <= n; j++) {
+        const a = v.pts[j - 1], b = v.pts[j];
+        grp.append(svg("line", { x1: X(a.x), y1: Y(a.y), x2: X(b.x), y2: Y(b.y), class: "bm-tail", "stroke-opacity": (0.3 + 0.7 * j / n).toFixed(2) }));
+      }
+      for (let j = 0; j < n; j++) {
+        grp.append(svg("circle", { cx: X(v.pts[j].x), cy: Y(v.pts[j].y), r: 2.3, class: "bm-dot", "fill-opacity": (0.3 + 0.7 * j / n).toFixed(2) }));
       }
       const h = v.pts[v.pts.length - 1];
       const hx = X(h.x), hy = Y(h.y);
-      grp.append(svg("circle", { cx: hx, cy: hy, r: 8, class: "bm-head", style: `fill:${col}` }));
+      grp.append(svg("circle", { cx: hx, cy: hy, r: 14, class: "rt-hit" }));
+      grp.append(svg("circle", { cx: hx, cy: hy, r: 7, class: "bm-head", style: `fill:${col}` }));
       // etichetta senza sovrapposizioni (prova destra, sinistra, sopra, sotto)
-      const w = v.etf.length * 8 + 6, hh = 14;
-      const prove = [[12, 5, "start"], [-12, 5, "end"], [0, -13, "middle"], [0, 22, "middle"], [14, -10, "start"], [-14, -10, "end"]];
-      let scelta = prove[0];
+      const w = v.etf.length * 8 + 4, hh = 14;
+      const prove = [[12, 5, "start"], [-12, 5, "end"], [0, -13, "middle"], [0, 23, "middle"], [12, -10, "start"], [-12, -10, "end"], [12, 18, "start"], [-12, 18, "end"]];
+      let scelta = null;
       for (const pr of prove) {
         const x0 = pr[2] === "start" ? hx + pr[0] : pr[2] === "end" ? hx + pr[0] - w : hx - w / 2;
         const y0 = hy + pr[1] - 11;
         const rect = [x0, y0, x0 + w, y0 + hh];
+        if (x0 < m.l || x0 + w > m.l + pw || y0 < m.t) continue;
         if (!occupati.some(o => !(rect[2] < o[0] || rect[0] > o[2] || rect[3] < o[1] || rect[1] > o[3]))) { scelta = pr; occupati.push(rect); break; }
       }
-      livelloEtichette.append(svg("text", { x: hx + scelta[0], y: hy + scelta[1], "text-anchor": scelta[2], class: "bm-label" + (evidenza && evidenza !== v.etf ? " dim" : ""), "data-etf": v.etf }, v.etf));
-      grp.append(svg("title", null, `${v.etf} ${v.nome}: ${S.STATI[v.stato]}, ${num(h.b, 1)}% sopra M200 (${R.segnato(h.y, 1)} dal livello), drawdown ${pct(h.dd, 1)} al ${num(h.x, 0)}° percentile`));
+      if (!scelta) scelta = hx > m.l + pw - 60 ? prove[1] : prove[0];
+      livelloEtichette.append(svg("text", { x: hx + scelta[0], y: hy + scelta[1], "text-anchor": scelta[2], class: "bm-label" + (dim ? " dim" : ""), "data-etf": v.etf }, v.etf));
       g.append(grp);
     }
     g.append(livelloEtichette);
     box.innerHTML = "";
     box.append(root);
+    const tip = document.createElement("div");
+    tip.className = "chart-tip point-tip";
+    tip.hidden = true;
+    box.append(tip);
+
+    $("#btm-legenda").innerHTML = ["normale", "attenzione", "blu", "trigger", "fallito", "cooldown"]
+      .map(s => `<span><i class="sw dot" style="background:var(--st-${s})"></i>${S.STATI[s]}</span>`).join("") +
+      `<span><i class="sw box bm-sw-blu"></i>Area della zona blu</span>`;
 
     // --- tabella ---
     const righe = voci.map(v => {
@@ -110,13 +133,39 @@
       const pti = h.y == null ? null : Math.max(0, h.y);
       return { v, h, pti, titoli: pti == null ? null : (pti <= 0 ? 0 : Math.ceil(pti / unit - 1e-9)), ddOk: h.x != null && h.x > P.ddIngresso };
     }).sort((a, b) => ((a.pti ?? 999) - (b.pti ?? 999)) || ((b.h.x ?? 0) - (a.h.x ?? 0)));
-    $("#btm-tabella").innerHTML = `<thead><tr><th>Settore</th><th>Dal livello</th><th>Titoli</th><th>Drawdown</th></tr></thead><tbody>` +
-      righe.map(r => `<tr class="clic" data-etf="${r.v.etf}" tabindex="0">
-        <td><b class="mono">${r.v.etf}</b> <span class="st-pill st-${r.v.stato}">${S.STATI[r.v.stato]}</span><small class="sub-line">${esc(r.v.nome)}</small></td>
-        <td class="mono" style="color:${r.h.y != null && r.h.y <= 0 ? "var(--st-blu)" : "inherit"}">${r.h.y == null ? "—" : R.segnato(r.h.y, 1)}</td>
-        <td class="mono">${r.titoli == null ? "—" : r.titoli === 0 ? "—" : r.titoli}</td>
-        <td class="mono">${pct(r.h.dd, 1)}<small class="sub-line">${num(r.h.x, 0)}° perc. ${r.ddOk ? `<span class="ok-mark" title="oltre il ${P.ddIngresso}°">✓</span>` : ""}</small></td>
-      </tr>`).join("") + "</tbody>";
+    $("#btm-tabella").innerHTML = `<thead><tr><th>Settore · drawdown</th><th>Dal livello blu</th></tr></thead><tbody>` +
+      righe.map(r => {
+        const stato = r.v.stato !== "normale" ? `${S.STATI[r.v.stato]} · ` : "";
+        const dd = `${stato}drawdown ${pct(r.h.dd, 1)} (${num(r.h.x, 0)}°)${r.ddOk ? ` <span class="ok-mark" title="oltre il ${P.ddIngresso}° percentile">✓</span>` : ""}`;
+        return `<tr class="clic" data-etf="${r.v.etf}" tabindex="0">
+        <td><span class="tk-cell"><span class="qdot" style="--c:var(--st-${r.v.stato})"></span><span class="tk-txt"><span class="tk-line"><b>${r.v.etf}</b> <span class="muted">${esc(r.v.nome)}</span></span><small class="sub-line">${dd}</small></span></span></td>
+        <td class="strong${r.h.y != null && r.h.y <= 0 ? " blu" : ""}">${r.h.y == null ? "—" : R.segnato(r.h.y, 1)}<small class="sub-line">${r.titoli ? `${r.titoli} ${r.titoli === 1 ? "titolo" : "titoli"}` : r.h.y != null && r.h.y <= 0 ? "al livello" : ""}</small></td>
+      </tr>`;
+      }).join("") + "</tbody>";
+  }
+
+  function mostraTip(etf, box) {
+    const tip = box.querySelector(".point-tip");
+    const v = voci.find(x => x.etf === etf);
+    if (!tip) return;
+    if (!v || !v.pts.length) { tip.hidden = true; return; }
+    const h = v.pts[v.pts.length - 1];
+    const primo = v.pts[0];
+    tip.innerHTML = `<div class="d">${v.etf} · ${esc(v.nome)}</div>
+      <div class="r"><span>Stato</span><span class="st-pill st-${v.stato}">${S.STATI[v.stato]}</span></div>
+      <div class="r"><span>Sopra la media 200</span><span>${num(h.b, 1)}%</span></div>
+      <div class="r"><span>Dal livello blu (${num(v.lv, 0)}%)</span><span>${R.segnato(h.y, 1)} punti</span></div>
+      <div class="r"><span>Drawdown</span><span>${pct(h.dd, 1)}</span></div>
+      <div class="r"><span>Percentile del drawdown</span><span>${num(h.x, 0)}°</span></div>
+      ${v.pts.length > 1 ? `<div class="r"><span>Dal ${dataIt(primo.data)}</span><span>${R.segnato(h.y - primo.y, 1)} punti</span></div>` : ""}`;
+    tip.hidden = false;
+    const el = box.querySelector(`.bm-sec[data-etf="${etf}"] .bm-head`);
+    if (!el) return;
+    const rb = box.getBoundingClientRect(), re = el.getBoundingClientRect();
+    const cx = re.left + re.width / 2 - rb.left, cy = re.top + re.height / 2 - rb.top;
+    const left = cx + 18 + tip.offsetWidth > rb.width ? cx - 18 - tip.offsetWidth : cx + 18;
+    tip.style.left = Math.max(0, left) + "px";
+    tip.style.top = Math.max(0, Math.min(rb.height - tip.offsetHeight, cy - tip.offsetHeight / 2)) + "px";
   }
 
   function init() {
@@ -132,16 +181,21 @@
     $("#btm-grafico").addEventListener("click", apri);
     $("#btm-grafico").addEventListener("keydown", e => { if (e.key === "Enter") apri(e); });
     $("#btm-tabella").addEventListener("click", apri);
-    const evid = etf => {
+    $("#btm-tabella").addEventListener("keydown", e => { if (e.key === "Enter") apri(e); });
+    const evid = (etf, conTip) => {
       evidenza = etf;
       R.$$("#btm-grafico [data-etf]").forEach(el => el.classList.toggle("dim", !!etf && el.dataset.etf !== etf));
       R.$$("#btm-tabella tr[data-etf]").forEach(el => el.classList.toggle("hl", el.dataset.etf === etf));
+      const box = $("#btm-grafico");
+      if (conTip && etf) mostraTip(etf, box); else { const t = box.querySelector(".point-tip"); if (t) t.hidden = true; }
     };
-    $("#btm-grafico").addEventListener("mouseover", e => { const el = e.target.closest("[data-etf]"); evid(el ? el.dataset.etf : null); });
+    $("#btm-grafico").addEventListener("mouseover", e => { const el = e.target.closest("[data-etf]"); evid(el ? el.dataset.etf : null, true); });
     $("#btm-grafico").addEventListener("mouseleave", () => evid(null));
-    $("#btm-tabella").addEventListener("mouseover", e => { const el = e.target.closest("tr[data-etf]"); evid(el ? el.dataset.etf : null); });
+    $("#btm-grafico").addEventListener("focusin", e => { const el = e.target.closest("[data-etf]"); if (el) evid(el.dataset.etf, true); });
+    $("#btm-tabella").addEventListener("mouseover", e => { const el = e.target.closest("tr[data-etf]"); evid(el ? el.dataset.etf : null, true); });
     $("#btm-tabella").addEventListener("mouseleave", () => evid(null));
     R.on("livelli", () => { if (visibile) disegna(); });
+    R.on("tema", () => { if (visibile) disegna(); });
     window.addEventListener("resize", R.debounce(() => { if (visibile) disegna(); }, 200));
   }
 

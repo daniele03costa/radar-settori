@@ -7,6 +7,7 @@
   const R = window.Radar, S = window.Signals, Rot = window.Rotazione;
   const { $, num, pct, dataIt, esc } = R;
   let visibile = false;
+  const NOMI_Q = { leader: "Leader", indebolimento: "In indebolimento", ritardo: "In ritardo", miglioramento: "In miglioramento" };
 
   // quadrante settimanale di ogni settore contro SPY (calcolo predefinito)
   async function rotazioneSettori() {
@@ -57,9 +58,10 @@
       righe.push("Il trigger è fallito oggi: di nuovo in zona blu, e ora per ripartire servono 2 conferme");
     } else if (stato === "blu" && a.manca) {
       const m = a.manca;
+      const da = t - ep.inizio === 0 ? "Entrato in zona blu oggi" : `In zona blu da ${R.sedute(t - ep.inizio)}`;
       const conf = m.conferme.length ? m.conferme.map(x => S.MOTIVI[x]).join(", ") : "nessuna";
-      if (m.punti > 0) righe.push(`In zona blu da ${R.sedute(t - ep.inizio)}: per il trigger l'ampiezza deve salire di altri ${num(m.punti, 1)} punti (${titoli(m.punti)} ${titoli(m.punti) === 1 ? "titolo" : "titoli"}) fino al ${num(m.obiettivo, 1)}%`);
-      else righe.push(`In zona blu da ${R.sedute(t - ep.inizio)}: l'ampiezza ha già recuperato abbastanza, manca la conferma`);
+      if (m.punti > 0) righe.push(`${da}: per il trigger l'ampiezza deve salire di altri ${num(m.punti, 1)} punti (${titoli(m.punti)} ${titoli(m.punti) === 1 ? "titolo" : "titoli"}) fino al ${num(m.obiettivo, 1)}%`);
+      else righe.push(`${da}: l'ampiezza ha già recuperato abbastanza, manca la conferma`);
       righe.push(`Conferme oggi: ${conf} (ne ${m.servono === 1 ? "serve 1" : "servono 2"}); il rimbalzo a V scatterebbe sopra il ${num(m.riarmo, 0)}%`);
     } else if (stato === "cooldown" && ep && ep.segnale != null) {
       righe.push(`Pausa dopo il trigger del ${dataIt(d.date[ep.segnale])}: ancora ${R.sedute(Math.max(0, P.cooldown - (t - ep.segnale)))}`);
@@ -108,51 +110,52 @@
     $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella vista Settore.`;
 
     // riquadri
+    const c = R.colori();
     const conta = k => righe.filter(r => r.stato === k);
-    const elenco = arr => arr.length ? arr.map(r => r.etf).join(" · ") : "nessuno";
     let tileIndice = "";
     if (indice && indice.b200 && indice.b200.length) {
       const N = indice.b200.length;
       const ora = indice.b200[N - 1], prima = indice.b200[Math.max(0, N - 22)];
-      tileIndice = `<div class="kpi" style="--k:var(--b200)"><div class="l">S&amp;P 500 sopra M200</div>
+      tileIndice = `<div class="kpi" style="--k:var(--b200)"><div class="l"><i></i>S&amp;P 500, titoli sopra la media 200</div>
         <div class="v">${num(ora, 1)}<small>%</small></div>
-        <div class="s">un mese fa ${num(prima, 1)}% ${ora > prima ? "↑" : ora < prima ? "↓" : ""}</div>
-        <div class="meter"><i style="width:${Math.max(0, Math.min(100, ora || 0))}%;background:var(--b200)"></i></div></div>`;
+        <div class="s">un mese fa ${num(prima, 1)}% · ultimi 12 mesi</div>
+        ${R.sparkline(indice.b200.slice(-252), { colore: c.b200, min: 0, max: 100, area: true })}</div>`;
     }
-    const tile = (k, l, arr) => `<div class="kpi" style="--k:var(--st-${k})"><div class="l">${l}</div>
-      <div class="v" style="color:${arr.length ? `var(--st-${k})` : "inherit"}">${arr.length}</div><div class="s">${elenco(arr)}</div></div>`;
-    $("#mon-kpi").innerHTML = tileIndice +
-      tile("blu", "Zona blu", conta("blu").concat(conta("fallito"))) +
-      tile("trigger", "Trigger in verifica", conta("trigger")) +
-      tile("attenzione", "Attenzione", conta("attenzione")) +
-      tile("cooldown", "Cooldown", conta("cooldown")) +
-      tile("normale", "Normale", conta("normale"));
+    const ordineStati = ["fallito", "trigger", "blu", "attenzione", "cooldown", "normale"];
+    const presenti = ordineStati.map(k => ({ k, n: conta(k).length })).filter(x => x.n);
+    const tileStati = `<div class="kpi"><div class="l">Stato degli 11 settori</div>
+      <div class="v">${conta("blu").length + conta("fallito").length + conta("trigger").length}<small> tra zona blu e trigger</small></div>
+      <div class="stack">${presenti.map(x => `<i class="st-${x.k}" style="flex:${x.n}" title="${S.STATI[x.k]}: ${x.n}"></i>`).join("")}</div>
+      <div class="stack-legend">${presenti.map(x => `<span class="st-${x.k}">${S.STATI[x.k]} ${x.n}</span>`).join("")}</div></div>`;
+    const vicini = righe.filter(r => r.dist != null && !["blu", "fallito", "trigger"].includes(r.stato)).sort((a, b) => a.dist - b.dist);
+    const primo = vicini[0];
+    const tileVicino = primo ? `<div class="kpi" style="--k:var(--st-blu)"><div class="l"><i></i>Il più vicino alla zona blu</div>
+      <div class="v">${primo.etf}<small> ${R.segnato(primo.dist, 1)} punti</small></div>
+      <div class="s">${esc(primo.nome)} · livello ${num(primo.lv, 0)}%</div>
+      ${R.sparkline(primo.d.b200.slice(-126), { colore: c.b200, livello: primo.lv, min: 0 })}</div>` : "";
+    $("#mon-kpi").innerHTML = tileIndice + tileStati + tileVicino;
 
     // tabella
     const quad = m => {
       if (!m) return `<span class="muted">—</span>`;
-      const col = R.coloreQuadrante(m.quadrante);
-      const freccia = m.direzione == null ? "" : `<span class="dir" style="transform:rotate(${m.direzione}deg)" title="${num(m.direzione, 0)}°">↑</span>`;
-      return `<span class="quad" style="--c:${col}"><i></i>${Rot.QUADRANTI[m.quadrante]}</span>${freccia}`;
+      return `<span class="quad" style="--c:var(--q-${m.quadrante})"><i></i>${NOMI_Q[m.quadrante]}</span>${R.freccia(m.direzione)}`;
     };
     $("#mon-tabella").innerHTML = `<thead><tr>
-        <th>Settore</th><th style="text-align:left">Stato</th><th style="text-align:left">% sopra M200</th>
-        <th>Dal livello blu</th><th>Drawdown 52s</th><th style="text-align:left">Rotazione vs SPY</th>
+        <th>Settore</th><th class="l">Stato</th><th class="l">Sopra la media 200 · 6 mesi</th><th>Oggi</th>
+        <th>Dal livello blu</th><th>Drawdown</th><th class="l">Rotazione vs SPY</th>
       </tr></thead><tbody>` +
       righe.map(r => {
         const delta = r.b != null && r.mese != null ? r.b - r.mese : null;
         const rosso = r.pctDD != null && r.pctDD > 80;
+        const colDist = r.dist == null ? "inherit" : r.dist <= 0 ? "var(--st-blu)" : r.dist <= 10 ? "var(--st-attenzione)" : "inherit";
         return `<tr class="clic" data-etf="${r.etf}" tabindex="0">
-          <td><b class="mono">${r.etf}</b><small class="sub-line">${esc(r.nome)}</small></td>
-          <td style="text-align:left"><span class="st-pill big st-${r.stato}">${S.STATI[r.stato]}</span></td>
-          <td style="text-align:left">
-            <div class="bar-cell"><div class="bar-track"><i style="width:${Math.max(0, Math.min(100, r.b || 0))}%"></i><s style="left:${Math.min(100, r.lv)}%"></s>${r.mese != null ? `<u style="left:${Math.min(100, r.mese)}%" title="un mese fa"></u>` : ""}</div>
-            <span class="mono">${num(r.b, 1)}%</span></div>
-            <small class="sub-line">un mese fa ${num(r.mese, 1)}% <span class="${R.cls(delta)}">${delta == null ? "" : "(" + R.segnato(delta, 1) + ")"}</span></small>
-          </td>
-          <td class="mono" style="color:${r.dist == null ? "inherit" : r.dist <= 0 ? "var(--st-blu)" : r.dist <= 10 ? "var(--st-attenzione)" : "var(--ink-2)"}">${r.dist == null ? "—" : R.segnato(r.dist, 1)}<small class="sub-line">livello ${num(r.lv, 0)}% · ${r.n} tit.</small></td>
-          <td class="mono"><span class="${rosso ? "neg" : ""}">${pct(r.dd, 1)}</span><small class="sub-line">${num(r.pctDD, 0)}° percentile</small></td>
-          <td style="text-align:left">${quad(r.rot)}</td>
+          <td><b>${r.etf}</b><small class="sub-line">${esc(r.nome)}</small></td>
+          <td class="l"><span class="st-pill big st-${r.stato}">${S.STATI[r.stato]}</span></td>
+          <td class="l">${R.sparkline(r.d.b200.slice(-126), { colore: c.b200, livello: r.lv, min: 0, area: true })}</td>
+          <td><b>${num(r.b, 1)}%</b><small class="sub-line"><span class="${R.cls(delta)}">${delta == null ? "" : R.segnato(delta, 1)}</span> in un mese</small></td>
+          <td class="dist" style="color:${colDist}">${r.dist == null ? "—" : R.segnato(r.dist, 1)}<small class="sub-line">livello ${num(r.lv, 0)}%</small></td>
+          <td><span class="${rosso ? "neg" : ""}">${pct(r.dd, 1)}</span><small class="sub-line">${num(r.pctDD, 0)}° percentile</small></td>
+          <td class="l">${quad(r.rot)}</td>
         </tr>`;
       }).join("") + "</tbody>";
 
@@ -160,7 +163,7 @@
     const voci = righe.map(r => ({ r, testi: daOsservare(r.etf, r.d, r.a) })).filter(x => x.testi.length);
     $("#mon-osservare").innerHTML = voci.length ? voci.map(({ r, testi }) => `
       <li class="st-${r.stato}">
-        <button type="button" class="watch-head" data-etf="${r.etf}"><b class="mono">${r.etf}</b> ${esc(r.nome)} <span class="st-pill st-${r.stato}">${S.STATI[r.stato]}</span></button>
+        <button type="button" class="watch-head" data-etf="${r.etf}"><b>${r.etf}</b> <span class="muted">${esc(r.nome)}</span> <span class="st-pill st-${r.stato}">${S.STATI[r.stato]}</span></button>
         ${testi.map(x => `<p>${x}</p>`).join("")}
       </li>`).join("") : `<li class="vuoto">Nessun settore vicino a un cambio di stato.</li>`;
   }

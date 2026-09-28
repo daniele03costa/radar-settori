@@ -71,6 +71,8 @@ def synthetic_market(seed: int = 7):
     adj_df = close_df * np.linspace(0.55, 1.0, T)[:, None]
     # un ticker "delistato" senza dati
     intervals["MORTO"] = [(pd.Timestamp("2004-01-02"), pd.Timestamp("2009-01-01"))]
+    # un membro appena entrato di cui Yahoo non ha ancora prezzi
+    rows.append({"ticker": "NUOVO", "nome": "Nuova Quotata", "gics": cfg["settori"][0]["gics"], "aggiunto": pd.NaT})
     current = pd.DataFrame(rows)
 
     def downloader(tickers, start, fields=("Close", "Adj Close")):
@@ -113,6 +115,16 @@ def test_build_outputs():
         assert xlre["close"][i] is None and xlre["b200"][i] is not None
         # la cache dei settori degli ex membri viene scritta
         assert (out / "cache" / "settori_ex_membri.json").exists()
+        # l'elenco per la ricerca contiene ogni azione attuale una volta sola, con il suo settore
+        elenco = json.loads((out / "titoli.json").read_text())["titoli"]
+        cfg, current, *_ = synthetic_market()
+        assert sorted(r["t"] for r in elenco) == sorted(current["ticker"])
+        etf_di = {s["gics"]: s["etf"] for s in cfg["settori"]}
+        attesi = dict(zip(current["ticker"], current["gics"].map(etf_di)))
+        assert all(r["etf"] == attesi[r["t"]] for r in elenco)
+        nuovo = next(r for r in elenco if r["t"] == "NUOVO")
+        assert nuovo.get("senza_prezzi") is True
+        assert sum(1 for r in elenco if r.get("senza_prezzi")) == 1
 
 
 def test_incomplete_last_session_is_dropped():

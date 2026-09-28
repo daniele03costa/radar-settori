@@ -67,6 +67,11 @@
     tuttiSettori: () => Promise.all(R.meta.settori.map(s => R.dati.settore(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
     indice: () => carica(`data/indice.json?v=${versione()}`),
     universi: () => carica("universi.json", { cache: "no-cache" }),
+    // elenco di tutti i titoli dell'S&P 500 con il loro settore (dal file dedicato, o dai file dei settori)
+    titoli: () => carica(`data/titoli.json?v=${versione()}`)
+      .then(x => x.titoli)
+      .catch(() => R.dati.tuttiSettori().then(tutti => Object.entries(tutti).flatMap(([etf, d]) =>
+        (d.titoli || []).map(t => ({ t: t.t, nome: t.nome, etf }))))),
     prezzi: mercato => carica(mercato === "globale" ? "data/prezzi_globali.json" : "data/prezzi_usa.json", { cache: "no-cache" }),
   };
 
@@ -107,6 +112,10 @@
     ink: R.css("--ink"), surface: R.css("--surface"),
   });
   R.coloreQuadrante = q => R.css("--q-" + (q || "none")) || R.css("--muted");
+
+  // nomi brevi delle conferme del trigger, per le tabelle
+  R.MOTIVI_BREVI = { spinta20: "spinta a 20", spinta50: "spinta a 50", prezzo: "prezzo in ripresa", divergenza: "divergenza", rimbalzoV: "rimbalzo a V" };
+  R.tagMotivi = motivi => (motivi || []).map(m => `<span class="tag" title="${R.esc(window.Signals.MOTIVI[m] || m)}">${R.MOTIVI_BREVI[m] || m}</span>`).join("");
 
   // ordine degli stati nel Monitor (prima i più "caldi")
   R.ORDINE_STATI = { fallito: 0, trigger: 1, blu: 2, attenzione: 3, cooldown: 4, normale: 5 };
@@ -160,6 +169,62 @@
       </div>
       ${righe}
       <p class="small">Va usato per scegliere dove approfondire, non come regola automatica: ogni settore ha pochi episodi e spesso l'ampiezza tocca il fondo prima del prezzo.</p>`;
+  };
+
+  // ---------- piccoli grafici ----------
+
+  // mini grafico a linea (SVG in linea): valori con null ammessi
+  R.sparkline = function (valori, o = {}) {
+    const w = o.w || 132, h = o.h || 30, pad = 3;
+    const v = valori.map(x => (x == null || !isFinite(x) ? null : x));
+    let lo = o.min != null ? o.min : Infinity, hi = o.max != null ? o.max : -Infinity;
+    if (o.min == null || o.max == null) for (const x of v) if (x != null) { lo = Math.min(lo, x); hi = Math.max(hi, x); }
+    if (o.livello != null) { lo = Math.min(lo, o.livello); hi = Math.max(hi, o.livello); }
+    if (!isFinite(lo)) return "";
+    if (hi === lo) { hi += 1; lo -= 1; }
+    const X = i => pad + (i / Math.max(1, v.length - 1)) * (w - 2 * pad);
+    const Y = x => pad + ((hi - x) / (hi - lo)) * (h - 2 * pad);
+    let d = "", area = "", start = null, last = null;
+    v.forEach((x, i) => {
+      if (x == null) return;
+      d += `${d ? "L" : "M"}${X(i).toFixed(1)},${Y(x).toFixed(1)}`;
+      if (start == null) start = i;
+      last = i;
+    });
+    if (o.area && start != null) area = `<path d="${d}L${X(last).toFixed(1)},${h - pad}L${X(start).toFixed(1)},${h - pad}Z" fill="${o.colore || "currentColor"}" opacity=".12"/>`;
+    const liv = o.livello != null ? `<line x1="${pad}" x2="${w - pad}" y1="${Y(o.livello).toFixed(1)}" y2="${Y(o.livello).toFixed(1)}" stroke="var(--soglia)" stroke-width="1" stroke-dasharray="3 3" opacity=".9"/>` : "";
+    const fine = last != null ? `<circle cx="${X(last).toFixed(1)}" cy="${Y(v[last]).toFixed(1)}" r="2.6" fill="${o.colore || "currentColor"}" stroke="var(--surface)" stroke-width="1.5"/>` : "";
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">${liv}${area}<path d="${d}" fill="none" stroke="${o.colore || "currentColor"}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>${fine}</svg>`;
+  };
+
+  // freccia orientata in gradi bussola (0 = su, 90 = destra)
+  R.freccia = gradi => gradi == null ? "" :
+    `<svg class="dir" viewBox="0 0 16 16" style="transform:rotate(${gradi}deg)" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  // colore divergente per le tessere: negativo → rosso, positivo → verde (blu/arancio con CVD)
+  function rgb(c) {
+    const el = document.createElement("canvas").getContext("2d");
+    el.fillStyle = c; const h = el.fillStyle;
+    if (h.startsWith("#")) return [1, 3, 5].map(k => parseInt(h.slice(k, k + 2), 16));
+    const m = h.match(/\d+(\.\d+)?/g); return m ? m.slice(0, 3).map(Number) : [128, 128, 128];
+  }
+  // luminanza relativa (WCAG) di un colore rgb
+  const lumRel = c => {
+    const [r, g, b] = c.map(x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  let tavolozza = null;
+  R.on("tema", () => { tavolozza = null; });
+  R.divergente = function (v, pieno) {
+    if (!tavolozza) tavolozza = { neg: rgb(R.css("--neg")), pos: rgb(R.css("--pos")), mid: rgb(R.css("--surface-3")) };
+    const { neg, pos, mid } = tavolozza;
+    const t = v == null ? 0 : Math.max(-1, Math.min(1, v / (pieno || 20)));
+    const a = t < 0 ? neg : pos, k = 0.88 * Math.pow(Math.abs(t), 0.8);
+    const c = mid.map((m, i) => Math.round(m + (a[i] - m) * k));
+    // testo chiaro o scuro, quello che si legge meglio sul fondo
+    const L = lumRel(c);
+    const conBianco = 1.05 / (L + 0.05), conNero = (L + 0.05) / 0.055;
+    return { bg: `rgb(${c.join(",")})`, testo: conNero > conBianco ? "#0e1013" : "#ffffff" };
   };
 
   // ---------- varie ----------

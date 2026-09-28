@@ -28,6 +28,9 @@
   };
 
   const ORDINE_Q = { leader: 0, indebolimento: 1, ritardo: 2, miglioramento: 3 };
+  const NOMI_Q = { leader: "Leader", indebolimento: "In indebolimento", ritardo: "In ritardo", miglioramento: "In miglioramento" };
+  const ICONA_PLAY = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg>';
+  const ICONA_PAUSA = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="4" y="3.2" width="2.8" height="9.6" rx="1" fill="currentColor"/><rect x="9.2" y="3.2" width="2.8" height="9.6" rx="1" fill="currentColor"/></svg>';
 
   // ---------------- universi ----------------
 
@@ -182,11 +185,13 @@
     q(cx, cy, m.l + pw - cx, m.t + ph - cy, "indebolimento");
     q(m.l, cy, cx - m.l, m.t + ph - cy, "ritardo");
     q(m.l, m.t, cx - m.l, cy - m.t, "miglioramento");
-    const lab = (x, y, anchor, k, testo) => root.append(svg("text", { x, y, "text-anchor": anchor, class: "rq-label", style: `fill:var(--q-${k})` }, testo));
-    lab(m.l + pw - 8, m.t + 18, "end", "leader", "LEADER");
-    lab(m.l + pw - 8, m.t + ph - 10, "end", "indebolimento", "IN INDEBOLIMENTO");
-    lab(m.l + 8, m.t + ph - 10, "start", "ritardo", "IN RITARDO");
-    lab(m.l + 8, m.t + 18, "start", "miglioramento", "IN MIGLIORAMENTO");
+    // nome del quadrante nell'angolo, con il pallino del suo colore
+    const lab = (x, y, anchor, k) => root.append(svg("text", { x, y, "text-anchor": anchor, class: "rq-label" }, [
+      svg("tspan", { class: "rq-dot", style: `fill:var(--q-${k})` }, "● "), NOMI_Q[k]]));
+    lab(m.l + pw - 10, m.t + 20, "end", "leader");
+    lab(m.l + pw - 10, m.t + ph - 12, "end", "indebolimento");
+    lab(m.l + 10, m.t + ph - 12, "start", "ritardo");
+    lab(m.l + 10, m.t + 20, "start", "miglioramento");
     // griglia
     const span = hi - lo;
     const passo = [0.5, 1, 2, 2.5, 5, 10, 20].find(s => span / s <= 10) || 20;
@@ -194,17 +199,25 @@
       const vv = +v.toFixed(6);
       root.append(svg("line", { x1: X(vv), x2: X(vv), y1: m.t, y2: m.t + ph, class: vv === 100 ? "rg-axis" : "rg-grid" }));
       root.append(svg("line", { x1: m.l, x2: m.l + pw, y1: Y(vv), y2: Y(vv), class: vv === 100 ? "rg-axis" : "rg-grid" }));
-      root.append(svg("text", { x: X(vv), y: m.t + ph + 16, "text-anchor": "middle", class: "rg-tick" }, num(vv, passo < 1 ? 1 : 0)));
-      root.append(svg("text", { x: m.l - 6, y: Y(vv) + 4, "text-anchor": "end", class: "rg-tick" }, num(vv, passo < 1 ? 1 : 0)));
+      root.append(svg("text", { x: X(vv), y: m.t + ph + 18, "text-anchor": "middle", class: "rg-tick" }, num(vv, passo < 1 ? 1 : 0)));
+      root.append(svg("text", { x: m.l - 8, y: Y(vv) + 4, "text-anchor": "end", class: "rg-tick" }, num(vv, passo < 1 ? 1 : 0)));
     }
-    root.append(svg("text", { x: m.l + pw / 2, y: H - 8, "text-anchor": "middle", class: "rg-axis-label" }, "RS-Ratio: forza relativa →"));
-    root.append(svg("text", { x: 13, y: m.t + ph / 2, "text-anchor": "middle", class: "rg-axis-label", transform: `rotate(-90 13 ${m.t + ph / 2})` }, "RS-Momentum: variazione della forza →"));
+    root.append(svg("rect", { x: m.l, y: m.t, width: pw, height: ph, class: "rg-frame" }));
+    root.append(svg("text", { x: m.l + pw / 2, y: H - 8, "text-anchor": "middle", class: "rg-axis-label" }, "RS-Ratio · forza relativa →"));
+    root.append(svg("text", { x: 13, y: m.t + ph / 2, "text-anchor": "middle", class: "rg-axis-label", transform: `rotate(-90 13 ${m.t + ph / 2})` }, "RS-Momentum · variazione della forza →"));
 
     const provv = c.barre.provvisoria && st.fine === c.ultimo;
     const occupati = [];
     const etichette = svg("g");
     const attivo = st.passaggio || st.evidenza;
     const ordinati = c.titoli.slice().sort((a, b) => (a === attivo) - (b === attivo));
+    // prima si riservano le posizioni delle teste, così le etichette non le coprono
+    for (const t of ordinati) {
+      const pts = puntiCoda(c, t);
+      if (!pts.length) continue;
+      const p = pts[pts.length - 1];
+      occupati.push([X(p[0]) - 7, Y(p[1]) - 7, X(p[0]) + 7, Y(p[1]) + 7]);
+    }
     for (const t of ordinati) {
       const pts = puntiCoda(c, t);
       if (!pts.length) continue;
@@ -214,33 +227,73 @@
       const col = `var(--q-${qd})`;
       const dim = attivo && attivo !== t;
       const grp = svg("g", { class: "rt" + (dim ? " dim" : "") + (attivo === t ? " on" : ""), "data-t": t, tabindex: "0" });
-      if (pts.length > 1) {
-        grp.append(svg("polyline", { points: pts.map(p => `${X(p[0])},${Y(p[1])}`).join(" "), class: "rt-tail" }));
-        pts.slice(0, -1).forEach(p => grp.append(svg("circle", { cx: X(p[0]), cy: Y(p[1]), r: 2.4, class: "rt-dot" })));
+      // la scia sfuma: i punti più vecchi sono più chiari
+      const n = pts.length - 1;
+      for (let j = 1; j <= n; j++) {
+        const a = pts[j - 1], b = pts[j];
+        grp.append(svg("line", { x1: X(a[0]), y1: Y(a[1]), x2: X(b[0]), y2: Y(b[1]), class: "rt-tail", "stroke-opacity": (0.3 + 0.7 * j / n).toFixed(2) }));
+      }
+      for (let j = 0; j < n; j++) {
+        grp.append(svg("circle", { cx: X(pts[j][0]), cy: Y(pts[j][1]), r: 2.3, class: "rt-dot", "fill-opacity": (0.3 + 0.7 * j / n).toFixed(2) }));
       }
       const hx = X(testa[0]), hy = Y(testa[1]);
-      grp.append(svg("circle", { cx: hx, cy: hy, r: attivo === t ? 8 : 6.5, class: "rt-head" + (provv ? " provv" : ""), style: provv ? `stroke:${col}` : `fill:${col}` }));
+      grp.append(svg("circle", { cx: hx, cy: hy, r: 13, class: "rt-hit" }));
+      grp.append(svg("circle", { cx: hx, cy: hy, r: attivo === t ? 7.5 : 6, class: "rt-head" + (provv ? " provv" : ""), style: provv ? `stroke:${col}` : `fill:${col}` }));
       grp.append(svg("title", null, `${info.breve} (${t}): ${Rot.QUADRANTI[qd]} · RS-Ratio ${num(testa[0], 2)} · RS-Momentum ${num(testa[1], 2)}`));
       root.append(grp);
-      // etichetta
-      const w = info.breve.length * 7.2 + 6, h = 14;
-      const prove = [[10, 4, "start"], [-10, 4, "end"], [0, -11, "middle"], [0, 19, "middle"], [10, -9, "start"], [-10, -9, "end"], [10, 15, "start"], [-10, 15, "end"]];
+      // etichetta: la prima posizione libera intorno alla testa (sugli schermi stretti basta il ticker)
+      const nomeEt = W < 560 ? t.replace(/\..*$/, "") : info.breve;
+      const w = nomeEt.length * 7.4 + 4, h = 14;
+      const prove = [[11, 4, "start"], [-11, 4, "end"], [0, -12, "middle"], [0, 21, "middle"], [10, -9, "start"], [-10, -9, "end"], [10, 17, "start"], [-10, 17, "end"]];
       let scelta = null;
       for (const pr of prove) {
         const x0 = pr[2] === "start" ? hx + pr[0] : pr[2] === "end" ? hx + pr[0] - w : hx - w / 2;
         const y0 = hy + pr[1] - 11;
         const rect = [x0, y0, x0 + w, y0 + h];
+        if (x0 < m.l || x0 + w > m.l + pw || y0 < m.t || y0 + h > m.t + ph) continue;
         if (!occupati.some(o => !(rect[2] < o[0] || rect[0] > o[2] || rect[3] < o[1] || rect[1] > o[3]))) { scelta = pr; occupati.push(rect); break; }
       }
-      if (!scelta) scelta = prove[0];
-      etichette.append(svg("text", { x: hx + scelta[0], y: hy + scelta[1], "text-anchor": scelta[2], class: "rt-label" + (dim ? " dim" : ""), style: `fill:${col}`, "data-t": t }, info.breve));
+      if (!scelta) scelta = hx > m.l + pw - 60 ? prove[1] : prove[0];
+      etichette.append(svg("text", { x: hx + scelta[0], y: hy + scelta[1], "text-anchor": scelta[2], class: "rt-label" + (dim ? " dim" : "") + (attivo === t ? " on" : ""), "data-t": t }, nomeEt));
     }
     root.append(etichette);
     box.innerHTML = "";
     box.append(root);
+    const tip = document.createElement("div");
+    tip.className = "chart-tip point-tip";
+    tip.hidden = true;
+    box.append(tip);
     $("#rot-nota-grafico").innerHTML = provv
       ? "Punto vuoto: la settimana non è ancora finita, la posizione può cambiare. Passa sopra un titolo per isolarlo, clic per fissarlo, Esc per togliere."
       : "Passa sopra un titolo per isolarlo, clic per fissarlo, Esc per togliere.";
+  }
+
+  // scheda che compare passando sopra un punto del grafico
+  function mostraTip(t) {
+    const box = $("#rot-grafico");
+    const tip = box.querySelector(".point-tip");
+    const c = st.calc;
+    if (!tip) return;
+    if (!t || !c || !c.serie[t]) { tip.hidden = true; return; }
+    const r = c.serie[t];
+    const mi = Rot.misure(r.ratio, r.mom, st.fine);
+    if (!mi) { tip.hidden = true; return; }
+    const info = infoTitolo(t, c.g);
+    const unita = st.barre === "settimanali" ? (mi.durata === 1 ? "settimana" : "settimane") : (mi.durata === 1 ? "seduta" : "sedute");
+    tip.innerHTML = `<div class="d">${esc(info.breve)} <span class="muted">· ${esc(t)}</span>${info.nome !== info.breve ? `<small class="sub-line">${esc(info.nome)}</small>` : ""}</div>
+      <div class="r"><span>Quadrante</span><span class="quad-pill" style="--c:var(--q-${mi.quadrante})">${NOMI_Q[mi.quadrante]}</span></div>
+      <div class="r"><span>RS-Ratio</span><span>${num(mi.ratio, 2)}</span></div>
+      <div class="r"><span>RS-Momentum</span><span>${num(mi.mom, 2)}</span></div>
+      ${mi.direzione != null ? `<div class="r"><span>Direzione</span><span>${num(mi.direzione, 0)}° ${mi.bussola}</span></div>` : ""}
+      <div class="r"><span>Nel quadrante da</span><span>${mi.durata} ${unita}</span></div>`;
+    tip.hidden = false;
+    const el = box.querySelector(`.rt[data-t="${CSS.escape(t)}"] .rt-head`);
+    if (!el) return;
+    const rb = box.getBoundingClientRect(), re = el.getBoundingClientRect();
+    const cx = re.left + re.width / 2 - rb.left, cy = re.top + re.height / 2 - rb.top;
+    const left = cx + 18 + tip.offsetWidth > rb.width ? cx - 18 - tip.offsetWidth : cx + 18;
+    tip.style.left = Math.max(0, left) + "px";
+    tip.style.top = Math.max(0, Math.min(rb.height - tip.offsetHeight, cy - tip.offsetHeight / 2)) + "px";
   }
 
   function righeRotazione(c) {
@@ -290,15 +343,15 @@
       righe.map(x => {
         const m = x.m;
         return `<tr data-t="${x.t}" class="${attivo === x.t ? "hl" : ""}">
-          <td class="l"><span class="qdot" style="background:var(--q-${m.quadrante})"></span><b>${esc(x.info.breve)}</b><small class="sub-line">${esc(x.t)}</small></td>
-          <td class="l"><span class="quad-pill" style="--c:var(--q-${m.quadrante})">${Rot.QUADRANTI[m.quadrante]}</span></td>
+          <td class="l"><span class="tk-cell"><span class="qdot" style="--c:var(--q-${m.quadrante})"></span><span><b>${esc(x.info.breve)}</b><small class="sub-line">${esc(x.t)}</small></span></span></td>
+          <td class="l"><span class="quad-pill" style="--c:var(--q-${m.quadrante})">${NOMI_Q[m.quadrante]}</span></td>
           <td>${num(m.ratio, 2)} ${delta(m.dRatio)}</td>
           <td>${num(m.mom, 2)} ${delta(m.dMom)}</td>
-          <td>${m.direzione == null ? "—" : `<span class="dir" style="transform:rotate(${m.direzione}deg)">↑</span> ${num(m.direzione, 0)}° <small class="muted">${m.bussola}</small>`}</td>
+          <td>${m.direzione == null ? "—" : `${num(m.direzione, 0)}° <small class="muted">${m.bussola}</small>${R.freccia(m.direzione)}`}</td>
           <td>${num(m.velocita, 2)}</td>
           <td>${num(m.distanza, 2)}</td>
           <td>${m.durata} <small class="muted">${unita}</small></td>
-          <td class="l">${m.precedente ? `<span class="quad-pill small" style="--c:var(--q-${m.precedente})">${Rot.QUADRANTI[m.precedente]}</span>` : "—"}</td>
+          <td class="l">${m.precedente ? `<span class="quad-pill small" style="--c:var(--q-${m.precedente})">${NOMI_Q[m.precedente]}</span>` : "—"}</td>
         </tr>`;
       }).join("") + "</tbody>";
   }
@@ -350,10 +403,14 @@
 
   function disegnaPerformance(c) {
     const box = $("#perf-grafico");
+    const leg = $("#perf-legenda");
+    if (leg) leg.innerHTML = `<span class="muted">Colore = quadrante di oggi</span>` +
+      ["leader", "miglioramento", "indebolimento", "ritardo"].map(k => `<span><i class="sw" style="background:var(--q-${k})"></i>${NOMI_Q[k]}</span>`).join("") +
+      `<span><i class="sw dash" style="color:var(--ink)"></i>${esc(c.benchKey === "PTF" ? "Portafoglio (PTF)" : nomeBench(c.benchKey, c.g))}</span>`;
     const iEnd = c.ib[st.fine];
     const i0 = Math.max(0, iEnd - st.periodo);
-    const W = Math.max(320, box.clientWidth || 900), H = 320;
-    const m = { l: 48, r: 150, t: 14, b: 28 };
+    const W = Math.max(320, box.clientWidth || 900), H = W < 600 ? 280 : 340;
+    const m = { l: 44, r: W < 600 ? 104 : 150, t: 12, b: 28 };
     const pw = W - m.l - m.r, ph = H - m.t - m.b;
     const linee = c.titoli.map(t => ({ t, info: infoTitolo(t, c.g), v: c.px.serie[t] }));
     linee.push({ t: c.benchKey, info: c.benchKey === "PTF" ? { breve: "PTF" } : infoTitolo(c.benchKey, c.g), v: c.bench, bench: true });
@@ -402,15 +459,25 @@
         d: d.join(""), class: "pf-line" + (l.bench ? " bench" : "") + (attivo && !on && !l.bench ? " dim" : "") + (on ? " on" : ""),
         style: `stroke:${colore}`, "data-t": l.t,
       }));
+      root.append(svg("path", { d: d.join(""), class: "pf-hit", "data-t": l.t }));
       const ultimo = l.n.length - 1 - l.n.slice().reverse().findIndex(v => v != null);
       const nomeBreve = l.info.breve.length > 13 ? l.info.breve.slice(0, 12) + "…" : l.info.breve;
-      finali.push({ y: Y(l.n[ultimo]), nome: nomeBreve, colore, on: on || l.bench || !attivo, t: l.t, v: l.n[ultimo] });
+      finali.push({ x: X(ultimo), y0: Y(l.n[ultimo]), y: Y(l.n[ultimo]), nome: nomeBreve, colore, bench: !!l.bench, t: l.t, v: l.n[ultimo] });
     }
-    finali.sort((a, b) => a.y - b.y);
-    for (let k = 1; k < finali.length; k++) if (finali[k].y - finali[k - 1].y < 13) finali[k].y = finali[k - 1].y + 13;
-    for (const f of finali) {
-      root.append(svg("text", { x: m.l + pw + 6, y: f.y + 4, class: "pf-end" + (f.on ? "" : " dim"), style: `fill:${f.colore}`, "data-t": f.t },
-        `${f.nome} ${R.segnato(f.v - 100, 1)}%`));
+    // etichette solo dove servono: confronto, titolo evidenziato, il migliore e il peggiore
+    const altri = finali.filter(f => !f.bench).sort((a, b) => b.v - a.v);
+    const scelti = new Set([c.benchKey]);
+    if (attivo) scelti.add(attivo);
+    if (altri.length) { scelti.add(altri[0].t); scelti.add(altri[altri.length - 1].t); }
+    const etichette = finali.filter(f => scelti.has(f.t)).sort((a, b) => a.y - b.y);
+    for (let k = 1; k < etichette.length; k++) if (etichette[k].y - etichette[k - 1].y < 16) etichette[k].y = etichette[k - 1].y + 16;
+    const sfora = etichette.length ? etichette[etichette.length - 1].y - (m.t + ph) : 0;
+    if (sfora > 0) etichette.forEach(f => { f.y -= sfora; });
+    for (const f of etichette) {
+      root.append(svg("path", { d: `M${f.x + 4},${f.y0}L${m.l + pw + 8},${f.y0}L${m.l + pw + 14},${f.y}L${m.l + pw + 18},${f.y}`, class: "pf-lead" }));
+      root.append(svg("circle", { cx: f.x, cy: f.y0, r: 3.5, class: "pf-end-dot", style: `fill:${f.colore}` }));
+      root.append(svg("text", { x: m.l + pw + 22, y: f.y + 4, class: "pf-end" + (f.bench ? " b" : ""), "data-t": f.t },
+        [svg("tspan", null, f.nome + " "), svg("tspan", { class: "pf-end-v " + cls(f.v - 100) }, `${R.segnato(f.v - 100, 1)}%`)]));
     }
     // cursore
     const cursore = svg("line", { x1: 0, x2: 0, y1: m.t, y2: m.t + ph, class: "pf-cursor", visibility: "hidden" });
@@ -436,22 +503,21 @@
   // ---------------- interazione ----------------
 
   function evidenzia(t, fisso) {
+    const prima = st.passaggio || st.evidenza;
     if (fisso) st.evidenza = st.evidenza === t ? null : t;
     else st.passaggio = t;
     if (!st.calc) return;
     // aggiornamento leggero: classi sul grafico e sulle tabelle
     const attivo = st.passaggio || st.evidenza;
+    if (attivo === prima) return;
     R.$$("#rot-grafico .rt, #rot-grafico .rt-label").forEach(el => {
       el.classList.toggle("dim", !!attivo && el.dataset.t !== attivo);
       el.classList.toggle("on", !!attivo && el.dataset.t === attivo);
     });
+    R.$$("#rot-grafico .rt-head").forEach(el => el.setAttribute("r", el.parentNode.dataset.t === attivo ? 7.5 : 6));
     R.$$("#rot-tabella tr[data-t], #rot-portafoglio tr[data-t]").forEach(el => el.classList.toggle("hl", el.dataset.t === attivo));
-    R.$$("#perf-grafico .pf-line").forEach(el => {
-      const b = el.classList.contains("bench");
-      el.classList.toggle("dim", !!attivo && !b && el.dataset.t !== attivo);
-      el.classList.toggle("on", !!attivo && el.dataset.t === attivo);
-    });
-    R.$$("#perf-grafico .pf-end").forEach(el => el.classList.toggle("dim", !!attivo && el.dataset.t !== attivo && el.dataset.t !== st.calc.benchKey));
+    // l'andamento si ridisegna, così compare l'etichetta del titolo evidenziato
+    disegnaPerformance(st.calc);
     // porta la testa evidenziata in primo piano
     const g = attivo && R.$(`#rot-grafico .rt[data-t="${CSS.escape(attivo)}"]`);
     if (g) g.parentNode.insertBefore(g, g.parentNode.querySelector("g:last-of-type"));
@@ -473,14 +539,14 @@
   }
 
   function animazione() {
-    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").textContent = "▶"; return; }
+    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; return; }
     const c = st.calc;
     if (!c) return;
     const giro = st.barre === "settimanali" ? 52 : 126;
     if (st.fine >= c.ultimo) st.fine = Math.max(c.primo, c.ultimo - giro);
-    $("#rot-play").textContent = "❚❚";
+    $("#rot-play").innerHTML = ICONA_PAUSA;
     st.play = setInterval(() => {
-      if (!st.visibile || st.fine >= st.calc.ultimo) { clearInterval(st.play); st.play = null; $("#rot-play").textContent = "▶"; return; }
+      if (!st.visibile || st.fine >= st.calc.ultimo) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; return; }
       st.fine++;
       ridisegnaRapido();
     }, st.barre === "settimanali" ? 320 : 110);
@@ -519,8 +585,14 @@
     $("#rot-play").addEventListener("click", animazione);
 
     const sopra = e => { const el = e.target.closest("[data-t]"); evidenzia(el ? el.dataset.t : null, false); };
-    $("#rot-grafico").addEventListener("mouseover", sopra);
-    $("#rot-grafico").addEventListener("mouseleave", () => evidenzia(null, false));
+    $("#rot-grafico").addEventListener("mouseover", e => {
+      const el = e.target.closest("[data-t]");
+      evidenzia(el ? el.dataset.t : null, false);
+      mostraTip(el ? el.dataset.t : null);
+    });
+    $("#rot-grafico").addEventListener("mouseleave", () => { evidenzia(null, false); mostraTip(null); });
+    $("#rot-grafico").addEventListener("focusin", e => { const el = e.target.closest("[data-t]"); if (el) mostraTip(el.dataset.t); });
+    $("#rot-grafico").addEventListener("focusout", () => mostraTip(null));
     $("#rot-grafico").addEventListener("click", e => { const el = e.target.closest("[data-t]"); if (el) evidenzia(el.dataset.t, true); });
     $("#rot-grafico").addEventListener("keydown", e => { if (e.key === "Enter") { const el = e.target.closest("[data-t]"); if (el) evidenzia(el.dataset.t, true); } });
     $("#rot-tabella").addEventListener("mouseover", sopra);
@@ -535,7 +607,7 @@
       const tr = e.target.closest("tr[data-t]");
       if (tr) evidenzia(tr.dataset.t, true);
     });
-    $("#perf-grafico").addEventListener("mouseover", e => { const el = e.target.closest(".pf-line, .pf-end"); if (el) evidenzia(el.dataset.t, false); });
+    $("#perf-grafico").addEventListener("mouseover", e => { const el = e.target.closest(".pf-hit, .pf-end"); evidenzia(el ? el.dataset.t : null, false); });
     $("#perf-grafico").addEventListener("mouseleave", () => evidenzia(null, false));
 
     // portafoglio
@@ -581,7 +653,7 @@
 
   function nascondi() {
     st.visibile = false;
-    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").textContent = "▶"; }
+    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; }
   }
 
   function tasto(e) {

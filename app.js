@@ -48,8 +48,12 @@
     const low = h.toLowerCase();
     if (VISTE.includes(low)) return { vista: low };
     if (ALIAS[low]) return { vista: ALIAS[low] };
-    const etf = h.toUpperCase();
-    if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: etf };
+    const up = h.toUpperCase();
+    const [etf, titolo] = up.split("/");
+    if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: titolo ? `${etf}/${titolo}` : etf };
+    // il ticker di un'azione dell'S&P 500 porta al suo settore
+    const az = R._mappaTitoli && (R._mappaTitoli.get(up) || R._mappaTitoli.get(up.replace(/[.\/]/g, "-")));
+    if (az) return { vista: "sec", param: `${az.etf}/${az.t}` };
     return { vista: "mon" };
   }
 
@@ -73,22 +77,43 @@
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
+  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto" };
+  // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
+  const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
+  const PAROLE_VUOTE = new Set(["INC", "CORP", "CORPORATION", "COMPANY", "COMPANIES", "GROUP", "HOLDINGS", "HOLDING", "THE", "PLC", "LTD", "TRUST", "CLASS", "INCORPORATED", "INTERNATIONAL"]);
 
   async function costruisciIndice() {
     const out = [];
-    const add = (chiavi, voce) => out.push(Object.assign({ chiavi: chiavi.map(k => k.toUpperCase()) }, voce));
-    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Vista Monitor", fai: () => R.vai("#mon") });
-    add(["ROT", "RRG", "ROTAZIONE"], { etichetta: "ROT", descr: "Vista Rotazione", fai: () => R.vai("#rot") });
-    add(["BTM", "BOTTOM"], { etichetta: "BTM", descr: "Vista Bottom Map", fai: () => R.vai("#btm") });
-    add(["SEC", "SETTORE"], { etichetta: "SEC", descr: "Vista Settore", fai: () => R.vai("#sec") });
-    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Vista Alert", fai: () => R.vai("#alr") });
-    add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", fai: apriGuida });
-    add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", fai: () => impostaTema("light") });
-    add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", fai: () => impostaTema("dark") });
-    add(["TEMA"], { etichetta: "TEMA", descr: "Inverti il tema", fai: () => impostaTema(document.documentElement.dataset.theme === "light" ? "dark" : "light") });
+    const add = (chiavi, voce) => out.push(Object.assign({ chiavi: Array.from(new Set(chiavi.map(norm).filter(Boolean))) }, voce));
+    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Monitor, il quadro di tutti i settori", tipo: "vista", fai: () => R.vai("#mon") });
+    add(["ROT", "RRG", "ROTAZIONE"], { etichetta: "ROT", descr: "Rotazione relativa", tipo: "vista", fai: () => R.vai("#rot") });
+    add(["BTM", "BOTTOM"], { etichetta: "BTM", descr: "Bottom Map", tipo: "vista", fai: () => R.vai("#btm") });
+    add(["SEC", "SETTORE"], { etichetta: "SEC", descr: "Pagina del settore", tipo: "vista", fai: () => R.vai("#sec") });
+    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert, lo storico degli stati", tipo: "vista", fai: () => R.vai("#alr") });
+    add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
+    add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
+    add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
+    add(["TEMA"], { etichetta: "TEMA", descr: "Inverti il tema", tipo: "comando", fai: () => impostaTema(document.documentElement.dataset.theme === "light" ? "dark" : "light") });
     for (const s of R.meta.settori) {
-      add([s.etf, s.nome], { etichetta: s.etf, descr: `Settore · ${s.nome}`, tipo: "settore", fai: () => R.vai("#" + s.etf) });
+      add([s.etf, s.nome], { etichetta: s.etf, descr: s.nome, tipo: "settore", fai: () => R.vai("#" + s.etf) });
     }
+    // tutte le azioni dell'S&P 500: aprono il loro settore con il titolo evidenziato
+    try {
+      const titoli = await R.dati.titoli();
+      const nomi = Object.fromEntries(R.meta.settori.map(s => [s.etf, s.nome]));
+      R._mappaTitoli = new Map();
+      for (const x of titoli) {
+        if (!x || !x.t || !nomi[x.etf]) continue;
+        R._mappaTitoli.set(x.t.toUpperCase(), x);
+        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+        add([x.t, x.t.replace(/[^A-Za-z0-9]/g, ""), x.nome, ...parole], {
+          etichetta: x.t, descr: `${x.nome} · ${nomi[x.etf]}`, tipo: "azione",
+          fai: () => R.vai(`#${x.etf}/${x.t}`),
+        });
+      }
+      // un indirizzo con il ticker di un'azione (#AAPL) si può aprire solo adesso
+      if (location.hash && leggiRotta().vista === "sec" && vistaCorrente === "mon") applicaRotta();
+    } catch (e) { /* senza elenco restano settori e comandi */ }
     try {
       const gruppi = await R.viste.rot.gruppi();
       const u = await R.dati.universi();
@@ -122,7 +147,7 @@
           const base = sym.replace(/\..*$/, "");
           const parole = String(info.nome || "").split(/[^A-Za-zÀ-ÿ0-9&-]+/).filter(w => w.length >= 4);
           add([sym, base, info.breve || "", ...parole], {
-            etichetta: base, descr: `${info.breve || base} · ${g.nome}`, tipo: "titolo",
+            etichetta: base, descr: `${info.nome || info.breve || base} · ${g.nome}`, tipo: "titolo",
             fai: () => {
               const corrente = R.store.get("rot.universo", "settori");
               const dentro = gruppi.filter(x => x.titoli[sym]);
@@ -137,7 +162,7 @@
   }
 
   function cerca(testo) {
-    const q = testo.trim().toUpperCase();
+    const q = norm(testo);
     if (!q) return [];
     const punteggio = v => {
       let best = 0;
@@ -148,9 +173,10 @@
         else if (q.length >= 3 && k.includes(q)) best = Math.max(best, 30);
       }
       if (best && v.tipo === "settore") best += 2;
+      if (best && v.tipo === "azione") best += 1;
       return best;
     };
-    return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p).slice(0, 8).map(x => x.v);
+    return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p).slice(0, 9).map(x => x.v);
   }
 
   let scelta = 0, risultati = [];
@@ -160,7 +186,7 @@
     risultati = cerca(input.value);
     scelta = 0;
     if (!risultati.length) { box.hidden = true; $(".cmd").setAttribute("aria-expanded", "false"); return; }
-    box.innerHTML = risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span></div>`).join("");
+    box.innerHTML = risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span><em>${TIPI_VOCE[v.tipo] || ""}</em></div>`).join("");
     box.hidden = false;
     $(".cmd").setAttribute("aria-expanded", "true");
   }
