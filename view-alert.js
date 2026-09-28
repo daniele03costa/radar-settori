@@ -12,6 +12,7 @@
   let settore = R.store.get("alr.settore", "");
   let limite = 300;
   let storia = null;   // geometria dell'ultima striscia disegnata (per il passaggio del mouse)
+  let ultimo = null;   // ultimi dati calcolati (per la chat)
 
   const TIPI = ["blu", "trigger", "fallito", "cooldown", "attenzione", "normale"];
   // quale stato vince quando più sedute finiscono nello stesso pixel
@@ -223,6 +224,7 @@
     // tabella
     let tutte = scelti.flatMap(x => x.ev.map(e => Object.assign(e, { nome: x.nome })));
     tutte = tutte.filter(e => tipi.has(e.a) && e.da != null).sort((x, y) => (y.data.localeCompare(x.data)) || x.etf.localeCompare(y.etf));
+    ultimo = { perSettore, tutte, primo, episodi: episodi.length, confermati: confermati.length, nFalliti, r3, attese };
     const mostrate = tutte.slice(0, limite);
     const pill = s => s ? `<span class="st-pill st-${s}">${S.STATI[s]}</span>` : "";
     $("#alr-conta").textContent = `${tutte.length} ${tutte.length === 1 ? "evento" : "eventi"}`;
@@ -234,7 +236,7 @@
         let det = "";
         if (e.a === "trigger") det = R.tagMotivi(e.motivi) + (e.fallito ? ` <span class="tag bad">poi fallito</span>` : "") + (e.dalla != null ? `<small class="sub-line">${R.sedute(e.dalla)} dopo l'ingresso in zona blu</small>` : "");
         else if (e.a === "fallito") det = e.trigger ? `annulla il trigger del ${dataIt(e.trigger)}` : "";
-        else if (e.a === "blu") det = `drawdown al ${num(e.perc, 0)}° percentile`;
+        else if (e.a === "blu") det = `drawdown ${R.art("al", num(e.perc, 0) + "°")} percentile`;
         const r = v => `<td class="${cls(v)}">${e.a === "trigger" ? pct(v, 1) : ""}</td>`;
         return `<tr class="clic" data-etf="${e.etf}">
           <td class="l">${dataIt(e.data)}</td>
@@ -287,8 +289,38 @@
     window.addEventListener("resize", R.debounce(() => { if (visibile) disegna(); }, 200));
   }
 
+  // ---------- testo per la chat ----------
+  function contesto() {
+    if (!ultimo) return "## Pagina aperta: Alert\nI dati non sono ancora caricati.";
+    const u = ultimo;
+    const out = [];
+    out.push("## Pagina aperta: Alert (storico dei cambi di stato)");
+    out.push("La pagina mostra le statistiche dei trigger, la striscia degli stati di ogni settore dal 2005 (una riga per settore, colorata per stato), il registro dei cambi di stato e le regole.");
+    out.push(`Filtri: tipi di evento ${Array.from(tipi).map(t => S.STATI[t]).join(", ") || "nessuno"}; settore ${settore || "tutti"}.`);
+    out.push(`Statistiche${settore ? ` di ${settore}` : " di tutti i settori"} dal ${dataIt(u.primo)}: ${u.episodi} zone blu; ${u.confermati} trigger confermati e ${u.nFalliti} falliti` +
+      `${u.confermati + u.nFalliti ? ` (${num((u.nFalliti / (u.confermati + u.nFalliti)) * 100, 0)}% falliti)` : ""}; ` +
+      `ETF a 3 mesi dal trigger: mediana ${pct(mediana(u.r3), 1)}, positivi ${u.r3.length ? num((u.r3.filter(v => v > 0).length / u.r3.length) * 100, 0) : "—"}% su ${u.r3.length} casi; ` +
+      `attesa mediana tra ingresso in zona blu e trigger: ${u.attese.length ? num(mediana(u.attese), 0) : "—"} sedute.`);
+    out.push("Stato attuale e zone blu di ogni settore: settore | stato oggi | numero di zone blu | trigger confermati | falliti");
+    for (const x of u.perSettore) {
+      const ok = x.a.episodi.filter(e => e.segnale != null).length;
+      const ko = x.a.episodi.reduce((k, e) => k + e.falliti.length, 0);
+      out.push(`${x.etf} ${x.nome} | ${S.STATI[x.a.statoOggi || "normale"]} | ${x.a.episodi.length} | ${ok} | ${ko}`);
+    }
+    const mostrate = u.tutte.slice(0, 60);
+    out.push(`Registro filtrato: ${u.tutte.length} eventi; i più recenti ${mostrate.length}: data | settore | da → a | % sopra media 200 | drawdown | dettagli | ETF +1M, +3M, +6M (solo per i trigger)`);
+    for (const e of mostrate) {
+      let det = "";
+      if (e.a === "trigger") det = (e.motivi || []).map(m => S.MOTIVI[m]).join(" + ") + (e.fallito ? ", poi fallito" : "");
+      else if (e.a === "fallito") det = e.trigger ? `annulla il trigger del ${dataIt(e.trigger)}` : "";
+      else if (e.a === "blu") det = `drawdown ${R.art("al", num(e.perc, 0) + "°")} percentile`;
+      out.push(`${dataIt(e.data)} | ${e.etf} | ${S.STATI[e.da]} → ${S.STATI[e.a]} | ${num(e.b200, 1)}% | ${pct(e.dd, 1)} | ${det || "—"} | ${e.a === "trigger" ? `${pct(e.r1, 1)}, ${pct(e.r3, 1)}, ${pct(e.r6, 1)}` : "—"}`);
+    }
+    return out.join("\n");
+  }
+
   function mostra() { visibile = true; document.title = "Alert · Radar Settori"; return disegna(); }
   function nascondi() { visibile = false; }
 
-  R.viste.alr = { init, mostra, nascondi };
+  R.viste.alr = { init, mostra, nascondi, contesto };
 })();

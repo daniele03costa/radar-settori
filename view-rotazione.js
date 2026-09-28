@@ -504,7 +504,7 @@
 
   function evidenzia(t, fisso) {
     const prima = st.passaggio || st.evidenza;
-    if (fisso) st.evidenza = st.evidenza === t ? null : t;
+    if (fisso) { st.evidenza = st.evidenza === t ? null : t; R.emit("selezione"); }
     else st.passaggio = t;
     if (!st.calc) return;
     // aggiornamento leggero: classi sul grafico e sulle tabelle
@@ -664,6 +664,55 @@
     return false;
   }
 
+  // ---------- testo per la chat: quello che mostra la pagina della rotazione ----------
+  function contesto() {
+    const c = st.calc;
+    if (!c) return "## Pagina aperta: Rotazione\nI prezzi della rotazione non sono ancora caricati.";
+    const g = c.g;
+    const iEnd = c.ib[st.fine];
+    const data = c.px.date[iEnd];
+    const provv = c.barre.provvisoria && st.fine === c.ultimo;
+    const calcolo = { nuova: "calcolo nuovo (log del rapporto, medie esponenziali 10/30 divise per la volatilità)", semplice: "medie semplici (10/30 e 9)", classica: "calcolo classico (scarti standardizzati su 26 barre)" }[st.formula];
+    const unita = st.barre === "settimanali" ? "settimane" : "sedute";
+    const unita1 = st.barre === "settimanali" ? "settimana" : "seduta";
+    const out = [];
+    out.push(`## Pagina aperta: Rotazione relativa · ${g.nome} contro ${nomeBench(c.benchKey, g)}`);
+    out.push("La pagina mostra il grafico di rotazione relativa: ogni titolo è un punto con la sua scia; asse orizzontale RS-Ratio (sopra 100 fa meglio del confronto), " +
+      "asse verticale RS-Momentum (sopra 100 il vantaggio cresce). Quadranti: Leader (in alto a destra), In indebolimento (in basso a destra), In ritardo (in basso a sinistra), " +
+      "In miglioramento (in alto a sinistra); di solito si gira in senso orario. Sotto: tabella di posizione e movimento, andamento base 100 e, per le asset class, il portafoglio di riferimento.");
+    out.push(`Impostazioni: barre ${st.barre}, ${calcolo}, data mostrata ${dataIt(data)}${provv ? " (settimana in corso: l'ultimo punto è provvisorio)" : ""}, scia di ${st.coda} barre, prezzi in ${g.mercato === "usa" ? "dollari" : "euro"} con dividendi.`);
+    const attivo = st.passaggio || st.evidenza;
+    if (attivo) out.push(`Titolo evidenziato ora: ${infoTitolo(attivo, g).breve} (${attivo}).`);
+    out.push(`Posizione e movimento: nome | ticker | quadrante | RS-Ratio (variazione nell'ultima barra) | RS-Momentum (variazione) | direzione in gradi di bussola | velocità | distanza dal centro | barre nel quadrante | quadrante precedente`);
+    const righe = righeRotazione(c).sort((a, b) => (ORDINE_Q[a.m.quadrante] - ORDINE_Q[b.m.quadrante]) || (b.m.distanza - a.m.distanza));
+    for (const x of righe) {
+      const m = x.m;
+      out.push(`${x.info.breve} | ${x.t} | ${NOMI_Q[m.quadrante]} | ${num(m.ratio, 2)} (${R.segnato(m.dRatio, 2)}) | ${num(m.mom, 2)} (${R.segnato(m.dMom, 2)}) | ` +
+        `${m.direzione == null ? "—" : `${num(m.direzione, 0)}° ${m.bussola}`} | ${num(m.velocita, 2)} | ${num(m.distanza, 2)} | ${m.durata} ${m.durata === 1 ? unita1 : unita} | ${m.precedente ? NOMI_Q[m.precedente] : "—"}`);
+    }
+    out.push("Scia di ogni titolo, dal punto più vecchio al più recente (RS-Ratio; RS-Momentum):");
+    for (const t of c.titoli) {
+      const pts = puntiCoda(c, t);
+      if (pts.length) out.push(`- ${infoTitolo(t, g).breve}: ${pts.map(p => `${num(p[0], 1)};${num(p[1], 1)}`).join(" → ")}`);
+    }
+    out.push("Prezzi fino alla data mostrata: nome | ultimo | 1 settimana | 1 mese | 3 mesi | 6 mesi | da inizio anno | 1 anno | dal massimo a 52 settimane | sulla media 200");
+    const riga = (t, info, serie) => {
+      const p = Rot.prezzi(c.px.date.slice(0, iEnd + 1), serie.slice(0, iEnd + 1));
+      if (p) out.push(`${info.breve} (${t}) | ${num(p.ultimo, 2)} | ${pct(p.w1, 1)} | ${pct(p.m1, 1)} | ${pct(p.m3, 1)} | ${pct(p.m6, 1)} | ${pct(p.ytd, 1)} | ${pct(p.a1, 1)} | ${pct(p.dd52, 1)} | ${pct(p.vsM200, 1)}`);
+    };
+    for (const t of c.titoli) riga(t, infoTitolo(t, g), c.px.serie[t]);
+    riga(c.benchKey, c.benchKey === "PTF" ? { breve: "Portafoglio di riferimento" } : infoTitolo(c.benchKey, g), c.bench);
+    const periodo = { 63: "3 mesi", 126: "6 mesi", 252: "1 anno", 504: "2 anni" }[st.periodo] || `${st.periodo} sedute`;
+    out.push(`Il grafico «Andamento, base 100» mostra gli ultimi ${periodo} fino alla data mostrata.`);
+    if (g.portafoglio) {
+      const pesi = pesiPortafoglio(g);
+      const oggi = (c.ptf || PF.calcola(c.px.date, c.px.serie, pesi)).pesiOggi;
+      out.push("Portafoglio di riferimento (PTF), ribilanciato a fine mese: componente | peso obiettivo | peso di oggi");
+      for (const t of Object.keys(g.portafoglio.pesi)) out.push(`${infoTitolo(t, g).breve} (${t}) | ${num(Number(pesi[t]) || 0, 0)}% | ${num(oggi[t], 1)}%`);
+    }
+    return out.join("\n");
+  }
+
   // usato dalla barra dei comandi
   async function apri(opzioni) {
     if (!st.u) st.u = await R.dati.universi();
@@ -682,5 +731,5 @@
     if (st.visibile) disegna();
   }
 
-  R.viste.rot = { init, mostra, nascondi, tasto, apri, gruppi: async () => { if (!st.u) st.u = await R.dati.universi(); return gruppi(); } };
+  R.viste.rot = { init, mostra, nascondi, tasto, apri, contesto, gruppi: async () => { if (!st.u) st.u = await R.dati.universi(); return gruppi(); } };
 })();

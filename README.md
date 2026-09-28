@@ -10,7 +10,7 @@ Sito statico (GitHub Pages) per seguire i settori dell'S&P 500 e un gruppo di ET
 | **4 · Settore** | Prezzo con media 200, drawdown e ampiezza (medie 200, 50, 20) con zone blu e trigger; livello blu regolabile; storico degli episodi; tutti i titoli del settore, come mappa a tessere e tabella completa, con la scheda del singolo titolo. |
 | **5 · Alert** | La striscia degli stati di ogni settore dal 2005 e tutti i cambi di stato, filtrabili per tipo e settore, con statistiche riassuntive e le regole. |
 
-In più: barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`5`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone.
+In più: pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`5`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone.
 
 I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions.
 
@@ -49,11 +49,21 @@ Dopo un paio di minuti il sito è su `https://TUO-NOME-UTENTE.github.io/radar-se
 
 ---
 
+## Parlare con Claude di quello che vedi
+
+Con l'estensione **Claude in Chrome**, compresa negli abbonamenti a pagamento di Claude, si apre Claude in un pannello di fianco al sito e gli si chiede di quello che c'è sulla pagina. Non ci sono costi in più.
+
+1. In Chrome sul computer apri il Chrome Web Store, cerca **Claude** (di Anthropic) e premi **Aggiungi a Chrome**; accedi con il tuo account Claude e fissa l'icona nella barra (pezzo di puzzle → puntina).
+2. Apri Radar Settori e premi l'icona di Claude: si apre il pannello laterale. Chiedi per esempio «Com'è messo questo settore?» o «Spiegami questo grafico».
+3. Claude legge il testo della pagina e può guardarla. Per dargli anche i numeri che nei grafici non si leggono (storico mese per mese, tutti i titoli, episodi, scie della rotazione) premi **Copia per Claude**, in basso nella barra laterale (o il tasto `C`), e incolla nel pannello con Ctrl+V. Lo stesso testo si può incollare in qualsiasi chat con Claude.
+
+---
+
 ## Uso rapido
 
 - **Barra dei comandi** (`/`): il ticker di un ETF settoriale apre il settore; il ticker o il nome di qualsiasi azione dell'S&P 500 (`AAPL`, `coca cola`) apre il suo settore con il titolo in evidenza; gli ETF della rotazione (anche senza il suffisso di borsa), il loro nome breve o una parola del nome li evidenziano nella rotazione; un termine di confronto (`SPY`, `QQQ`, `RSP`, `ACWI`, `PTF`) apre la rotazione contro di lui; `MON` `ROT`/`RRG` `BTM` `SEC` `ALRT` `HELP` aprono viste e guida; `CHIARO` `SCURO` `TEMA` cambiano il tema.
 - **Indirizzi**: `#XLU` apre un settore, `#XLK/AAPL` o `#AAPL` un'azione nel suo settore; `#mon` `#rot` `#btm` `#sec` `#alr` le viste. Il pulsante Indietro funziona.
-- **Tasti**: `1`–`5` viste · `←` `→` periodo (Settore) o data (Rotazione) · `Spazio` animazione · `Esc` toglie l'evidenza · `?` guida. I tasti rapidi si disattivano dalla guida.
+- **Tasti**: `1`–`5` viste · `←` `→` periodo (Settore) o data (Rotazione) · `Spazio` animazione · `Esc` toglie l'evidenza · `C` copia i dati della pagina per Claude · `?` guida. I tasti rapidi si disattivano dalla guida.
 - Livello blu, pesi del portafoglio, universo e tema scelti restano solo nel browser di chi li cambia.
 
 ## Domande frequenti
@@ -107,6 +117,7 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 | `signals.js` | macchina a stati ed episodi |
 | `rrg.js`, `portafoglio.js`, `calendario.js` | rotazione, portafoglio, calendari NYSE e Borsa Italiana |
 | `view-*.js`, `app.js`, `core.js`, `chart.js`, `style.css`, `viste.css` | le cinque viste, la struttura dell'app e la grafica |
+| `copia-dati.js` | il pulsante «Copia per Claude» (il testo di ogni pagina lo preparano le viste) |
 | `test_*.py`, `*.test.js` | test con dati simulati: `python -m pytest` · `node --test signals.test.js motori.test.js` |
 | `data/` | creata dall'aggiornamento automatico, non va caricata a mano |
 

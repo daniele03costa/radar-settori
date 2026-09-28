@@ -56,15 +56,21 @@
       <nav class="sector-list" id="settori" aria-label="Settori"></nav>
 
       <div class="side-foot">
+        <button class="claude-btn" id="copia-claude" type="button" title="Copia i numeri di questa pagina da incollare nella chat di Claude (tasto C)">
+          <span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11.5" height="12.5" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h8A1.5 1.5 0 0 1 14.5 5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <span class="lab">Copia per Claude</span><kbd>C</kbd>
+        </button>
+        <div class="foot-row">
         <div class="stamp" id="aggiornato">caricamento…</div>
         <div class="foot-btns">
-          <button class="theme-btn" id="tema" type="button" aria-label="Cambia tema chiaro/scuro">
+          <button class="theme-btn" id="tema" type="button" aria-label="Cambia tema chiaro/scuro" title="Tema chiaro o scuro">
             <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
             <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
             <span id="tema-label">Chiaro</span>
           </button>
           <button class="theme-btn" id="cvd" type="button" aria-pressed="false" title="Colori adatti a chi confonde rosso e verde: rialzi in blu, ribassi in arancio">CVD</button>
           <button class="theme-btn" id="aiuto" type="button" title="Guida (tasto ?)" aria-label="Apri la guida">?</button>
+        </div>
         </div>
       </div>
     </aside>
@@ -355,6 +361,11 @@
             <li><b>Settore</b>: grafici, tutti i titoli del settore (mappa e tabella), episodi di zona blu e livello regolabile.</li>
             <li><b>Alert</b>: la striscia degli stati dal 2005, lo storico completo dei cambi di stato e le statistiche.</li>
           </ul>
+          <h3>Parlare con Claude</h3>
+          <ul>
+            <li>Con l'estensione <b>Claude in Chrome</b> apri Claude di fianco al sito e gli chiedi di quello che vedi.</li>
+            <li><b>Copia per Claude</b> (in basso nella barra laterale, o tasto <kbd>C</kbd>) copia anche i numeri che nei grafici non si leggono: incollali nella chat con Ctrl+V.</li>
+          </ul>
         </section>
         <section>
           <h3>Casella di ricerca <kbd>/</kbd></h3>
@@ -375,6 +386,7 @@
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato</li>
             <li><kbd>?</kbd> apre questa guida</li>
+            <li><kbd>C</kbd> copia i dati della pagina per Claude</li>
             <li>Se il cursore è sull'elenco delle viste, le frecce passano da una vista all'altra.</li>
           </ul>
           <label class="switch"><input type="checkbox" id="tasti-attivi" checked><span class="track"><i></i></span>Tasti rapidi (lettere e numeri) attivi</label>
@@ -396,5 +408,6 @@
   <script src="view-bottom.js"></script>
   <script src="view-alert.js"></script>
   <script src="app.js"></script>
+  <script src="copia-dati.js"></script>
 </body>
 </html>

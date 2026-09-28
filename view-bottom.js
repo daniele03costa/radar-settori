@@ -136,7 +136,7 @@
     $("#btm-tabella").innerHTML = `<thead><tr><th>Settore · drawdown</th><th>Dal livello blu</th></tr></thead><tbody>` +
       righe.map(r => {
         const stato = r.v.stato !== "normale" ? `${S.STATI[r.v.stato]} · ` : "";
-        const dd = `${stato}drawdown ${pct(r.h.dd, 1)} (${num(r.h.x, 0)}°)${r.ddOk ? ` <span class="ok-mark" title="oltre il ${P.ddIngresso}° percentile">✓</span>` : ""}`;
+        const dd = `${stato}drawdown ${pct(r.h.dd, 1)} (${num(r.h.x, 0)}°)${r.ddOk ? ` <span class="ok-mark" title="oltre ${R.art("il", P.ddIngresso + "°")} percentile">✓</span>` : ""}`;
         return `<tr class="clic" data-etf="${r.v.etf}" tabindex="0">
         <td><span class="tk-cell"><span class="qdot" style="--c:var(--st-${r.v.stato})"></span><span class="tk-txt"><span class="tk-line"><b>${r.v.etf}</b> <span class="muted">${esc(r.v.nome)}</span></span><small class="sub-line">${dd}</small></span></span></td>
         <td class="strong${r.h.y != null && r.h.y <= 0 ? " blu" : ""}">${r.h.y == null ? "—" : R.segnato(r.h.y, 1)}<small class="sub-line">${r.titoli ? `${r.titoli} ${r.titoli === 1 ? "titolo" : "titoli"}` : r.h.y != null && r.h.y <= 0 ? "al livello" : ""}</small></td>
@@ -199,8 +199,30 @@
     window.addEventListener("resize", R.debounce(() => { if (visibile) disegna(); }, 200));
   }
 
+  // ---------- testo per la chat ----------
+  function contesto() {
+    if (!voci.length) return "## Pagina aperta: Bottom Map\nI dati non sono ancora caricati.";
+    const P = R.parametri();
+    const out = [];
+    out.push("## Pagina aperta: Bottom Map");
+    out.push(`La pagina mostra ogni settore come un punto: in orizzontale la profondità del drawdown rispetto alla storia del settore (percentile: più a sinistra, più profondo), ` +
+      `in verticale i punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è l'area della zona blu (ampiezza al livello o sotto e drawdown oltre ${R.art("il", P.ddIngresso + "°")} percentile); ` +
+      `le fasce arancioni sono quelle di attenzione. Ogni punto ha la scia delle ultime ${settimane} settimane. A fianco, la tabella «Quanto manca».`);
+    out.push("Settore | stato | punti dal livello blu (titoli che mancano) | % sopra la media 200 | drawdown | percentile del drawdown | scia settimanale (data: punti dal livello; percentile)");
+    const ordinati = voci.slice().sort((a, b) => ((a.pts.length ? a.pts[a.pts.length - 1].y : 999) - (b.pts.length ? b.pts[b.pts.length - 1].y : 999)));
+    for (const v of ordinati) {
+      if (!v.pts.length) continue;
+      const h = v.pts[v.pts.length - 1];
+      const unit = 100 / Math.max(1, v.n || 1);
+      const titoli = h.y > 0 ? Math.ceil(h.y / unit - 1e-9) : 0;
+      out.push(`${v.etf} ${v.nome} | ${S.STATI[v.stato]} | ${R.segnato(h.y, 1)} (${titoli ? titoli + " titoli" : "al livello"}) | ${num(h.b, 1)}% | ${pct(h.dd, 1)} | ${num(h.x, 0)}°${h.x > P.ddIngresso ? " (oltre la soglia)" : ""} | ` +
+        v.pts.map(p => `${dataIt(p.data)}: ${R.segnato(p.y, 1)}; ${num(p.x, 0)}°`).join(" → "));
+    }
+    return out.join("\n");
+  }
+
   function mostra() { visibile = true; document.title = "Bottom Map · Radar Settori"; return disegna(); }
   function nascondi() { visibile = false; }
 
-  R.viste.btm = { init, mostra, nascondi };
+  R.viste.btm = { init, mostra, nascondi, contesto };
 })();

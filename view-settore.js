@@ -154,7 +154,7 @@
     } else {
       testo = dist == null ? "Ampiezza non disponibile" : `Normale · ampiezza ${num(dist, 1)} punti sopra il livello blu`;
     }
-    if (!a.armato && (stato === "normale" || stato === "attenzione")) testo += ` · nuova zona blu solo dopo il ritorno sopra il ${num(a.riarmo, 0)}%`;
+    if (!a.armato && (stato === "normale" || stato === "attenzione")) testo += ` · nuova zona blu solo dopo il ritorno sopra ${R.art("il", num(a.riarmo, 0) + "%")}`;
     return { stato, testo };
   }
 
@@ -235,7 +235,7 @@
       tile("var(--b50)", "Titoli sopra la media 50", `${num(b50, 1)}<small>%</small>`, "ultimi 12 mesi",
         R.sparkline(anno(d.b50), { colore: c.b50, min: 0, max: 100 })) +
       tile(distCol, "Distanza dal livello blu", dist == null ? "—" : `${R.segnato(dist, 1)}<small> punti</small>`,
-        dist != null && dist <= 0 ? "al livello blu o sotto" : `livello blu al ${num(lv, 0)}%`,
+        dist != null && dist <= 0 ? "al livello blu o sotto" : `livello blu ${R.art("al", num(lv, 0) + "%")}`,
         `<div class="meter"><i style="width:${Math.max(0, Math.min(100, b200 || 0))}%;background:var(--b200)"></i><s style="left:${Math.min(100, lv)}%"></s></div>`) +
       tile("var(--dd)", "Drawdown a 52 settimane", `<span class="${rank != null && rank > 80 ? "neg" : ""}">${pct(dd, 1)}</span>`,
         rank == null ? "" : `${num(rank, 0)}° percentile della storia`,
@@ -261,7 +261,7 @@
         <div class="track"><div class="fill" style="width:${Math.max(0, Math.min(100, b200 || 0))}%"></div><div class="mark" style="left:calc(${Math.min(100, lv)}% - 1px)"></div></div>
         <div class="scale"><span>0%</span><span>oggi ${num(b200, 1)}% · livello ${num(lv, 0)}%</span><span>100%</span></div>
       </div>
-      <p>Dal ${dataIt(primo)} l'ampiezza ha chiuso a questo livello o sotto nel <b>${num(st.analisi.quotaSotto, 1)}%</b> delle sedute.
+      <p>Dal ${dataIt(primo)} l'ampiezza ha chiuso a questo livello o sotto ${R.art("nel", `<b>${num(st.analisi.quotaSotto, 1)}%</b>`)} delle sedute.
         ${n ? `Il settore ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>.` : ""}
         Livello di riarmo: <b>${num(st.analisi.riarmo, 0)}%</b>.</p>
       <p class="small">Predefinito: ${num(def, 0)}% (tabella quant-rea «200 LEVEL SETTORI»).
@@ -339,6 +339,7 @@
     st.titolo = t || null;
     st.mancante = null;
     disegnaTitoli();
+    R.emit("selezione");
     if (t && scorri) {
       const riga = document.querySelector(`#titoli-card tr[data-t="${CSS.escape(t)}"]`);
       const box = document.querySelector("#titoli-card .stock-detail") || riga;
@@ -456,11 +457,78 @@
 
   function nascondi() { st.visibile = false; }
 
+  // ---------- testo per la chat: tutto quello che mostra la pagina del settore ----------
+  function contesto() {
+    if (!st.dati || !st.analisi) return "## Pagina aperta: Settore\nI dati del settore non sono ancora caricati.";
+    const d = st.dati, a = st.analisi, N = d.date.length, t = N - 1;
+    const lv = R.livello(d.etf), def = R.livelloDefault(d.etf);
+    const P = R.parametri();
+    const out = [];
+    const { testo } = descriviStato(d, a);
+    const periodo = { "3A": "ultimi 3 anni", "10A": "ultimi 10 anni", MAX: "dal 2005" }[st.periodo] || st.periodo;
+    out.push(`## Pagina aperta: Settore ${d.etf} · ${d.nome} (GICS ${d.gics}), dati al ${dataIt(d.date[t])}`);
+    out.push("La pagina mostra: stato del settore, riquadri con i numeri di oggi, un grafico a tre pannelli " +
+      "(prezzo dell'ETF con la media a 200 sedute e i triangoli dei trigger; drawdown dal massimo a 52 settimane; " +
+      "percentuale di titoli sopra la media 200 e 50 con la linea tratteggiata del livello blu e le zone blu colorate), " +
+      "la mappa a tessere e la tabella di tutti i titoli del settore, gli episodi di zona blu, il livello blu regolabile e le regole.");
+    out.push(`Grafico impostato su: ${periodo}${st.log ? ", scala logaritmica" : ""}.`);
+    out.push(`Stato: ${testo}.`);
+    const b200 = d.b200[t], n = d.n[t];
+    const sopra = b200 == null ? null : Math.round((b200 / 100) * n);
+    const vsMa = d.close[t] != null && d.ma200[t] ? (d.close[t] / d.ma200[t] - 1) * 100 : null;
+    out.push(`Oggi: ETF ${num(d.close[t], 2)} (${pct(vsMa, 1)} sulla media 200 a ${num(d.ma200[t], 2)}); ` +
+      `${sopra == null ? "—" : sopra} titoli su ${n} sopra la media 200 = ${num(b200, 1)}%; sopra la media 50 ${num(d.b50[t], 1)}%` +
+      `${d.b20 ? `; sopra la media 20 ${num(d.b20[t], 1)}%` : ""}; drawdown ${pct(d.dd[t], 1)}, più profondo ${R.art("del", num(a.ddPerc[t], 0) + "%")} delle sedute passate.`);
+    out.push(`Livello blu in uso: ${num(lv, 0)}%${lv !== def ? ` (cambiato in questo browser; quello predefinito è ${num(def, 0)}%)` : " (predefinito)"}; ` +
+      `distanza ${R.segnato(b200 == null ? null : b200 - lv, 1)} punti (un titolo vale ${num(100 / Math.max(1, n), 1)} punti); ` +
+      `dal ${dataIt(d.date[d.b200.findIndex(v => v != null)])} l'ampiezza è stata al livello o sotto ${R.art("nel", num(a.quotaSotto, 1) + "%")} delle sedute; ` +
+      `livello di riarmo ${num(a.riarmo, 0)}%${a.armato ? "" : " (per ora nuova zona blu bloccata: l'ampiezza deve prima tornare sopra il riarmo)"}.`);
+    if (a.manca) {
+      const m = a.manca;
+      out.push(`Cosa manca al trigger: ${m.punti > 0 ? `altri ${num(m.punti, 1)} punti di ampiezza, fino ${R.art("al", num(m.obiettivo, 1) + "%")}` : "l'ampiezza ha già recuperato abbastanza"}; ` +
+        `conferme presenti oggi: ${m.conferme.length ? m.conferme.map(x => S.MOTIVI[x]).join(", ") : "nessuna"} (ne ${m.servono === 1 ? "serve 1" : "servono 2"}); rimbalzo a V sopra ${R.art("il", num(m.riarmo, 0) + "%")}.`);
+    }
+
+    // storico: fine di ogni mese nel periodo del grafico, più le ultime sedute
+    const [i0] = intervallo();
+    out.push(`Storico a fine mese (${periodo}): data | chiusura ETF | media 200 | drawdown | % sopra media 200 | % sopra media 50 | stato`);
+    const riga = i => `${dataIt(d.date[i])} | ${num(d.close[i], 2)} | ${num(d.ma200[i], 2)} | ${pct(d.dd[i], 1)} | ${num(d.b200[i], 1)} | ${num(d.b50[i], 1)} | ${S.STATI[a.stati[i]] || "—"}`;
+    for (let i = i0; i <= t; i++) {
+      if (i === t || d.date[i + 1].slice(0, 7) !== d.date[i].slice(0, 7)) out.push(riga(i));
+    }
+    out.push("Ultime 10 sedute:");
+    for (let i = Math.max(0, t - 9); i <= t; i++) out.push(riga(i));
+
+    // episodi
+    const ep = a.episodi;
+    out.push(`Episodi di zona blu dal 2005 con livello ${num(lv, 0)}%: ${ep.length}` +
+      (a.casi3 ? `; a 3 mesi dal trigger mediana ${pct(a.mediana3, 1)}, in guadagno ${R.art("il", num(a.positivi3, 0) + "%")} dei ${a.casi3} casi` : "") + ".");
+    if (ep.length) {
+      out.push("inizio zona blu | ampiezza minima | drawdown all'ingresso | ETF a 3 mesi dall'ingresso | trigger | conferme | ETF a +1M, +3M, +6M dal trigger | calo massimo nei 3 mesi dopo il trigger | trigger falliti prima");
+      for (const e of ep.slice().reverse()) {
+        const trig = e.segnale != null ? `${dataIt(d.date[e.segnale])}${e.stato === "verifica" ? " (in verifica)" : ""}` : "nessuno (zona blu in corso)";
+        out.push(`${dataIt(d.date[e.inizio])} | ${num(e.minB, 1)}% | ${pct(e.ddInizio, 1)} | ${pct(e.r3Inizio, 1)} | ${trig} | ${e.motivi.map(x => S.MOTIVI[x]).join(" + ") || "—"} | ` +
+          `${pct(e.r1, 1)}, ${pct(e.r3, 1)}, ${pct(e.r6, 1)} | ${e.caloMax == null ? "—" : pct(e.caloMax, 1)} | ${e.falliti.length}`);
+      }
+    }
+
+    // titoli
+    const titoli = (d.titoli || []).slice().sort((x, y) => (y.v200 ?? -999) - (x.v200 ?? -999));
+    out.push(`Tutti i ${titoli.length} titoli del settore (azioni dell'S&P 500), dal più forte al più debole rispetto alla media 200: ticker | nome | ultimo prezzo | distanza dalla media 200 | dalla media 50 | dal massimo a 52 settimane`);
+    for (const x of titoli) out.push(`${x.t} | ${x.nome} | ${num(x.ultimo, 2)} | ${pct(x.v200, 1)} | ${pct(x.v50, 1)} | ${pct(x.dd52, 1)}`);
+    const sel = st.titolo && titoli.find(x => x.t === st.titolo);
+    if (sel) out.push(`Titolo aperto nella scheda: ${sel.t} (${sel.nome}), ${titoli.filter(x => x.v200 != null).findIndex(x => x.t === sel.t) + 1}° su ${titoli.filter(x => x.v200 != null).length} per distanza dalla media 200.`);
+    if (st.mancante) out.push(`Titolo cercato ma senza prezzi sufficienti: ${st.mancante.t} ${st.mancante.nome || ""}.`);
+    if (st.filtro) out.push(`Filtro dei titoli attivo: «${st.filtro}».`);
+    out.push(`Regole in uso: zona blu con ${P.chiusureIngresso} chiusure al livello o sotto e drawdown oltre ${R.art("il", P.ddIngresso + "°")} percentile; verifica del trigger per ${P.verifica} sedute; cooldown di ${P.cooldown} sedute.`);
+    return out.join("\n");
+  }
+
   function tasto(e) {
     if (e.key === "ArrowLeft") { cambiaPeriodo(-1); return true; }
     if (e.key === "ArrowRight") { cambiaPeriodo(1); return true; }
     return false;
   }
 
-  R.viste.sec = { init, mostra, nascondi, tasto, etfCorrente: () => st.etf, descriviStato };
+  R.viste.sec = { init, mostra, nascondi, tasto, etfCorrente: () => st.etf, titoloCorrente: () => st.titolo, descriviStato, contesto };
 })();

@@ -60,35 +60,34 @@
       const m = a.manca;
       const da = t - ep.inizio === 0 ? "Entrato in zona blu oggi" : `In zona blu da ${R.sedute(t - ep.inizio)}`;
       const conf = m.conferme.length ? m.conferme.map(x => S.MOTIVI[x]).join(", ") : "nessuna";
-      if (m.punti > 0) righe.push(`${da}: per il trigger l'ampiezza deve salire di altri ${num(m.punti, 1)} punti (${titoli(m.punti)} ${titoli(m.punti) === 1 ? "titolo" : "titoli"}) fino al ${num(m.obiettivo, 1)}%`);
+      if (m.punti > 0) righe.push(`${da}: per il trigger l'ampiezza deve salire di altri ${num(m.punti, 1)} punti (${titoli(m.punti)} ${titoli(m.punti) === 1 ? "titolo" : "titoli"}) fino ${R.art("al", num(m.obiettivo, 1) + "%")}`);
       else righe.push(`${da}: l'ampiezza ha già recuperato abbastanza, manca la conferma`);
-      righe.push(`Conferme oggi: ${conf} (ne ${m.servono === 1 ? "serve 1" : "servono 2"}); il rimbalzo a V scatterebbe sopra il ${num(m.riarmo, 0)}%`);
+      righe.push(`Conferme oggi: ${conf} (ne ${m.servono === 1 ? "serve 1" : "servono 2"}); il rimbalzo a V scatterebbe sopra ${R.art("il", num(m.riarmo, 0) + "%")}`);
     } else if (stato === "cooldown" && ep && ep.segnale != null) {
       righe.push(`Pausa dopo il trigger del ${dataIt(d.date[ep.segnale])}: ancora ${R.sedute(Math.max(0, P.cooldown - (t - ep.segnale)))}`);
-      if (!a.armato) righe.push(`Per una nuova zona blu l'ampiezza dovrà prima superare il ${num(a.riarmo, 0)}% (ora ${num(b, 1)}%)`);
+      if (!a.armato) righe.push(`Per una nuova zona blu l'ampiezza dovrà prima superare ${R.art("il", num(a.riarmo, 0) + "%")} (ora ${num(b, 1)}%)`);
     } else {
       const ddOk = pctDD != null && pctDD > P.ddIngresso;
       if (!a.armato && (dist <= P.fasciaAttenzione || stato === "attenzione")) {
-        righe.push(`Zona blu bloccata finché l'ampiezza non torna sopra il ${num(a.riarmo, 0)}% (ora ${num(b, 1)}%)`);
+        righe.push(`Zona blu bloccata finché l'ampiezza non torna sopra ${R.art("il", num(a.riarmo, 0) + "%")} (ora ${num(b, 1)}%)`);
       } else if (dist <= 0) {
         const k = chiusureSotto(d, lv);
         if (k < P.chiusureIngresso) righe.push(`${k === 1 ? "Prima chiusura" : k + " chiusure"} al livello blu: ne ${P.chiusureIngresso - k === 1 ? "manca 1" : "mancano " + (P.chiusureIngresso - k)} per entrare in zona blu`);
-        if (!ddOk) righe.push(`Ampiezza già al livello, ma il drawdown è al ${num(pctDD, 0)}° percentile: per la zona blu deve superare il ${P.ddIngresso}°`);
+        if (!ddOk) righe.push(`Ampiezza già al livello, ma il drawdown è ${R.art("al", num(pctDD, 0) + "°")} percentile: per la zona blu deve superare ${R.art("il", P.ddIngresso + "°")}`);
       } else if (dist <= P.fasciaAttenzione) {
-        righe.push(`Mancano ${num(dist, 1)} punti (${titoli(dist)} ${titoli(dist) === 1 ? "titolo" : "titoli"}) al livello blu del ${num(lv, 0)}%` +
-          (ddOk ? "; il drawdown è già abbastanza profondo" : `; poi il drawdown dovrà superare il ${P.ddIngresso}° percentile (ora ${num(pctDD, 0)}°)`));
+        righe.push(`Mancano ${num(dist, 1)} punti (${titoli(dist)} ${titoli(dist) === 1 ? "titolo" : "titoli"}) al livello blu ${R.art("del", num(lv, 0) + "%")}` +
+          (ddOk ? "; il drawdown è già abbastanza profondo" : `; poi il drawdown dovrà superare ${R.art("il", P.ddIngresso + "°")} percentile (ora ${num(pctDD, 0)}°)`));
       } else if (pctDD != null && pctDD > P.ddAttenzione) {
-        righe.push(`Drawdown più profondo del ${num(pctDD, 0)}% della storia, ma l'ampiezza è ancora ${num(dist, 1)} punti sopra il livello blu`);
+        righe.push(`Drawdown più profondo ${R.art("del", num(pctDD, 0) + "%")} della storia, ma l'ampiezza è ancora ${num(dist, 1)} punti sopra il livello blu`);
       }
     }
     return righe;
   }
 
-  async function disegna() {
+  // righe della tabella: una per settore, ordinate dal più vicino a un segnale
+  async function calcola() {
     const tutti = await R.dati.tuttiSettori();
     const [rot, indice] = await Promise.all([rotazioneSettori(), R.dati.indice().catch(() => null)]);
-    if (!visibile) return;
-
     const righe = R.meta.settori.map(s => {
       const d = tutti[s.etf];
       const a = R.analisiSync(s.etf, d);
@@ -105,6 +104,12 @@
       };
     });
     righe.sort((x, y) => (R.ORDINE_STATI[x.stato] - R.ORDINE_STATI[y.stato]) || ((x.dist ?? 999) - (y.dist ?? 999)));
+    return { righe, indice };
+  }
+
+  async function disegna() {
+    const { righe, indice } = await calcola();
+    if (!visibile) return;
 
     const dataDati = righe[0] ? righe[0].d.date[righe[0].d.date.length - 1] : R.meta.aggiornato;
     $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella vista Settore.`;
@@ -168,6 +173,41 @@
       </li>`).join("") : `<li class="vuoto">Nessun settore vicino a un cambio di stato.</li>`;
   }
 
+  // ---------- testo per la chat: panoramica di tutti i settori ----------
+  async function panoramica(aperta) {
+    const { righe, indice } = await calcola();
+    const P = R.parametri();
+    const out = [];
+    out.push(aperta
+      ? "## Pagina aperta: Monitor\nLa pagina mostra tre riquadri (ampiezza dell'intero S&P 500 negli ultimi 12 mesi, stato degli 11 settori, settore più vicino alla zona blu), la tabella di tutti i settori ordinata dal più vicino a un segnale (con il mini grafico degli ultimi 6 mesi della quota di titoli sopra la media 200) e la sezione «Da tenere d'occhio»."
+      : "## Panoramica di tutti gli 11 settori (sempre disponibile, anche se la pagina aperta è un'altra)");
+    if (indice && indice.b200 && indice.b200.length) {
+      const N = indice.b200.length;
+      out.push(`S&P 500 intero: ${num(indice.b200[N - 1], 1)}% dei titoli sopra la media 200 (un mese fa ${num(indice.b200[Math.max(0, N - 22)], 1)}%, un anno fa ${num(indice.b200[Math.max(0, N - 253)], 1)}%).`);
+    }
+    out.push("Settori, dal più vicino a un segnale:");
+    out.push("ETF | settore | stato | titoli sopra la media 200 oggi (un mese fa) | livello blu | punti dal livello blu | drawdown dal massimo a 52 settimane (percentile della storia) | rotazione settimanale contro SPY");
+    for (const r of righe) {
+      const sopra = r.b == null ? "—" : Math.round((r.b / 100) * r.n);
+      const rot = r.rot ? `${NOMI_Q[r.rot.quadrante]}, direzione ${num(r.rot.direzione, 0)}° ${r.rot.bussola || ""}, da ${r.rot.durata} ${r.rot.durata === 1 ? "settimana" : "settimane"}` : "—";
+      out.push(`${r.etf} | ${r.nome} | ${S.STATI[r.stato]} | ${num(r.b, 1)}% = ${sopra} su ${r.n} titoli (${num(r.mese, 1)}%) | ${num(r.lv, 0)}% | ${R.segnato(r.dist, 1)} | ${pct(r.dd, 1)} (${num(r.pctDD, 0)}°) | ${rot}`);
+    }
+    out.push("Cosa manca a ogni settore per cambiare stato (sezione «Da tenere d'occhio»):");
+    for (const r of righe) {
+      const testi = daOsservare(r.etf, r.d, r.a);
+      if (testi.length) out.push(`- ${r.etf}: ${testi.join(". ")}.`);
+    }
+    out.push("Ultima zona blu di ogni settore:");
+    for (const r of righe) {
+      const ep = r.a.episodi[r.a.episodi.length - 1];
+      if (!ep) { out.push(`- ${r.etf}: nessuna zona blu dal 2005 con il livello attuale`); continue; }
+      const trig = ep.segnale != null ? `trigger il ${dataIt(r.d.date[ep.segnale])}, ETF a 3 mesi dal trigger ${pct(ep.r3, 1)}` : "nessun trigger ancora";
+      out.push(`- ${r.etf}: iniziata il ${dataIt(r.d.date[ep.inizio])}, ${trig}; ${r.a.episodi.length} zone blu in tutto dal 2005`);
+    }
+    out.push(`Parametri: zona blu con ${P.chiusureIngresso} chiusure al livello o sotto e drawdown oltre ${R.art("il", P.ddIngresso + "°")} percentile; attenzione entro ${P.fasciaAttenzione} punti dal livello o drawdown oltre ${R.art("il", P.ddAttenzione + "°")} percentile.`);
+    return out.join("\n");
+  }
+
   function init() {
     const apri = e => {
       const el = e.target.closest("[data-etf]");
@@ -183,5 +223,5 @@
   function mostra() { visibile = true; document.title = "Monitor · Radar Settori"; return disegna(); }
   function nascondi() { visibile = false; }
 
-  R.viste.mon = { init, mostra, nascondi, daOsservare };
+  R.viste.mon = { init, mostra, nascondi, daOsservare, panoramica, contesto: () => panoramica(true) };
 })();

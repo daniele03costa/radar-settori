@@ -298,7 +298,7 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
     --line: #ddd; --line-2: #ccc; --grid: rgba(0, 0, 0, .08); --price: #000; --tail: rgba(0, 0, 0, .4); --tail-line: rgba(0, 0, 0, .5);
   }
   body { background: #fff !important; color: #000; }
-  .sidebar, .topbar, .controls, .rot-controls, .foot-btns, #rot-play, details.maint, .filter { display: none !important; }
+  .sidebar, .topbar, .controls, .rot-controls, .foot-btns, #rot-play, details.maint, .filter, .claude-btn, .avviso { display: none !important; }
   .shell { display: block; }
   .main { padding: 0; max-width: none; }
   .card, .kpi { box-shadow: none; break-inside: avoid; }

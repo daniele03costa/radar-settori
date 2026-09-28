@@ -40,6 +40,13 @@
   R.$$ = (sel, el = document) => Array.from(el.querySelectorAll(sel));
   R.css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   R.sedute = k => `${k} ${k === 1 ? "seduta" : "sedute"}`;
+  // preposizione articolata davanti a un numero: «al 5%» ma «all'8%», «dell'11%», «l'80°»
+  const ELISIONI = { il: "l'", al: "all'", del: "dell'", dal: "dall'", sul: "sull'", nel: "nell'" };
+  R.art = (prep, testo) => {
+    const t = String(testo);
+    const vocale = /^(8|11(?!\d)|1(?!\d))/.test(t.replace(/<[^>]*>/g, "").trim());
+    return (vocale ? ELISIONI[prep] : prep + " ") + t;
+  };
 
   // ---------- SVG ----------
   const NS = "http://www.w3.org/2000/svg";
@@ -128,7 +135,7 @@
         <summary>Parametri in uso</summary>
         <table class="tbl param-tbl"><tbody>
           <tr><td>Fascia di attenzione sopra il livello blu</td><td>${P.fasciaAttenzione} punti</td></tr>
-          <tr><td>Drawdown per l'attenzione / per la zona blu</td><td>oltre l'${P.ddAttenzione}° / il ${P.ddIngresso}° percentile</td></tr>
+          <tr><td>Drawdown per l'attenzione / per la zona blu</td><td>oltre ${R.art("il", P.ddAttenzione + "°")} / ${R.art("il", P.ddIngresso + "°")} percentile</td></tr>
           <tr><td>Chiusure al livello o sotto per entrare</td><td>${P.chiusureIngresso}</td></tr>
           <tr><td>Recupero minimo per il trigger</td><td>max(${P.recuperoPunti} punti, ${P.recuperoTitoli} titoli) sul livello; ${P.recuperoTitoli} titoli sul minimo</td></tr>
           <tr><td>Spinta sulla media 20 / sulla media 50</td><td>≤${P.spinta20.da}% → ≥${P.spinta20.a}% in ${P.spinta20.sedute} sedute / ≤${P.spinta50.da}% → ≥${P.spinta50.a}% in ${P.spinta50.sedute}</td></tr>

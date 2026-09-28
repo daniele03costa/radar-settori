@@ -328,6 +328,7 @@
       if (t && t.closest && t.closest("#viste") && e.key.startsWith("Arrow")) return;
       if (e.key === "/") { e.preventDefault(); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
+      if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
       if (/^[1-5]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
@@ -344,7 +345,8 @@
       return;
     }
     if (!R.meta.settori || !R.meta.settori.length) { mostraVuoto(); return; }
-    $("#aggiornato").textContent = `dati al ${dataIt(R.meta.aggiornato)}`;
+    $("#aggiornato").textContent = dataIt(R.meta.aggiornato);
+    $("#aggiornato").title = `Dati alla chiusura del ${dataIt(R.meta.aggiornato)}`;
     date.meta = R.meta.aggiornato;
     aggiornaBadge();
 
