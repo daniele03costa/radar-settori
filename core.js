@@ -66,7 +66,7 @@
     settore: etf => carica(`data/settori/${etf}.json?v=${versione()}`),
     tuttiSettori: () => Promise.all(R.meta.settori.map(s => R.dati.settore(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
     indice: () => carica(`data/indice.json?v=${versione()}`),
-    universi: () => carica("config/universi.json", { cache: "no-cache" }),
+    universi: () => carica("universi.json", { cache: "no-cache" }),
     prezzi: mercato => carica(mercato === "globale" ? "data/prezzi_globali.json" : "data/prezzi_usa.json", { cache: "no-cache" }),
   };
 

@@ -1,7 +1,7 @@
 """
 Test dello script dei prezzi con dati simulati (nessuna connessione a Internet).
 
-    python -m pytest test/            oppure        python test/test_prices.py [cartella_output]
+    python -m pytest            oppure        python test_prices.py [cartella_output]
 """
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 import build_prices as bp  # noqa: E402
 
 

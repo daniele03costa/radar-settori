@@ -258,7 +258,7 @@
       <p class="small">Predefinito: ${num(def, 0)}% (tabella quant-rea «200 LEVEL SETTORI»).
         ${lv !== def ? `<button class="linkish" type="button" id="soglia-reset">Torna a ${num(def, 0)}%</button>` : ""}
         La modifica vale solo in questo browser e serve a vedere come cambiano zone blu, trigger ed episodi.
-        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata in <code>config/settings.json</code>).</p>`;
+        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata nel file <code>settings.json</code>).</p>`;
   }
 
   function disegnaTitoli() {

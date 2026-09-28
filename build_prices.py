@@ -18,7 +18,7 @@ Cosa fa lo script, in ordine:
      20% di prezzi immobili, l'ultima data deve avere il prezzo di tutti i titoli attivi e non può
      essere più vecchia di quella già pubblicata. Altrimenti il file esistente resta com'è.
 
-Uso:  python scripts/build_prices.py
+Uso:  python build_prices.py
 """
 from __future__ import annotations
 
@@ -33,8 +33,8 @@ from typing import Callable, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-UNIVERSE_PATH = ROOT / "config" / "universi.json"
+ROOT = Path(__file__).resolve().parent          # tutti i file stanno nella cartella principale
+UNIVERSE_PATH = ROOT / "universi.json"
 DATA_DIR = ROOT / "data"
 
 MIN_RESPONSE = 0.80

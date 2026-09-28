@@ -19,7 +19,7 @@
     "XLU": 5
   },
   "percentile_soglia_default": 5,
-  "_parametri": "Parametri degli stati. Lascia vuoto per i valori standard; i nomi sono quelli di PARAMETRI in assets/signals.js.",
+  "_parametri": "Parametri degli stati. Lascia vuoto per i valori standard; i nomi sono quelli di PARAMETRI in signals.js.",
   "parametri": {},
   "settori": [
     {

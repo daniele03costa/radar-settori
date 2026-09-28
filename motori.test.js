@@ -1,9 +1,9 @@
-// Test dei motori di calcolo:  node --test test/motori.test.js
+// Test dei motori di calcolo:  node --test motori.test.js
 const test = require("node:test");
 const assert = require("node:assert");
-const R = require("../assets/rrg.js");
-const P = require("../assets/portafoglio.js");
-const C = require("../assets/calendario.js");
+const R = require("./rrg.js");
+const P = require("./portafoglio.js");
+const C = require("./calendario.js");
 
 function giorni(da, n) {
   const out = [];

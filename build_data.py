@@ -9,7 +9,7 @@ calcola per ogni settore:
   • la situazione attuale di ogni titolo del settore
 e scrive i file JSON in data/ letti dal sito.
 
-Uso:  python scripts/build_data.py
+Uso:  python build_data.py
 """
 from __future__ import annotations
 
@@ -26,8 +26,8 @@ import numpy as np
 import pandas as pd
 import requests
 
-ROOT = Path(__file__).resolve().parents[1]
-CONFIG_PATH = ROOT / "config" / "settings.json"
+ROOT = Path(__file__).resolve().parent          # tutti i file stanno nella cartella principale
+CONFIG_PATH = ROOT / "settings.json"
 DATA_DIR = ROOT / "data"
 CACHE_DIR = DATA_DIR / "cache"
 

@@ -1,7 +1,7 @@
 """
 Test della pipeline con dati simulati (nessuna connessione a Internet).
 
-    python -m pytest test/            oppure        python test/test_build.py [cartella_output]
+    python -m pytest            oppure        python test_build.py [cartella_output]
 
 Con una cartella di output genera un set di dati finti per provare il sito in locale.
 """
@@ -15,8 +15,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 import build_data as bd  # noqa: E402
 
 

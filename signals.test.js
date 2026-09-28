@@ -1,7 +1,7 @@
-// Test della macchina a stati:  node --test test/
+// Test della macchina a stati:  node --test signals.test.js
 const test = require("node:test");
 const assert = require("node:assert");
-const S = require("../assets/signals.js");
+const S = require("./signals.js");
 
 // costruisce una serie finta: b200/b50/b20/close giorno per giorno
 function serie(N, f) {

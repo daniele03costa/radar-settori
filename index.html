@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/style.css">
-  <link rel="stylesheet" href="assets/viste.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="viste.css">
   <script>
     try {
       var t = localStorage.getItem("radar.tema"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
@@ -312,9 +312,9 @@
           <summary>Per chi gestisce il sito</summary>
           <ol>
             <li>L'aggiornamento parte da solo la sera dopo la chiusura di Wall Street e riprova due volte nella notte, se Yahoo è in ritardo (GitHub → <b>Actions</b> → <b>Aggiorna dati</b>). Per lanciarlo subito: <b>Run workflow</b>.</li>
-            <li>I livelli blu predefiniti stanno in <code>config/settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della vista Settore prepara il testo da incollare.</li>
-            <li>I parametri degli stati si cambiano alla voce <code>"parametri"</code> dello stesso file (nomi in cima a <code>assets/signals.js</code>).</li>
-            <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>config/universi.json</code>: vengono letti al successivo aggiornamento.</li>
+            <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della vista Settore prepara il testo da incollare.</li>
+            <li>I parametri degli stati si cambiano alla voce <code>"parametri"</code> dello stesso file (nomi in cima a <code>signals.js</code>).</li>
+            <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>universi.json</code>: vengono letti al successivo aggiornamento.</li>
           </ol>
         </details>
       </section>
@@ -371,17 +371,17 @@
     </div>
   </div>
 
-  <script src="assets/signals.js"></script>
-  <script src="assets/rrg.js"></script>
-  <script src="assets/portafoglio.js"></script>
-  <script src="assets/calendario.js"></script>
-  <script src="assets/chart.js"></script>
-  <script src="assets/core.js"></script>
-  <script src="assets/view-settore.js"></script>
-  <script src="assets/view-monitor.js"></script>
-  <script src="assets/view-rotazione.js"></script>
-  <script src="assets/view-bottom.js"></script>
-  <script src="assets/view-alert.js"></script>
-  <script src="assets/app.js"></script>
+  <script src="signals.js"></script>
+  <script src="rrg.js"></script>
+  <script src="portafoglio.js"></script>
+  <script src="calendario.js"></script>
+  <script src="chart.js"></script>
+  <script src="core.js"></script>
+  <script src="view-settore.js"></script>
+  <script src="view-monitor.js"></script>
+  <script src="view-rotazione.js"></script>
+  <script src="view-bottom.js"></script>
+  <script src="view-alert.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 (function (root) {
   "use strict";
 
-  // Parametri degli stati (si possono cambiare da config/settings.json → "parametri")
+  // Parametri degli stati (si possono cambiare da settings.json → "parametri")
   const PARAMETRI = {
     fasciaAttenzione: 10,  // punti sopra il livello blu entro cui scatta "Attenzione"
     ddAttenzione: 85,      // percentile di profondità del drawdown che fa scattare "Attenzione"

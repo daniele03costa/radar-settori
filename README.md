@@ -27,7 +27,7 @@ Solo per studio personale: non è una consulenza finanziaria.
 
 ### 2. Carica i file
 1. Nella pagina del repository vuoto clicca su **uploading an existing file**.
-2. Apri la cartella `radar-settori` estratta dallo zip, seleziona **tutto il contenuto** (index.html, favicon.svg, README.md e le cartelle assets, config, scripts, test) e trascinalo nella pagina.
+2. Apri la cartella `radar-settori` estratta dallo zip, seleziona **tutti i file** (Ctrl+A) e trascinali nella pagina. Tutti i file stanno nella stessa cartella: non ci sono sottocartelle da ricreare.
 3. In fondo premi **Commit changes**.
 
 ### 3. Aggiungi l'aggiornamento automatico
@@ -60,9 +60,9 @@ Dopo un paio di minuti il sito è su `https://TUO-NOME-UTENTE.github.io/radar-se
 
 **Nella scheda Actions c'è una X rossa.** Di solito Yahoo Finance ha limitato i download per un po'. Il sito continua a mostrare i dati precedenti; i passaggi di recupero della notte o un *Run workflow* manuale sistemano.
 
-**Voglio cambiare il livello blu di un settore per tutti.** Nella vista Settore premi **Copia configurazione**, apri `config/settings.json` su GitHub (icona della matita), sostituisci la riga `"soglie"` e lancia *Aggiorna dati*.
+**Voglio cambiare il livello blu di un settore per tutti.** Nella vista Settore premi **Copia configurazione**, apri `settings.json` su GitHub (icona della matita), sostituisci la riga `"soglie"` e lancia *Aggiorna dati*.
 
-**Voglio aggiungere o togliere un ETF dalla rotazione.** Modifica `config/universi.json`: il prossimo aggiornamento scarica la nuova lista.
+**Voglio aggiungere o togliere un ETF dalla rotazione.** Modifica `universi.json`: il prossimo aggiornamento scarica la nuova lista.
 
 **GitHub dice che i workflow programmati sono stati disattivati.** Succede dopo 60 giorni senza attività nel repository: riattivali dalla scheda Actions.
 
@@ -70,7 +70,7 @@ Dopo un paio di minuti il sito è su `https://TUO-NOME-UTENTE.github.io/radar-se
 
 ## Regole degli stati
 
-I valori si trovano in `assets/signals.js` (`PARAMETRI`) e si possono cambiare in `config/settings.json` → `"parametri"`.
+I valori si trovano in `signals.js` (`PARAMETRI`) e si possono cambiare in `settings.json` → `"parametri"`.
 
 - **Ampiezza**: quota dei titoli del settore nell'S&P 500 che chiudono sopra la propria media a 200 sedute (e a 50 e 20). Prezzi corretti per gli split, non per i dividendi. Per il passato si usano i membri dell'indice di allora.
 - **Attenzione**: l'ampiezza è a 10 punti o meno sopra il livello blu, oppure il drawdown del settore supera per profondità l'85% delle sedute passate.
@@ -94,16 +94,20 @@ Tre modi, scelti nella vista (spiegati anche nella pagina):
 
 ## File del progetto
 
+Tutti i file stanno nella cartella principale del repository (solo l'aggiornamento automatico è in `.github/workflows/`).
+
 | File | Contenuto |
 |---|---|
-| `scripts/build_data.py` | ampiezza dei settori e dell'intero indice, ETF settoriali, fotografia dei titoli → `data/meta.json`, `data/indice.json`, `data/settori/*.json` |
-| `scripts/build_prices.py` | prezzi per la rotazione → `data/prezzi_usa.json`, `data/prezzi_globali.json` (calendario a maggioranza, bitcoin, cambi, correzione di prezzi anomali, controlli di qualità) |
+| `build_data.py` | ampiezza dei settori e dell'intero indice, ETF settoriali, fotografia dei titoli → `data/meta.json`, `data/indice.json`, `data/settori/*.json` |
+| `build_prices.py` | prezzi per la rotazione → `data/prezzi_usa.json`, `data/prezzi_globali.json` (calendario a maggioranza, bitcoin, cambi, correzione di prezzi anomali, controlli di qualità) |
+| `requirements.txt` | librerie Python usate dall'aggiornamento |
 | `.github/workflows/aggiorna-dati.yml` | aggiornamento automatico |
-| `config/settings.json` | settori, livelli blu, parametri degli stati |
-| `config/universi.json` | universi, termini di confronto, portafoglio di riferimento |
-| `assets/signals.js` | macchina a stati ed episodi |
-| `assets/rrg.js`, `assets/portafoglio.js`, `assets/calendario.js` | rotazione, portafoglio, calendari NYSE e Borsa Italiana |
-| `assets/view-*.js`, `assets/app.js`, `assets/core.js` | le cinque viste e la struttura dell'app |
-| `test/` | `python -m pytest test/` · `node --test test/signals.test.js test/motori.test.js` |
+| `settings.json` | settori, livelli blu, parametri degli stati |
+| `universi.json` | universi, termini di confronto, portafoglio di riferimento |
+| `signals.js` | macchina a stati ed episodi |
+| `rrg.js`, `portafoglio.js`, `calendario.js` | rotazione, portafoglio, calendari NYSE e Borsa Italiana |
+| `view-*.js`, `app.js`, `core.js`, `chart.js`, `style.css`, `viste.css` | le cinque viste, la struttura dell'app e la grafica |
+| `test_*.py`, `*.test.js` | test con dati simulati: `python -m pytest` · `node --test signals.test.js motori.test.js` |
+| `data/` | creata dall'aggiornamento automatico, non va caricata a mano |
 
 Fonti: prezzi Yahoo Finance; composizione dell'S&P 500 da Wikipedia e dai dataset pubblici *datasets/s-and-p-500-companies* e *fja05680/sp500*. Yahoo non ha i prezzi delle società uscite dal listino, quindi lo storico dei primi anni ne è privo (un po' di distorsione a favore dei "sopravvissuti").
