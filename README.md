@@ -4,7 +4,7 @@ Sito statico (GitHub Pages) per seguire i settori dell'S&P 500 e un gruppo di ET
 
 | Vista | A cosa serve |
 |---|---|
-| **1 · Monitor** | Tutti gli 11 settori in una tabella, ordinati da chi è più vicino a un segnale. Per ognuno: stato, andamento degli ultimi 6 mesi della quota di titoli sopra la media 200, valore di oggi e variazione in un mese, distanza dal livello blu, drawdown (in rosso se è tra il 20% più profondo della storia) e quadrante di rotazione contro SPY. In più, cosa manca a ogni settore per cambiare stato. |
+| **1 · Monitor** | Tutti gli 11 settori in una tabella, ordinati da chi è più vicino a un segnale. Per ognuno: stato, andamento degli ultimi 6 mesi della quota di titoli sopra la media 200, valore di oggi (anche in numero di titoli, per esempio 1/31) e variazione in un mese, distanza dal livello blu in punti e in titoli, drawdown (in rosso oltre l'85° percentile, la soglia dell'attenzione) e quadrante di rotazione contro SPY. In più, cosa manca a ogni settore per cambiare stato. |
 | **2 · Rotazione** | Grafico della forza relativa (RS-Ratio) e della sua variazione (RS-Momentum) contro un termine di confronto, con scia, animazione nel tempo, tabella (quadrante, direzione, velocità, distanza, durata, quadrante precedente), tabella dei prezzi e andamento base 100 su 3M/6M/1A/2A. Universi: settori S&P 500, MAG7, e ETF in euro per asset class, fattori, regioni e paesi. Per le asset class c'è il portafoglio di riferimento con pesi modificabili. |
 | **3 · Bottom Map** | Ogni settore è un punto: profondità del drawdown rispetto alla sua storia contro distanza dal livello blu, con la scia delle ultime settimane. |
 | **4 · Settore** | Prezzo con media 200, drawdown e ampiezza (medie 200, 50, 20) con zone blu e trigger; livello blu regolabile; storico degli episodi; tutti i titoli del settore, come mappa a tessere e tabella completa, con la scheda del singolo titolo. |
@@ -12,7 +12,7 @@ Sito statico (GitHub Pages) per seguire i settori dell'S&P 500 e un gruppo di ET
 
 In più: pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`5`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone.
 
-I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions.
+I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions. Si usano solo chiusure: se l'aggiornamento parte a borsa aperta, per esempio lanciato a mano nel pomeriggio, la seduta del giorno viene scartata.
 
 Solo per studio personale: non è una consulenza finanziaria.
 
@@ -55,7 +55,7 @@ Con l'estensione **Claude in Chrome**, compresa negli abbonamenti a pagamento di
 
 1. In Chrome sul computer apri il Chrome Web Store, cerca **Claude** (di Anthropic) e premi **Aggiungi a Chrome**; accedi con il tuo account Claude e fissa l'icona nella barra (pezzo di puzzle → puntina).
 2. Apri Radar Settori e premi l'icona di Claude: si apre il pannello laterale. Chiedi per esempio «Com'è messo questo settore?» o «Spiegami questo grafico».
-3. Claude legge il testo della pagina e può guardarla. Per dargli anche i numeri che nei grafici non si leggono (storico mese per mese, tutti i titoli, episodi, scie della rotazione) premi **Copia per Claude**, in basso nella barra laterale (o il tasto `C`), e incolla nel pannello con Ctrl+V. Lo stesso testo si può incollare in qualsiasi chat con Claude.
+3. Claude legge il testo della pagina e può guardarla. Per dargli anche i numeri che nei grafici non si leggono (storico mese per mese, tutti i titoli, episodi, scie della rotazione) premi **Copia per Claude**, in alto a destra (o il tasto `C`), e incolla nel pannello con Ctrl+V. Lo stesso testo si può incollare in qualsiasi chat con Claude.
 
 ---
 
@@ -109,6 +109,7 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 | File | Contenuto |
 |---|---|
 | `build_data.py` | ampiezza dei settori e dell'intero indice, ETF settoriali, fotografia dei titoli, elenco di tutte le azioni per la ricerca → `data/meta.json`, `data/indice.json`, `data/settori/*.json`, `data/titoli.json` |
+| `orari.py` | orari delle borse: la seduta di oggi si pubblica solo quando la borsa ha chiuso |
 | `build_prices.py` | prezzi per la rotazione → `data/prezzi_usa.json`, `data/prezzi_globali.json` (calendario a maggioranza, bitcoin, cambi, correzione di prezzi anomali, controlli di qualità) |
 | `requirements.txt` | librerie Python usate dall'aggiornamento |
 | `.github/workflows/aggiorna-dati.yml` | aggiornamento automatico |

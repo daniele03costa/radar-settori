@@ -89,9 +89,12 @@ def synthetic_market(seed: int = 7):
     return cfg, current, intervals, downloader, lookup
 
 
+DOPO_LA_CHIUSURA = pd.Timestamp("2026-09-25 22:40", tz="UTC")   # 18:40 a New York
+
+
 def run(out_dir: Path) -> dict:
     cfg, current, intervals, downloader, lookup = synthetic_market()
-    return bd.build(cfg, current, intervals, downloader, lookup, out_dir=out_dir)
+    return bd.build(cfg, current, intervals, downloader, lookup, out_dir=out_dir, adesso=DOPO_LA_CHIUSURA)
 
 
 def test_build_outputs():
@@ -140,8 +143,19 @@ def test_incomplete_last_session_is_dropped():
         return out
 
     with tempfile.TemporaryDirectory() as d:
-        meta = bd.build(cfg, current, intervals, partial, lookup, out_dir=Path(d))
+        meta = bd.build(cfg, current, intervals, partial, lookup, out_dir=Path(d), adesso=DOPO_LA_CHIUSURA)
         assert meta["aggiornato"] == "2026-09-24"
+
+
+def test_session_still_open_is_not_published():
+    """Lanciato alle 15:45 italiane (9:45 a New York) usa le chiusure del giorno prima."""
+    cfg, current, intervals, downloader, lookup = synthetic_market()
+    with tempfile.TemporaryDirectory() as d:
+        meta = bd.build(cfg, current, intervals, downloader, lookup, out_dir=Path(d),
+                        adesso=pd.Timestamp("2026-09-25 13:45", tz="UTC"))
+        assert meta["aggiornato"] == "2026-09-24"
+        p = json.loads((Path(d) / "settori" / "XLK.json").read_text())
+        assert p["date"][-1] == "2026-09-24"
 
 
 def test_membership_mask():

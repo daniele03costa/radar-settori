@@ -8,6 +8,7 @@ Borsa Italiana). I due file sono separati: se una delle due fonti non risponde, 
 Cosa fa lo script, in ordine:
   1. scarica le chiusure rettificate da Yahoo Finance (per le borse europee aggiunge l'ultimo prezzo
      del giorno se la chiusura non è ancora in serie) e converte in euro ciò che quota in un'altra valuta;
+     se la borsa è ancora aperta, i prezzi di oggi non sono chiusure e vengono scartati;
   2. costruisce il calendario con i giorni in cui ha quotato più della metà dei titoli attivi e,
      nei buchi, ripete l'ultimo prezzo conosciuto;
   3. il bitcoin, che quota anche nel fine settimana, viene allineato al calendario prendendo il valore
@@ -34,6 +35,9 @@ import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parent          # tutti i file stanno nella cartella principale
+sys.path.insert(0, str(ROOT))
+from orari import seduta_in_corso  # noqa: E402
+
 UNIVERSE_PATH = ROOT / "universi.json"
 DATA_DIR = ROOT / "data"
 
@@ -271,7 +275,8 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
                  out_path: Path,
                  fx_downloader: Optional[Callable[[List[str], str], pd.DataFrame]] = None,
                  last_quotes: Optional[Callable[[List[str]], Dict[str, Tuple[pd.Timestamp, float]]]] = None,
-                 calendar_name: str = "NYSE") -> Optional[dict]:
+                 calendar_name: str = "NYSE",
+                 adesso: Optional[pd.Timestamp] = None) -> Optional[dict]:
     log(f"{name}: scarico {len(symbols)} titoli…")
     raw = downloader(symbols, start)
     if raw is None or raw.empty:
@@ -293,6 +298,12 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
                 raw.loc[day] = np.nan
                 raw = raw.sort_index()
             raw.at[day, sym] = price
+
+    # si pubblicano solo chiusure: se la borsa è ancora aperta, la seduta di oggi si scarta
+    in_corso = seduta_in_corso("NYSE" if calendar_name == "NYSE" else "Borsa Italiana", adesso)
+    if in_corso is not None and len(raw.index) and raw.index[-1] >= in_corso:
+        log(f"{name}: la seduta del {in_corso:%Y-%m-%d} non è ancora chiusa, si pubblica fino al giorno prima")
+        raw = raw[raw.index < in_corso]
 
     # conversione in euro dei titoli in altra valuta
     fx_needed = sorted({(info.get(s) or {}).get("valuta", "EUR") for s in symbols} - {"EUR", ""})

@@ -412,18 +412,12 @@ input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius
 footer { padding: 28px 2px 0; font-size: 12.5px; color: var(--muted); max-width: 1100px; }
 
 /* ============ copia per Claude ============ */
-.claude-btn {
-  display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; width: 100%;
-  height: 42px; padding: 0 10px 0 8px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface-2);
-  color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+.copia-btn {
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink-2); font-size: 12.5px; font-weight: 500; cursor: pointer;
 }
-.claude-btn:hover { background: var(--surface-3); }
-.claude-btn .logo {
-  width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: #fff; flex: none;
-  background: linear-gradient(135deg, var(--b200), var(--soglia));
-}
-.claude-btn .logo svg { width: 16px; height: 16px; }
-.claude-btn kbd { font-size: 10.5px; color: var(--muted); border: 1px solid var(--line-2); border-radius: 5px; padding: 0 5px; line-height: 17px; font-weight: 500; }
+.copia-btn:hover { background: var(--surface-2); color: var(--ink); }
+.copia-btn svg { width: 15px; height: 15px; flex: none; }
 .avviso {
   position: fixed; left: 50%; bottom: 24px; z-index: 70; transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
   max-width: min(520px, calc(100vw - 32px)); padding: 11px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 500;
@@ -441,6 +435,10 @@ footer { padding: 28px 2px 0; font-size: 12.5px; color: var(--muted); max-width:
 @media (max-width: 1480px) {
   .main { padding: 20px 26px 40px; }
 }
+@media (max-width: 720px) {
+  .copia-btn span { display: none; }
+  .copia-btn { width: 32px; padding: 0; justify-content: center; }
+}
 @media (max-width: 960px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
   .sidebar {
@@ -453,11 +451,7 @@ footer { padding: 28px 2px 0; font-size: 12.5px; color: var(--muted); max-width:
   .side-foot { grid-row: 1; grid-column: 2; margin: 0; padding: 0 16px 8px; border: 0; }
   .theme-btn span { display: none; }
   .theme-btn { flex: none; width: 32px; padding: 0; }
-  .side-foot { display: flex; align-items: center; gap: 6px; }
   .foot-row { gap: 6px; }
-  .claude-btn { width: 32px; height: 32px; padding: 0; display: grid; place-items: center; grid-template-columns: 1fr; border-radius: 8px; }
-  .claude-btn .lab, .claude-btn kbd { display: none; }
-  .claude-btn .logo { width: 22px; height: 22px; border-radius: 6px; }
   .sector-list { grid-column: 1 / -1; flex-direction: row; overflow-x: auto; gap: 6px; padding: 2px 16px 4px; scrollbar-width: none; }
   .sector-list::-webkit-scrollbar { display: none; }
   .sec { flex: 0 0 140px; grid-template-columns: 1fr auto; border: 1px solid var(--line); background: var(--surface); padding: 7px 10px; }

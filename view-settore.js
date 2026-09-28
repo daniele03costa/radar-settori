@@ -226,7 +226,9 @@
     const anno = a => a.slice(Math.max(0, N - 252));
     const c = R.colori();
     const tile = (k, l, v, sub, extra = "") => `<div class="kpi" style="--k:${k}"><div class="l"><i></i>${l}</div><div class="v">${v}</div><div class="s">${sub}</div>${extra}</div>`;
-    const distCol = dist == null ? "var(--faint)" : dist <= 0 ? "var(--st-blu)" : dist <= 10 ? "var(--st-attenzione)" : "var(--faint)";
+    const P = R.parametri();
+    const tl = R.titoliLivello(b200, n, lv);
+    const distCol = dist == null ? "var(--faint)" : dist <= 0 ? "var(--st-blu)" : dist <= P.fasciaAttenzione ? "var(--st-attenzione)" : "var(--faint)";
     $("#kpi").innerHTML =
       tile("var(--price)", `Ultimo ${d.etf}`, num(ultimo, 2), `<span class="${cls(vsMa)}">${vsMa == null ? "—" : pct(vsMa, 1)}</span> sulla media 200`,
         R.sparkline(anno(d.close), { colore: c.price })) +
@@ -234,10 +236,10 @@
         R.sparkline(anno(d.b200), { colore: c.b200, livello: lv, min: 0, area: true })) +
       tile("var(--b50)", "Titoli sopra la media 50", `${num(b50, 1)}<small>%</small>`, "ultimi 12 mesi",
         R.sparkline(anno(d.b50), { colore: c.b50, min: 0, max: 100 })) +
-      tile(distCol, "Distanza dal livello blu", dist == null ? "—" : `${R.segnato(dist, 1)}<small> punti</small>`,
-        dist != null && dist <= 0 ? "al livello blu o sotto" : `livello blu ${R.art("al", num(lv, 0) + "%")}`,
+      tile(distCol, "Distanza dal livello blu", !tl ? "—" : tl.mancano ? `${tl.mancano}<small> ${tl.mancano === 1 ? "titolo" : "titoli"}</small>` : "al livello",
+        `livello ${num(lv, 0)}% = ${tl ? `${tl.soglia}/${tl.n}` : "—"} · ${R.segnato(dist, 1)} punti`,
         `<div class="meter"><i style="width:${Math.max(0, Math.min(100, b200 || 0))}%;background:var(--b200)"></i><s style="left:${Math.min(100, lv)}%"></s></div>`) +
-      tile("var(--dd)", "Drawdown a 52 settimane", `<span class="${rank != null && rank > 80 ? "neg" : ""}">${pct(dd, 1)}</span>`,
+      tile("var(--dd)", "Drawdown a 52 settimane", `<span class="${rank != null && rank > P.ddAttenzione ? "neg" : ""}">${pct(dd, 1)}</span>`,
         rank == null ? "" : `${num(rank, 0)}° percentile della storia`,
         R.sparkline(anno(d.dd), { colore: c.dd, max: 0, area: true }));
   }
@@ -262,7 +264,7 @@
         <div class="scale"><span>0%</span><span>oggi ${num(b200, 1)}% · livello ${num(lv, 0)}%</span><span>100%</span></div>
       </div>
       <p>Dal ${dataIt(primo)} l'ampiezza ha chiuso a questo livello o sotto ${R.art("nel", `<b>${num(st.analisi.quotaSotto, 1)}%</b>`)} delle sedute.
-        ${n ? `Il settore ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>.` : ""}
+        ${n ? `Il settore ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>, quindi il livello ${R.art("del", num(lv, 0) + "%")} vuol dire <b>${R.titoliLivello(0, n, lv).soglia} ${R.titoliLivello(0, n, lv).soglia === 1 ? "titolo" : "titoli"} su ${n}</b> sopra la media 200${R.titoliLivello(0, n, lv).soglia === 0 ? ", cioè tutti sotto" : ""}.` : ""}
         Livello di riarmo: <b>${num(st.analisi.riarmo, 0)}%</b>.</p>
       <p class="small">Predefinito: ${num(def, 0)}% (tabella quant-rea «200 LEVEL SETTORI»).
         ${lv !== def ? `<button class="linkish" type="button" id="soglia-reset">Torna a ${num(def, 0)}%</button>` : ""}
@@ -480,7 +482,7 @@
       `${sopra == null ? "—" : sopra} titoli su ${n} sopra la media 200 = ${num(b200, 1)}%; sopra la media 50 ${num(d.b50[t], 1)}%` +
       `${d.b20 ? `; sopra la media 20 ${num(d.b20[t], 1)}%` : ""}; drawdown ${pct(d.dd[t], 1)}, più profondo ${R.art("del", num(a.ddPerc[t], 0) + "%")} delle sedute passate.`);
     out.push(`Livello blu in uso: ${num(lv, 0)}%${lv !== def ? ` (cambiato in questo browser; quello predefinito è ${num(def, 0)}%)` : " (predefinito)"}; ` +
-      `distanza ${R.segnato(b200 == null ? null : b200 - lv, 1)} punti (un titolo vale ${num(100 / Math.max(1, n), 1)} punti); ` +
+      `distanza ${R.segnato(b200 == null ? null : b200 - lv, 1)} punti (un titolo vale ${num(100 / Math.max(1, n), 1)} punti; il livello corrisponde a ${(R.titoliLivello(b200, n, lv) || {}).soglia} titoli su ${n} sopra la media 200 e ne devono ancora scendere ${(R.titoliLivello(b200, n, lv) || {}).mancano}); ` +
       `dal ${dataIt(d.date[d.b200.findIndex(v => v != null)])} l'ampiezza è stata al livello o sotto ${R.art("nel", num(a.quotaSotto, 1) + "%")} delle sedute; ` +
       `livello di riarmo ${num(a.riarmo, 0)}%${a.armato ? "" : " (per ora nuova zona blu bloccata: l'ampiezza deve prima tornare sopra il riarmo)"}.`);
     if (a.manca) {

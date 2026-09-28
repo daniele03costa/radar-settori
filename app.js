@@ -23,7 +23,7 @@
       let stato = null;
       try { const d = R._settoriPronti && R._settoriPronti[s.etf]; if (d) stato = R.analisiSync(s.etf, d).statoOggi; } catch (e) { /* niente */ }
       return `<a class="sec${stato ? " st-" + stato : ""}" href="#${s.etf}" data-etf="${s.etf}" aria-current="${s.etf === corrente}"
-        title="${esc(s.nome)}: ${num(s.b200, 1)}% dei titoli sopra la media 200 (livello blu ${num(lv, 0)}%)${stato ? " · " + S.STATI[stato] : ""}">
+        title="${esc(s.nome)}: ${s.sopra != null && s.n ? `${s.sopra} titoli su ${s.n}` : `${num(s.b200, 1)}% dei titoli`} sopra la media 200 (${num(s.b200, 1)}%); livello blu ${num(lv, 0)}%${s.n ? ` = ${R.titoliLivello(s.b200, s.n, lv).soglia} su ${s.n}` : ""}${stato ? " · " + S.STATI[stato] : ""}">
         <span class="t">${s.etf}</span>
         <span class="n">${esc(s.nome)}</span>
         <span class="v">${num(s.b200, 0)}%</span>
@@ -245,7 +245,9 @@
     box.innerHTML = indietro.length
       ? `<i></i>Dati indietro: ${indietro.map(v => `${v.nome.toLowerCase()} al ${dataIt(v.data)} (${R.sedute(v.r.sedute)})`).join(", ")}`
       : `<i></i>Dati aggiornati alla seduta del ${dataIt(voci[0].data)}`;
-    box.title = voci.map(v => `${v.nome}: ${dataIt(v.data)}${v.r.sedute ? `, attesi quelli del ${dataIt(v.r.attesa)}` : ""}`).join("\n");
+    const scaricati = R.meta && R.meta.generato ? new Date(R.meta.generato) : null;
+    box.title = voci.map(v => `${v.nome}: chiusura del ${dataIt(v.data)}${v.r.sedute ? `, attesa quella del ${dataIt(v.r.attesa)}` : ""}`).join("\n") +
+      (scaricati && !isNaN(scaricati) ? `\nUltimo aggiornamento: ${scaricati.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}` : "");
   }
 
   // ---------------- avvio ----------------

@@ -102,6 +102,19 @@
   R.ripristinaLivello = etf => { delete R.livelliLocali[etf]; R.store.set("soglie", R.livelliLocali); R.emit("livelli", etf); };
   R.parametri = () => Object.assign({}, window.Signals.PARAMETRI, (R.meta && R.meta.parametri) || {});
 
+  // l'ampiezza contata in titoli: quanti sono sopra la media 200, quanti al massimo possono esserlo
+  // perché il settore sia al livello blu (soglia) e quanti devono ancora scendere (mancano)
+  R.titoliLivello = (b200, n, lv) => {
+    if (b200 == null || !n) return null;
+    const sopra = Math.round((b200 / 100) * n);
+    const pct1 = k => Math.round((k / n) * 1000) / 10;           // come l'ampiezza salvata nei dati
+    let soglia = Math.max(0, Math.floor((lv / 100) * n + 1e-9));
+    while (soglia + 1 <= n && pct1(soglia + 1) <= lv) soglia++;
+    while (soglia > 0 && pct1(soglia) > lv) soglia--;
+    return { sopra, n, soglia, mancano: Math.max(0, sopra - soglia) };
+  };
+  R.titoli = k => `${k} ${k === 1 ? "titolo" : "titoli"}`;
+
   const analisi = new Map();
   R.analisiSync = (etf, d) => {
     const lv = R.livello(etf);

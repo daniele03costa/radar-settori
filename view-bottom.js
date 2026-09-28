@@ -127,19 +127,19 @@
       `<span><i class="sw box bm-sw-blu"></i>Area della zona blu</span>`;
 
     // --- tabella ---
+    // ordine: prima chi ha meno titoli da portare sotto la media per arrivare al livello
     const righe = voci.map(v => {
       const h = v.pts[v.pts.length - 1] || {};
-      const unit = 100 / Math.max(1, v.n || 1);
-      const pti = h.y == null ? null : Math.max(0, h.y);
-      return { v, h, pti, titoli: pti == null ? null : (pti <= 0 ? 0 : Math.ceil(pti / unit - 1e-9)), ddOk: h.x != null && h.x > P.ddIngresso };
-    }).sort((a, b) => ((a.pti ?? 999) - (b.pti ?? 999)) || ((b.h.x ?? 0) - (a.h.x ?? 0)));
-    $("#btm-tabella").innerHTML = `<thead><tr><th>Settore · drawdown</th><th>Dal livello blu</th></tr></thead><tbody>` +
+      const tl = h.b == null ? null : R.titoliLivello(h.b, v.n, v.lv);
+      return { v, h, tl, ddOk: h.x != null && h.x > P.ddIngresso };
+    }).sort((a, b) => ((a.tl ? a.tl.mancano : 999) - (b.tl ? b.tl.mancano : 999)) || ((a.h.y ?? 999) - (b.h.y ?? 999)));
+    $("#btm-tabella").innerHTML = `<thead><tr><th>Settore · drawdown</th><th>Mancano</th></tr></thead><tbody>` +
       righe.map(r => {
         const stato = r.v.stato !== "normale" ? `${S.STATI[r.v.stato]} · ` : "";
         const dd = `${stato}drawdown ${pct(r.h.dd, 1)} (${num(r.h.x, 0)}°)${r.ddOk ? ` <span class="ok-mark" title="oltre ${R.art("il", P.ddIngresso + "°")} percentile">✓</span>` : ""}`;
         return `<tr class="clic" data-etf="${r.v.etf}" tabindex="0">
         <td><span class="tk-cell"><span class="qdot" style="--c:var(--st-${r.v.stato})"></span><span class="tk-txt"><span class="tk-line"><b>${r.v.etf}</b> <span class="muted">${esc(r.v.nome)}</span></span><small class="sub-line">${dd}</small></span></span></td>
-        <td class="strong${r.h.y != null && r.h.y <= 0 ? " blu" : ""}">${r.h.y == null ? "—" : R.segnato(r.h.y, 1)}<small class="sub-line">${r.titoli ? `${r.titoli} ${r.titoli === 1 ? "titolo" : "titoli"}` : r.h.y != null && r.h.y <= 0 ? "al livello" : ""}</small></td>
+        <td class="strong${r.tl && !r.tl.mancano ? " blu" : ""}" title="${r.tl ? `${r.tl.sopra} titoli su ${r.tl.n} sopra la media 200; al livello blu (${num(r.v.lv, 0)}%) ne restano ${r.tl.soglia}; ${R.segnato(r.h.y, 1)} punti` : ""}">${!r.tl ? "—" : r.tl.mancano ? R.titoli(r.tl.mancano) : "al livello"}<small class="sub-line">${r.tl ? `${r.tl.sopra}/${r.tl.n} → ${r.tl.soglia}/${r.tl.n}` : ""}</small></td>
       </tr>`;
       }).join("") + "</tbody>";
   }
@@ -151,10 +151,12 @@
     if (!v || !v.pts.length) { tip.hidden = true; return; }
     const h = v.pts[v.pts.length - 1];
     const primo = v.pts[0];
+    const tl = R.titoliLivello(h.b, v.n, v.lv);
     tip.innerHTML = `<div class="d">${v.etf} · ${esc(v.nome)}</div>
       <div class="r"><span>Stato</span><span class="st-pill st-${v.stato}">${S.STATI[v.stato]}</span></div>
-      <div class="r"><span>Sopra la media 200</span><span>${num(h.b, 1)}%</span></div>
-      <div class="r"><span>Dal livello blu (${num(v.lv, 0)}%)</span><span>${R.segnato(h.y, 1)} punti</span></div>
+      <div class="r"><span>Sopra la media 200</span><span>${num(h.b, 1)}%${tl ? ` · ${tl.sopra}/${tl.n}` : ""}</span></div>
+      <div class="r"><span>Livello blu</span><span>${num(v.lv, 0)}%${tl ? ` · ${tl.soglia}/${tl.n}` : ""}</span></div>
+      <div class="r"><span>Dal livello blu</span><span>${R.segnato(h.y, 1)} punti${tl ? ` · ${tl.mancano ? R.titoli(tl.mancano) : "al livello"}` : ""}</span></div>
       <div class="r"><span>Drawdown</span><span>${pct(h.dd, 1)}</span></div>
       <div class="r"><span>Percentile del drawdown</span><span>${num(h.x, 0)}°</span></div>
       ${v.pts.length > 1 ? `<div class="r"><span>Dal ${dataIt(primo.data)}</span><span>${R.segnato(h.y - primo.y, 1)} punti</span></div>` : ""}`;
@@ -213,9 +215,9 @@
     for (const v of ordinati) {
       if (!v.pts.length) continue;
       const h = v.pts[v.pts.length - 1];
-      const unit = 100 / Math.max(1, v.n || 1);
-      const titoli = h.y > 0 ? Math.ceil(h.y / unit - 1e-9) : 0;
-      out.push(`${v.etf} ${v.nome} | ${S.STATI[v.stato]} | ${R.segnato(h.y, 1)} (${titoli ? titoli + " titoli" : "al livello"}) | ${num(h.b, 1)}% | ${pct(h.dd, 1)} | ${num(h.x, 0)}°${h.x > P.ddIngresso ? " (oltre la soglia)" : ""} | ` +
+      const tl = R.titoliLivello(h.b, v.n, v.lv);
+      const titoli = tl ? tl.mancano : 0;
+      out.push(`${v.etf} ${v.nome} | ${S.STATI[v.stato]} | ${R.segnato(h.y, 1)} (${titoli ? R.titoli(titoli) : "al livello"}${tl ? `; livello = ${tl.soglia} su ${tl.n}, ora ${tl.sopra}` : ""}) | ${num(h.b, 1)}% | ${pct(h.dd, 1)} | ${num(h.x, 0)}°${h.x > P.ddIngresso ? " (oltre la soglia)" : ""} | ` +
         v.pts.map(p => `${dataIt(p.data)}: ${R.segnato(p.y, 1)}; ${num(p.x, 0)}°`).join(" → "));
     }
     return out.join("\n");

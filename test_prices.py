@@ -67,7 +67,7 @@ def test_global_crypto_fx_and_last_quote():
         out = Path(d) / "prezzi_globali.json"
         r = bp.build_market("Globali", syms, info, "2024-01-01", lambda s, st: df.reindex(columns=s), out,
                             fx_downloader=lambda s, st: fx, last_quotes=lambda s: quotes,
-                            calendar_name="Borsa Italiana")
+                            calendar_name="Borsa Italiana", adesso=pd.Timestamp("2026-09-25 22:40", tz="UTC"))
         assert r is not None
         p = json.loads(out.read_text())
         assert p["aggiornato"] == "2026-09-25"              # chiusura di oggi presa dall'ultimo prezzo
@@ -76,6 +76,30 @@ def test_global_crypto_fx_and_last_quote():
         i = p["date"].index("2026-09-24")
         assert abs(p["serie"]["USDETF"][i] - raw_usd_last / 1.10) < 0.01
         assert p["serie"]["BTC-EUR"][i] is not None
+
+
+def test_open_session_is_dropped():
+    """Durante la seduta i prezzi di oggi non sono chiusure: si pubblica fino al giorno prima."""
+    syms = ["SPY", "QQQ", "XLK"]
+    df = fake_market(syms, "2024-01-01")                        # ultimo giorno: 25/09/2026
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "prezzi_usa.json"
+        aperta = pd.Timestamp("2026-09-25 13:45", tz="UTC")     # 9:45 a New York
+        bp.build_market("USA", syms, {s: {} for s in syms}, "2024-01-01", lambda s, st: df[s], out, adesso=aperta)
+        assert json.loads(out.read_text())["aggiornato"] == "2026-09-24"
+        chiusa = pd.Timestamp("2026-09-25 21:00", tz="UTC")     # 17:00 a New York
+        bp.build_market("USA", syms, {s: {} for s in syms}, "2024-01-01", lambda s, st: df[s], out, adesso=chiusa)
+        assert json.loads(out.read_text())["aggiornato"] == "2026-09-25"
+    # borsa europea alle 15:45 italiane: anche l'ultimo prezzo di oggi viene scartato
+    gl = ["SWDA.MI", "EIMI.MI"]
+    dg = fake_market(gl, "2024-01-01", end="2026-09-24")
+    quotes = {s: (pd.Timestamp("2026-09-25"), float(dg[s].iloc[-1])) for s in gl}
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "prezzi_globali.json"
+        bp.build_market("Globali", gl, {s: {} for s in gl}, "2024-01-01", lambda s, st: dg.reindex(columns=s), out,
+                        last_quotes=lambda s: quotes, calendar_name="Borsa Italiana",
+                        adesso=pd.Timestamp("2026-09-25 13:45", tz="UTC"))
+        assert json.loads(out.read_text())["aggiornato"] == "2026-09-24"
 
 
 def test_not_older_than_published():

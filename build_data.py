@@ -27,6 +27,9 @@ import pandas as pd
 import requests
 
 ROOT = Path(__file__).resolve().parent          # tutti i file stanno nella cartella principale
+sys.path.insert(0, str(ROOT))
+from orari import seduta_in_corso  # noqa: E402
+
 CONFIG_PATH = ROOT / "settings.json"
 DATA_DIR = ROOT / "data"
 CACHE_DIR = DATA_DIR / "cache"
@@ -310,7 +313,8 @@ def build(cfg: dict,
           intervals: Dict[str, List[Interval]],
           downloader: Callable[..., Dict[str, pd.DataFrame]],
           sector_lookup: Callable[[List[str]], Dict[str, Optional[str]]],
-          out_dir: Path = DATA_DIR) -> dict:
+          out_dir: Path = DATA_DIR,
+          adesso: Optional[pd.Timestamp] = None) -> dict:
     sectors = cfg["settori"]
     etfs = [s["etf"] for s in sectors]
     point_in_time = bool(cfg.get("includi_ex_membri", True))
@@ -330,6 +334,11 @@ def build(cfg: dict,
     if missing:
         raise RuntimeError(f"ETF senza dati: {missing}")
     calendar = etf_close.dropna(how="all").index
+    # le regole usano le chiusure: se Wall Street è ancora aperta, la seduta di oggi non si pubblica
+    in_corso = seduta_in_corso("NYSE", adesso)
+    if in_corso is not None and len(calendar) and calendar[-1] >= in_corso:
+        log(f"Seduta del {in_corso:%Y-%m-%d} ancora aperta a Wall Street: si pubblicano le chiusure fino al giorno prima")
+        calendar = calendar[calendar < in_corso]
 
     # 2) Titoli
     universe = sorted(cur_set | set(ex_members))

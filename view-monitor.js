@@ -44,6 +44,7 @@
     const n = d.n[t] || 1;
     const unit = 100 / n;
     const titoli = pts => Math.max(1, Math.ceil(pts / unit - 1e-9));
+    const tl = R.titoliLivello(b, n, lv);
     const pctDD = a.ddPerc[t];
     const ep = a.episodi[a.episodi.length - 1];
     const stato = a.statoOggi || "normale";
@@ -75,7 +76,7 @@
         if (k < P.chiusureIngresso) righe.push(`${k === 1 ? "Prima chiusura" : k + " chiusure"} al livello blu: ne ${P.chiusureIngresso - k === 1 ? "manca 1" : "mancano " + (P.chiusureIngresso - k)} per entrare in zona blu`);
         if (!ddOk) righe.push(`Ampiezza già al livello, ma il drawdown è ${R.art("al", num(pctDD, 0) + "°")} percentile: per la zona blu deve superare ${R.art("il", P.ddIngresso + "°")}`);
       } else if (dist <= P.fasciaAttenzione) {
-        righe.push(`Mancano ${num(dist, 1)} punti (${titoli(dist)} ${titoli(dist) === 1 ? "titolo" : "titoli"}) al livello blu ${R.art("del", num(lv, 0) + "%")}` +
+        righe.push(`Mancano ${num(dist, 1)} punti (${tl ? R.titoli(tl.mancano) : "—"} da portare sotto la media 200) al livello blu ${R.art("del", num(lv, 0) + "%")}${tl ? `, cioè ${tl.soglia} su ${tl.n} sopra la media` : ""}` +
           (ddOk ? "; il drawdown è già abbastanza profondo" : `; poi il drawdown dovrà superare ${R.art("il", P.ddIngresso + "°")} percentile (ora ${num(pctDD, 0)}°)`));
       } else if (pctDD != null && pctDD > P.ddAttenzione) {
         righe.push(`Drawdown più profondo ${R.art("del", num(pctDD, 0) + "%")} della storia, ma l'ampiezza è ancora ${num(dist, 1)} punti sopra il livello blu`);
@@ -101,15 +102,19 @@
         dd: d.dd[N - 1], pctDD: a.ddPerc[N - 1],
         n: d.n[N - 1], stato: a.statoOggi || "normale",
         rot: rot[s.etf] || null,
+        tl: R.titoliLivello(b, d.n[N - 1], lv),
       };
     });
-    righe.sort((x, y) => (R.ORDINE_STATI[x.stato] - R.ORDINE_STATI[y.stato]) || ((x.dist ?? 999) - (y.dist ?? 999)));
+    // prima gli stati più "caldi"; a parità, chi ha meno titoli da portare sotto la media per arrivare al livello
+    righe.sort((x, y) => (R.ORDINE_STATI[x.stato] - R.ORDINE_STATI[y.stato]) ||
+      ((x.tl ? x.tl.mancano : 999) - (y.tl ? y.tl.mancano : 999)) || ((x.dist ?? 999) - (y.dist ?? 999)));
     return { righe, indice };
   }
 
   async function disegna() {
     const { righe, indice } = await calcola();
     if (!visibile) return;
+    const P = R.parametri();
 
     const dataDati = righe[0] ? righe[0].d.date[righe[0].d.date.length - 1] : R.meta.aggiornato;
     $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella vista Settore.`;
@@ -128,15 +133,23 @@
     }
     const ordineStati = ["fallito", "trigger", "blu", "attenzione", "cooldown", "normale"];
     const presenti = ordineStati.map(k => ({ k, n: conta(k).length })).filter(x => x.n);
-    const tileStati = `<div class="kpi"><div class="l">Stato degli 11 settori</div>
-      <div class="v">${conta("blu").length + conta("fallito").length + conta("trigger").length}<small> tra zona blu e trigger</small></div>
+    const nBlu = conta("blu").length + conta("fallito").length, nTrig = conta("trigger").length;
+    const valoreStati = nBlu && nTrig
+      ? `${nBlu + nTrig}<small> con un segnale in corso</small></div><div class="s">${nBlu} in zona blu in attesa di trigger, ${nTrig} con trigger in verifica`
+      : nTrig ? `${nTrig}<small> con trigger in verifica</small>`
+      : nBlu ? `${nBlu}<small> in zona blu, in attesa di trigger</small>`
+      : `0<small> in zona blu</small></div><div class="s">nessun segnale in corso`;
+    const tileStati = `<div class="kpi"><div class="l">Stato degli ${righe.length} settori</div>
+      <div class="v">${valoreStati}</div>
       <div class="stack">${presenti.map(x => `<i class="st-${x.k}" style="flex:${x.n}" title="${S.STATI[x.k]}: ${x.n}"></i>`).join("")}</div>
       <div class="stack-legend">${presenti.map(x => `<span class="st-${x.k}">${S.STATI[x.k]} ${x.n}</span>`).join("")}</div></div>`;
-    const vicini = righe.filter(r => r.dist != null && !["blu", "fallito", "trigger"].includes(r.stato)).sort((a, b) => a.dist - b.dist);
+    // il più vicino è quello a cui mancano meno titoli (a parità, meno punti)
+    const vicini = righe.filter(r => r.tl && !["blu", "fallito", "trigger"].includes(r.stato))
+      .sort((a, b) => (a.tl.mancano - b.tl.mancano) || (a.dist - b.dist));
     const primo = vicini[0];
     const tileVicino = primo ? `<div class="kpi" style="--k:var(--st-blu)"><div class="l"><i></i>Il più vicino alla zona blu</div>
-      <div class="v">${primo.etf}<small> ${R.segnato(primo.dist, 1)} punti</small></div>
-      <div class="s">${esc(primo.nome)} · livello ${num(primo.lv, 0)}%</div>
+      <div class="v">${primo.etf}<small> a ${R.titoli(primo.tl.mancano)}</small></div>
+      <div class="s">${esc(primo.nome)} · ${R.segnato(primo.dist, 1)} punti dal livello ${num(primo.lv, 0)}% (${primo.tl.soglia}/${primo.tl.n})</div>
       ${R.sparkline(primo.d.b200.slice(-126), { colore: c.b200, livello: primo.lv, min: 0 })}</div>` : "";
     $("#mon-kpi").innerHTML = tileIndice + tileStati + tileVicino;
 
@@ -151,14 +164,16 @@
       </tr></thead><tbody>` +
       righe.map(r => {
         const delta = r.b != null && r.mese != null ? r.b - r.mese : null;
-        const rosso = r.pctDD != null && r.pctDD > 80;
-        const colDist = r.dist == null ? "inherit" : r.dist <= 0 ? "var(--st-blu)" : r.dist <= 10 ? "var(--st-attenzione)" : "inherit";
+        // stessi limiti delle regole: rosso oltre la soglia dell'attenzione, arancio nella fascia di attenzione
+        const rosso = r.pctDD != null && r.pctDD > P.ddAttenzione;
+        const colDist = r.dist == null ? "inherit" : r.dist <= 0 ? "var(--st-blu)" : r.dist <= P.fasciaAttenzione ? "var(--st-attenzione)" : "inherit";
+        const t = r.tl;
         return `<tr class="clic" data-etf="${r.etf}" tabindex="0">
           <td><b>${r.etf}</b><small class="sub-line">${esc(r.nome)}</small></td>
           <td class="l"><span class="st-pill big st-${r.stato}">${S.STATI[r.stato]}</span></td>
           <td class="l">${R.sparkline(r.d.b200.slice(-126), { colore: c.b200, livello: r.lv, min: 0, area: true })}</td>
-          <td><b>${num(r.b, 1)}%</b><small class="sub-line"><span class="${R.cls(delta)}">${delta == null ? "" : R.segnato(delta, 1)}</span> in un mese</small></td>
-          <td class="dist" style="color:${colDist}">${r.dist == null ? "—" : R.segnato(r.dist, 1)}<small class="sub-line">livello ${num(r.lv, 0)}%</small></td>
+          <td><b>${num(r.b, 1)}%</b>${t ? ` <span class="conta">${t.sopra}/${t.n}</span>` : ""}<small class="sub-line"><span class="${R.cls(delta)}">${delta == null ? "" : R.segnato(delta, 1)}</span> in un mese</small></td>
+          <td class="dist" style="color:${colDist}">${r.dist == null ? "—" : R.segnato(r.dist, 1)}<small class="sub-line">${t && t.mancano ? `a ${R.titoli(t.mancano)} · ` : ""}livello ${num(r.lv, 0)}%${t ? ` = ${t.soglia}/${t.n}` : ""}</small></td>
           <td><span class="${rosso ? "neg" : ""}">${pct(r.dd, 1)}</span><small class="sub-line">${num(r.pctDD, 0)}° percentile</small></td>
           <td class="l">${quad(r.rot)}</td>
         </tr>`;
@@ -190,7 +205,9 @@
     for (const r of righe) {
       const sopra = r.b == null ? "—" : Math.round((r.b / 100) * r.n);
       const rot = r.rot ? `${NOMI_Q[r.rot.quadrante]}, direzione ${num(r.rot.direzione, 0)}° ${r.rot.bussola || ""}, da ${r.rot.durata} ${r.rot.durata === 1 ? "settimana" : "settimane"}` : "—";
-      out.push(`${r.etf} | ${r.nome} | ${S.STATI[r.stato]} | ${num(r.b, 1)}% = ${sopra} su ${r.n} titoli (${num(r.mese, 1)}%) | ${num(r.lv, 0)}% | ${R.segnato(r.dist, 1)} | ${pct(r.dd, 1)} (${num(r.pctDD, 0)}°) | ${rot}`);
+      const tl = r.tl ? ` = ${r.tl.soglia} su ${r.tl.n} titoli` : "";
+      const manc = r.tl ? ` (${r.tl.mancano ? `devono scendere sotto la media ancora ${R.titoli(r.tl.mancano)}` : "già al livello"})` : "";
+      out.push(`${r.etf} | ${r.nome} | ${S.STATI[r.stato]} | ${num(r.b, 1)}% = ${sopra} su ${r.n} titoli (${num(r.mese, 1)}%) | ${num(r.lv, 0)}%${tl} | ${R.segnato(r.dist, 1)}${manc} | ${pct(r.dd, 1)} (${num(r.pctDD, 0)}°) | ${rot}`);
     }
     out.push("Cosa manca a ogni settore per cambiare stato (sezione «Da tenere d'occhio»):");
     for (const r of righe) {
