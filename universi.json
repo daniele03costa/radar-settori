@@ -1,0 +1,372 @@
+{
+  "_nota": "Universi della vista Rotazione. 'usa': ticker Yahoo senza suffisso, prezzi in dollari, calendario NYSE. 'globale': simboli Yahoo con la borsa (.MI Milano, .DE Xetra, .PA Parigi, .AS Amsterdam, .MC Madrid), prezzi convertiti in euro, calendario di Borsa Italiana. 'breve' è l'etichetta sul grafico. Per un titolo non in euro aggiungi \"valuta\": \"USD\" (o GBP, GBp, CHF…). Il benchmark PTF è il portafoglio di riferimento, calcolato nell'app.",
+  "inizio": "2019-01-01",
+  "usa": {
+    "benchmark": {
+      "SPY": {
+        "breve": "S&P 500",
+        "nome": "S&P 500 (SPDR SPY)"
+      },
+      "QQQ": {
+        "breve": "Nasdaq-100",
+        "nome": "Nasdaq-100 (Invesco QQQ)"
+      },
+      "RSP": {
+        "breve": "S&P 500 EW",
+        "nome": "S&P 500 a pesi uguali (Invesco RSP)"
+      },
+      "ACWI": {
+        "breve": "ACWI",
+        "nome": "Azioni mondiali con emergenti (iShares ACWI)"
+      }
+    },
+    "gruppi": [
+      {
+        "id": "settori",
+        "nome": "Settori S&P 500",
+        "benchmark_default": "SPY",
+        "benchmark": [
+          "SPY",
+          "RSP",
+          "QQQ",
+          "ACWI"
+        ],
+        "titoli": {
+          "XLK": {
+            "breve": "Tecnologia"
+          },
+          "XLC": {
+            "breve": "Comunicazioni"
+          },
+          "XLY": {
+            "breve": "Consumi discr."
+          },
+          "XLP": {
+            "breve": "Prima necessità"
+          },
+          "XLE": {
+            "breve": "Energia"
+          },
+          "XLF": {
+            "breve": "Finanziari"
+          },
+          "XLV": {
+            "breve": "Sanità"
+          },
+          "XLI": {
+            "breve": "Industriali"
+          },
+          "XLB": {
+            "breve": "Materiali"
+          },
+          "XLRE": {
+            "breve": "Immobiliare"
+          },
+          "XLU": {
+            "breve": "Utility"
+          }
+        }
+      },
+      {
+        "id": "mag7",
+        "nome": "MAG7",
+        "benchmark_default": "QQQ",
+        "benchmark": [
+          "QQQ",
+          "SPY",
+          "RSP",
+          "ACWI"
+        ],
+        "titoli": {
+          "AAPL": {
+            "breve": "Apple"
+          },
+          "MSFT": {
+            "breve": "Microsoft"
+          },
+          "GOOGL": {
+            "breve": "Alphabet"
+          },
+          "AMZN": {
+            "breve": "Amazon"
+          },
+          "NVDA": {
+            "breve": "Nvidia"
+          },
+          "META": {
+            "breve": "Meta"
+          },
+          "TSLA": {
+            "breve": "Tesla"
+          }
+        }
+      }
+    ]
+  },
+  "globale": {
+    "valuta": "EUR",
+    "benchmark": {
+      "SWDA.MI": {
+        "breve": "Mondo svil.",
+        "nome": "Azioni dei paesi sviluppati · iShares Core MSCI World"
+      },
+      "IUSQ.DE": {
+        "breve": "ACWI",
+        "nome": "Azioni mondiali con emergenti · iShares MSCI ACWI"
+      },
+      "XEON.MI": {
+        "breve": "Liquidità",
+        "nome": "Tasso overnight in euro (€STR) · Xtrackers EUR Overnight Rate Swap"
+      }
+    },
+    "gruppi": [
+      {
+        "id": "asset",
+        "nome": "Asset class",
+        "livello": 1,
+        "benchmark_default": "PTF",
+        "benchmark": [
+          "PTF",
+          "XEON.MI",
+          "SWDA.MI"
+        ],
+        "titoli": {
+          "SWDA.MI": {
+            "breve": "Mondo svil.",
+            "nome": "Azioni dei paesi sviluppati · iShares Core MSCI World"
+          },
+          "EIMI.MI": {
+            "breve": "Emergenti",
+            "nome": "Azioni dei mercati emergenti · iShares Core MSCI EM IMI"
+          },
+          "EM13.MI": {
+            "breve": "Stato 1-3a",
+            "nome": "Titoli di Stato dell'area euro, 1-3 anni · Amundi"
+          },
+          "EM710.MI": {
+            "breve": "Stato 7-10a",
+            "nome": "Titoli di Stato dell'area euro, 7-10 anni · Amundi"
+          },
+          "EM15.MI": {
+            "breve": "Stato 15a+",
+            "nome": "Titoli di Stato dell'area euro, oltre 15 anni · Amundi"
+          },
+          "SGLD.MI": {
+            "breve": "Oro",
+            "nome": "Oro fisico · Invesco Physical Gold"
+          },
+          "IWDP.MI": {
+            "breve": "Immobiliare",
+            "nome": "Immobiliare quotato dei paesi sviluppati · iShares"
+          },
+          "CMOD.MI": {
+            "breve": "Materie prime",
+            "nome": "Paniere di materie prime · Invesco Bloomberg Commodity"
+          },
+          "BTC-EUR": {
+            "breve": "Bitcoin",
+            "nome": "Bitcoin, prezzo in euro"
+          }
+        },
+        "portafoglio": {
+          "nome": "Portafoglio di riferimento",
+          "pesi": {
+            "SWDA.MI": 40,
+            "EIMI.MI": 10,
+            "EM13.MI": 10,
+            "EM710.MI": 10,
+            "EM15.MI": 10,
+            "SGLD.MI": 10,
+            "IWDP.MI": 5,
+            "CMOD.MI": 3,
+            "BTC-EUR": 2
+          },
+          "classi": [
+            {
+              "nome": "Azionario",
+              "titoli": [
+                "SWDA.MI",
+                "EIMI.MI"
+              ]
+            },
+            {
+              "nome": "Titoli di Stato in euro",
+              "titoli": [
+                "EM13.MI",
+                "EM710.MI",
+                "EM15.MI"
+              ]
+            },
+            {
+              "nome": "Oro e materie prime",
+              "titoli": [
+                "SGLD.MI",
+                "CMOD.MI"
+              ]
+            },
+            {
+              "nome": "Immobiliare quotato",
+              "titoli": [
+                "IWDP.MI"
+              ]
+            },
+            {
+              "nome": "Cripto",
+              "titoli": [
+                "BTC-EUR"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "fattori",
+        "nome": "Fattori",
+        "livello": 2,
+        "benchmark_default": "SWDA.MI",
+        "benchmark": [
+          "SWDA.MI",
+          "IUSQ.DE"
+        ],
+        "titoli": {
+          "IWVL.MI": {
+            "breve": "Value",
+            "nome": "Fattore value, MSCI World · iShares"
+          },
+          "IWQU.MI": {
+            "breve": "Quality",
+            "nome": "Fattore qualità, MSCI World · iShares"
+          },
+          "IWMO.MI": {
+            "breve": "Momentum",
+            "nome": "Fattore momentum, MSCI World · iShares"
+          },
+          "MVOL.MI": {
+            "breve": "Bassa vol.",
+            "nome": "Volatilità minima, MSCI World · iShares"
+          },
+          "ZPRS.DE": {
+            "breve": "Small cap",
+            "nome": "Piccole società, MSCI World · SPDR"
+          },
+          "EQQQ.MI": {
+            "breve": "Nasdaq-100",
+            "nome": "Nasdaq-100 usato come misura del growth · Invesco EQQQ"
+          },
+          "VHYL.MI": {
+            "breve": "Alto dividendo",
+            "nome": "Alto dividendo, FTSE All-World · Vanguard"
+          },
+          "MWEQ.MI": {
+            "breve": "Pesi uguali",
+            "nome": "MSCI World a pesi uguali · Invesco (quotato dal 2024)"
+          }
+        }
+      },
+      {
+        "id": "regioni",
+        "nome": "Regioni",
+        "livello": 3,
+        "benchmark_default": "IUSQ.DE",
+        "benchmark": [
+          "IUSQ.DE",
+          "SWDA.MI"
+        ],
+        "titoli": {
+          "CSSPX.MI": {
+            "breve": "USA",
+            "nome": "Stati Uniti, S&P 500 · iShares Core"
+          },
+          "SMEA.MI": {
+            "breve": "Europa",
+            "nome": "Europa · iShares Core MSCI Europe"
+          },
+          "SJPA.MI": {
+            "breve": "Giappone",
+            "nome": "Giappone · iShares Core MSCI Japan IMI"
+          },
+          "CSPXJ.MI": {
+            "breve": "Pacifico ex-Jp",
+            "nome": "Pacifico senza Giappone · iShares Core"
+          },
+          "EIMI.MI": {
+            "breve": "Emergenti",
+            "nome": "Mercati emergenti · iShares Core MSCI EM IMI"
+          }
+        }
+      },
+      {
+        "id": "paesi",
+        "nome": "Paesi",
+        "livello": 4,
+        "benchmark_default": "IUSQ.DE",
+        "benchmark": [
+          "IUSQ.DE",
+          "SWDA.MI"
+        ],
+        "titoli": {
+          "CSSPX.MI": {
+            "breve": "USA",
+            "nome": "Stati Uniti, S&P 500 · iShares Core"
+          },
+          "CSCA.MI": {
+            "breve": "Canada",
+            "nome": "Canada · iShares MSCI Canada"
+          },
+          "SJPA.MI": {
+            "breve": "Giappone",
+            "nome": "Giappone · iShares Core MSCI Japan IMI"
+          },
+          "ISF.MI": {
+            "breve": "Regno Unito",
+            "nome": "Regno Unito, FTSE 100 · iShares Core"
+          },
+          "XSMI.MI": {
+            "breve": "Svizzera",
+            "nome": "Svizzera · Xtrackers"
+          },
+          "EXS1.DE": {
+            "breve": "Germania",
+            "nome": "Germania, DAX · iShares Core"
+          },
+          "CACC.PA": {
+            "breve": "Francia",
+            "nome": "Francia, CAC 40 · Amundi"
+          },
+          "XMIB.MI": {
+            "breve": "Italia",
+            "nome": "Italia, FTSE MIB · Xtrackers"
+          },
+          "LYXIB.MC": {
+            "breve": "Spagna",
+            "nome": "Spagna, IBEX 35 · Amundi"
+          },
+          "IAEX.AS": {
+            "breve": "Paesi Bassi",
+            "nome": "Paesi Bassi, AEX · iShares"
+          },
+          "XCS6.DE": {
+            "breve": "Cina",
+            "nome": "Cina · Xtrackers MSCI China"
+          },
+          "QDV5.DE": {
+            "breve": "India",
+            "nome": "India · iShares MSCI India"
+          },
+          "IQQT.DE": {
+            "breve": "Taiwan",
+            "nome": "Taiwan · iShares MSCI Taiwan"
+          },
+          "IQQK.DE": {
+            "breve": "Corea",
+            "nome": "Corea del Sud · iShares MSCI Korea"
+          },
+          "IBZL.MI": {
+            "breve": "Brasile",
+            "nome": "Brasile · iShares MSCI Brazil"
+          }
+        }
+      }
+    ]
+  }
+}

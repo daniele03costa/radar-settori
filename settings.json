@@ -1,0 +1,83 @@
+{
+  "titolo": "Radar Settori",
+  "inizio_storico": "2005-01-03",
+  "inizio_download": "2003-09-01",
+  "includi_ex_membri": true,
+  "copertura_minima": 0.99,
+  "_soglie": "Livelli blu di default (% di titoli sopra la media 200). Fonte: tabella quant-rea '200 LEVEL SETTORI'. Un settore non in elenco usa il 5° percentile storico.",
+  "soglie": {
+    "XLK": 6,
+    "XLC": 5,
+    "XLY": 8,
+    "XLP": 11,
+    "XLE": 1,
+    "XLF": 6,
+    "XLV": 11,
+    "XLI": 5,
+    "XLB": 10,
+    "XLRE": 8,
+    "XLU": 5
+  },
+  "percentile_soglia_default": 5,
+  "_parametri": "Parametri degli stati. Lascia vuoto per i valori standard; i nomi sono quelli di PARAMETRI in assets/signals.js.",
+  "parametri": {},
+  "settori": [
+    {
+      "etf": "XLK",
+      "nome": "Tecnologia",
+      "gics": "Information Technology"
+    },
+    {
+      "etf": "XLC",
+      "nome": "Comunicazioni",
+      "gics": "Communication Services"
+    },
+    {
+      "etf": "XLY",
+      "nome": "Consumi discrezionali",
+      "gics": "Consumer Discretionary"
+    },
+    {
+      "etf": "XLP",
+      "nome": "Beni di prima necessità",
+      "gics": "Consumer Staples"
+    },
+    {
+      "etf": "XLE",
+      "nome": "Energia",
+      "gics": "Energy"
+    },
+    {
+      "etf": "XLF",
+      "nome": "Finanziari",
+      "gics": "Financials"
+    },
+    {
+      "etf": "XLV",
+      "nome": "Sanità",
+      "gics": "Health Care"
+    },
+    {
+      "etf": "XLI",
+      "nome": "Industriali",
+      "gics": "Industrials"
+    },
+    {
+      "etf": "XLB",
+      "nome": "Materiali",
+      "gics": "Materials"
+    },
+    {
+      "etf": "XLRE",
+      "nome": "Immobiliare",
+      "gics": "Real Estate"
+    },
+    {
+      "etf": "XLU",
+      "nome": "Utility",
+      "gics": "Utilities",
+      "simbolo_breadth": "SUTH"
+    }
+  ],
+  "_simbolo_breadth": "Simbolo TradingView della serie 'titoli sopra la media 200' del settore (facoltativo): se presente, compare il link nella vista Settore."
+}
