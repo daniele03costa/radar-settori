@@ -297,6 +297,46 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
 .tit-grafico svg { display: block; }
 .tit-pannello { font-size: 11.5px; font-weight: 600; fill: var(--muted); }
 
+/* ============ 7 · crypto ============ */
+#cry-corpo { display: flex; flex-direction: column; gap: 16px; }
+#cry-corpo[hidden] { display: none; }
+#cry-corpo > * { margin-top: 0; margin-bottom: 0; }
+.cry-barra { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; padding: 4px 2px 0; }
+.cry-barra > span { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.cry-tbl td { padding-top: 10px; padding-bottom: 10px; }
+.cry-tbl .spark { display: block; width: 120px; height: 30px; }
+.cry-grafico { position: relative; }
+.cry-grafico svg { display: block; }
+svg.tocco { touch-action: pan-y; }
+.cry-oggi { font-size: 12px; font-weight: 650; fill: var(--ink); }
+.cry-due { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (min-width: 1800px) { .cry-due { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+#cry-kpi .kpi .s { white-space: normal; overflow: visible; line-height: 1.4; }
+.dopo-tbl td { padding-top: 8px; padding-bottom: 8px; }
+.cry-sotto { margin-top: 20px; }
+.cry-sotto h3 { font-size: 14px; font-weight: 600; margin: 0; }
+.dopo-tbl tr.gruppo th { padding: 16px 0 6px; font-size: 12px; font-weight: 650; color: var(--ink-2); text-align: left; border-bottom: 1px solid var(--line); }
+.dopo-tbl tbody tr.gruppo:first-child th { padding-top: 8px; }
+.dopo-tbl tr.oggi td { background: color-mix(in srgb, var(--focus) 11%, transparent); }
+.dopo-tbl td .st-pill { font-size: 12.5px; }
+.stag-tbl { font-size: 12px; }
+.stag-tbl th, .stag-tbl td { padding: 5px 5px; text-align: center; }
+.stag-tbl th:first-child, .stag-tbl td:first-child { text-align: left; }
+.stag-tbl td { border: 2px solid var(--surface); border-radius: 4px; min-width: 42px; font-weight: 500; }
+.stag-tbl tbody tr:hover td { filter: brightness(1.08); }
+.stag-tbl td.vuota { background: transparent; }
+.stag-tbl td.incorso { outline: 1.5px dashed var(--ink); outline-offset: -4px; }
+.stag-tbl td.anno { font-weight: 650; }
+.stag-tbl thead th.ora { color: var(--ink); font-weight: 650; }
+.stag-tbl tfoot th, .stag-tbl tfoot td { border: 0; border-top: 1px solid var(--line); padding-top: 7px; }
+.stag-tbl tfoot tr + tr th, .stag-tbl tfoot tr + tr td { border-top: 0; padding-top: 3px; }
+.corr-tbl th, .corr-tbl td { text-align: center; padding: 6px 4px; min-width: 46px; font-size: 12px; }
+.corr-tbl td { border: 2px solid var(--surface); border-radius: 4px; font-weight: 500; }
+.corr-tbl td.diag, .corr-tbl td.vuota { color: var(--muted); background: transparent; }
+.corr-tbl tbody tr:hover td { background-clip: padding-box; }
+.regola-tbl th.grp { text-align: center; color: var(--ink-2); font-weight: 600; border-bottom: 1px solid var(--line); }
+.regola-tbl thead tr:first-child th { border-bottom-color: var(--line); }
+
 /* ============ schermi più piccoli ============ */
 @media (max-width: 1280px) {
   .mon-grid, .btm-grid { grid-template-columns: minmax(0, 1fr); }
@@ -304,6 +344,9 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
 }
 @media (max-width: 1400px) {
   .tit-tbl th:nth-child(2), .tit-tbl td:nth-child(2) { display: none; }   /* il grafico c'è nel dettaglio */
+}
+@media (max-width: 1599px) {
+  .cry-tbl th:nth-child(2), .cry-tbl td:nth-child(2) { display: none; }
 }
 @media (max-width: 1100px) {
   .lower { grid-template-columns: minmax(0, 1fr); }

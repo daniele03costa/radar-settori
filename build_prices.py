@@ -478,6 +478,12 @@ def main() -> int:
         build_miei(LISTA_MIEI, DATA_DIR / "prezzi_miei.json", yahoo_prices)
     except Exception as e:  # noqa: BLE001
         log(f"I miei titoli: errore ({e}), resta il file già pubblicato")
+    # crypto: anche qui, così si aggiornano pure senza il loro aggiornamento giornaliero
+    try:
+        import build_crypto
+        build_crypto.main()
+    except Exception as e:  # noqa: BLE001
+        log(f"Crypto: errore ({e}), resta il file già pubblicato")
     return 0 if ok else 1
 
 

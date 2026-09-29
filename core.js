@@ -82,6 +82,8 @@
     prezzi: mercato => carica(mercato === "globale" ? "data/prezzi_globali.json" : "data/prezzi_usa.json", { cache: "no-cache" }),
     // i titoli della lista personale (miei-titoli.txt), con i due termini di confronto
     miei: () => carica("data/prezzi_miei.json", { cache: "no-cache" }),
+    // bitcoin e le prime crypto (vista 7), caricate solo quando si apre la vista
+    crypto: () => carica("data/prezzi_crypto.json", { cache: "no-cache" }),
   };
 
   // ---------- livelli blu e analisi ----------

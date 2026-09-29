@@ -55,6 +55,7 @@
         <a href="#sec" data-view="sec"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/></svg><span>Settore</span><kbd>4</kbd></a>
         <a href="#alr" data-view="alr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>Alert</span><kbd>5</kbd></a>
         <a href="#tit" data-view="tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" stroke-linejoin="round"/></svg><span>I miei titoli</span><kbd>6</kbd></a>
+        <a href="#cry" data-view="cry"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 7.5v9M9.5 7.5h3.8a2.1 2.1 0 0 1 0 4.2H9.5M9.5 11.7h4.3a2.4 2.4 0 0 1 0 4.8H9.5M11 6v1.5M11 16.5V18"/></svg><span>Crypto</span><kbd>7</kbd></a>
       </nav>
 
       <div class="side-head">
@@ -344,6 +345,7 @@
             <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>universi.json</code>: vengono letti al successivo aggiornamento.</li>
             <li>La lista di «I miei titoli» sta in <code>miei-titoli.txt</code>, un ticker di Yahoo Finance per riga: i prezzi arrivano con l'aggiornamento successivo.</li>
             <li>Ogni aggiornamento scrive anche <code>data/stati.json</code>, il riepilogo degli stati che legge l'avviso del mattino.</li>
+            <li>Le crypto si aggiornano con l'aggiornamento della notte e, se c'è, con <b>Aggiorna crypto</b>, che gira ogni giorno anche nel fine settimana. Monete, esclusioni e ticker di Yahoo stanno in <code>crypto.json</code>.</li>
           </ol>
         </details>
       </section>
@@ -365,8 +367,104 @@
         </article>
       </section>
 
+      <!-- ======================= 7 CRYPTO ======================= -->
+      <section class="view" id="view-cry" data-view="cry" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Vista 7 · Crypto</div>
+            <h1>Bitcoin e le prime 10 crypto</h1>
+            <p class="view-sub" id="cry-sub">&nbsp;</p>
+          </div>
+        </header>
+        <article class="card empty" id="cry-vuoto" hidden>
+          <h2>I dati crypto non ci sono ancora</h2>
+          <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna crypto</b> (o <b>Aggiorna dati</b>) → <b>Run workflow</b>, poi ricarica la pagina.</p>
+        </article>
+        <div id="cry-corpo">
+          <section class="kpis" id="cry-kpi" aria-label="Bitcoin in sintesi"></section>
+          <article class="card novita" id="cry-sintesi" aria-live="polite"></article>
+          <article class="card tit-dettaglio" id="cry-dettaglio" hidden></article>
+          <article class="card">
+            <div class="card-title"><h2>Le prime per capitalizzazione</h2><span class="muted small-inline" id="cry-conta"></span></div>
+            <div class="table-wrap"><table class="tbl cry-tbl" id="cry-tabella"></table></div>
+            <p class="small" id="cry-nota-tab"></p>
+          </article>
+
+          <div class="cry-barra">
+            <span>Analisi di</span>
+            <div class="chips" id="cry-moneta" role="group" aria-label="Moneta da analizzare"></div>
+          </div>
+          <article class="card">
+            <div class="card-head">
+              <div class="card-title"><h2 id="cry-dopo-titolo">Cosa è successo dopo</h2></div>
+              <div class="seg" id="cry-orizzonte" role="group" aria-label="Orizzonte"></div>
+            </div>
+            <div class="table-wrap"><table class="tbl dopo-tbl" id="cry-dopo"></table></div>
+            <p class="small" id="cry-dopo-nota"></p>
+          </article>
+          <div class="cry-due">
+            <article class="card">
+              <div class="card-title"><h2 id="cry-stagioni-titolo">Stagionalità</h2></div>
+              <div class="table-wrap"><table class="tbl stag-tbl" id="cry-stagioni"></table></div>
+              <p class="small" id="cry-stagioni-nota"></p>
+            </article>
+            <article class="card">
+              <div class="card-title"><h2>La regola della media 200</h2></div>
+              <p class="sub">Stare investiti solo dal giorno dopo una chiusura sopra la media 200 e uscire dopo una chiusura sotto, contro restare sempre investiti.</p>
+              <div class="table-wrap"><table class="tbl regola-tbl" id="cry-regola"></table></div>
+              <p class="small">Senza commissioni, tasse e scarti di prezzo: con molte entrate all'anno i costi veri pesano. Nel rendimento annuo è in grassetto la strada che ha reso di più; il calo massimo dice quanto si sarebbe dovuto sopportare.</p>
+            </article>
+          </div>
+          <article class="card">
+            <div class="card-head">
+              <div class="card-title"><h2>Il ciclo dell'halving</h2></div>
+              <div class="legend" id="cry-cicli-legenda"></div>
+            </div>
+            <p class="sub">Ogni quattro anni circa la ricompensa dei miner si dimezza. Qui il prezzo di bitcoin dopo ogni halving, in multipli del prezzo di quel giorno (scala logaritmica).</p>
+            <div class="cry-grafico" id="cry-cicli"></div>
+            <div class="table-wrap"><table class="tbl" id="cry-cicli-tab"></table></div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <div class="card-title"><h2>Correlazioni</h2></div>
+              <div class="seg" id="cry-finestra" role="group" aria-label="Periodo delle correlazioni"></div>
+            </div>
+            <div class="table-wrap"><table class="tbl corr-tbl" id="cry-matrice"></table></div>
+            <p class="small" id="cry-matrice-nota"></p>
+            <div class="card-head cry-sotto">
+              <div class="card-title"><h3>Bitcoin e i mercati, correlazione a 90 giorni</h3></div>
+              <div class="legend" id="cry-mercati-legenda"></div>
+            </div>
+            <div class="cry-grafico" id="cry-mercati"></div>
+            <p class="small">Solo sulle sedute di borsa: il rendimento di bitcoin del lunedì comprende il fine settimana. Sopra 0,5 bitcoin si è mosso come quel mercato, fra −0,2 e 0,2 per conto suo, sotto zero in senso opposto.</p>
+          </article>
+          <article class="card notes">
+            <div class="card-title"><h2>Come leggere questa pagina</h2></div>
+            <div class="notes-grid">
+              <div>
+                <h3><i class="dot" style="background:var(--ma)"></i>Medie e tendenza</h3>
+                <p>Le medie sono su giorni di calendario, perché le crypto si scambiano anche nel fine settimana. La <b>tendenza</b> guarda il prezzo e la media 50 rispetto alla media 200: positiva se sono sopra entrambi, negativa se sono sotto entrambi, «in recupero» o «in indebolimento» nelle fasi di passaggio.</p>
+                <h3 class="gap"><i class="dot" style="background:var(--soglia)"></i>Multiplo di Mayer e media 200 settimane</h3>
+                <p>Il multiplo di Mayer è il prezzo diviso la media 200: per bitcoin i valori sopra 2,4 hanno segnato gli eccessi dei massimi, quelli sotto 0,8 i forti sconti dei minimi. La media 200 settimane (1400 giorni) è stata vicina ai minimi dei mercati ribassisti.</p>
+              </div>
+              <div>
+                <h3><i class="dot" style="background:var(--q-indebolimento)"></i>Halving e stagionalità</h3>
+                <p>Con Yahoo la storia di bitcoin parte dal 2014: i cicli completi sono due (2016 e 2020), quindi le somiglianze con il ciclo in corso sono indizi, non regole. La stagionalità dice come sono andati i singoli mesi negli anni passati.</p>
+                <h3 class="gap"><i class="dot" style="background:var(--q-leader)"></i>Cosa è successo dopo</h3>
+                <p>Per ogni giorno passato si guarda la situazione (sopra o sotto la media, tendenza, Mayer, distanza dal massimo, Fear &amp; Greed) e come è andato il prezzo dopo. La riga «oggi» è la situazione attuale.</p>
+              </div>
+              <div>
+                <h3><i class="dot" style="background:var(--b200)"></i>Fonti</h3>
+                <p>Prezzi in dollari da Yahoo Finance (giornata da mezzanotte a mezzanotte UTC); classifica, capitalizzazione e quota di bitcoin da CoinGecko; indice Fear &amp; Greed da alternative.me (dal 2018). Le monete da seguire si cambiano in <code>crypto.json</code>.</p>
+                <p>Solo per studio personale: sono statistiche del passato, non previsioni né consigli di investimento.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <footer>
-        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI».
+        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
         Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
     </main>
@@ -381,7 +479,7 @@
       </div>
       <div class="guida-grid">
         <section>
-          <h3>Le sei viste</h3>
+          <h3>Le sette viste</h3>
           <ul>
             <li><b>Monitor</b>: tutti i settori insieme, con lo stato e quello che manca al prossimo passaggio.</li>
             <li><b>Rotazione</b>: chi sta guadagnando o perdendo forza rispetto a un termine di confronto, per settori, MAG7 ed ETF in euro.</li>
@@ -389,6 +487,7 @@
             <li><b>Settore</b>: grafici, tutti i titoli del settore (mappa e tabella), episodi di zona blu e livello regolabile.</li>
             <li><b>Alert</b>: la striscia degli stati dal 2005, lo storico completo dei cambi di stato e le statistiche.</li>
             <li><b>I miei titoli</b>: i titoli della tua lista (anche europei), con trend, calo dal massimo, forza relativa e, per le azioni dell'S&amp;P 500, lo stato del settore. La lista sta nel file <code>miei-titoli.txt</code>.</li>
+            <li><b>Crypto</b>: bitcoin e le prime 10 crypto: tendenza sulle medie, ciclo dell'halving, stagionalità, cosa è successo dopo situazioni simili, correlazioni fra monete e con i mercati.</li>
           </ul>
           <h3>Parlare con Claude</h3>
           <ul>
@@ -408,14 +507,15 @@
             <li>Gli ETF della rotazione (<code>EIMI</code> anche senza borsa, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; se serve si passa all'universo giusto, e se è il termine di confronto attuale se ne sceglie un altro.</li>
             <li>Un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
             <li>I ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) aprono il loro grafico in «I miei titoli».</li>
-            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
+            <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella vista Crypto.</li>
+            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>, <code>CRYPTO</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
           </ul>
-          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
+          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code>, <code>#cry</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista, <code>#cry/ETH</code> per una crypto. Il pulsante Indietro del browser funziona.</p>
         </section>
         <section>
           <h3>Tastiera</h3>
           <ul class="keys">
-            <li><kbd>1</kbd> … <kbd>6</kbd> vai alla vista</li>
+            <li><kbd>1</kbd> … <kbd>7</kbd> vai alla vista</li>
             <li><kbd>←</kbd> <kbd>→</kbd> periodo nella vista Settore, data nella Rotazione</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato o chiude il grafico del titolo</li>
@@ -442,6 +542,8 @@
   <script src="view-bottom.js"></script>
   <script src="view-alert.js"></script>
   <script src="view-titoli.js"></script>
+  <script src="crypto-calcoli.js"></script>
+  <script src="view-crypto.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>
 </body>

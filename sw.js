@@ -3,7 +3,7 @@
  *
  * - Pagina, stili e script: dalla copia salvata nel telefono, ricontrollata in sottofondo.
  *   Se su GitHub è cambiato qualcosa, la copia si aggiorna e il sito propone di ricaricare.
- * - Dati (cartella data/, miei-titoli.txt, universi.json, settings.json): sempre dalla rete;
+ * - Dati (cartella data/, miei-titoli.txt, universi.json, settings.json, crypto.json): sempre dalla rete;
  *   senza rete, o se la rete tarda più di 6 secondi, dall'ultima copia scaricata.
  * - Caratteri di Google e altri siti: non passano da qui.
  *
@@ -11,7 +11,7 @@
  */
 "use strict";
 
-const VERSIONE = "2026-09-28";
+const VERSIONE = "2026-09-29";
 const GUSCIO = `radar-guscio-${VERSIONE}`;
 const DATI = "radar-dati";
 const ATTESA_RETE = 6000;
@@ -20,12 +20,13 @@ const FILE_GUSCIO = [
   "./", "style.css", "viste.css",
   "signals.js", "rrg.js", "portafoglio.js", "calendario.js", "chart.js", "core.js",
   "view-settore.js", "view-monitor.js", "view-rotazione.js", "view-bottom.js", "view-alert.js", "view-titoli.js",
+  "crypto-calcoli.js", "view-crypto.js",
   "app.js", "copia-dati.js",
   "favicon.svg", "manifest.webmanifest", "icona-192.png", "icona-512.png", "icona-maskable.png", "apple-touch-icon.png",
 ];
 
 const radice = () => new URL("./", self.registration.scope).href;
-const eDato = url => url.pathname.includes("/data/") || /\/(miei-titoli\.txt|universi\.json|settings\.json)$/.test(url.pathname);
+const eDato = url => url.pathname.includes("/data/") || /\/(miei-titoli\.txt|universi\.json|settings\.json|crypto\.json)$/.test(url.pathname);
 
 self.addEventListener("install", evento => {
   evento.waitUntil((async () => {

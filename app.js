@@ -8,8 +8,8 @@
   const R = window.Radar, S = window.Signals, Cal = window.Calendario;
   const { $, $$, num, esc, dataIt } = R;
 
-  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit"];
-  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit" };
+  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit", "cry"];
+  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit", crypto: "cry", cripto: "cry" };
   let vistaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
 
@@ -48,9 +48,10 @@
     const low = h.toLowerCase();
     if (VISTE.includes(low)) return { vista: low };
     if (ALIAS[low]) return { vista: ALIAS[low] };
-    // #tit/ENEL.MI apre un titolo della lista personale
+    // #tit/ENEL.MI apre un titolo della lista personale, #cry/ETH una crypto
     const [primo, ...resto] = low.split("/");
-    if ((primo === "tit" || ALIAS[primo] === "tit") && resto.length) return { vista: "tit", param: resto.join("/").toUpperCase() };
+    const vistaConParametro = ALIAS[primo] || primo;
+    if ((vistaConParametro === "tit" || vistaConParametro === "cry") && resto.length) return { vista: vistaConParametro, param: resto.join("/").toUpperCase() };
     const up = h.toUpperCase();
     const [etf, titolo] = up.split("/");
     if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: titolo ? `${etf}/${titolo}` : etf };
@@ -83,7 +84,7 @@
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
-  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli" };
+  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto" };
   // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
   const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
   const PAROLE_VUOTE = new Set(["INC", "CORP", "CORPORATION", "COMPANY", "COMPANIES", "GROUP", "HOLDINGS", "HOLDING", "THE", "PLC", "LTD", "TRUST", "CLASS", "INCORPORATED", "INTERNATIONAL"]);
@@ -97,6 +98,7 @@
     add(["SEC", "SETTORE"], { etichetta: "SEC", descr: "Pagina del settore", tipo: "vista", fai: () => R.vai("#sec") });
     add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert, lo storico degli stati", tipo: "vista", fai: () => R.vai("#alr") });
     add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA"], { etichetta: "MIEI", descr: "I miei titoli, la tua lista", tipo: "vista", fai: () => R.vai("#tit") });
+    add(["CRYPTO", "CRY", "CRIPTO", "CRIPTOVALUTE", "CRYPTOVALUTE"], { etichetta: "CRYPTO", descr: "Bitcoin e le prime 10 crypto", tipo: "vista", fai: () => R.vai("#cry") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
     add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
     add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
@@ -121,6 +123,13 @@
       // un indirizzo con il ticker di un'azione (#AAPL) si può aprire solo adesso
       if (location.hash && leggiRotta().vista === "sec" && vistaCorrente === "mon") applicaRotta();
     } catch (e) { /* senza elenco restano settori e comandi */ }
+    // le crypto seguite (dalla lista di crypto.json: il file dei prezzi si carica solo nella vista)
+    try {
+      const cfg = await fetch("crypto.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null));
+      for (const c of (cfg && cfg.riserva) || []) {
+        add([c.simbolo, c.nome, c.id, c.yahoo], { etichetta: c.simbolo, descr: `${c.nome} · crypto`, tipo: "crypto", fai: () => R.vai("#cry/" + c.simbolo) });
+      }
+    } catch (e) { /* senza elenco resta la vista */ }
     // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
     try {
       const lista = await leggiListaMiei();
@@ -214,6 +223,7 @@
       }
       if (best && v.tipo === "settore") best += 2;
       if (best && v.tipo === "azione") best += 1;
+      if (best && v.tipo === "crypto") best += 1.5;
       return best;
     };
     return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p).slice(0, 9).map(x => x.v);
@@ -399,7 +409,7 @@
       if (e.key === "/") { e.preventDefault(); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
       if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
-      if (/^[1-6]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
+      if (/^[1-7]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
       if (v && v.tasto && v.tasto(e)) e.preventDefault();

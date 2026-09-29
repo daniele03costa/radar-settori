@@ -10,8 +10,9 @@ Sito statico (GitHub Pages) per seguire i settori dell'S&P 500 e un gruppo di ET
 | **4 · Settore** | Prezzo con media 200, drawdown e ampiezza (medie 200, 50, 20) con zone blu e trigger; livello blu regolabile; storico degli episodi; tutti i titoli del settore, come mappa a tessere e tabella completa, con la scheda del singolo titolo. |
 | **5 · Alert** | La striscia degli stati di ogni settore dal 2005 e tutti i cambi di stato, filtrabili per tipo e settore, con statistiche riassuntive e le regole. |
 | **6 · I miei titoli** | I titoli della tua lista, anche fuori dall'S&P 500 (per esempio a Milano o ad Amsterdam): variazioni, distanza dalle medie 200 e 50, calo dal massimo, forza relativa contro l'S&P 500 o contro l'azionario mondiale (ACWI) e, per le azioni dell'S&P 500, lo stato del loro settore. Clic su un titolo per il grafico. |
+| **7 · Crypto** | Bitcoin e le prime 10 crypto per capitalizzazione (stablecoin escluse): tendenza sulle medie 50 e 200, multiplo di Mayer, media 200 settimane, distanza dal massimo, ciclo dell'halving, «cosa è successo dopo» situazioni simili, la regola della media 200 contro «sempre investito», stagionalità mese per mese, correlazioni fra monete e con Nasdaq, S&P 500, oro e dollaro. |
 
-In più: riquadro **«Novità della seduta»** in cima al Monitor, pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`6`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone che si installa come app.
+In più: riquadro **«Novità della seduta»** in cima al Monitor, pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, barra dei comandi (tasto `/`) che trova anche tutte le azioni dell'S&P 500, scorciatoie da tastiera (`1`–`7`, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo rispetto all'ultima seduta, stampa in bianco e nero, versione per smartphone che si installa come app.
 
 I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions. Si usano solo chiusure: se l'aggiornamento parte a borsa aperta, per esempio lanciato a mano nel pomeriggio, la seduta del giorno viene scartata.
 
@@ -63,6 +64,19 @@ La lista sta nel file `miei-titoli.txt` del repository: su GitHub aprilo e premi
 - La forza relativa è la posizione nella rotazione settimanale: contro l'S&P 500 per le azioni americane, contro l'ACWI (azionario mondiale in euro, ETF IUSQ.DE) per le altre.
 - Il repository è pubblico: la lista la può vedere chiunque.
 
+## Crypto
+
+La vista 7 segue bitcoin e le prime 10 crypto per capitalizzazione. La classifica arriva ogni notte da CoinGecko, senza stablecoin (USDT, USDC…), token «impacchettati» o in staking e token legati ad altri beni; i prezzi sono quelli in dollari di Yahoo Finance, con la giornata che finisce a mezzanotte UTC (le 2 di notte italiane in estate).
+
+- **In cima**: le tessere di bitcoin e «Cosa dicono i numeri», le frasi con la situazione di oggi: tendenza, livelli di riferimento (medie, Mayer 0,8, media 200 settimane), punto del ciclo dell'halving, quante monete sono sopra la media 200, stagionalità del mese, Fear & Greed e legame con i mercati.
+- **Le prime per capitalizzazione**: tendenza, distanza dalla media 200 e da quanti giorni, calo dal massimo, forza contro bitcoin, volatilità e beta. Clic su una moneta per il grafico in scala logaritmica con le medie e il multiplo di Mayer (o il rapporto con bitcoin per le altcoin).
+- **Analisi di** (si sceglie la moneta): «Cosa è successo dopo» mette in tabella come è andato il prezzo 1, 3, 6 o 12 mesi dopo i giorni con la stessa situazione di oggi; la **stagionalità** dà il rendimento di ogni mese di ogni anno; la **regola della media 200** confronta, moneta per moneta, lo stare investiti solo sopra la media con il restare sempre investiti.
+- **Il ciclo dell'halving** allinea i cicli di bitcoin dal giorno dell'halving; **Correlazioni** mostra quanto le monete si muovono insieme e il legame di bitcoin con Nasdaq, S&P 500, oro e dollaro nel tempo.
+
+Le monete si aggiornano con l'aggiornamento della notte (dal lunedì al venerdì). Per averle **anche nel fine settimana** serve il secondo aggiornamento automatico, da creare una volta: **Add file** → **Create new file**, nome `.github/workflows/aggiorna-crypto.yml`, incolla il contenuto dell'omonimo file dello zip → **Commit changes**. Per provarlo subito: **Actions** → **Aggiorna crypto** → **Run workflow**.
+
+Quante monete tenere, cosa escludere e i ticker di Yahoo che non seguono la forma `SIMBOLO-USD` si cambiano in `crypto.json`. Sono statistiche del passato su pochi cicli: aiutano a capire in che fase si è, non dicono cosa succederà.
+
 ## Sul telefono, come un'app
 
 - **iPhone**: apri il sito con Safari → pulsante **Condividi** → **Aggiungi alla schermata Home**.
@@ -88,9 +102,9 @@ Con l'estensione **Claude in Chrome**, compresa negli abbonamenti a pagamento di
 
 ## Uso rapido
 
-- **Barra dei comandi** (`/`): il ticker di un ETF settoriale apre il settore; il ticker o il nome di qualsiasi azione dell'S&P 500 (`AAPL`, `coca cola`) apre il suo settore con il titolo in evidenza; i titoli della tua lista (`ENEL.MI` o solo `ENEL`) aprono il loro grafico in «I miei titoli»; gli ETF della rotazione (anche senza il suffisso di borsa), il loro nome breve o una parola del nome li evidenziano nella rotazione; un termine di confronto (`SPY`, `QQQ`, `RSP`, `ACWI`, `PTF`) apre la rotazione contro di lui; `MON` `ROT`/`RRG` `BTM` `SEC` `ALRT` `MIEI` `HELP` aprono viste e guida; `CHIARO` `SCURO` `TEMA` cambiano il tema.
-- **Indirizzi**: `#XLU` apre un settore, `#XLK/AAPL` o `#AAPL` un'azione nel suo settore; `#mon` `#rot` `#btm` `#sec` `#alr` `#tit` le viste; `#tit/ENEL.MI` un titolo della tua lista. Il pulsante Indietro funziona.
-- **Tasti**: `1`–`6` viste · `←` `→` periodo (Settore) o data (Rotazione) · `Spazio` animazione · `Esc` toglie l'evidenza o chiude il grafico del titolo · `C` copia i dati della pagina per Claude · `?` guida. I tasti rapidi si disattivano dalla guida.
+- **Barra dei comandi** (`/`): il ticker di un ETF settoriale apre il settore; il ticker o il nome di qualsiasi azione dell'S&P 500 (`AAPL`, `coca cola`) apre il suo settore con il titolo in evidenza; i titoli della tua lista (`ENEL.MI` o solo `ENEL`) aprono il loro grafico in «I miei titoli»; le crypto (`BTC`, `solana`) aprono la vista Crypto; gli ETF della rotazione (anche senza il suffisso di borsa), il loro nome breve o una parola del nome li evidenziano nella rotazione; un termine di confronto (`SPY`, `QQQ`, `RSP`, `ACWI`, `PTF`) apre la rotazione contro di lui; `MON` `ROT`/`RRG` `BTM` `SEC` `ALRT` `MIEI` `CRYPTO` `HELP` aprono viste e guida; `CHIARO` `SCURO` `TEMA` cambiano il tema.
+- **Indirizzi**: `#XLU` apre un settore, `#XLK/AAPL` o `#AAPL` un'azione nel suo settore; `#mon` `#rot` `#btm` `#sec` `#alr` `#tit` `#cry` le viste; `#tit/ENEL.MI` un titolo della tua lista; `#cry/ETH` una crypto. Il pulsante Indietro funziona.
+- **Tasti**: `1`–`7` viste · `←` `→` periodo (Settore) o data (Rotazione) · `Spazio` animazione · `Esc` toglie l'evidenza o chiude il grafico del titolo · `C` copia i dati della pagina per Claude · `?` guida. I tasti rapidi si disattivano dalla guida.
 - Livello blu, pesi del portafoglio, universo e tema scelti restano solo nel browser di chi li cambia.
 
 ## Domande frequenti
@@ -140,16 +154,19 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 | `orari.py` | orari delle borse: la seduta di oggi si pubblica solo quando la borsa ha chiuso |
 | `build_prices.py` | prezzi per la rotazione → `data/prezzi_usa.json`, `data/prezzi_globali.json` (calendario a maggioranza, bitcoin, cambi, correzione di prezzi anomali, controlli di qualità); prezzi della tua lista → `data/prezzi_miei.json` |
 | `miei-titoli.txt` | la lista di «I miei titoli» |
+| `build_crypto.py`, `crypto.json` | dati della vista Crypto → `data/prezzi_crypto.json` (classifica CoinGecko, prezzi Yahoo, mercati, Fear & Greed di alternative.me); impostazioni delle monete |
+| `.github/workflows/aggiorna-crypto.yml` | aggiornamento delle crypto ogni giorno, weekend compreso |
 | `requirements.txt` | librerie Python usate dall'aggiornamento |
 | `.github/workflows/aggiorna-dati.yml` | aggiornamento automatico |
 | `settings.json` | settori, livelli blu, parametri degli stati |
 | `universi.json` | universi, termini di confronto, portafoglio di riferimento |
 | `signals.js` | macchina a stati ed episodi |
 | `rrg.js`, `portafoglio.js`, `calendario.js` | rotazione, portafoglio, calendari NYSE e Borsa Italiana |
-| `view-*.js`, `app.js`, `core.js`, `chart.js`, `style.css`, `viste.css` | le sei viste, la struttura dell'app e la grafica |
+| `view-*.js`, `app.js`, `core.js`, `chart.js`, `style.css`, `viste.css` | le sette viste, la struttura dell'app e la grafica |
+| `crypto-calcoli.js` | i calcoli della vista Crypto (medie, tendenza, cicli, stagionalità, correlazioni, regola della media 200) |
 | `manifest.webmanifest`, `sw.js`, `icona-*.png`, `apple-touch-icon.png` | l'app sul telefono: nome e icone, copia del sito per aprirlo subito e senza rete |
 | `copia-dati.js` | il pulsante «Copia per Claude» (il testo di ogni pagina lo preparano le viste) |
-| `test_*.py`, `*.test.js` | test con dati simulati: `python -m pytest` · `node --test signals.test.js motori.test.js` |
+| `test_*.py`, `*.test.js` | test con dati simulati: `python -m pytest` · `node --test signals.test.js motori.test.js crypto.test.js` |
 | `data/` | creata dall'aggiornamento automatico, non va caricata a mano |
 
 Fonti: prezzi Yahoo Finance; composizione dell'S&P 500 da Wikipedia e dai dataset pubblici *datasets/s-and-p-500-companies* e *fja05680/sp500*. Yahoo non ha i prezzi delle società uscite dal listino, quindi lo storico dei primi anni ne è privo (un po' di distorsione a favore dei "sopravvissuti").

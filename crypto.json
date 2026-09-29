@@ -1,0 +1,44 @@
+{
+  "_nota": "Impostazioni della vista Crypto. La classifica arriva ogni notte da CoinGecko: qui si scelgono quante monete tenere, cosa escludere e i ticker di Yahoo Finance che non seguono la forma SIMBOLO-USD. La lista di riserva si usa solo se CoinGecko non risponde e non c'è ancora un file pubblicato.",
+  "quante": 10,
+  "inizio": "2014-09-01",
+  "escludi": [
+    "tether", "usd-coin", "usds", "ethena-usde", "dai", "first-digital-usd", "paypal-usd", "usd1-wlfi", "ripple-usd",
+    "falcon-usd", "global-dollar", "usdtb", "true-usd", "usdd", "binance-usd", "gho", "frax", "liquity-usd", "euro-coin",
+    "stasis-eurs", "susds", "ethena-staked-usde", "blackrock-usd-institutional-digital-liquidity-fund", "ondo-us-dollar-yield",
+    "figure-heloc", "tether-gold", "pax-gold",
+    "wrapped-bitcoin", "staked-ether", "wrapped-steth", "weth", "coinbase-wrapped-btc", "wrapped-eeth", "wrapped-beacon-eth",
+    "binance-staked-sol", "jito-staked-sol", "rocket-pool-eth", "mantle-staked-ether", "kelp-dao-restaked-eth",
+    "lombard-staked-btc", "solv-btc", "binance-peg-weth", "bitcoin-avalanche-bridged-btc-b", "coinbase-wrapped-staked-eth"
+  ],
+  "parole_escluse": ["wrapped", "staked", "bridged", "restaked", "tokenized", "gold", "heloc", " usd", "usd ", "dollar", "euro"],
+  "ticker_yahoo": {
+    "hyperliquid": "HYPE32196-USD",
+    "sui": "SUI20947-USD",
+    "the-open-network": "TON11419-USD",
+    "uniswap": "UNI7083-USD",
+    "aptos": "APT21794-USD",
+    "pepe": "PEPE24478-USD",
+    "bittensor": "TAO22974-USD",
+    "mantle": "MNT27075-USD"
+  },
+  "riserva": [
+    { "id": "bitcoin", "simbolo": "BTC", "nome": "Bitcoin", "yahoo": "BTC-USD" },
+    { "id": "ethereum", "simbolo": "ETH", "nome": "Ethereum", "yahoo": "ETH-USD" },
+    { "id": "binancecoin", "simbolo": "BNB", "nome": "BNB", "yahoo": "BNB-USD" },
+    { "id": "ripple", "simbolo": "XRP", "nome": "XRP", "yahoo": "XRP-USD" },
+    { "id": "solana", "simbolo": "SOL", "nome": "Solana", "yahoo": "SOL-USD" },
+    { "id": "tron", "simbolo": "TRX", "nome": "TRON", "yahoo": "TRX-USD" },
+    { "id": "zcash", "simbolo": "ZEC", "nome": "Zcash", "yahoo": "ZEC-USD" },
+    { "id": "hyperliquid", "simbolo": "HYPE", "nome": "Hyperliquid", "yahoo": "HYPE32196-USD" },
+    { "id": "dogecoin", "simbolo": "DOGE", "nome": "Dogecoin", "yahoo": "DOGE-USD" },
+    { "id": "chainlink", "simbolo": "LINK", "nome": "Chainlink", "yahoo": "LINK-USD" }
+  ],
+  "mercati": {
+    "QQQ": "Nasdaq 100",
+    "SPY": "S&P 500",
+    "GLD": "Oro",
+    "DX-Y.NYB": "Dollaro (indice DXY)"
+  },
+  "halving": ["2012-11-28", "2016-07-09", "2020-05-11", "2024-04-20"]
+}
