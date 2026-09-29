@@ -3,12 +3,14 @@
 Radar Settori — dati della vista Crypto: bitcoin e le prime criptovalute per capitalizzazione.
 
 Produce data/prezzi_crypto.json. Cosa fa, in ordine:
-  1. prende la classifica per capitalizzazione da CoinGecko e scarta stablecoin, token "impacchettati"
-     o in staking e token legati ad altri beni (impostazioni in crypto.json); se CoinGecko non risponde
-     tiene la lista già pubblicata o, la prima volta, quella di riserva di crypto.json;
+  1. prende la classifica per capitalizzazione da CoinGecko (se non risponde, da CoinPaprika) e scarta
+     stablecoin, token "impacchettati" o in staking e token legati ad altri beni (impostazioni in crypto.json);
+     se nessuna delle due risponde tiene la lista già pubblicata o, la prima volta, quella di riserva;
   2. scarica da Yahoo Finance le chiusure giornaliere in dollari (una giornata = 00:00-24:00 UTC, cioè
-     dalle 2 alle 2 di notte italiane in estate): la giornata ancora in corso si scarta;
-     una moneta entra solo se Yahoo ha i suoi prezzi e l'ultimo è vicino a quello di CoinGecko
+     dalle 2 alle 2 di notte italiane in estate): la giornata ancora in corso si scarta; Yahoo pubblica
+     la candela del giorno prima con ore di ritardo, quindi gli ultimi giorni mancanti si ricostruiscono
+     dalle candele orarie (la chiusura del giorno è quella della candela delle 23 UTC);
+     una moneta entra solo se Yahoo ha i suoi prezzi e l'ultimo è vicino a quello della classifica
      (così un ticker sbagliato non porta dentro un'altra moneta con lo stesso simbolo);
   3. scarica i mercati per le correlazioni (Nasdaq 100, S&P 500, oro, dollaro), solo sedute concluse;
   4. aggiunge l'indice Fear & Greed di alternative.me (dal 2018) e la quota di mercato di bitcoin;
@@ -42,11 +44,14 @@ OUT_PATH = DATA_DIR / "prezzi_crypto.json"
 URL_CLASSIFICA = ("https://api.coingecko.com/api/v3/coins/markets"
                   "?vs_currency=usd&order=market_cap_desc&per_page=60&page=1&sparkline=false")
 URL_GLOBALE = "https://api.coingecko.com/api/v3/global"
+URL_PAPRIKA = "https://api.coinpaprika.com/v1/tickers?quotes=USD"
+URL_PAPRIKA_GLOBALE = "https://api.coinpaprika.com/v1/global"
 URL_PAURA = "https://api.alternative.me/fng/?limit=0&format=json"
 
 MIN_MONETE = 8          # sotto questo numero il file non si aggiorna
 TOLLERANZA_PREZZO = 0.30  # scarto massimo fra l'ultimo prezzo di Yahoo e quello di CoinGecko
 BUCO_MASSIMO = 3        # giorni mancanti che si riempiono con l'ultimo prezzo
+GIORNI_ORARI = 4        # gli ultimi giorni che si possono ricostruire dalle candele orarie
 STORIA_DOMINANZA = 1000
 
 
@@ -97,6 +102,59 @@ def yahoo_prezzi(simboli: List[str], inizio: str) -> pd.DataFrame:
     return build_prices.yahoo_prices(simboli, inizio, batch=20)
 
 
+def yahoo_orari(simboli: List[str]) -> pd.DataFrame:
+    """Candele orarie degli ultimi giorni (ora di inizio in UTC), per le giornate che Yahoo non ha ancora chiuso."""
+    import yfinance as yf
+    try:
+        df = yf.download(simboli, period="7d", interval="1h", auto_adjust=False, actions=False, group_by="column",
+                         threads=True, progress=False, timeout=30, multi_level_index=True)
+    except Exception as e:  # noqa: BLE001
+        log(f"  candele orarie non disponibili ({e})")
+        return pd.DataFrame()
+    if df is None or df.empty:
+        return pd.DataFrame()
+    sub = df["Close"]
+    if isinstance(sub, pd.Series):
+        sub = sub.to_frame(simboli[0])
+    idx = pd.to_datetime(sub.index)
+    sub.index = idx.tz_localize("UTC") if idx.tz is None else idx.tz_convert("UTC")
+    return sub.sort_index()
+
+
+def completa_con_orari(px: pd.DataFrame, orari: pd.DataFrame, adesso: Optional[pd.Timestamp] = None,
+                       giorni: int = GIORNI_ORARI) -> pd.DataFrame:
+    """Riempie gli ultimi giorni mancanti con la chiusura della candela oraria delle 23 UTC,
+    solo se quel giorno è finito e ha quasi tutte le sue candele."""
+    if orari is None or orari.empty:
+        return px
+    ora = pd.Timestamp.now(tz="UTC") if adesso is None else pd.Timestamp(adesso)
+    ora = ora.tz_localize("UTC") if ora.tzinfo is None else ora.tz_convert("UTC")
+    oggi = ora.normalize()
+    px = px.copy()
+    aggiunti = {}
+    for k in range(giorni, 0, -1):
+        g = oggi - pd.Timedelta(days=k)
+        giorno = g.tz_localize(None)
+        candele = orari[(orari.index >= g) & (orari.index < g + pd.Timedelta(days=1))]
+        if candele.empty:
+            continue
+        for t in px.columns:
+            if t not in candele.columns:
+                continue
+            c = candele[t].dropna()
+            if len(c) < 20 or c.index[-1].hour != 23:
+                continue
+            if giorno in px.index and pd.notna(px.at[giorno, t]):
+                continue
+            if giorno not in px.index:
+                px.loc[giorno] = np.nan
+            px.at[giorno, t] = float(c.iloc[-1])
+            aggiunti.setdefault(t, []).append(giorno.strftime("%d/%m"))
+    if aggiunti:
+        log("  ricostruiti dalle candele orarie: " + ", ".join(f"{t} {' '.join(v)}" for t, v in aggiunti.items()))
+    return px.sort_index()
+
+
 # ---------------------------------------------------------------------------
 # classifica
 # ---------------------------------------------------------------------------
@@ -106,6 +164,8 @@ def esclusa(c: dict, cfg: dict) -> bool:
     sim = str(c.get("symbol", c.get("simbolo", ""))).lower()
     nome = " " + str(c.get("name", c.get("nome", ""))).lower() + " "
     if cid in {x.lower() for x in cfg.get("escludi", [])}:
+        return True
+    if sim.upper() in {x.upper() for x in cfg.get("escludi_simboli", [])}:
         return True
     if re.search(r"usd|eur", sim):                       # stablecoin: USDT, USDC, USDe, PYUSD, EURC…
         return True
@@ -119,7 +179,8 @@ def esclusa(c: dict, cfg: dict) -> bool:
 
 def ticker_yahoo(c: dict, cfg: dict) -> str:
     mappa = cfg.get("ticker_yahoo", {})
-    return mappa.get(c["id"]) or f"{str(c['simbolo']).upper()}-USD"
+    sim = str(c["simbolo"]).upper()
+    return mappa.get(sim) or mappa.get(c.get("id", "")) or f"{sim}-USD"
 
 
 def classifica_coingecko(cfg: dict, prendi: Callable[[str], Optional[Any]] = http_json) -> Optional[List[dict]]:
@@ -133,6 +194,30 @@ def classifica_coingecko(cfg: dict, prendi: Callable[[str], Optional[Any]] = htt
             continue
         out.append({"id": c["id"], "simbolo": str(c.get("symbol", "")).upper(), "nome": c.get("name") or c["id"],
                     "rango": c.get("market_cap_rank"), "cap": c.get("market_cap"), "prezzo": c.get("current_price")})
+    for c in out:
+        c["yahoo"] = ticker_yahoo(c, cfg)
+    return out or None
+
+
+def classifica_coinpaprika(cfg: dict, prendi: Callable[[str], Optional[Any]] = http_json) -> Optional[List[dict]]:
+    """Seconda fonte per la classifica, se CoinGecko non risponde."""
+    dati = prendi(URL_PAPRIKA)
+    if not isinstance(dati, list) or not dati:
+        return None
+    righe = []
+    for c in dati:
+        try:
+            rango = int(c.get("rank") or 0)
+            usd = (c.get("quotes") or {}).get("USD") or {}
+            voce = {"id": c["id"], "symbol": c.get("symbol", ""), "name": c.get("name", ""), "current_price": usd.get("price"),
+                    "market_cap": usd.get("market_cap")}
+        except (KeyError, TypeError, ValueError):
+            continue
+        if rango > 0 and not esclusa(voce, cfg):
+            righe.append((rango, voce))
+    righe.sort(key=lambda x: x[0])
+    out = [{"id": v["id"], "simbolo": str(v["symbol"]).upper(), "nome": v["name"] or v["id"], "rango": r,
+            "cap": v["market_cap"], "prezzo": v["current_price"]} for r, v in righe[:60]]
     for c in out:
         c["yahoo"] = ticker_yahoo(c, cfg)
     return out or None
@@ -229,7 +314,8 @@ def indice_paura(dati: Any, calendario: pd.DatetimeIndex) -> Optional[dict]:
 # ---------------------------------------------------------------------------
 
 def build_crypto(out_path: Path, cfg: dict, scarica: Callable[[List[str], str], pd.DataFrame] = yahoo_prezzi,
-                 prendi: Callable[[str], Optional[Any]] = http_json, adesso: Optional[pd.Timestamp] = None) -> Optional[dict]:
+                 prendi: Callable[[str], Optional[Any]] = http_json, adesso: Optional[pd.Timestamp] = None,
+                 scarica_orari: Optional[Callable[[List[str]], pd.DataFrame]] = yahoo_orari) -> Optional[dict]:
     quante = int(cfg.get("quante", 10))
     inizio = cfg.get("inizio", "2014-09-01")
     prima = dati_precedenti(out_path)
@@ -237,13 +323,16 @@ def build_crypto(out_path: Path, cfg: dict, scarica: Callable[[List[str], str], 
     candidati = classifica_coingecko(cfg, prendi)
     fonte = "CoinGecko"
     if candidati is None:
+        candidati = classifica_coinpaprika(cfg, prendi)
+        fonte = "CoinPaprika"
+    if candidati is None:
         candidati = lista_precedente(out_path) or [dict(x) for x in cfg["riserva"]]
         fonte = "lista precedente" if lista_precedente(out_path) else "lista di riserva"
-        log(f"Crypto: CoinGecko non risponde, uso la {fonte}")
+        log(f"Crypto: né CoinGecko né CoinPaprika rispondono, uso la {fonte}")
     # bitcoin c'è sempre, per primo
-    if not any(c["id"] == "bitcoin" for c in candidati):
+    if not any(c["simbolo"] == "BTC" for c in candidati):
         candidati.insert(0, dict(cfg["riserva"][0]))
-    candidati.sort(key=lambda c: 0 if c["id"] == "bitcoin" else 1)
+    candidati.sort(key=lambda c: 0 if c["simbolo"] == "BTC" else 1)
     candidati = candidati[: quante + 12]                  # qualche riserva se una moneta non va
 
     simboli = list(dict.fromkeys([c["yahoo"] for c in candidati]))
@@ -252,8 +341,13 @@ def build_crypto(out_path: Path, cfg: dict, scarica: Callable[[List[str], str], 
     if px is None or px.empty:
         log("Crypto: nessun prezzo da Yahoo, resta il file già pubblicato")
         return None
-    monete = scegli_monete(candidati, px, quante, fonte == "CoinGecko", adesso)
-    btc = next((m for m in monete if m["id"] == "bitcoin"), None)
+    if scarica_orari is not None:
+        try:
+            px = completa_con_orari(px, scarica_orari(simboli), adesso)
+        except Exception as e:  # noqa: BLE001
+            log(f"  candele orarie non usate ({e})")
+    monete = scegli_monete(candidati, px, quante, fonte in ("CoinGecko", "CoinPaprika"), adesso)
+    btc = next((m for m in monete if m["simbolo"] == "BTC"), None)
     if btc is None or len(monete) < MIN_MONETE:
         log(f"Crypto: solo {len(monete)} monete valide{'' if btc else ', manca bitcoin'}: resta il file già pubblicato")
         return None
@@ -300,12 +394,17 @@ def build_crypto(out_path: Path, cfg: dict, scarica: Callable[[List[str], str], 
 
     dominanza = None
     storia = [x for x in (prima.get("dominanza_storia") or []) if isinstance(x, list) and len(x) == 2]
-    g = prendi(URL_GLOBALE) if fonte == "CoinGecko" else None
+    giorno = (adesso or pd.Timestamp.now(tz="UTC")).strftime("%Y-%m-%d")
     try:
-        quote = g["data"]["market_cap_percentage"]
-        dominanza = {"btc": round(float(quote["btc"]), 2), "eth": round(float(quote.get("eth", 0)), 2),
-                     "totale_usd": cifre(g["data"]["total_market_cap"]["usd"], 4),
-                     "data": (adesso or pd.Timestamp.now(tz="UTC")).strftime("%Y-%m-%d")}
+        if fonte == "CoinGecko":
+            g = prendi(URL_GLOBALE)
+            quote = g["data"]["market_cap_percentage"]
+            dominanza = {"btc": round(float(quote["btc"]), 2), "eth": round(float(quote.get("eth", 0)), 2),
+                         "totale_usd": cifre(g["data"]["total_market_cap"]["usd"], 4), "data": giorno, "fonte": "CoinGecko"}
+        else:
+            g = prendi(URL_PAPRIKA_GLOBALE)
+            dominanza = {"btc": round(float(g["bitcoin_dominance_percentage"]), 2), "eth": None,
+                         "totale_usd": cifre(g["market_cap_usd"], 4), "data": giorno, "fonte": "CoinPaprika"}
         if not storia or storia[-1][0] != dominanza["data"]:
             storia.append([dominanza["data"], dominanza["btc"]])
         storia = storia[-STORIA_DOMINANZA:]

@@ -44,14 +44,24 @@ def paura_finta(giorni=40):
         for k in range(giorni)]}
 
 
+def paprika_finta():
+    """Stessa classifica nel formato di CoinPaprika (id diversi, stablecoin dentro)."""
+    return [{"id": f"{c['symbol']}-{c['id']}", "symbol": c["symbol"].upper(), "name": c["name"], "rank": c["market_cap_rank"],
+             "quotes": {"USD": {"price": c["current_price"], "market_cap": c["market_cap"]}}} for c in classifica_finta()]
+
+
 def fonte_finta(guasti=()):
     def prendi(url):
         if any(g in url for g in guasti):
             return None
-        if "coins/markets" in url:
+        if "coingecko" in url and "coins/markets" in url:
             return classifica_finta()
-        if "/global" in url:
+        if "coingecko" in url and "/global" in url:
             return {"data": {"market_cap_percentage": {"btc": 56.2, "eth": 11.1}, "total_market_cap": {"usd": 2.98e12}}}
+        if "coinpaprika" in url and "/tickers" in url:
+            return paprika_finta()
+        if "coinpaprika" in url and "/global" in url:
+            return {"market_cap_usd": 2.95e12, "bitcoin_dominance_percentage": 57.3}
         if "fng" in url:
             return paura_finta()
         return None
@@ -86,7 +96,7 @@ def test_build_top10_closed_days_and_checks():
 
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "prezzi_crypto.json"
-        r = bc.build_crypto(out, cfg, scarica, fonte_finta(), adesso=ADESSO)
+        r = bc.build_crypto(out, cfg, scarica, fonte_finta(), adesso=ADESSO, scarica_orari=None)
         p = json.loads(out.read_text())
         simboli = [m["simbolo"] for m in p["monete"]]
         assert r and len(simboli) == 10 and simboli[0] == "BTC"
@@ -105,7 +115,8 @@ def test_build_top10_closed_days_and_checks():
         # dati più vecchi di quelli pubblicati: il file resta com'è
         prima = out.read_text()
         vecchi = px[px.index <= "2026-09-20"]
-        r2 = bc.build_crypto(out, cfg, lambda s, i: (mk if "QQQ" in s else vecchi).reindex(columns=s), fonte_finta(), adesso=ADESSO)
+        r2 = bc.build_crypto(out, cfg, lambda s, i: (mk if "QQQ" in s else vecchi).reindex(columns=s), fonte_finta(), adesso=ADESSO,
+                             scarica_orari=None)
         assert r2 is None and out.read_text() == prima
 
 
@@ -115,13 +126,53 @@ def test_coingecko_down_uses_backup_list():
     px = mercato_finto(yahoo, 400, seed=7)
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "prezzi_crypto.json"
-        r = bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=("coingecko",)), adesso=ADESSO)
+        giu = ("coingecko", "coinpaprika")
+        r = bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=giu), adesso=ADESSO, scarica_orari=None)
         p = json.loads(out.read_text())
         assert r["fonte"] == "lista di riserva" and len(p["monete"]) == 10
         assert p["dominanza"] is None and p["paura"] is not None
         # la volta dopo, senza CoinGecko, si riparte dalla lista già pubblicata
-        r2 = bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=("coingecko",)), adesso=ADESSO)
+        r2 = bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=giu), adesso=ADESSO, scarica_orari=None)
         assert r2["fonte"] == "lista precedente"
+
+
+def test_coinpaprika_when_coingecko_is_down():
+    cfg = bc.carica_config()
+    cl = bc.classifica_coinpaprika(cfg, fonte_finta())
+    simboli = [c["simbolo"] for c in cl]
+    assert "USDT" not in simboli and "USDC" not in simboli and "USDE" not in simboli and "WBTC" not in simboli
+    assert "FIGR_HELOC" not in simboli and simboli[:4] == ["BTC", "ETH", "BNB", "XRP"]
+    assert next(c for c in cl if c["simbolo"] == "HYPE")["yahoo"] == "HYPE32196-USD"      # ticker trovato dal simbolo
+    finali = {c["yahoo"]: c["prezzo"] for c in cl}
+    px = mercato_finto(list(finali), 500, prezzi_finali=finali)
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "prezzi_crypto.json"
+        r = bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=("coingecko",)), adesso=ADESSO, scarica_orari=None)
+        p = json.loads(out.read_text())
+        assert r["fonte"] == "CoinPaprika" and p["monete"][0]["simbolo"] == "BTC" and p["monete"][0]["rango"] == 1
+        assert p["dominanza"]["btc"] == 57.3 and p["dominanza"]["fonte"] == "CoinPaprika"
+
+
+def test_yesterday_rebuilt_from_hourly_candles():
+    """Yahoo non ha ancora la candela giornaliera di ieri: si prende la chiusura della candela oraria delle 23 UTC."""
+    cfg = bc.carica_config()
+    yahoo = [c["yahoo"] for c in cfg["riserva"]]
+    px = mercato_finto(yahoo, 400, seed=4)
+    px = px.drop(index=pd.Timestamp("2026-09-28"))            # manca ieri, c'è la candela in corso di oggi
+    ore = pd.date_range("2026-09-26 00:00", "2026-09-29 05:00", freq="h", tz="UTC")
+    orari = pd.DataFrame({t: np.linspace(100, 110, len(ore)) for t in yahoo}, index=ore)
+    ultima23 = orari.loc["2026-09-28 23:00", "BTC-USD"]
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "prezzi_crypto.json"
+        bc.build_crypto(out, cfg, lambda s, i: px.reindex(columns=s), fonte_finta(guasti=("coingecko", "coinpaprika")),
+                        adesso=ADESSO, scarica_orari=lambda s: orari.reindex(columns=s))
+        p = json.loads(out.read_text())
+        assert p["aggiornato"] == "2026-09-28"
+        btc = p["monete"][0]
+        assert abs(btc["prezzi"][-1] - ultima23) < 1e-3
+        # un giorno non finito (oggi) non si ricostruisce
+        parziale = bc.completa_con_orari(px.iloc[:0].reindex(columns=yahoo), orari, adesso=pd.Timestamp("2026-09-28 20:00", tz="UTC"))
+        assert pd.Timestamp("2026-09-28") not in parziale.index
 
 
 def test_significant_digits():

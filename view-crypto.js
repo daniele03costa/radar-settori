@@ -250,7 +250,7 @@
       }).join("") + "</tbody>";
     const alt = altcoinMeglio();
     $("#cry-conta").textContent = `${x.amp.sopra[x.N - 1]} su ${x.monete.length} sopra la media 200 · ${alt.meglio} altcoin su ${alt.totale} meglio di BTC a 90 giorni`;
-    $("#cry-nota-tab").innerHTML = `Classifica ${x.d.fonte_classifica === "CoinGecko" ? "per capitalizzazione di CoinGecko" : `dalla ${esc(x.d.fonte_classifica)} (CoinGecko non ha risposto)`}, escluse stablecoin e token «impacchettati»; prezzi in dollari di Yahoo Finance, chiusura a mezzanotte UTC (le 2 di notte italiane in estate). ` +
+    $("#cry-nota-tab").innerHTML = `Classifica ${["CoinGecko", "CoinPaprika"].includes(x.d.fonte_classifica) ? `per capitalizzazione di ${x.d.fonte_classifica}` : `dalla ${esc(x.d.fonte_classifica)} (le fonti della classifica non hanno risposto)`}, escluse stablecoin e token «impacchettati»; prezzi in dollari di Yahoo Finance, chiusura a mezzanotte UTC (le 2 di notte italiane in estate). ` +
       `Medie su giorni di calendario. Tendenza: ${C.ORDINE_STATI.map(k => `<b>${C.STATI[k].toLowerCase()}</b> ${({ rialzo: "prezzo e media 50 sopra la media 200", recupero: "prezzo sopra la media 200, media 50 ancora sotto", debolezza: "prezzo sotto la media 200, media 50 ancora sopra", ribasso: "prezzo e media 50 sotto la media 200" })[k]}`).join("; ")}. Clic su una riga per il grafico.`;
   }
 
@@ -272,7 +272,7 @@
         </div>
         <div class="controls">
           <div class="seg" id="cry-periodo" role="group" aria-label="Periodo">${PERIODI.map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${k === st.periodo}">${l}</button>`).join("")}</div>
-          <a class="btn-link" href="https://www.coingecko.com/it/monete/${encodeURIComponent(m.id)}" target="_blank" rel="noopener">CoinGecko ↗</a>
+          <a class="btn-link" href="https://finance.yahoo.com/quote/${encodeURIComponent(m.yahoo)}" target="_blank" rel="noopener">Yahoo Finance ↗</a>
           <button class="icon-btn" type="button" id="cry-chiudi" aria-label="Chiudi il dettaglio">×</button>
         </div>
       </div>
@@ -765,7 +765,7 @@
       `Prezzo ${cifre(o.prezzo)} $; 7 giorni ${pct(o.g7 * 100, 1)}, 30 giorni ${pct(o.g30 * 100, 1)}, 90 giorni ${pct(o.g90 * 100, 1)}, 1 anno ${pct(o.g365 * 100, 1)}, da inizio anno ${pct(o.ytd * 100, 1)}.`,
       `Sulla media 200 ${pct(o.vs200 * 100, 1)} (${o.striscia ? `${o.striscia.sopra ? "sopra" : "sotto"} da ${o.striscia.giorni} giorni` : "—"}), sulla media 50 ${pct(o.vs50 * 100, 1)}, sulla media 200 settimane ${pct(o.vs1400 * 100, 1)} (media a ${cifre(o.m1400)} $). Multiplo di Mayer ${num(o.mayer, 2)} (più alto del ${num(o.mayerPercentile, 0)}% dei giorni). Dal massimo ${pct(o.dd * 100, 1)} (massimo ${o.ath ? `${cifre(o.ath.prezzo)} $ del ${dataIt(o.ath.data)}` : "—"}). Volatilità 30 giorni ${num(o.vol30 * 100, 0)}%.`,
       x.paura && x.paura[t] != null ? `Fear & Greed: ${x.paura[t]} (${etichettaPaura(x.paura[t])}); 30 giorni fa ${x.paura[Math.max(0, t - 30)] ?? "—"}.` : "",
-      x.d.dominanza ? `Quota di bitcoin sul valore di tutte le crypto: ${num(x.d.dominanza.btc, 1)}% (ethereum ${num(x.d.dominanza.eth, 1)}%).` : "",
+      x.d.dominanza ? `Quota di bitcoin sul valore di tutte le crypto: ${num(x.d.dominanza.btc, 1)}%${x.d.dominanza.eth != null ? ` (ethereum ${num(x.d.dominanza.eth, 1)}%)` : ""}.` : "",
       "### Le prime per capitalizzazione",
       "moneta | rango | capitalizzazione | prezzo $ | 1 giorno | 7 giorni | 30 giorni | 90 giorni | da inizio anno | sulla media 200 | giorni dalla stessa parte | tendenza | dal massimo | contro BTC 90 giorni | rapporto con BTC sopra la sua media 200 | beta su BTC 90 giorni | correlazione con BTC 90 giorni | volatilità 30 giorni",
       ...x.monete.map(m => {
