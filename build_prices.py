@@ -26,6 +26,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import re
 import sys
 import time
 from pathlib import Path
@@ -368,14 +369,19 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
 
 
 # ---------------------------------------------------------------------------
-# «I miei titoli»: la lista personale in miei-titoli.txt
+# «I miei titoli»: la lista personale in miei-titoli.txt e il portafoglio in portafoglio.txt
 # ---------------------------------------------------------------------------
 
 LISTA_MIEI = ROOT / "miei-titoli.txt"
+PORTAFOGLIO = ROOT / "portafoglio.txt"
 BENCH_MIEI = {"usa": "SPY", "europa": "IUSQ.DE"}     # S&P 500 in dollari, azionario mondiale (ACWI) in euro
 VALUTE = {"MI": "EUR", "DE": "EUR", "F": "EUR", "PA": "EUR", "AS": "EUR", "MC": "EUR", "BR": "EUR", "LS": "EUR",
           "VI": "EUR", "HE": "EUR", "IR": "EUR", "L": "GBp", "SW": "CHF", "CO": "DKK", "ST": "SEK", "OL": "NOK",
           "TO": "CAD", "T": "JPY", "HK": "HKD", "AX": "AUD"}
+CASSA = {"LIQUIDITA", "LIQUIDITÀ", "CASH", "CONTANTI"}
+TIPI_YAHOO = {"EQUITY": "Azione", "ETF": "ETF", "CRYPTOCURRENCY": "Crypto", "MUTUALFUND": "Fondo", "INDEX": "Indice",
+              "CURRENCY": "Valuta", "FUTURE": "Future"}
+GIORNI_INFO = 7          # ogni quanto si richiedono a Yahoo tipo, settore e paese di un titolo
 
 
 def leggi_lista(path: Path) -> List[Tuple[str, str]]:
@@ -396,8 +402,30 @@ def leggi_lista(path: Path) -> List[Tuple[str, str]]:
     return out
 
 
+def ticker_portafoglio(path: Path) -> List[str]:
+    """I ticker di portafoglio.txt (prima parola di ogni riga). Se il file è protetto con password non si leggono:
+    in quel caso i titoli devono stare anche in miei-titoli.txt."""
+    if not path.exists():
+        return []
+    testo = path.read_text(encoding="utf-8")
+    if testo.lstrip().startswith("RADAR-CIFRATO"):
+        return []
+    out = []
+    for riga in testo.splitlines():
+        riga = riga.split("#", 1)[0].strip()
+        if not riga:
+            continue
+        t = riga.split()[0].upper().replace(",", "")
+        if t not in CASSA and t not in out:
+            out.append(t)
+    return out
+
+
 def mercato_di(ticker: str) -> Tuple[str, str]:
-    """(mercato, valuta): senza suffisso è un titolo americano in dollari."""
+    """(mercato, valuta): senza suffisso è un titolo americano in dollari; BTC-EUR e simili sono crypto."""
+    m = re.match(r"^[A-Z0-9]+-(EUR|USD|GBP|CHF|JPY)$", ticker.upper())
+    if m:
+        return "crypto", m.group(1)
     if "." in ticker:
         suff = ticker.rsplit(".", 1)[1]
         if suff in VALUTE:
@@ -406,19 +434,65 @@ def mercato_di(ticker: str) -> Tuple[str, str]:
     return "usa", "USD"
 
 
+def yahoo_info(simboli: List[str]) -> Dict[str, dict]:
+    """Tipo (azione, ETF, crypto…), settore, paese, nome e valuta di quotazione secondo Yahoo Finance."""
+    import yfinance as yf
+    from europa_settori import paese_it, settore_it
+    out: Dict[str, dict] = {}
+    for t in simboli:
+        try:
+            i = yf.Ticker(t).info or {}
+        except Exception as e:  # noqa: BLE001
+            log(f"  info di {t} non disponibili ({e})")
+            continue
+        if not i:
+            continue
+        out[t] = {
+            "tipo": TIPI_YAHOO.get(str(i.get("quoteType", "")).upper()),
+            "settore": settore_it(i["sector"]) if i.get("sector") else None,
+            "paese": paese_it(i.get("country", "")) or None,
+            "nome_yahoo": i.get("shortName") or i.get("longName"),
+            "valuta_yahoo": i.get("currency"),
+            "categoria": i.get("category"),
+        }
+        time.sleep(0.4)
+    return out
+
+
 def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str], pd.DataFrame],
-               adesso: Optional[pd.Timestamp] = None, anni: int = 3) -> Optional[dict]:
+               adesso: Optional[pd.Timestamp] = None, anni: int = 3, portafoglio: Optional[Path] = PORTAFOGLIO,
+               info: Optional[Callable[[List[str]], Dict[str, dict]]] = yahoo_info) -> Optional[dict]:
     titoli = leggi_lista(lista)
+    nella_lista = {t for t, _ in titoli}
+    extra = [t for t in (ticker_portafoglio(portafoglio) if portafoglio else []) if t not in nella_lista]
+    titoli += [(t, "") for t in extra]
     if not titoli:
         log("I miei titoli: lista vuota")
         return None
     inizio = (pd.Timestamp.now() - pd.DateOffset(years=anni)).strftime("%Y-%m-%d")
     simboli = [t for t, _ in titoli] + [b for b in BENCH_MIEI.values() if b not in {t for t, _ in titoli}]
-    log(f"I miei titoli: scarico {len(titoli)} titoli…")
+    log(f"I miei titoli: scarico {len(titoli)} titoli ({len(extra)} solo dal portafoglio)…")
     raw = downloader(simboli, inizio)
     if raw is None or raw.empty:
         log("I miei titoli: nessun dato, resta il file già pubblicato")
         return None
+
+    # tipo, settore e paese: da Yahoo al massimo una volta alla settimana, altrimenti dal file già pubblicato
+    try:
+        with open(out_path, encoding="utf-8") as f:
+            prima = {x["t"]: x for x in json.load(f).get("titoli", [])}
+    except Exception:  # noqa: BLE001
+        prima = {}
+    oggi = (adesso or pd.Timestamp.now(tz="UTC")).strftime("%Y-%m-%d")
+    scadute = [t for t, _ in titoli
+               if not prima.get(t, {}).get("info_data")
+               or (pd.Timestamp(oggi) - pd.Timestamp(prima[t]["info_data"])).days >= GIORNI_INFO]
+    nuove: Dict[str, dict] = {}
+    if info is not None and scadute:
+        try:
+            nuove = info(scadute)
+        except Exception as e:  # noqa: BLE001
+            log(f"  info non disponibili ({e})")
 
     def serie(t: str) -> Optional[dict]:
         if t not in raw.columns:
@@ -426,13 +500,19 @@ def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str
         s = raw[t].dropna()
         s = s[s > 0]
         mercato, valuta = mercato_di(t)
-        # Toronto chiude con Wall Street; le borse asiatiche chiudono prima di quelle europee
-        oggi = seduta_in_corso("NYSE" if mercato == "usa" or t.endswith(".TO") else "Borsa Italiana", adesso)
-        if oggi is not None:
-            s = s[s.index < oggi]                     # solo chiusure
+        if mercato == "crypto":
+            ora = pd.Timestamp.now(tz="UTC") if adesso is None else pd.Timestamp(adesso)
+            ora = ora.tz_localize("UTC") if ora.tzinfo is None else ora.tz_convert("UTC")
+            s = s[s.index < ora.tz_localize(None).normalize()]          # la giornata UTC in corso non è chiusa
+        else:
+            # Toronto chiude con Wall Street; le borse asiatiche chiudono prima di quelle europee
+            oggi_borsa = seduta_in_corso("NYSE" if mercato == "usa" or t.endswith(".TO") else "Borsa Italiana", adesso)
+            if oggi_borsa is not None:
+                s = s[s.index < oggi_borsa]                     # solo chiusure
         if len(s) < 5:
             return None
-        return {"date": [d.strftime("%Y-%m-%d") for d in s.index], "prezzi": [round_price(v) for v in s.to_numpy()],
+        arrot = (lambda v: float(f"{v:.6g}")) if mercato == "crypto" else round_price
+        return {"date": [d.strftime("%Y-%m-%d") for d in s.index], "prezzi": [arrot(v) for v in s.to_numpy()],
                 "mercato": mercato, "valuta": valuta}
 
     voci, mancanti = [], []
@@ -441,7 +521,17 @@ def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str
         if x is None:
             mancanti.append(t)
             continue
-        voci.append({"t": t, "nome": nome, **x})
+        dati_info = nuove.get(t)
+        if dati_info:
+            dati_info = {**dati_info, "info_data": oggi}
+        else:
+            dati_info = {k: prima.get(t, {}).get(k) for k in ("tipo", "settore", "paese", "nome_yahoo", "valuta_yahoo", "categoria", "info_data")}
+        # la valuta di quotazione di Yahoo vale più del suffisso (un ETF a Londra può quotare in dollari)
+        if dati_info.get("valuta_yahoo") in ("EUR", "USD", "GBp", "GBP", "CHF", "DKK", "SEK", "NOK", "CAD", "JPY", "HKD", "AUD"):
+            x["valuta"] = dati_info["valuta_yahoo"]
+        voce = {"t": t, "nome": nome or dati_info.get("nome_yahoo") or "", "dal_portafoglio": t in extra, **x}
+        voce.update({k: v for k, v in dati_info.items() if v is not None})
+        voci.append(voce)
     bench = {}
     for chiave, b in BENCH_MIEI.items():
         x = serie(b)
@@ -450,11 +540,29 @@ def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str
     if not voci:
         log(f"I miei titoli: nessun prezzo trovato ({', '.join(mancanti)})")
         return None
+
+    # cambi: quante unità di valuta per un euro (EURUSD=X…), per portare tutto in euro
+    valute = sorted({("GBP" if v["valuta"] == "GBp" else v["valuta"]) for v in voci if v["valuta"]} | {"USD", "GBP", "CHF"})
+    valute = [v for v in valute if v and v != "EUR"]
+    cambi = {}
+    if valute:
+        fx = downloader([f"EUR{v}=X" for v in valute], inizio)
+        for v in valute:
+            col = f"EUR{v}=X"
+            if fx is not None and not fx.empty and col in fx.columns:
+                s = fx[col].dropna()
+                s = s[s > 0]
+                if len(s) >= 5:
+                    cambi[v] = {"date": [d.strftime("%Y-%m-%d") for d in s.index], "valori": [float(f"{x:.6g}") for x in s.to_numpy()]}
+        if len(cambi) < len(valute):
+            log(f"  cambi mancanti: {', '.join(v for v in valute if v not in cambi)}")
+
     payload = {
         "aggiornato": max(v["date"][-1] for v in voci),
         "generato": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "titoli": voci,
         "confronti": bench,
+        "cambi": cambi,
         "mancanti": mancanti,
     }
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -478,6 +586,12 @@ def main() -> int:
         build_miei(LISTA_MIEI, DATA_DIR / "prezzi_miei.json", yahoo_prices)
     except Exception as e:  # noqa: BLE001
         log(f"I miei titoli: errore ({e}), resta il file già pubblicato")
+    # azioni europee della vista Europa
+    try:
+        import build_europa
+        build_europa.main()
+    except Exception as e:  # noqa: BLE001
+        log(f"Europa: errore ({e}), resta il file già pubblicato")
     # crypto: anche qui, così si aggiornano pure senza il loro aggiornamento giornaliero
     try:
         import build_crypto

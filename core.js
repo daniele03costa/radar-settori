@@ -84,6 +84,78 @@
     miei: () => carica("data/prezzi_miei.json", { cache: "no-cache" }),
     // bitcoin e le prime crypto (vista 7), caricate solo quando si apre la vista
     crypto: () => carica("data/prezzi_crypto.json", { cache: "no-cache" }),
+    // azioni europee (vista 8): l'elenco aggiornato dall'aggiornamento automatico, altrimenti quello di base
+    europaLista: () => carica("data/europa_lista.json", { cache: "no-cache" }).catch(() => carica("europa.json", { cache: "no-cache" })),
+    europa: () => carica("data/prezzi_europa.json", { cache: "no-cache" }),
+    // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi
+    listaMiei: () => fetch("miei-titoli.txt", { cache: "no-cache" }).then(r => (r.ok ? r.text() : "")).then(R.leggiListaMiei).catch(() => []),
+  };
+
+  // miei-titoli.txt: un ticker per riga, poi il nome; le righe con # non contano
+  R.leggiListaMiei = testo => {
+    const visti = new Set(), out = [];
+    for (const riga of String(testo || "").split(/\r?\n/)) {
+      const pulita = riga.replace(/#.*$/, "").trim();
+      if (!pulita) continue;
+      const [t, ...nome] = pulita.split(/\s+/);
+      const tk = t.toUpperCase().replace(/,/g, "");
+      if (!tk || visti.has(tk)) continue;
+      visti.add(tk);
+      out.push({ t: tk, nome: nome.join(" ") });
+    }
+    return out;
+  };
+
+  // indirizzi di GitHub per un file del repository (il sito è su utente.github.io/repository, ramo main)
+  R.github = file => {
+    const h = location.hostname;
+    if (h.endsWith(".github.io")) {
+      const utente = h.split(".")[0], repo = location.pathname.split("/")[1];
+      if (repo) {
+        const base = `https://github.com/${utente}/${repo}`;
+        return {
+          modifica: `${base}/edit/main/${file}`,
+          // file nuovo con il contenuto già scritto (GitHub accetta filename e value nell'indirizzo)
+          crea: valore => `${base}/new/main?filename=${encodeURIComponent(file)}&value=${encodeURIComponent(valore || "")}`,
+        };
+      }
+    }
+    return { modifica: file, crea: () => file };
+  };
+
+  // finestra sopra la pagina: si chiude con ×, con un clic fuori o con Esc (in app.js)
+  R.finestra = function (html) {
+    let m = document.getElementById("finestra");
+    if (!m) {
+      m = document.createElement("div");
+      m.id = "finestra";
+      m.className = "modal";
+      m.setAttribute("role", "dialog");
+      m.setAttribute("aria-modal", "true");
+      document.body.append(m);
+      m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-chiudi]")) m.hidden = true; });
+    }
+    m.innerHTML = `<div class="modal-box pf-modal">${html}</div>`;
+    m.hidden = false;
+    m.scrollTop = 0;
+    setTimeout(() => { const f = m.querySelector("[autofocus]") || m.querySelector("[data-chiudi]"); if (f) f.focus(); }, 30);
+    return m;
+  };
+
+  // copia negli appunti; se il browser non lo permette seleziona il testo da copiare a mano
+  R.copia = async (testo, bottone, campo) => {
+    let ok = false;
+    try { await navigator.clipboard.writeText(testo); ok = true; }
+    catch (e) {
+      if (campo) { campo.focus(); campo.select(); try { ok = document.execCommand("copy"); } catch (e2) { ok = false; } }
+    }
+    if (bottone) {
+      const prima = bottone.dataset.testo || bottone.textContent;
+      bottone.dataset.testo = prima;
+      bottone.textContent = ok ? "Copiato ✓" : "Selezionato: copia con Ctrl+C";
+      setTimeout(() => { bottone.textContent = prima; }, 2500);
+    }
+    return ok;
   };
 
   // ---------- livelli blu e analisi ----------

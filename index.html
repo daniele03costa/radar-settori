@@ -56,6 +56,7 @@
         <a href="#alr" data-view="alr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>Alert</span><kbd>5</kbd></a>
         <a href="#tit" data-view="tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" stroke-linejoin="round"/></svg><span>I miei titoli</span><kbd>6</kbd></a>
         <a href="#cry" data-view="cry"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 7.5v9M9.5 7.5h3.8a2.1 2.1 0 0 1 0 4.2H9.5M9.5 11.7h4.3a2.4 2.4 0 0 1 0 4.8H9.5M11 6v1.5M11 16.5V18"/></svg><span>Crypto</span><kbd>7</kbd></a>
+        <a href="#eur" data-view="eur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/></svg><span>Europa</span><kbd>8</kbd></a>
       </nav>
 
       <div class="side-head">
@@ -86,7 +87,7 @@
         <div class="cmd" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="suggerimenti">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
           <input id="comando" type="text" autocomplete="off" spellcheck="false"
-                 placeholder="Cerca un settore, un'azione dell'S&amp;P 500 o un comando…" aria-label="Comando o ticker" aria-autocomplete="list">
+                 placeholder="Cerca un settore, un'azione americana o europea, una crypto…" aria-label="Comando o ticker" aria-autocomplete="list">
           <kbd>/</kbd>
           <div class="suggest" id="suggerimenti" role="listbox" hidden></div>
         </div>
@@ -355,15 +356,63 @@
         <header class="view-head">
           <div>
             <div class="kicker">Vista 6 · I miei titoli</div>
-            <h1>I titoli che segui</h1>
-            <p class="view-sub">Trend sulle medie, calo dal massimo e forza relativa dei titoli della tua lista, anche fuori dall'S&amp;P 500.</p>
+            <h1 id="tit-h1">Il mio portafoglio</h1>
+            <p class="view-sub">Valore, risultato, composizione e rischio del portafoglio in euro, poi trend e forza relativa di tutti i titoli che segui.</p>
           </div>
-          <a class="btn-link" id="tit-modifica" href="miei-titoli.txt" target="_blank" rel="noopener" title="Apre il file miei-titoli.txt su GitHub: un ticker per riga">Modifica la lista ↗</a>
+          <div class="controls">
+            <a class="btn-link" id="pf-modifica" href="portafoglio.txt" target="_blank" rel="noopener">Modifica il portafoglio ↗</a>
+            <button class="btn-link" id="pf-proteggi" type="button" hidden>Proteggi con password</button>
+            <a class="btn-link" id="tit-modifica" href="miei-titoli.txt" target="_blank" rel="noopener" title="Apre il file miei-titoli.txt su GitHub: un ticker per riga">Modifica la lista ↗</a>
+          </div>
         </header>
+        <article class="card pf-avvio" id="pf-avvio" hidden></article>
+        <section class="kpis" id="pf-kpi" aria-label="Il portafoglio in sintesi" hidden></section>
+        <article class="card novita" id="pf-sintesi" hidden></article>
+        <article class="card" id="pf-posizioni-card" hidden>
+          <div class="card-title"><h2>Le posizioni</h2><span class="muted small-inline">clic per il grafico del titolo</span></div>
+          <div class="table-wrap"><table class="tbl pf-tbl" id="pf-posizioni"></table></div>
+          <p class="small" id="pf-nota"></p>
+        </article>
+        <div class="pf-due" id="pf-due" hidden>
+          <article class="card" id="pf-composizione"></article>
+          <article class="card" id="pf-rischio"></article>
+        </div>
+        <article class="card" id="pf-andamento-card" hidden>
+          <div class="card-head">
+            <div class="card-title"><h2>Andamento contro l'ACWI</h2></div>
+            <div class="seg" id="pf-periodo" role="group" aria-label="Periodo"></div>
+          </div>
+          <p class="sub">Simulazione: le quantità di oggi tenute ferme per tutto il periodo, in euro, base 100 all'inizio. Serve a vedere come si comporta questa composizione rispetto al PAC, non quanto hai guadagnato davvero.</p>
+          <div class="legend" id="pf-legenda"></div>
+          <div class="cry-grafico" id="pf-andamento"></div>
+        </article>
+        <article class="card" id="pf-correlazioni-card" hidden>
+          <div class="card-title"><h2>Quanto i titoli si muovono insieme</h2><span class="muted small-inline">correlazione dei rendimenti giornalieri in euro, ultimo anno</span></div>
+          <div class="table-wrap"><table class="tbl corr-tbl" id="pf-correlazioni"></table></div>
+          <p class="small">Vicino a 1 si muovono insieme (diversificano poco), vicino a 0 per conto loro, sotto zero in senso opposto.</p>
+        </article>
         <article class="card tit-dettaglio" id="tit-dettaglio" hidden></article>
         <article class="card">
+          <div class="card-title"><h2>I titoli che segui</h2><span class="muted small-inline">la lista di miei-titoli.txt e i titoli del portafoglio</span></div>
           <div class="table-wrap"><table class="tbl tit-tbl" id="tit-tabella"></table></div>
           <p class="small tit-nota" id="tit-nota"></p>
+        </article>
+        <article class="card notes">
+          <div class="card-title"><h2>Come leggere il portafoglio</h2></div>
+          <div class="notes-grid">
+            <div>
+              <h3><i class="dot" style="background:var(--soglia)"></i>Beta e volatilità</h3>
+              <p>Il <b>beta</b> dice di quanto si è mosso in media il portafoglio quando l'ACWI in euro (il tuo PAC) si è mosso dell'1%: sopra 1 amplifica il mercato, sotto 1 lo attutisce. La <b>volatilità</b> è l'oscillazione tipica in un anno. Tutti e due sono misurati sull'ultimo anno, con la composizione di oggi.</p>
+            </div>
+            <div>
+              <h3><i class="dot" style="background:var(--q-indebolimento)"></i>Peso e rischio</h3>
+              <p>La <b>quota del rischio</b> di un titolo è quanta parte dell'oscillazione del portafoglio viene da lui: un titolo molto volatile o molto legato agli altri può pesare poco sul valore e tanto sul rischio. Il <b>numero effettivo di titoli</b> dice a quanti titoli di peso uguale equivale il portafoglio.</p>
+            </div>
+            <div>
+              <h3><i class="dot" style="background:var(--b200)"></i>Euro, carico e liquidità</h3>
+              <p>Tutto è convertito in euro con i cambi dell'ultima chiusura. Il risultato confronta il valore di oggi con il prezzo di carico scritto nel file. Il calo «un giorno su 20» è una stima storica, non un limite. Numeri per capire, non consigli di investimento.</p>
+            </div>
+          </div>
         </article>
       </section>
 
@@ -463,8 +512,69 @@
         </div>
       </section>
 
+      <!-- ======================= 8 EUROPA ======================= -->
+      <section class="view" id="view-eur" data-view="eur" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Vista 8 · Europa</div>
+            <h1>Le azioni europee</h1>
+            <p class="view-sub" id="eur-sub">&nbsp;</p>
+          </div>
+        </header>
+        <article class="card empty" id="eur-vuoto" hidden>
+          <h2>I dati delle azioni europee non ci sono ancora</h2>
+          <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna dati</b> → <b>Run workflow</b>, poi ricarica la pagina.</p>
+        </article>
+        <div id="eur-corpo">
+          <section class="kpis" id="eur-kpi" aria-label="L'Europa in sintesi"></section>
+          <article class="card novita" id="eur-sintesi" aria-live="polite"></article>
+          <article class="card">
+            <div class="card-title"><h2>Gli indici</h2><span class="muted small-inline">clic su un indice per vedere solo le sue azioni</span></div>
+            <div class="table-wrap"><table class="tbl eur-tbl" id="eur-indici"></table></div>
+          </article>
+          <article class="card">
+            <div class="card-title"><h2>I settori</h2><span class="muted small-inline">rotazione contro la media delle azioni europee</span></div>
+            <div class="table-wrap"><table class="tbl eur-tbl" id="eur-settori"></table></div>
+            <p class="small" id="eur-settori-nota"></p>
+          </article>
+          <article class="card" id="eur-quadro"></article>
+          <article class="card tit-dettaglio" id="eur-dettaglio" hidden></article>
+          <article class="card" id="eur-azioni">
+            <div class="card-head">
+              <div class="card-title"><h2 id="eur-azioni-titolo">Le azioni</h2></div>
+              <div class="controls eur-filtri">
+                <input class="filter" id="eur-cerca" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca per nome o ticker…" aria-label="Cerca un'azione per nome o ticker">
+                <select class="select" id="eur-settore" aria-label="Settore"></select>
+                <select class="select" id="eur-mostra" aria-label="Quali azioni mostrare"></select>
+              </div>
+            </div>
+            <div class="chips eur-chips" id="eur-chips" role="group" aria-label="Indice"></div>
+            <div class="table-wrap"><table class="tbl tit-tbl eur-tbl" id="eur-tabella"></table></div>
+            <div class="eur-altre" id="eur-altre"></div>
+            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo. Forza relativa contro il proprio indice, nella valuta locale. Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
+          </article>
+          <article class="card notes">
+            <div class="card-title"><h2>Come leggere questa pagina</h2></div>
+            <div class="notes-grid">
+              <div>
+                <h3><i class="dot" style="background:var(--b200)"></i>Ampiezza</h3>
+                <p>È la quota di azioni sopra la propria media a 200 sedute (e a 50). Se l'indice sale ma l'ampiezza scende, il rialzo si regge su pochi titoli; se l'indice è debole ma l'ampiezza risale, la debolezza si sta restringendo. <b>Nuovi massimi e minimi</b>: le azioni che nell'ultima settimana hanno toccato il prezzo più alto o più basso delle ultime 52 settimane.</p>
+              </div>
+              <div>
+                <h3><i class="dot" style="background:var(--q-leader)"></i>Forza relativa</h3>
+                <p>La stessa formula della vista Rotazione, su barre settimanali: per un'azione contro il suo indice, per un indice contro lo STOXX Europe 600 (in euro), per un settore contro la media di tutte le azioni. <b>Leader</b>: più forte e ancora in accelerazione; <b>in indebolimento</b>: più forte ma rallenta; <b>in ritardo</b>: più debole; <b>in miglioramento</b>: più debole ma recupera.</p>
+              </div>
+              <div>
+                <h3><i class="dot" style="background:var(--soglia)"></i>Fonti e limiti</h3>
+                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia, ricontrollata ogni settimana; settori secondo la classificazione di Yahoo. Da due a tre anni di storia, prezzi non corretti per i dividendi. Numeri per capire, non consigli di investimento.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
       <footer>
-        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
+        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
         Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
     </main>
@@ -479,15 +589,16 @@
       </div>
       <div class="guida-grid">
         <section>
-          <h3>Le sette viste</h3>
+          <h3>Le otto viste</h3>
           <ul>
             <li><b>Monitor</b>: tutti i settori insieme, con lo stato e quello che manca al prossimo passaggio.</li>
             <li><b>Rotazione</b>: chi sta guadagnando o perdendo forza rispetto a un termine di confronto, per settori, MAG7 ed ETF in euro.</li>
             <li><b>Bottom Map</b>: profondità del ribasso contro distanza dal livello blu, con la scia delle ultime settimane.</li>
             <li><b>Settore</b>: grafici, tutti i titoli del settore (mappa e tabella), episodi di zona blu e livello regolabile.</li>
             <li><b>Alert</b>: la striscia degli stati dal 2005, lo storico completo dei cambi di stato e le statistiche.</li>
-            <li><b>I miei titoli</b>: i titoli della tua lista (anche europei), con trend, calo dal massimo, forza relativa e, per le azioni dell'S&amp;P 500, lo stato del settore. La lista sta nel file <code>miei-titoli.txt</code>.</li>
+            <li><b>I miei titoli</b>: il portafoglio (valore, risultato, composizione, beta, volatilità e rischio di ogni titolo, protetto con password) e i titoli della tua lista, con trend, calo dal massimo e forza relativa. La lista sta nel file <code>miei-titoli.txt</code>.</li>
             <li><b>Crypto</b>: bitcoin e le prime 10 crypto: tendenza sulle medie, ciclo dell'halving, stagionalità, cosa è successo dopo situazioni simili, correlazioni fra monete e con i mercati.</li>
+            <li><b>Europa</b>: le circa 300 azioni di FTSE MIB, DAX, CAC 40, IBEX 35, AEX, SMI e FTSE 100, con ampiezza e forza relativa di indici e settori; da ogni azione si aggiunge alla lista o al portafoglio.</li>
           </ul>
           <h3>Parlare con Claude</h3>
           <ul>
@@ -508,17 +619,18 @@
             <li>Un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
             <li>I ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) aprono il loro grafico in «I miei titoli».</li>
             <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella vista Crypto.</li>
-            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>, <code>CRYPTO</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
+            <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>unicredit</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); gli indici (<code>DAX</code>, <code>FTSE MIB</code>) aprono la vista Europa con le loro azioni.</li>
+            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>, <code>CRYPTO</code>, <code>EUROPA</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
           </ul>
-          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code>, <code>#cry</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista, <code>#cry/ETH</code> per una crypto. Il pulsante Indietro del browser funziona.</p>
+          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code>, <code>#cry</code>, <code>#eur</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista, <code>#cry/ETH</code> per una crypto, <code>#eur/ENEL.MI</code> per un'azione europea. Il pulsante Indietro del browser funziona.</p>
         </section>
         <section>
           <h3>Tastiera</h3>
           <ul class="keys">
-            <li><kbd>1</kbd> … <kbd>7</kbd> vai alla vista</li>
+            <li><kbd>1</kbd> … <kbd>8</kbd> vai alla vista</li>
             <li><kbd>←</kbd> <kbd>→</kbd> periodo nella vista Settore, data nella Rotazione</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
-            <li><kbd>Esc</kbd> toglie il titolo evidenziato o chiude il grafico del titolo</li>
+            <li><kbd>Esc</kbd> toglie il titolo evidenziato, chiude il grafico del titolo o la finestra aperta</li>
             <li><kbd>?</kbd> apre questa guida</li>
             <li><kbd>C</kbd> copia i dati della pagina per Claude</li>
             <li>Se il cursore è sull'elenco delle viste, le frecce passano da una vista all'altra.</li>
@@ -541,9 +653,13 @@
   <script src="view-rotazione.js"></script>
   <script src="view-bottom.js"></script>
   <script src="view-alert.js"></script>
+  <script src="portafoglio-calcoli.js"></script>
+  <script src="view-portafoglio.js"></script>
   <script src="view-titoli.js"></script>
   <script src="crypto-calcoli.js"></script>
   <script src="view-crypto.js"></script>
+  <script src="europa-calcoli.js"></script>
+  <script src="view-europa.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>
 </body>

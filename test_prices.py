@@ -133,13 +133,53 @@ def test_my_stocks_list_and_prices():
         syms = ["MSFT", "ENEL.MI", "SPY", "IUSQ.DE"]
         df = fake_market(syms, "2023-01-01")
         out = Path(d) / "prezzi_miei.json"
-        r = bp.build_miei(lista, out, lambda s, st: df.reindex(columns=s), adesso=pd.Timestamp("2026-09-25 13:45", tz="UTC"))
+        r = bp.build_miei(lista, out, lambda s, st: df.reindex(columns=s), adesso=pd.Timestamp("2026-09-25 13:45", tz="UTC"),
+                          portafoglio=None, info=None)
         p = json.loads(out.read_text())
         assert r["mancanti"] == ["NONESISTE"] and p["mancanti"] == ["NONESISTE"]
         assert [x["t"] for x in p["titoli"]] == ["MSFT", "ENEL.MI"]
         assert p["titoli"][1]["valuta"] == "EUR" and p["titoli"][0]["mercato"] == "usa"
         assert p["titoli"][0]["date"][-1] == "2026-09-24"          # seduta di oggi ancora aperta
         assert set(p["confronti"]) == {"usa", "europa"}
+
+
+def test_portfolio_tickers_fx_and_details():
+    """I titoli del portafoglio si scaricano anche se non sono nella lista; cambi in euro; dettagli di Yahoo in cache."""
+    with tempfile.TemporaryDirectory() as d:
+        lista = Path(d) / "miei-titoli.txt"
+        lista.write_text("MSFT Microsoft\n", encoding="utf-8")
+        port = Path(d) / "portafoglio.txt"
+        port.write_text("# ticker quantità prezzo\nMSFT 10 395,20\nIUSQ.DE 120 78,5\nCSPX.L 3 610\nBTC-EUR 0,05 52000\nLIQUIDITA 2500\n",
+                        encoding="utf-8")
+        assert bp.ticker_portafoglio(port) == ["MSFT", "IUSQ.DE", "CSPX.L", "BTC-EUR"]
+        assert bp.mercato_di("BTC-EUR") == ("crypto", "EUR") and bp.mercato_di("BRK-B") == ("usa", "USD")
+        syms = ["MSFT", "IUSQ.DE", "CSPX.L", "SPY", "EURUSD=X", "EURGBP=X", "EURCHF=X"]
+        df = fake_market(syms, "2023-01-01", end="2026-09-28")
+        btc = fake_market(["BTC-EUR"], "2023-01-01", end="2026-09-29", weekend=("BTC-EUR",))
+        df = df.join(btc, how="outer")
+        chiamate = []
+
+        def info(simboli):
+            chiamate.append(list(simboli))
+            return {"CSPX.L": {"tipo": "ETF", "settore": None, "paese": None, "nome_yahoo": "iShares Core S&P 500", "valuta_yahoo": "USD"},
+                    "MSFT": {"tipo": "Azione", "settore": "Tecnologia", "paese": "Stati Uniti", "nome_yahoo": "Microsoft", "valuta_yahoo": "USD"}}
+        out = Path(d) / "prezzi_miei.json"
+        adesso = pd.Timestamp("2026-09-29 06:00", tz="UTC")
+        r = bp.build_miei(lista, out, lambda s, st: df.reindex(columns=s), adesso=adesso, portafoglio=port, info=info)
+        p = json.loads(out.read_text())
+        per = {x["t"]: x for x in p["titoli"]}
+        assert set(per) == {"MSFT", "IUSQ.DE", "CSPX.L", "BTC-EUR"} and per["CSPX.L"]["dal_portafoglio"]
+        assert per["CSPX.L"]["valuta"] == "USD" and per["CSPX.L"]["tipo"] == "ETF"       # la valuta di Yahoo vince sul suffisso
+        assert per["MSFT"]["settore"] == "Tecnologia" and per["MSFT"]["nome"] == "Microsoft"
+        assert per["BTC-EUR"]["date"][-1] == "2026-09-28"                                 # giornata UTC del 29 in corso
+        assert set(p["cambi"]) == {"USD", "GBP", "CHF"} and len(p["cambi"]["USD"]["valori"]) > 500
+        # la volta dopo i dettagli arrivano dal file già pubblicato, senza chiedere a Yahoo
+        bp.build_miei(lista, out, lambda s, st: df.reindex(columns=s), adesso=adesso, portafoglio=port, info=info)
+        assert chiamate[1:] == [] or all(t not in ("MSFT", "CSPX.L") for t in chiamate[1])
+        assert json.loads(out.read_text())["titoli"][0]["settore"] == "Tecnologia"
+        # portafoglio protetto con password: i ticker non si leggono
+        port.write_text("RADAR-CIFRATO 1\nabc\n", encoding="utf-8")
+        assert bp.ticker_portafoglio(port) == []
 
 
 def test_crypto_alignment_max_age():

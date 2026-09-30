@@ -27,17 +27,11 @@
     ordine: R.store.get("tit.ordine", { col: "vs200", dir: -1 }),
     periodo: R.store.get("tit.periodo", 252),
     aperto: null,
+    mappaEu: null,        // le azioni europee della vista Europa (per aprire lì quelle che non sono nella lista)
   };
 
-  // indirizzo per modificare la lista su GitHub (il sito è su utente.github.io/repository)
-  function linkLista() {
-    const h = location.hostname;
-    if (h.endsWith(".github.io")) {
-      const utente = h.split(".")[0], repo = location.pathname.split("/")[1];
-      if (repo) return `https://github.com/${utente}/${repo}/edit/main/miei-titoli.txt`;
-    }
-    return "miei-titoli.txt";
-  }
+  // indirizzo per modificare la lista su GitHub
+  const linkLista = () => R.github("miei-titoli.txt").modifica;
 
   const sma = (a, n, i) => {
     if (i + 1 < n) return null;
@@ -127,6 +121,7 @@
     });
     const th = (k, lab, left) => `<th class="sortable${left ? " l" : ""}" data-col="${k}" aria-sort="${col === k ? (dir > 0 ? "ascending" : "descending") : "none"}">${lab}</th>`;
     const c = R.colori();
+    const nelPortafoglio = new Set(R.portafoglio ? R.portafoglio.tickers() : []);
     $("#tit-tabella").innerHTML = `<thead><tr>${th("t", "Titolo", true)}<th class="l">Ultimo anno</th>${th("g1", "Ultimo")}${th("m1", "1 mese")}${th("ytd", "Da inizio anno")}${th("vs200", "Media 200")}${th("dd52", "Dal massimo")}${th("rs", "Forza relativa", true)}</tr></thead><tbody>` +
       righe.map(r => {
         const sotto = r.settore
@@ -136,7 +131,7 @@
           ? `<span class="quad" style="--c:var(--q-${r.rs.quadrante})"><i></i>${NOMI_Q[r.rs.quadrante]}</span>${R.freccia(r.rs.direzione)}<small class="sub-line">3 mesi ${pct(r.rs3, 1)} sull'${esc(r.confronto)}</small>`
           : "—";
         return `<tr class="clic${st.aperto === r.t ? " hl" : ""}" data-t="${esc(r.t)}" tabindex="0">
-          <td class="l"><span class="tit-nome"><b>${esc(r.t)}</b> <span class="muted">${esc(r.nome)}</span></span><small class="sub-line">${sotto}</small></td>
+          <td class="l"><span class="tit-nome"><b>${esc(r.t)}</b> <span class="muted">${esc(r.nome)}</span></span><small class="sub-line">${nelPortafoglio.has(r.t) ? '<span class="tag ok">nel portafoglio</span> ' : ""}${sotto}</small></td>
           <td class="l">${R.sparkline(r.x.prezzi.slice(-252), { colore: c.price })}</td>
           <td>${prezzo(r.ultimo, r.valuta)}<small class="sub-line"><span class="${cls(r.g1)}">${pct(r.g1, 1)}</span> in un giorno</small></td>
           <td class="${cls(r.m1)}">${pct(r.m1, 1)}</td>
@@ -274,15 +269,25 @@
       $("#tit-dettaglio").hidden = true;
       $("#tit-nota").innerHTML = `I prezzi della tua lista non ci sono ancora: arrivano con il prossimo aggiornamento automatico
         (o subito con GitHub → Actions → Aggiorna dati → Run workflow). La lista si cambia nel file <code>miei-titoli.txt</code>.`;
+      if (R.portafoglio) R.portafoglio.disegna({ titoli: [], cambi: {}, confronti: {} }, {});
       return;
     }
-    let mappaSp = null, tutti = null;
+    let mappaSp = null, tutti = null, mappaEu = null;
     try {
       const tt = await R.dati.titoli();
       mappaSp = new Map(tt.map(z => [String(z.t).toUpperCase(), z]));
       tutti = await R.dati.tuttiSettori();
     } catch (e) { /* senza i settori si mostra il resto */ }
+    try {
+      const eu = await R.dati.europaLista();
+      mappaEu = new Map(eu.titoli.map(z => [z.t, z]));
+    } catch (e) { /* senza l'elenco europeo si mostra il resto */ }
     if (!st.visibile) return;
+    st.mappaEu = mappaEu;
+    if (R.portafoglio) {
+      try { await R.portafoglio.disegna(dati, { mappaSp, mappaEu }); } catch (e) { console.error(e); }
+      if (!st.visibile) return;
+    }
     st.dati = dati;
     st.righe = dati.titoli.map(x => analizza(x, dati.confronti || {}, mappaSp, tutti));
     if (st.aperto && !st.righe.some(r => r.t === st.aperto)) st.aperto = null;
@@ -294,8 +299,8 @@
       (mancanti.length ? ` <b>Non trovati su Yahoo Finance:</b> ${mancanti.map(esc).join(", ")}: controlla il ticker (per esempio ENEL.MI per Enel a Milano).` : "");
   }
 
-  function apriTitolo(t, scorri) {
-    st.aperto = st.aperto === t ? null : t;
+  function apriTitolo(t, scorri, soloApri) {
+    st.aperto = st.aperto === t && !soloApri ? null : t;
     // l'indirizzo segue il titolo aperto, senza far ripartire la vista
     try { history.replaceState(null, "", st.aperto ? `#tit/${st.aperto}` : "#tit"); } catch (e) { /* niente */ }
     disegnaTabella();
@@ -305,6 +310,12 @@
   }
 
   function init() {
+    if (R.portafoglio) R.portafoglio.init();
+    R.on("apri-titolo", t => {
+      if (!st.visibile) return;
+      if (st.righe.some(r => r.t === t)) apriTitolo(t, true, true);
+      else if (st.mappaEu && st.mappaEu.has(t)) R.vai("#eur/" + t);      // azione europea solo nel portafoglio
+    });
     $("#tit-tabella").addEventListener("click", e => {
       const th = e.target.closest("th[data-col]");
       if (th) {
@@ -353,8 +364,9 @@
 
   // testo per «Copia per Claude»
   function contesto() {
-    if (!st.righe.length) return "## Pagina aperta: I miei titoli\nLa lista non ha ancora prezzi.";
-    const out = ["## Pagina aperta: I miei titoli",
+    const pf = R.portafoglio ? R.portafoglio.contesto() : "";
+    if (!st.righe.length) return "## Pagina aperta: I miei titoli\n" + (pf || "La lista non ha ancora prezzi.");
+    const out = ["## Pagina aperta: I miei titoli", pf,
       "La pagina mostra i titoli della lista personale di Daniele: trend sulle medie a 200 e 50 sedute, calo dal massimo a 52 settimane, " +
       "forza relativa (rotazione settimanale contro l'S&P 500 per le azioni americane, contro l'ACWI, l'azionario mondiale in euro, per le altre) e, per le azioni dell'S&P 500, lo stato del loro settore.",
       `Chiusure fino al ${dataIt(st.dati.aggiornato)}.`,

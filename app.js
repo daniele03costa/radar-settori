@@ -8,8 +8,8 @@
   const R = window.Radar, S = window.Signals, Cal = window.Calendario;
   const { $, $$, num, esc, dataIt } = R;
 
-  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit", "cry"];
-  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit", crypto: "cry", cripto: "cry" };
+  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur"];
+  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit", crypto: "cry", cripto: "cry", europa: "eur", eu: "eur" };
   let vistaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
 
@@ -48,10 +48,10 @@
     const low = h.toLowerCase();
     if (VISTE.includes(low)) return { vista: low };
     if (ALIAS[low]) return { vista: ALIAS[low] };
-    // #tit/ENEL.MI apre un titolo della lista personale, #cry/ETH una crypto
+    // #tit/ENEL.MI apre un titolo della lista personale, #cry/ETH una crypto, #eur/ENEL.MI un'azione europea
     const [primo, ...resto] = low.split("/");
     const vistaConParametro = ALIAS[primo] || primo;
-    if ((vistaConParametro === "tit" || vistaConParametro === "cry") && resto.length) return { vista: vistaConParametro, param: resto.join("/").toUpperCase() };
+    if (["tit", "cry", "eur"].includes(vistaConParametro) && resto.length) return { vista: vistaConParametro, param: resto.join("/").toUpperCase() };
     const up = h.toUpperCase();
     const [etf, titolo] = up.split("/");
     if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: titolo ? `${etf}/${titolo}` : etf };
@@ -61,6 +61,9 @@
     // un titolo della lista personale (#ENEL.MI)
     const mio = R._mappaMiei && (R._mappaMiei.get(up) || R._mappaMiei.get(up.replace(/\..*$/, "")));
     if (mio) return { vista: "tit", param: mio.t };
+    // un'azione europea (#ENEL.MI)
+    const eu = R._mappaEuropa && R._mappaEuropa.get(up);
+    if (eu) return { vista: "eur", param: eu.t };
     return { vista: "mon" };
   }
 
@@ -84,7 +87,7 @@
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
-  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto" };
+  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo" };
   // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
   const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
   const PAROLE_VUOTE = new Set(["INC", "CORP", "CORPORATION", "COMPANY", "COMPANIES", "GROUP", "HOLDINGS", "HOLDING", "THE", "PLC", "LTD", "TRUST", "CLASS", "INCORPORATED", "INTERNATIONAL"]);
@@ -99,6 +102,7 @@
     add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert, lo storico degli stati", tipo: "vista", fai: () => R.vai("#alr") });
     add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA"], { etichetta: "MIEI", descr: "I miei titoli, la tua lista", tipo: "vista", fai: () => R.vai("#tit") });
     add(["CRYPTO", "CRY", "CRIPTO", "CRIPTOVALUTE", "CRYPTOVALUTE"], { etichetta: "CRYPTO", descr: "Bitcoin e le prime 10 crypto", tipo: "vista", fai: () => R.vai("#cry") });
+    add(["EUROPA", "EUR", "EU", "AZIONI EUROPEE", "BORSE EUROPEE"], { etichetta: "EUROPA", descr: "Le azioni europee", tipo: "vista", fai: () => R.vai("#eur") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
     add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
     add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
@@ -130,9 +134,30 @@
         add([c.simbolo, c.nome, c.id, c.yahoo], { etichetta: c.simbolo, descr: `${c.nome} · crypto`, tipo: "crypto", fai: () => R.vai("#cry/" + c.simbolo) });
       }
     } catch (e) { /* senza elenco resta la vista */ }
+    // le azioni europee della vista Europa (dall'elenco: i prezzi si caricano solo nella vista) e i loro indici
+    try {
+      const eu = await R.dati.europaLista();
+      R._mappaEuropa = new Map();
+      for (const i of eu.indici || []) {
+        add([i.nome, i.nome.replace(/\s+/g, "")], {
+          etichetta: i.nome, descr: `Indice · ${i.paese}: le sue azioni nella vista Europa`, tipo: "indiceEu",
+          fai: () => { R.viste.eur.imposta({ indice: i.nome, settore: null }); R.vai("#eur"); },
+        });
+      }
+      for (const x of eu.titoli || []) {
+        const base = x.t.replace(/\..*$/, "");
+        R._mappaEuropa.set(x.t, x);
+        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+        add([x.t, base, x.nome, ...parole], {
+          etichetta: x.t, descr: `${x.nome} · ${(x.indici || []).join(", ")} · ${x.settore}`, tipo: "europa",
+          fai: () => R.vai("#eur/" + x.t),
+        });
+      }
+      if (location.hash && leggiRotta().vista === "eur" && vistaCorrente === "mon") applicaRotta();
+    } catch (e) { /* senza elenco resta la vista */ }
     // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
     try {
-      const lista = await leggiListaMiei();
+      const lista = await R.dati.listaMiei();
       R._mappaMiei = new Map();
       for (const x of lista) {
         const base = x.t.replace(/\..*$/, "");
@@ -193,23 +218,6 @@
     indice = out;
   }
 
-  // miei-titoli.txt: un ticker per riga, poi il nome; le righe con # non contano
-  async function leggiListaMiei() {
-    const r = await fetch("miei-titoli.txt", { cache: "no-cache" });
-    if (!r.ok) return [];
-    const visti = new Set(), out = [];
-    for (const riga of (await r.text()).split(/\r?\n/)) {
-      const pulita = riga.replace(/#.*$/, "").trim();
-      if (!pulita) continue;
-      const [t, ...nome] = pulita.split(/\s+/);
-      const tk = t.toUpperCase().replace(/,/g, "");
-      if (!tk || visti.has(tk)) continue;
-      visti.add(tk);
-      out.push({ t: tk, nome: nome.join(" ") });
-    }
-    return out;
-  }
-
   function cerca(testo) {
     const q = norm(testo);
     if (!q) return [];
@@ -224,6 +232,8 @@
       if (best && v.tipo === "settore") best += 2;
       if (best && v.tipo === "azione") best += 1;
       if (best && v.tipo === "crypto") best += 1.5;
+      if (best && v.tipo === "indiceEu") best += 2;
+      if (best && v.tipo === "europa") best += 0.5;
       return best;
     };
     return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p).slice(0, 9).map(x => x.v);
@@ -400,6 +410,8 @@
     // tastiera
     document.addEventListener("keydown", e => {
       if (!$("#guida").hidden) { if (e.key === "Escape") { e.preventDefault(); chiudiGuida(); } return; }
+      const finestra = $("#finestra");
+      if (finestra && !finestra.hidden) { if (e.key === "Escape") { e.preventDefault(); finestra.hidden = true; } return; }
       const t = e.target;
       const scrivendo = t && t.closest && t.closest("input:not([type=range]):not([type=checkbox]), textarea, select, [contenteditable]");
       if (scrivendo || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -409,7 +421,7 @@
       if (e.key === "/") { e.preventDefault(); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
       if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
-      if (/^[1-7]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
+      if (/^[1-8]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
       if (v && v.tasto && v.tasto(e)) e.preventDefault();
