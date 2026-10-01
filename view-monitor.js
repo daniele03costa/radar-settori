@@ -179,7 +179,7 @@
     $("#mon-novita").innerHTML = novita(righe, indice);
 
     const dataDati = righe[0] ? righe[0].d.date[righe[0].d.date.length - 1] : R.meta.aggiornato;
-    $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella vista Settore.`;
+    $("#mon-sub").textContent = `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella pagina Settori.`;
 
     // riquadri
     const c = R.colori();
@@ -294,7 +294,7 @@
   function init() {
     const apri = e => {
       const el = e.target.closest("[data-etf]");
-      if (el) R.vai("#" + el.dataset.etf);
+      if (el) R.vai("#usa/settori/" + el.dataset.etf);
     };
     $("#mon-tabella").addEventListener("click", apri);
     $("#mon-tabella").addEventListener("keydown", e => { if (e.key === "Enter") apri(e); });

@@ -278,12 +278,12 @@
     $("#alr-tabella").addEventListener("click", e => {
       if (e.target.id === "alr-altri") { limite += 300; disegna(); return; }
       const tr = e.target.closest("tr[data-etf]");
-      if (tr && !e.target.closest("button")) R.vai("#" + tr.dataset.etf);
+      if (tr && !e.target.closest("button")) R.vai("#usa/settori/" + tr.dataset.etf);
     });
     const box = $("#alr-storia");
     box.addEventListener("mousemove", tipStoria);
     box.addEventListener("mouseleave", () => { const t = box.querySelector(".chart-tip"); if (t) t.hidden = true; box.classList.remove("puntatore"); });
-    box.addEventListener("click", e => { const riga = tipStoria(e); if (riga) R.vai("#" + riga.etf); });
+    box.addEventListener("click", e => { const riga = tipStoria(e); if (riga) R.vai("#usa/settori/" + riga.etf); });
     R.on("livelli", () => { if (visibile) disegna(); });
     R.on("tema", () => { if (visibile) disegna(); });
     window.addEventListener("resize", R.debounce(() => { if (visibile) disegna(); }, 200));

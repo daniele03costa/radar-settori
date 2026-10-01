@@ -29,20 +29,40 @@
     ].join("\n");
   }
 
-  // tutto il testo: pagina aperta, panoramica dei settori, regole
+  // per Europa e crypto: le parole che servono a leggere i numeri
+  function noteGenerali() {
+    return [
+      "## Come leggere i numeri",
+      "- Tendenza: prezzo e media 50 rispetto alla media 200 (positiva se tutti e due sopra, negativa se tutti e due sotto, «in recupero» o «in indebolimento» nei passaggi).",
+      "- Ampiezza: quota di azioni sopra la propria media a 200 sedute.",
+      "- Rotazione relativa: RS-Ratio (forza rispetto al termine di confronto, sopra 100 fa meglio) e RS-Momentum (se quel vantaggio cresce, sopra 100 sì); quadranti Leader, In indebolimento, In ritardo, In miglioramento; il giro tipico è in senso orario.",
+      "- Sono statistiche del passato per studio personale, non previsioni né consulenza finanziaria.",
+    ].join("\n");
+  }
+
+  // tutto il testo: pagina aperta; per gli USA e la Home anche la panoramica dei settori e le regole degli stati
   async function testoPagina() {
     const oggi = new Date().toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    const zona = R.zonaCorrente ? R.zonaCorrente() : "usa";
+    const d = R.dateDati ? R.dateDati() : {};
+    const date = [
+      d.meta ? `ampiezza USA alla chiusura del ${R.dataIt(d.meta)}` : "",
+      d.europa ? `azioni europee del ${R.dataIt(d.europa)}` : "",
+      d.crypto ? `crypto del ${R.dataIt(d.crypto)} (mezzanotte UTC)` : "",
+    ].filter(Boolean);
     const parti = [
       "# Dati copiati da Radar Settori",
-      `Copiati ${oggi}. Dati di ampiezza alla chiusura del ${R.dataIt(R.meta && R.meta.aggiornato)} (fonte Yahoo Finance).`,
+      `Copiati ${oggi}.${date.length ? ` Dati: ${date.join(", ")}.` : ""} Fonte dei prezzi: Yahoo Finance.`,
     ];
-    const v = document.body.dataset.view || "mon";
+    const v = document.body.dataset.view || "home";
     const vista = R.viste[v];
     if (vista && vista.contesto) parti.push(await vista.contesto());
-    if (v !== "mon") {
-      try { parti.push(await R.viste.mon.panoramica()); } catch (e) { /* la panoramica è un di più */ }
-    }
-    parti.push(regole());
+    if (zona === "usa" || zona === "home" || zona === "tit") {
+      if (v !== "mon") {
+        try { parti.push(await R.viste.mon.panoramica()); } catch (e) { /* la panoramica è un di più */ }
+      }
+      parti.push(regole());
+    } else parti.push(noteGenerali());
     return parti.join("\n\n");
   }
 

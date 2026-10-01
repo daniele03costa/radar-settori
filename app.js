@@ -1,6 +1,6 @@
 /*
- * Radar Settori — struttura dell'app: viste e indirizzi, elenco settori, barra dei comandi,
- * tastiera, guida, tema, CVD e avviso sui dati in ritardo.
+ * Radar Settori — struttura dell'app: zone (Home, USA, Europa, Crypto, Portafoglio) e loro pagine, indirizzi,
+ * elenco dei settori, barra dei comandi, tastiera, guida, tema, CVD e avviso sui dati in ritardo.
  */
 (function () {
   "use strict";
@@ -8,21 +8,37 @@
   const R = window.Radar, S = window.Signals, Cal = window.Calendario;
   const { $, $$, num, esc, dataIt } = R;
 
-  const VISTE = ["mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur"];
-  const ALIAS = { rrg: "rot", alert: "alr", alrt: "alr", miei: "tit", titoli: "tit", crypto: "cry", cripto: "cry", europa: "eur", eu: "eur" };
-  let vistaCorrente = null;
+  // le zone e le loro pagine: [indirizzo, nome, modulo che la disegna]
+  const ZONE = {
+    home: { nome: "Home" },
+    usa: { nome: "USA", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori", "sec"], ["alert", "Alert", "alr"]] },
+    eur: { nome: "Europa", pagine: [["monitor", "Monitor", "eur"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "eur"], ["settori", "Settori e indici", "eur"], ["azioni", "Azioni", "eur"]] },
+    cry: { nome: "Crypto", pagine: [["monitor", "Monitor", "cry"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "cry"], ["analisi", "Analisi", "cry"], ["correlazioni", "Correlazioni", "cry"]] },
+    tit: { nome: "Portafoglio" },
+  };
+  const ORDINE_ZONE = ["home", "usa", "eur", "cry", "tit"];
+  const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur"];      // i moduli, per l'avvio
+  // vecchi indirizzi (#mon, #rot, …) e parole comode
+  const VECCHI = {
+    mon: ["usa", "monitor"], rot: ["usa", "rotazione"], rrg: ["usa", "rotazione"], btm: ["usa", "mappa"], sec: ["usa", "settori"],
+    alr: ["usa", "alert"], alert: ["usa", "alert"], alrt: ["usa", "alert"], miei: ["tit"], titoli: ["tit"], portafoglio: ["tit"],
+    crypto: ["cry"], cripto: ["cry"], europa: ["eur"], eu: ["eur"], us: ["usa"],
+  };
+  let vistaCorrente = null, rottaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
 
-  // ---------------- elenco dei settori ----------------
+  // ---------------- elenco dei settori (pagina Settori degli USA) ----------------
 
   function disegnaSettori() {
     if (!R.meta) return;
+    const box = $("#settori");
+    if (!box) return;
     const corrente = vistaCorrente === "sec" ? R.viste.sec.etfCorrente() : null;
-    $("#settori").innerHTML = R.meta.settori.map(s => {
+    box.innerHTML = R.meta.settori.map(s => {
       const lv = R.livello(s.etf);
       let stato = null;
       try { const d = R._settoriPronti && R._settoriPronti[s.etf]; if (d) stato = R.analisiSync(s.etf, d).statoOggi; } catch (e) { /* niente */ }
-      return `<a class="sec${stato ? " st-" + stato : ""}" href="#${s.etf}" data-etf="${s.etf}" aria-current="${s.etf === corrente}"
+      return `<a class="sec${stato ? " st-" + stato : ""}" href="#usa/settori/${s.etf}" data-etf="${s.etf}" aria-current="${s.etf === corrente}"
         title="${esc(s.nome)}: ${s.sopra != null && s.n ? `${s.sopra} titoli su ${s.n}` : `${num(s.b200, 1)}% dei titoli`} sopra la media 200 (${num(s.b200, 1)}%); livello blu ${num(lv, 0)}%${s.n ? ` = ${R.titoliLivello(s.b200, s.n, lv).soglia} su ${s.n}` : ""}${stato ? " · " + S.STATI[stato] : ""}">
         <span class="t">${s.etf}</span>
         <span class="n">${esc(s.nome)}</span>
@@ -33,189 +49,273 @@
     }).join("");
   }
 
-  async function caricaStatiSettori() {
-    try {
-      R._settoriPronti = await R.dati.tuttiSettori();
-      disegnaSettori();
-    } catch (e) { /* si riprova alla prossima vista */ }
+  let caricamentoStati = null;
+  function caricaStatiSettori() {
+    if (!caricamentoStati) {
+      caricamentoStati = R.dati.tuttiSettori().then(tutti => {
+        R._settoriPronti = tutti;
+        disegnaSettori();
+        R.emit("stati-settori");
+      }).catch(() => { caricamentoStati = null; });      // si riprova alla prossima pagina
+    }
+    return caricamentoStati;
+  }
+  R.caricaStatiSettori = caricaStatiSettori;
+
+  // ---------------- zone, pagine e indirizzi ----------------
+
+  function rotta(zona, pagina, param) {
+    const z = ZONE[zona];
+    if (!z.pagine) return { zona, pagina: null, vista: zona === "home" ? "home" : "tit", param };
+    const p = z.pagine.find(x => x[0] === pagina) || z.pagine[0];
+    return { zona, pagina: p[0], vista: p[2], param };
   }
 
-  // ---------------- viste e indirizzi ----------------
-
   function leggiRotta() {
-    let h = decodeURIComponent(location.hash.replace(/^#/, "")).trim();
-    if (!h) return { vista: "mon" };
-    const low = h.toLowerCase();
-    if (VISTE.includes(low)) return { vista: low };
-    if (ALIAS[low]) return { vista: ALIAS[low] };
-    // #tit/ENEL.MI apre un titolo della lista personale, #cry/ETH una crypto, #eur/ENEL.MI un'azione europea
-    const [primo, ...resto] = low.split("/");
-    const vistaConParametro = ALIAS[primo] || primo;
-    if (["tit", "cry", "eur"].includes(vistaConParametro) && resto.length) return { vista: vistaConParametro, param: resto.join("/").toUpperCase() };
+    let h = location.hash.replace(/^#/, "");
+    try { h = decodeURIComponent(h); } catch (e) { /* indirizzo con caratteri non validi: si usa com'è */ }
+    h = h.trim();
+    if (!h) return rotta("home");
+    const parti = h.split("/");
+    const primo = parti[0].toLowerCase();
+    const resto = (k) => parti.slice(k).join("/") || undefined;
+    if (primo === "home") return rotta("home");
+    if (primo === "tit") return rotta("tit", null, resto(1) && resto(1).toUpperCase());
+    if (ZONE[primo]) {
+      const pag = (parti[1] || "").toLowerCase();
+      if (ZONE[primo].pagine.some(p => p[0] === pag)) return rotta(primo, pag, resto(2));
+      // vecchi indirizzi: #cry/ETH (una moneta), #eur/ENEL.MI (un'azione europea)
+      if (parti[1]) return rotta(primo, primo === "eur" ? "azioni" : "monitor", resto(1));
+      return rotta(primo);
+    }
+    if (VECCHI[primo]) { const [z, p] = VECCHI[primo]; return rotta(z, p, resto(1) && (z === "tit" || z === "cry" || z === "eur" ? resto(1).toUpperCase() : resto(1))); }
+    // un settore (#XLE, #XLK/AAPL), un'azione dell'S&P 500 (#AAPL), un titolo della lista o un'azione europea (#ENEL.MI)
     const up = h.toUpperCase();
     const [etf, titolo] = up.split("/");
-    if (R.meta && R.meta.settori.some(s => s.etf === etf)) return { vista: "sec", param: titolo ? `${etf}/${titolo}` : etf };
-    // il ticker di un'azione dell'S&P 500 porta al suo settore
+    if (R.meta && R.meta.settori.some(s => s.etf === etf)) return rotta("usa", "settori", titolo ? `${etf}/${titolo}` : etf);
     const az = R._mappaTitoli && (R._mappaTitoli.get(up) || R._mappaTitoli.get(up.replace(/[.\/]/g, "-")));
-    if (az) return { vista: "sec", param: `${az.etf}/${az.t}` };
-    // un titolo della lista personale (#ENEL.MI)
+    if (az) return rotta("usa", "settori", `${az.etf}/${az.t}`);
     const mio = R._mappaMiei && (R._mappaMiei.get(up) || R._mappaMiei.get(up.replace(/\..*$/, "")));
-    if (mio) return { vista: "tit", param: mio.t };
-    // un'azione europea (#ENEL.MI)
+    if (mio) return rotta("tit", null, mio.t);
     const eu = R._mappaEuropa && R._mappaEuropa.get(up);
-    if (eu) return { vista: "eur", param: eu.t };
-    return { vista: "mon" };
+    if (eu) return rotta("eur", "azioni", eu.t);
+    return rotta("home");
+  }
+
+  // barra in alto: zona scelta e pagine della zona
+  function disegnaNavigazione(r) {
+    $$("#zone a").forEach(a => a.setAttribute("aria-current", String(a.dataset.zona === r.zona)));
+    const z = ZONE[r.zona];
+    const bar = $("#bar-sotto");
+    bar.hidden = !z.pagine;
+    if (z.pagine) {
+      const sotto = $("#sotto");
+      sotto.innerHTML = z.pagine.map(([k, nome]) => `<a href="#${r.zona}/${k}" data-pagina="${k}" aria-current="${k === r.pagina}">${nome}</a>`).join("");
+      // sul telefono la riga scorre: si parte dall'inizio e, se serve, si centra la pagina aperta
+      const attiva = $("#sotto a[aria-current=true]");
+      sotto.scrollLeft = 0;
+      if (attiva) {
+        const ra = attiva.getBoundingClientRect(), rs = sotto.getBoundingClientRect();
+        const sinistra = ra.left - rs.left;
+        if (sinistra + ra.width > rs.width - 16) sotto.scrollLeft = sinistra - (rs.width - ra.width) / 2;
+      }
+    }
+    // in cima a ogni pagina: la zona e la pagina
+    const sezione = $(`#view-${r.vista}`);
+    const kicker = sezione && sezione.querySelector(".view-head .kicker");
+    if (kicker && z.pagine && r.vista !== "sec") kicker.textContent = `${z.nome} · ${(z.pagine.find(p => p[0] === r.pagina) || [])[1] || ""}`;
+    aggiornaBadge();
   }
 
   async function applicaRotta() {
-    const { vista, param } = leggiRotta();
-    if (vistaCorrente && vistaCorrente !== vista && R.viste[vistaCorrente]) R.viste[vistaCorrente].nascondi();
-    vistaCorrente = vista;
-    document.body.dataset.view = vista;
-    $$(".view").forEach(sec => { sec.hidden = sec.dataset.view !== vista; });
-    $$("#viste a").forEach(a => a.setAttribute("aria-current", String(a.dataset.view === vista)));
-    disegnaSettori();
-    try { await R.viste[vista].mostra(param); }
+    if (!R.meta) return;                                   // senza i dati di base resta la pagina «I dati non ci sono ancora»
+    const r = leggiRotta();
+    if (vistaCorrente && vistaCorrente !== r.vista && R.viste[vistaCorrente]) R.viste[vistaCorrente].nascondi();
+    const nuovaPagina = !rottaCorrente || rottaCorrente.zona !== r.zona || rottaCorrente.pagina !== r.pagina || rottaCorrente.vista !== r.vista;
+    vistaCorrente = r.vista;
+    rottaCorrente = r;
+    document.body.dataset.view = r.vista;
+    document.body.dataset.zona = r.zona;
+    document.body.dataset.pagina = r.pagina || "";
+    $$(".view").forEach(sec => { sec.hidden = sec.dataset.view !== r.vista; });
+    chiudiMenu();
+    disegnaNavigazione(r);
+    // pagina nuova: si riparte dall'alto (le viste che aprono una scheda poi scorrono fino a lei)
+    if (nuovaPagina) window.scrollTo(0, 0);
+    // gli stati di tutti i settori (11 file) servono solo nella zona USA
+    if (r.zona === "usa" && !R._settoriPronti) caricaStatiSettori();
+    if (r.vista === "sec") disegnaSettori();
+    try { await R.viste[r.vista].mostra(r.param, { zona: r.zona, pagina: r.pagina }); }
     catch (e) { console.error(e); }
-    disegnaSettori();
-    if (vista === "sec") {
+    if (r.vista === "sec") {
+      disegnaSettori();
       const el = $(`.sec[data-etf="${R.viste.sec.etfCorrente()}"]`);
       if (el && window.matchMedia("(max-width: 960px)").matches) el.scrollIntoView({ block: "nearest", inline: "center" });
     }
+  }
+  R.zonaCorrente = () => (rottaCorrente ? rottaCorrente.zona : "home");
+
+  function chiudiMenu() {
+    const bar = $("#app-bar");
+    bar.classList.remove("menu");
+    $("#altro").setAttribute("aria-expanded", "false");
   }
 
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
-  const TIPI_VOCE = { vista: "Vista", comando: "Comando", settore: "Settore", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo" };
+  const TIPI_VOCE = { vista: "Pagina", comando: "Comando", settore: "Settore USA", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo", settoreEu: "Settore europeo", web: "Sito esterno" };
+  // la zona di mercato aperta (dalla Home e dal Portafoglio: gli USA)
+  const zonaMercato = () => { const z = R.zonaCorrente(); return z === "eur" || z === "cry" ? z : "usa"; };
+  // un indirizzo scritto a mano (#AAPL, #ENEL.MI…) si capisce solo quando è arrivato il suo elenco
+  const riprova = () => { if (location.hash && vistaCorrente === "home" && leggiRotta().vista !== "home") applicaRotta(); };
   // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
   const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
   const PAROLE_VUOTE = new Set(["INC", "CORP", "CORPORATION", "COMPANY", "COMPANIES", "GROUP", "HOLDINGS", "HOLDING", "THE", "PLC", "LTD", "TRUST", "CLASS", "INCORPORATED", "INTERNATIONAL"]);
 
-  async function costruisciIndice() {
-    const out = [];
-    const add = (chiavi, voce) => out.push(Object.assign({ chiavi: Array.from(new Set(chiavi.map(norm).filter(Boolean))) }, voce));
-    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Monitor, il quadro di tutti i settori", tipo: "vista", fai: () => R.vai("#mon") });
-    add(["ROT", "RRG", "ROTAZIONE"], { etichetta: "ROT", descr: "Rotazione relativa", tipo: "vista", fai: () => R.vai("#rot") });
-    add(["BTM", "BOTTOM"], { etichetta: "BTM", descr: "Bottom Map", tipo: "vista", fai: () => R.vai("#btm") });
-    add(["SEC", "SETTORE"], { etichetta: "SEC", descr: "Pagina del settore", tipo: "vista", fai: () => R.vai("#sec") });
-    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert, lo storico degli stati", tipo: "vista", fai: () => R.vai("#alr") });
-    add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA"], { etichetta: "MIEI", descr: "I miei titoli, la tua lista", tipo: "vista", fai: () => R.vai("#tit") });
-    add(["CRYPTO", "CRY", "CRIPTO", "CRIPTOVALUTE", "CRYPTOVALUTE"], { etichetta: "CRYPTO", descr: "Bitcoin e le prime 10 crypto", tipo: "vista", fai: () => R.vai("#cry") });
-    add(["EUROPA", "EUR", "EU", "AZIONI EUROPEE", "BORSE EUROPEE"], { etichetta: "EUROPA", descr: "Le azioni europee", tipo: "vista", fai: () => R.vai("#eur") });
+  // l'elenco si riempie un pezzo alla volta, in parallelo: ogni gruppo di voci si può cercare appena arriva
+  let inArrivo = 0;
+  function costruisciIndice() {
+    indice = [];
+    const add = (chiavi, voce) => indice.push(Object.assign({ chiavi: Array.from(new Set(chiavi.map(norm).filter(Boolean))), ordine: 0 }, voce));
+    add(["HOME", "INIZIO", "RIEPILOGO", "QUADRO"], { etichetta: "HOME", descr: "Il quadro di oggi: USA, Europa, crypto e portafoglio", tipo: "vista", fai: () => R.vai("#home") });
+    add(["USA", "US", "STATI UNITI", "AMERICA", "S&P 500", "SP500"], { etichetta: "USA", descr: "Zona USA: i settori dell'S&P 500", tipo: "vista", fai: () => R.vai("#usa/monitor") });
+    add(["EUROPA", "EUR", "EU", "BORSE EUROPEE"], { etichetta: "EUROPA", descr: "Zona Europa: indici, settori e azioni", tipo: "vista", fai: () => R.vai("#eur/monitor") });
+    add(["CRYPTO", "CRY", "CRIPTO", "CRIPTOVALUTE", "CRYPTOVALUTE"], { etichetta: "CRYPTO", descr: "Zona crypto: bitcoin e le prime 10", tipo: "vista", fai: () => R.vai("#cry/monitor") });
+    add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA", "PORTAFOGLIO"], { etichetta: "PORTAFOGLIO", descr: "Il portafoglio e i titoli che segui", tipo: "vista", fai: () => R.vai("#tit") });
+    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Monitor della zona aperta (USA, Europa o crypto)", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/monitor`) });
+    add(["ROT", "RRG", "ROTAZIONE"], { etichetta: "ROT", descr: "Rotazione della zona aperta", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/rotazione`) });
+    add(["BTM", "BOTTOM", "BOTTOM MAP", "MAPPA"], { etichetta: "BTM", descr: "Bottom Map della zona aperta", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/mappa`) });
+    add(["SEC", "SETTORE", "SETTORI"], { etichetta: "SEC", descr: "Settori della zona aperta (USA o Europa)", tipo: "vista", fai: () => R.vai(zonaMercato() === "eur" ? "#eur/settori" : "#usa/settori") });
+    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "USA · Alert, lo storico degli stati dei settori", tipo: "vista", fai: () => R.vai("#usa/alert") });
+    add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Europa · tutte le azioni, cercabili", tipo: "vista", fai: () => R.vai("#eur/azioni") });
+    add(["ANALISI", "HALVING", "STAGIONALITA", "CICLI"], { etichetta: "ANALISI", descr: "Crypto · halving, stagionalità, cosa è successo dopo", tipo: "vista", fai: () => R.vai("#cry/analisi") });
+    add(["CORRELAZIONI", "CORR"], { etichetta: "CORR", descr: "Crypto · correlazioni fra monete e con i mercati", tipo: "vista", fai: () => R.vai("#cry/correlazioni") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
     add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
     add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
     add(["TEMA"], { etichetta: "TEMA", descr: "Inverti il tema", tipo: "comando", fai: () => impostaTema(document.documentElement.dataset.theme === "light" ? "dark" : "light") });
     for (const s of R.meta.settori) {
-      add([s.etf, s.nome], { etichetta: s.etf, descr: s.nome, tipo: "settore", fai: () => R.vai("#" + s.etf) });
+      add([s.etf, s.nome], { etichetta: s.etf, descr: s.nome, tipo: "settore", fai: () => R.vai("#usa/settori/" + s.etf) });
     }
-    // tutte le azioni dell'S&P 500: aprono il loro settore con il titolo evidenziato
-    try {
-      const titoli = await R.dati.titoli();
-      const nomi = Object.fromEntries(R.meta.settori.map(s => [s.etf, s.nome]));
-      R._mappaTitoli = new Map();
-      for (const x of titoli) {
-        if (!x || !x.t || !nomi[x.etf]) continue;
-        R._mappaTitoli.set(x.t.toUpperCase(), x);
-        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
-        add([x.t, x.t.replace(/[^A-Za-z0-9]/g, ""), x.nome, ...parole], {
-          etichetta: x.t, descr: `${x.nome} · ${nomi[x.etf]}`, tipo: "azione",
-          fai: () => R.vai(`#${x.etf}/${x.t}`),
-        });
-      }
-      // un indirizzo con il ticker di un'azione (#AAPL) si può aprire solo adesso
-      if (location.hash && leggiRotta().vista === "sec" && vistaCorrente === "mon") applicaRotta();
-    } catch (e) { /* senza elenco restano settori e comandi */ }
-    // le crypto seguite (dalla lista di crypto.json: il file dei prezzi si carica solo nella vista)
-    try {
-      const cfg = await fetch("crypto.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null));
-      for (const c of (cfg && cfg.riserva) || []) {
-        add([c.simbolo, c.nome, c.id, c.yahoo], { etichetta: c.simbolo, descr: `${c.nome} · crypto`, tipo: "crypto", fai: () => R.vai("#cry/" + c.simbolo) });
-      }
-    } catch (e) { /* senza elenco resta la vista */ }
-    // le azioni europee della vista Europa (dall'elenco: i prezzi si caricano solo nella vista) e i loro indici
-    try {
-      const eu = await R.dati.europaLista();
-      R._mappaEuropa = new Map();
-      for (const i of eu.indici || []) {
-        add([i.nome, i.nome.replace(/\s+/g, "")], {
-          etichetta: i.nome, descr: `Indice · ${i.paese}: le sue azioni nella vista Europa`, tipo: "indiceEu",
-          fai: () => { R.viste.eur.imposta({ indice: i.nome, settore: null }); R.vai("#eur"); },
-        });
-      }
-      for (const x of eu.titoli || []) {
-        const base = x.t.replace(/\..*$/, "");
-        R._mappaEuropa.set(x.t, x);
-        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
-        add([x.t, base, x.nome, ...parole], {
-          etichetta: x.t, descr: `${x.nome} · ${(x.indici || []).join(", ")} · ${x.settore}`, tipo: "europa",
-          fai: () => R.vai("#eur/" + x.t),
-        });
-      }
-      if (location.hash && leggiRotta().vista === "eur" && vistaCorrente === "mon") applicaRotta();
-    } catch (e) { /* senza elenco resta la vista */ }
-    // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
-    try {
-      const lista = await R.dati.listaMiei();
-      R._mappaMiei = new Map();
-      for (const x of lista) {
-        const base = x.t.replace(/\..*$/, "");
-        R._mappaMiei.set(x.t, x);
-        if (!R._mappaMiei.has(base)) R._mappaMiei.set(base, x);
-        const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
-        add([x.t, base, x.nome, ...parole], {
-          etichetta: x.t, descr: x.nome || x.t, tipo: "mio",
-          fai: () => R.vai("#tit/" + x.t),
-        });
-      }
-      if (location.hash && leggiRotta().vista === "tit" && vistaCorrente === "mon") applicaRotta();
-    } catch (e) { /* senza lista restano settori e comandi */ }
-    try {
-      const gruppi = await R.viste.rot.gruppi();
-      const u = await R.dati.universi();
-      // termini di confronto
-      const benchVisti = new Set();
-      const benchVoce = (key, etichetta, descr) => {
-        if (benchVisti.has(etichetta)) return;
-        benchVisti.add(etichetta);
-        add([etichetta], {
-          etichetta, descr, tipo: "bench",
-          fai: () => {
-            const corrente = R.store.get("rot.universo", "settori");
-            const adatti = gruppi.filter(g => g.benchmark.some(b => b === key || (etichetta === "ACWI" && (b === "ACWI" || b === "IUSQ.DE"))));
-            const g = adatti.find(x => x.id === corrente) || adatti[0];
-            if (!g) return;
-            const b = g.benchmark.find(x => x === key) || g.benchmark.find(x => x === "ACWI" || x === "IUSQ.DE");
-            R.viste.rot.apri({ universo: g.id, bench: b });
-          },
-        });
-      };
-      benchVoce("PTF", "PTF", "Rotazione contro il portafoglio di riferimento");
-      for (const k of Object.keys(u.usa.benchmark)) benchVoce(k, k, `Rotazione contro ${u.usa.benchmark[k].nome}`);
-      benchVoce("IUSQ.DE", "ACWI", "Rotazione contro l'azionario mondiale (ACWI)");
-      // titoli degli universi
-      const visti = new Set();
-      for (const g of gruppi) {
-        for (const [sym, info] of Object.entries(g.titoli)) {
-          if (visti.has(sym)) continue;
-          visti.add(sym);
-          if (R.meta.settori.some(s => s.etf === sym)) continue; // i settori aprono il dettaglio
-          const base = sym.replace(/\..*$/, "");
-          const parole = String(info.nome || "").split(/[^A-Za-zÀ-ÿ0-9&-]+/).filter(w => w.length >= 4);
-          add([sym, base, info.breve || "", ...parole], {
-            etichetta: base, descr: `${info.nome || info.breve || base} · ${g.nome}`, tipo: "titolo",
-            fai: () => {
-              const corrente = R.store.get("rot.universo", "settori");
-              const dentro = gruppi.filter(x => x.titoli[sym]);
-              const gg = dentro.find(x => x.id === corrente) || dentro[0];
-              R.viste.rot.apri({ universo: gg.id, evidenzia: sym });
-            },
+    // se si sta già scrivendo, i suggerimenti si aggiornano quando arrivano voci nuove
+    const aggiorna = () => {
+      inArrivo--;
+      const input = $("#comando");
+      if (document.activeElement === input && input.value.trim()) mostraSuggerimenti();
+    };
+    const gruppo = (n, fn) => { inArrivo++; return fn(n).catch(e => console.error(e)).then(aggiorna); };
+    const lavori = [
+      // tutte le azioni dell'S&P 500: aprono il loro settore con il titolo evidenziato
+      gruppo(1, async () => {
+        const titoli = await R.dati.titoli();
+        const nomi = Object.fromEntries(R.meta.settori.map(s => [s.etf, s.nome]));
+        R._mappaTitoli = new Map();
+        for (const x of titoli) {
+          if (!x || !x.t || !nomi[x.etf]) continue;
+          R._mappaTitoli.set(x.t.toUpperCase(), x);
+          const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+          add([x.t, x.t.replace(/[^A-Za-z0-9]/g, ""), x.nome, ...parole], {
+            etichetta: x.t, descr: `${x.nome} · ${nomi[x.etf]}`, tipo: "azione", ordine: 1,
+            fai: () => R.vai(`#usa/settori/${x.etf}/${x.t}`),
           });
         }
-      }
-    } catch (e) { /* senza universi restano settori e comandi */ }
-    indice = out;
+        riprova();
+      }),
+      // le crypto seguite (dalla lista di crypto.json: il file dei prezzi si carica solo nella zona crypto)
+      gruppo(2, async () => {
+        const cfg = await fetch("crypto.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : null));
+        for (const c of (cfg && cfg.riserva) || []) {
+          add([c.simbolo, c.nome, c.id, c.yahoo], { etichetta: c.simbolo, descr: `${c.nome} · crypto`, tipo: "crypto", ordine: 2, fai: () => R.vai("#cry/monitor/" + c.simbolo) });
+        }
+      }),
+      // le azioni europee (dall'elenco: i prezzi si caricano solo nella zona Europa), i loro indici e i settori
+      gruppo(3, async () => {
+        const eu = await R.dati.europaLista();
+        R._mappaEuropa = new Map();
+        for (const i of eu.indici || []) {
+          add([i.nome, i.nome.replace(/\s+/g, "")], {
+            etichetta: i.nome, descr: `Indice · ${i.paese}: andamento, ampiezza e le sue azioni`, tipo: "indiceEu", ordine: 3,
+            fai: () => R.vai("#eur/settori/" + encodeURIComponent(i.nome)),
+          });
+        }
+        const settori = Array.from(new Set((eu.titoli || []).map(x => x.settore).filter(Boolean))).sort();
+        for (const s of settori) {
+          add([s], { etichetta: s, descr: "Settore delle azioni europee: andamento, ampiezza e le sue azioni", tipo: "settoreEu", ordine: 3,
+            fai: () => R.vai("#eur/settori/" + encodeURIComponent(s)) });
+        }
+        for (const x of eu.titoli || []) {
+          const base = x.t.replace(/\..*$/, "");
+          R._mappaEuropa.set(x.t, x);
+          const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+          add([x.t, base, base.replace(/-/g, " "), x.nome, ...parole], {
+            etichetta: x.t, descr: `${x.nome} · ${(x.indici || []).join(", ")} · ${x.settore}`, tipo: "europa", ordine: 3,
+            fai: () => R.vai("#eur/azioni/" + x.t),
+          });
+        }
+        riprova();
+      }),
+      // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
+      gruppo(4, async () => {
+        const lista = await R.dati.listaMiei();
+        R._mappaMiei = new Map();
+        for (const x of lista) {
+          const base = x.t.replace(/\..*$/, "");
+          R._mappaMiei.set(x.t, x);
+          if (!R._mappaMiei.has(base)) R._mappaMiei.set(base, x);
+          const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+          add([x.t, base, x.nome, ...parole], {
+            etichetta: x.t, descr: x.nome || x.t, tipo: "mio", ordine: 4,
+            fai: () => R.vai("#tit/" + x.t),
+          });
+        }
+        riprova();
+      }),
+      // ETF e termini di confronto della rotazione
+      gruppo(5, async () => {
+        const gruppi = await R.viste.rot.gruppi();
+        const u = await R.dati.universi();
+        const benchVisti = new Set();
+        const benchVoce = (key, etichetta, descr) => {
+          if (benchVisti.has(etichetta)) return;
+          benchVisti.add(etichetta);
+          add([etichetta], {
+            etichetta, descr, tipo: "bench", ordine: 5,
+            fai: () => {
+              const salvati = R.store.get("rot.universi", {}) || {};
+              const adatti = gruppi.filter(g => g.benchmark.some(b => b === key || (etichetta === "ACWI" && (b === "ACWI" || b === "IUSQ.DE"))));
+              const g = adatti.find(x => salvati[x.zona] === x.id) || adatti[0];
+              if (!g) return;
+              const b = g.benchmark.find(x => x === key) || g.benchmark.find(x => x === "ACWI" || x === "IUSQ.DE");
+              R.viste.rot.apri({ universo: g.id, bench: b });
+            },
+          });
+        };
+        benchVoce("PTF", "PTF", "Rotazione contro il portafoglio di riferimento");
+        for (const k of Object.keys(u.usa.benchmark)) benchVoce(k, k, `Rotazione contro ${u.usa.benchmark[k].nome}`);
+        benchVoce("IUSQ.DE", "ACWI", "Rotazione contro l'azionario mondiale (ACWI)");
+        const visti = new Set();
+        for (const g of gruppi) {
+          for (const [sym, info] of Object.entries(g.titoli)) {
+            if (visti.has(sym)) continue;
+            visti.add(sym);
+            if (R.meta.settori.some(s => s.etf === sym)) continue; // i settori aprono il dettaglio
+            const base = sym.replace(/\..*$/, "");
+            const parole = String(info.nome || "").split(/[^A-Za-zÀ-ÿ0-9&-]+/).filter(w => w.length >= 4);
+            add([sym, base, info.breve || "", ...parole], {
+              etichetta: base, descr: `${info.nome || info.breve || base} · ${g.nome}`, tipo: "titolo", ordine: 5,
+              fai: () => {
+                const salvati = R.store.get("rot.universi", {}) || {};
+                const dentro = gruppi.filter(x => x.titoli[sym]);
+                const gg = dentro.find(x => salvati[x.zona] === x.id) || dentro[0];
+                R.viste.rot.apri({ universo: gg.id, evidenzia: sym });
+              },
+            });
+          }
+        }
+      }),
+    ];
+    return Promise.all(lavori);
   }
 
   function cerca(testo) {
@@ -229,24 +329,36 @@
         else if (k.startsWith(q)) best = Math.max(best, 60 - (k.length - q.length) * 0.1);
         else if (q.length >= 3 && k.includes(q)) best = Math.max(best, 30);
       }
-      if (best && v.tipo === "settore") best += 2;
-      if (best && v.tipo === "azione") best += 1;
-      if (best && v.tipo === "crypto") best += 1.5;
-      if (best && v.tipo === "indiceEu") best += 2;
-      if (best && v.tipo === "europa") best += 0.5;
+      if (!best) return 0;
+      best += { settore: 2, azione: 1, crypto: 1.5, indiceEu: 2, settoreEu: 1.8, europa: 0.5 }[v.tipo] || 0;
+      // prima le voci della zona aperta
+      if (zona === "eur" && (v.tipo === "europa" || v.tipo === "indiceEu" || v.tipo === "settoreEu")) best += 3;
+      if (zona === "cry" && v.tipo === "crypto") best += 3;
       return best;
     };
-    return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p).slice(0, 9).map(x => x.v);
+    const zona = R.zonaCorrente();
+    return indice.map(v => ({ v, p: punteggio(v) })).filter(x => x.p > 0).sort((a, b) => b.p - a.p || a.v.ordine - b.v.ordine).slice(0, 9).map(x => x.v);
   }
 
   let scelta = 0, risultati = [];
   function mostraSuggerimenti() {
     const box = $("#suggerimenti");
     const input = $("#comando");
-    risultati = cerca(input.value);
+    const testo = input.value.trim();
+    risultati = cerca(testo);
     scelta = 0;
-    if (!risultati.length) { box.hidden = true; $(".cmd").setAttribute("aria-expanded", "false"); return; }
-    box.innerHTML = risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span><em>${TIPI_VOCE[v.tipo] || ""}</em></div>`).join("");
+    // niente trovato: se l'elenco sta ancora arrivando lo si dice, altrimenti si propone la ricerca su Yahoo Finance
+    let nota = "";
+    if (!risultati.length && norm(testo).length >= 2) {
+      if (inArrivo > 0) nota = `<div class="sg-nota">Sto caricando l'elenco dei titoli…</div>`;
+      else {
+        nota = `<div class="sg-nota">«${esc(testo)}» non è fra i titoli del sito (S&amp;P 500, azioni europee principali, crypto, la tua lista).</div>`;
+        risultati = [{ etichetta: "Yahoo ↗", descr: `Cerca «${testo}» su Yahoo Finance e trova il ticker da aggiungere a miei-titoli.txt`, tipo: "web",
+          fai: () => window.open(`https://finance.yahoo.com/lookup?s=${encodeURIComponent(testo)}`, "_blank", "noopener") }];
+      }
+    }
+    if (!risultati.length && !nota) { box.hidden = true; $(".cmd").setAttribute("aria-expanded", "false"); return; }
+    box.innerHTML = nota + risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span><em>${TIPI_VOCE[v.tipo] || ""}</em></div>`).join("");
     box.hidden = false;
     $(".cmd").setAttribute("aria-expanded", "true");
   }
@@ -292,21 +404,27 @@
 
   // ---------------- dati in ritardo ----------------
 
+  // le date dei dati di ogni zona (arrivano con i file: evento «prezzi»)
   const date = {};
+  const FONTI_ZONA = {
+    usa: [["meta", "Ampiezza", "nyse"], ["usa", "Prezzi USA", "nyse"]],
+    eur: [["europa", "Azioni europee", "milano"], ["globale", "ETF in euro", "milano"]],
+    cry: [["crypto", "Crypto", "crypto"]],
+  };
+  R.dateDati = () => Object.assign({}, date);
   function aggiornaBadge() {
     const box = $("#stato-dati");
-    const voci = [];
     const now = new Date();
-    if (date.meta) voci.push({ nome: "Ampiezza", data: date.meta, r: Cal.ritardo(date.meta, now, "nyse") });
-    if (date.usa) voci.push({ nome: "Prezzi USA", data: date.usa, r: Cal.ritardo(date.usa, now, "nyse") });
-    if (date.globale) voci.push({ nome: "Prezzi in euro", data: date.globale, r: Cal.ritardo(date.globale, now, "milano") });
+    const voci = (FONTI_ZONA[R.zonaCorrente()] || []).filter(([k]) => date[k])
+      .map(([k, nome, mercato]) => ({ nome, data: date[k], r: Cal.ritardo(date[k], now, mercato) }));
     if (!voci.length) { box.hidden = true; return; }
     const indietro = voci.filter(v => v.r.sedute > 0);
     box.hidden = false;
     box.className = "data-badge" + (indietro.length ? " late" : "");
+    const giorni = k => `${k} ${k === 1 ? "giorno" : "giorni"}`;
     box.innerHTML = indietro.length
-      ? `<i></i>Dati indietro: ${indietro.map(v => `${v.nome.toLowerCase()} al ${dataIt(v.data)} (${R.sedute(v.r.sedute)})`).join(", ")}`
-      : `<i></i>Dati aggiornati alla seduta del ${dataIt(voci[0].data)}`;
+      ? `<i></i>Dati indietro: ${indietro.map(v => `${v.nome.toLowerCase()} al ${dataIt(v.data)} (${R.zonaCorrente() === "cry" ? giorni(v.r.sedute) : R.sedute(v.r.sedute)})`).join(", ")}`
+      : `<i></i>Dati alla chiusura del ${dataIt(voci[0].data)}`;
     const scaricati = R.meta && R.meta.generato ? new Date(R.meta.generato) : null;
     box.title = voci.map(v => `${v.nome}: chiusura del ${dataIt(v.data)}${v.r.sedute ? `, attesa quella del ${dataIt(v.r.attesa)}` : ""}`).join("\n") +
       (scaricati && !isNaN(scaricati) ? `\nUltimo aggiornamento: ${scaricati.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}` : "");
@@ -341,8 +459,8 @@
   // ---------------- avvio ----------------
 
   function mostraVuoto() {
-    $("#aggiornato").textContent = "nessun dato";
     $$(".view").forEach(v => { v.hidden = true; });
+    $("#bar-sotto").hidden = true;
     const main = $(".main");
     const box = document.createElement("article");
     box.className = "card empty";
@@ -357,18 +475,39 @@
     main.insertBefore(box, $(".main footer"));
   }
 
+  // frecce sinistra e destra su una barra di collegamenti (zone o pagine): si passa al vicino e lo si apre
+  function frecceSu(nav) {
+    nav.addEventListener("keydown", e => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      const link = e.target.closest("a[href]");
+      if (!link) return;
+      const tutti = $$("a[href]", nav).filter(a => a.offsetParent !== null);
+      const k = tutti.indexOf(link);
+      if (k < 0) return;
+      e.preventDefault();
+      const prossimo = tutti[(k + (e.key === "ArrowRight" ? 1 : -1) + tutti.length) % tutti.length];
+      R.vai(prossimo.getAttribute("href"));
+      // dopo il cambio di pagina la barra si ridisegna: si rimette il fuoco sul collegamento giusto
+      setTimeout(() => { const el = $(`a[href="${prossimo.getAttribute("href")}"]`, nav); if (el) el.focus(); }, 0);
+    });
+  }
+
   function collegaEventi() {
     window.addEventListener("hashchange", applicaRotta);
     R.on("rotta", applicaRotta);
     R.on("livelli", disegnaSettori);
     R.on("settore", () => disegnaSettori());
-    R.on("prezzi", x => { date[x.mercato] = x.aggiornato; aggiornaBadge(); });
+    R.on("prezzi", x => { if (x && x.mercato && x.aggiornato) { date[x.mercato] = x.aggiornato; aggiornaBadge(); } });
 
     // barra dei comandi
     const input = $("#comando");
     input.addEventListener("input", mostraSuggerimenti);
     input.addEventListener("focus", mostraSuggerimenti);
-    input.addEventListener("blur", () => setTimeout(() => { $("#suggerimenti").hidden = true; }, 150));
+    input.addEventListener("blur", () => setTimeout(() => {
+      $("#suggerimenti").hidden = true;
+      // sul telefono la casella si richiude quando non serve più
+      if (!input.value.trim()) $("#app-bar").classList.remove("cerca");
+    }, 150));
     input.addEventListener("keydown", e => {
       if (e.key === "ArrowDown") { e.preventDefault(); evidenziaSuggerimento(scelta + 1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); evidenziaSuggerimento(scelta - 1); }
@@ -379,6 +518,23 @@
       const el = e.target.closest(".sg");
       if (el) { e.preventDefault(); esegui(Number(el.dataset.k)); }
     });
+
+    // pulsanti della barra sugli schermi stretti: la lente apre la casella, i tre puntini gli altri comandi
+    $("#apri-cerca").addEventListener("click", () => {
+      const bar = $("#app-bar");
+      chiudiMenu();
+      bar.classList.toggle("cerca");
+      if (bar.classList.contains("cerca")) setTimeout(() => input.focus(), 30);
+    });
+    $("#altro").addEventListener("click", e => {
+      e.stopPropagation();
+      const bar = $("#app-bar");
+      const aperto = !bar.classList.contains("menu");
+      bar.classList.toggle("menu", aperto);
+      $("#altro").setAttribute("aria-expanded", String(aperto));
+    });
+    $("#altri").addEventListener("click", e => { if (e.target.closest("button")) setTimeout(chiudiMenu, 120); });
+    document.addEventListener("click", e => { if (!e.target.closest("#altri, #altro")) chiudiMenu(); });
 
     // guida
     $("#aiuto").addEventListener("click", apriGuida);
@@ -394,18 +550,9 @@
     $("#cvd").setAttribute("aria-pressed", String(document.documentElement.dataset.cvd === "1"));
     $("#cvd").addEventListener("click", () => impostaCvd(document.documentElement.dataset.cvd !== "1"));
 
-    // frecce sull'elenco delle viste
-    $("#viste").addEventListener("keydown", e => {
-      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-      const link = e.target.closest("a[data-view]");
-      if (!link) return;
-      e.preventDefault();
-      const k = VISTE.indexOf(link.dataset.view);
-      const next = VISTE[(k + (e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : -1) + VISTE.length) % VISTE.length];
-      R.vai("#" + next);
-      const el = $(`#viste a[data-view="${next}"]`);
-      if (el) el.focus();
-    });
+    // frecce sulle zone e sulle pagine della zona
+    frecceSu($("#zone"));
+    frecceSu($("#sotto"));
 
     // tastiera
     document.addEventListener("keydown", e => {
@@ -415,17 +562,36 @@
       const t = e.target;
       const scrivendo = t && t.closest && t.closest("input:not([type=range]):not([type=checkbox]), textarea, select, [contenteditable]");
       if (scrivendo || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.key === "Escape") { const v = R.viste[vistaCorrente]; if (v && v.tasto && v.tasto(e)) e.preventDefault(); return; }
+      if (e.key === "Escape") {
+        if ($("#app-bar").classList.contains("menu")) { chiudiMenu(); e.preventDefault(); return; }
+        const v = R.viste[vistaCorrente]; if (v && v.tasto && v.tasto(e)) e.preventDefault();
+        return;
+      }
       if (!tastiAttivi) return;
-      if (t && t.closest && t.closest("#viste") && e.key.startsWith("Arrow")) return;
-      if (e.key === "/") { e.preventDefault(); $("#comando").focus(); return; }
+      if (t && t.closest && t.closest("#zone, #sotto") && e.key.startsWith("Arrow")) return;
+      if (e.key === "/") { e.preventDefault(); $("#app-bar").classList.add("cerca"); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
       if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
-      if (/^[1-8]$/.test(e.key)) { e.preventDefault(); R.vai("#" + VISTE[Number(e.key) - 1]); return; }
+      // 1 Home, 2 USA, 3 Europa, 4 Crypto, 5 Portafoglio
+      if (/^[1-5]$/.test(e.key)) { e.preventDefault(); R.vai("#" + ORDINE_ZONE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
       if (v && v.tasto && v.tasto(e)) e.preventDefault();
     });
+  }
+
+  // i file dei prezzi avvisano la barra della loro data quando arrivano
+  function avvisaDate() {
+    const avvolgi = (nome, mercato) => {
+      const f = R.dati[nome];
+      R.dati[nome] = (...a) => f(...a).then(p => {
+        if (p && p.aggiornato) R.emit("prezzi", { mercato: typeof mercato === "function" ? mercato(...a) : mercato, aggiornato: p.aggiornato });
+        return p;
+      });
+    };
+    avvolgi("prezzi", m => (m === "globale" ? "globale" : "usa"));
+    avvolgi("europa", "europa");
+    avvolgi("crypto", "crypto");
   }
 
   async function avvia() {
@@ -438,22 +604,14 @@
       return;
     }
     if (!R.meta.settori || !R.meta.settori.length) { mostraVuoto(); return; }
-    $("#aggiornato").textContent = dataIt(R.meta.aggiornato);
-    $("#aggiornato").title = `Dati alla chiusura del ${dataIt(R.meta.aggiornato)}`;
     date.meta = R.meta.aggiornato;
-    aggiornaBadge();
-
-    // avvisa la barra quando arrivano i prezzi
-    const prezzi = R.dati.prezzi;
-    R.dati.prezzi = m => prezzi(m).then(p => { R.emit("prezzi", { mercato: m === "globale" ? "globale" : "usa", aggiornato: p.aggiornato }); return p; });
+    avvisaDate();
 
     for (const v of VISTE) R.viste[v].init();
-    disegnaSettori();
     await applicaRotta();
-    caricaStatiSettori();
     costruisciIndice();
-    // controlla le date dei prezzi anche senza aprire la rotazione
-    setTimeout(() => { R.dati.prezzi("usa").catch(() => {}); R.dati.prezzi("globale").catch(() => {}); }, 1500);
+    // la data dei prezzi USA per la barra, senza fretta
+    setTimeout(() => { R.dati.prezzi("usa").catch(() => {}); }, 1200);
   }
 
   avvia();

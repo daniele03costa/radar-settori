@@ -27,7 +27,7 @@
     ordine: R.store.get("tit.ordine", { col: "vs200", dir: -1 }),
     periodo: R.store.get("tit.periodo", 252),
     aperto: null,
-    mappaEu: null,        // le azioni europee della vista Europa (per aprire lì quelle che non sono nella lista)
+    mappaEu: null,        // le azioni europee della zona Europa (per aprire lì quelle che non sono nella lista)
   };
 
   // indirizzo per modificare la lista su GitHub
@@ -156,7 +156,7 @@
       <div class="card-head">
         <div>
           <div class="card-title"><h2>${esc(r.t)} · ${esc(r.nome)}</h2></div>
-          <p class="sub">${set ? `Azione dell'S&amp;P 500, settore <a class="linkish" href="#${set.etf}/${encodeURIComponent(r.t)}">${set.etf} · ${esc(set.nome)}</a>: <span class="st-pill st-${set.stato}">${S.STATI[set.stato]}</span>${set.tl ? `, ${set.tl.sopra} titoli su ${set.tl.n} sopra la media 200` : ""}${set.posto ? `; questo titolo è ${set.posto}° su ${set.totale} per distanza dalla media 200` : ""}.` : esc(borsa(r)) + "."} Chiusura del ${dataIt(r.data)}${r.valuta ? `, prezzi in ${r.valuta === "GBp" ? "pence" : r.valuta}` : ""}.</p>
+          <p class="sub">${set ? `Azione dell'S&amp;P 500, settore <a class="linkish" href="#usa/settori/${set.etf}/${encodeURIComponent(r.t)}">${set.etf} · ${esc(set.nome)}</a>: <span class="st-pill st-${set.stato}">${S.STATI[set.stato]}</span>${set.tl ? `, ${set.tl.sopra} titoli su ${set.tl.n} sopra la media 200` : ""}${set.posto ? `; questo titolo è ${set.posto}° su ${set.totale} per distanza dalla media 200` : ""}.` : esc(borsa(r)) + "."} Chiusura del ${dataIt(r.data)}${r.valuta ? `, prezzi in ${r.valuta === "GBp" ? "pence" : r.valuta}` : ""}.</p>
         </div>
         <div class="controls">
           <div class="seg" id="tit-periodo" role="group" aria-label="Periodo">${Object.entries(PERIODI).map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${Number(k) === st.periodo}">${l}</button>`).join("")}</div>
@@ -314,7 +314,7 @@
     R.on("apri-titolo", t => {
       if (!st.visibile) return;
       if (st.righe.some(r => r.t === t)) apriTitolo(t, true, true);
-      else if (st.mappaEu && st.mappaEu.has(t)) R.vai("#eur/" + t);      // azione europea solo nel portafoglio
+      else if (st.mappaEu && st.mappaEu.has(t)) R.vai("#eur/azioni/" + t);      // azione europea solo nel portafoglio
     });
     $("#tit-tabella").addEventListener("click", e => {
       const th = e.target.closest("th[data-col]");
@@ -349,7 +349,7 @@
 
   async function mostra(param) {
     st.visibile = true;
-    document.title = "I miei titoli · Radar Settori";
+    document.title = "Portafoglio · Radar Settori";
     if (param) st.aperto = String(param).toUpperCase();
     await disegna();
     if (param && st.aperto) $("#tit-dettaglio").scrollIntoView({ block: "start" });
@@ -365,8 +365,8 @@
   // testo per «Copia per Claude»
   function contesto() {
     const pf = R.portafoglio ? R.portafoglio.contesto() : "";
-    if (!st.righe.length) return "## Pagina aperta: I miei titoli\n" + (pf || "La lista non ha ancora prezzi.");
-    const out = ["## Pagina aperta: I miei titoli", pf,
+    if (!st.righe.length) return "## Pagina aperta: Portafoglio e titoli seguiti\n" + (pf || "La lista non ha ancora prezzi.");
+    const out = ["## Pagina aperta: Portafoglio e titoli seguiti", pf,
       "La pagina mostra i titoli della lista personale di Daniele: trend sulle medie a 200 e 50 sedute, calo dal massimo a 52 settimane, " +
       "forza relativa (rotazione settimanale contro l'S&P 500 per le azioni americane, contro l'ACWI, l'azionario mondiale in euro, per le altre) e, per le azioni dell'S&P 500, lo stato del loro settore.",
       `Chiusure fino al ${dataIt(st.dati.aggiornato)}.`,

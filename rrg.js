@@ -220,7 +220,11 @@
     return (a / b - 1) * 100;
   }
 
-  function prezzi(date, serie) {
+  // passi in sedute di borsa; per le crypto si passano i giorni di calendario (w1 7, m1 30, … a1 365)
+  const PASSI_BORSA = { w1: 5, m1: 21, m3: 63, m6: 126, a1: 252, max: 252, media: 200 };
+
+  function prezzi(date, serie, passi) {
+    const P = Object.assign({}, PASSI_BORSA, passi || {});
     const i = serie.length - 1;
     const last = serie[i];
     if (last == null) return null;
@@ -228,19 +232,19 @@
     let iy = null;
     for (let k = i; k >= 0; k--) { if (date[k].slice(0, 4) !== anno) { iy = k; break; } }
     let max = -Infinity;
-    for (let k = Math.max(0, i - 251); k <= i; k++) if (serie[k] != null && serie[k] > max) max = serie[k];
+    for (let k = Math.max(0, i - P.max + 1); k <= i; k++) if (serie[k] != null && serie[k] > max) max = serie[k];
     let s = 0, c = 0;
-    for (let k = Math.max(0, i - 199); k <= i; k++) if (serie[k] != null) { s += serie[k]; c++; }
+    for (let k = Math.max(0, i - P.media + 1); k <= i; k++) if (serie[k] != null) { s += serie[k]; c++; }
     return {
       ultimo: last,
-      w1: variazione(serie, i, 5),
-      m1: variazione(serie, i, 21),
-      m3: variazione(serie, i, 63),
-      m6: variazione(serie, i, 126),
+      w1: variazione(serie, i, P.w1),
+      m1: variazione(serie, i, P.m1),
+      m3: variazione(serie, i, P.m3),
+      m6: variazione(serie, i, P.m6),
       ytd: iy == null || serie[iy] == null ? null : (last / serie[iy] - 1) * 100,
-      a1: variazione(serie, i, 252),
+      a1: variazione(serie, i, P.a1),
       dd52: isFinite(max) ? (last / max - 1) * 100 : null,
-      vsM200: c >= 200 ? (last / (s / c) - 1) * 100 : null,
+      vsM200: c >= P.media ? (last / (s / c) - 1) * 100 : null,
     };
   }
 

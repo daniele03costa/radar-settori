@@ -40,11 +40,16 @@ LISTA_DATI = DATA_DIR / "europa_lista.json"
 OUT_PATH = DATA_DIR / "prezzi_europa.json"
 
 MIN_RISPOSTE = 0.80
-CAMBI = {"GBP": "EURGBP=X", "CHF": "EURCHF=X"}   # sterline e franchi per un euro: indici e panieri si confrontano in euro
+# unità di valuta per un euro: indici e panieri dei settori si confrontano in euro
+CAMBI = {"GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X", "SEK": "EURSEK=X", "NOK": "EURNOK=X"}
 CAMBI_MASSIMI = 0.15         # quota massima di entrate+uscite accettate in automatico per indice
 GIORNI_CONTROLLO = 7         # ogni quanto si guarda Wikipedia
-SUFFISSI = {"FTSE MIB": "MI", "DAX": "DE", "CAC 40": "PA", "IBEX 35": "MC", "AEX": "AS", "SMI": "SW", "FTSE 100": "L"}
-VALUTE = {"MI": "EUR", "DE": "EUR", "PA": "EUR", "AS": "EUR", "MC": "EUR", "SW": "CHF", "L": "GBp"}
+SUFFISSI = {"FTSE MIB": "MI", "DAX": "DE", "CAC 40": "PA", "IBEX 35": "MC", "AEX": "AS", "SMI": "SW", "FTSE 100": "L",
+            "OMX Copenhagen 25": "CO", "OMX Stockholm 30": "ST", "OMX Helsinki 25": "HE", "OBX": "OL", "BEL 20": "BR",
+            "ATX": "VI", "PSI": "LS", "ISEQ": "IR"}
+VALUTE = {"MI": "EUR", "DE": "EUR", "PA": "EUR", "AS": "EUR", "MC": "EUR", "SW": "CHF", "L": "GBp", "CO": "DKK", "ST": "SEK",
+          "HE": "EUR", "OL": "NOK", "BR": "EUR", "VI": "EUR", "LS": "EUR", "IR": "EUR"}
+NORDICI = {"CO", "ST", "HE"}      # le classi di azioni hanno lo spazio: «NOVO B» su Yahoo è NOVO-B.CO
 
 
 def log(msg: str) -> None:
@@ -85,10 +90,11 @@ def norm_nome(s: str) -> str:
 
 
 def ticker_yahoo(grezzo: str, indice: str) -> Optional[str]:
-    t = re.sub(r"\[.*?\]", "", str(grezzo)).strip().upper().replace(" ", "").split(":")[-1]
+    suff = SUFFISSI[indice]
+    t = re.sub(r"\[.*?\]", "", str(grezzo)).strip().upper().split(":")[-1].strip()
+    t = re.sub(r"\s+", "-" if suff in NORDICI else "", t)
     if not t or t in ("NAN", "-"):
         return None
-    suff = SUFFISSI[indice]
     if indice == "FTSE 100":
         t = t.rstrip(".").replace(".", "-")
         return re.sub(r"-L$", "", t) + ".L"

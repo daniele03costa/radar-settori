@@ -1,5 +1,7 @@
 /*
- * Radar Settori — vista 2: rotazione relativa (RS-Ratio / RS-Momentum).
+ * Radar Settori — Rotazione relativa (RS-Ratio / RS-Momentum), una per zona:
+ *   USA: settori S&P 500 e MAG7 (in dollari); Europa: settori e indici europei (dalla zona Europa) ed ETF in euro;
+ *   Crypto: le prime 10 contro bitcoin o contro il loro paniere (dalla zona Crypto, giorni di calendario).
  */
 (function () {
   "use strict";
@@ -7,8 +9,31 @@
   const R = window.Radar, Rot = window.Rotazione, PF = window.Portafoglio, Cal = window.Calendario;
   const { $, num, pct, esc, svg, dataIt, cls } = R;
 
+  // universi calcolati dai dati delle altre zone: le serie arrivano da view-europa.js e view-crypto.js
+  const VIRTUALI = [
+    { id: "eu-settori", nome: "Settori europei", zona: "eur", fonte: "europa", tipo: "settori", calendario: "milano", nota: "panieri a pesi uguali delle azioni di ogni settore, in euro, dividendi esclusi" },
+    { id: "eu-indici", nome: "Indici europei", zona: "eur", fonte: "europa", tipo: "indici", calendario: "milano", nota: "indici convertiti in euro, dividendi esclusi" },
+    { id: "crypto", nome: "Prime 10 crypto", zona: "cry", fonte: "crypto", calendario: "crypto", nota: "prezzi in dollari, un giorno = un giorno di calendario" },
+  ];
+  const PREDEFINITI = { usa: "settori", eur: "eu-settori", cry: "crypto" };
+
+  // l'universo scelto in ogni zona (prima c'era un universo solo: si porta nella sua zona)
+  function universiSalvati() {
+    const u = R.store.get("rot.universi", null);
+    if (u) return Object.assign({}, PREDEFINITI, u);
+    const vecchio = R.store.get("rot.universo", null);
+    const out = Object.assign({}, PREDEFINITI);
+    if (vecchio === "settori" || vecchio === "mag7") out.usa = vecchio;
+    else if (vecchio) out.eur = vecchio;
+    return out;
+  }
+
   const st = {
-    universo: R.store.get("rot.universo", "settori"),
+    zona: "usa",
+    universi: universiSalvati(),
+    get universo() { return this.universi[this.zona] || PREDEFINITI[this.zona]; },
+    set universo(v) { this.universi[this.zona] = v; },
+    giro: 0,
     bench: R.store.get("rot.bench", {}),
     barre: R.store.get("rot.barre", "settimanali"),
     formula: R.store.get("rot.formula", "nuova"),
@@ -34,27 +59,45 @@
 
   // ---------------- universi ----------------
 
+  // tutti gli universi: quelli di universi.json (USA in dollari nella zona USA, ETF in euro nella zona Europa) e quelli calcolati
   function gruppi() {
     const u = st.u;
     const out = [];
-    for (const g of u.usa.gruppi) out.push(Object.assign({ mercato: "usa" }, g));
-    for (const g of u.globale.gruppi) out.push(Object.assign({ mercato: "globale" }, g));
-    return out;
+    for (const g of u.usa.gruppi) out.push(Object.assign({ mercato: "usa", zona: "usa", calendario: "nyse" }, g));
+    for (const g of u.globale.gruppi) out.push(Object.assign({ mercato: "globale", zona: "eur", calendario: "milano" }, g));
+    return out.concat(VIRTUALI);
   }
-  const gruppo = () => gruppi().find(g => g.id === st.universo) || gruppi()[0];
+  const gruppiZona = z => gruppi().filter(g => g.zona === z);
+  const gruppo = () => { const tutti = gruppiZona(st.zona); return tutti.find(g => g.id === st.universo) || tutti.find(g => g.id === PREDEFINITI[st.zona]) || tutti[0]; };
+  const inEuro = g => g.mercato === "globale" || g.fonte === "europa";
 
   function infoTitolo(sym, g) {
     const u = st.u;
-    const m = (g && g.titoli[sym]) || (g && g.mercato === "usa" ? u.usa.benchmark[sym] : u.globale.benchmark[sym]) ||
-      u.usa.benchmark[sym] || u.globale.benchmark[sym] || {};
+    const m = (g && g.titoli && g.titoli[sym]) || (g && g.info && g.info[sym]) ||
+      (g && g.mercato === "usa" ? u.usa.benchmark[sym] : u.globale.benchmark[sym]) || u.usa.benchmark[sym] || u.globale.benchmark[sym] || {};
     return { breve: m.breve || sym.replace(/\..*$/, ""), nome: m.nome || m.breve || sym };
   }
 
   function nomeBench(key, g) {
     if (key === "PTF") return "Portafoglio di riferimento";
+    if (g && g.info && g.info[key]) return g.info[key].breve;
     const i = infoTitolo(key, g);
     return `${i.breve} (${key.replace(/\..*$/, "")})`;
   }
+
+  // i prezzi di un universo; per quelli calcolati arrivano anche i titoli e i termini di confronto
+  async function prezziGruppo(g) {
+    if (g.fonte === "europa" || g.fonte === "crypto") {
+      const r = g.fonte === "europa" ? await R.viste.eur.serieRotazione(g.tipo) : await R.viste.cry.serieRotazione();
+      Object.assign(g, { titoli: r.titoli, info: r.info, benchmark: r.benchmark, benchmark_default: r.benchmark[0] });
+      return { date: r.date, serie: r.serie, aggiornato: r.aggiornato };
+    }
+    return R.dati.prezzi(g.mercato);
+  }
+
+  // passi dei rendimenti: sedute di borsa, o giorni di calendario per le crypto
+  const passiDi = g => (g.calendario === "crypto" ? { w1: 7, m1: 30, m3: 91, m6: 182, a1: 365, max: 365, media: 200 } : null);
+  const barreDi = (g, n) => (g.calendario === "crypto" ? Math.round((n * 365) / 252) : n);
 
   const benchDi = g => {
     const b = st.bench[g.id];
@@ -73,8 +116,8 @@
 
   async function calcola() {
     const g = gruppo();
-    const px = await R.dati.prezzi(g.mercato);
-    const mercato = g.mercato === "usa" ? "nyse" : "milano";
+    const px = await prezziGruppo(g);
+    const mercato = g.calendario || (g.mercato === "usa" ? "nyse" : "milano");
     const benchKey = benchDi(g);
     let bench, ptf = null;
     if (benchKey === "PTF") {
@@ -104,17 +147,26 @@
   // ---------------- disegno ----------------
 
   async function disegna() {
+    const giro = ++st.giro;
     let c;
     try {
       if (!st.u) st.u = await R.dati.universi();
       c = await calcola();
     } catch (e) {
-      $("#rot-grafico").innerHTML = `<div class="empty-note">I prezzi per la rotazione non sono ancora disponibili. Si scaricano con l'aggiornamento automatico (GitHub → Actions → Aggiorna dati).</div>`;
+      if (giro !== st.giro) return;
+      console.error(e);
+      st.calc = null;
+      try { $("#rot-titolo").textContent = gruppo().nome; disegnaUniversi(gruppo()); } catch (e2) { $("#rot-titolo").textContent = "Rotazione"; }
+      $("#rot-sub").textContent = "Dati non ancora disponibili.";
+      $("#rot-bench").innerHTML = "";
+      $("#perf-legenda").innerHTML = "";
+      $("#rot-portafoglio").hidden = true;
+      $("#rot-grafico").innerHTML = `<div class="empty-note">I prezzi per la rotazione non sono ancora disponibili. Si scaricano con l'aggiornamento automatico (GitHub → Actions → ${st.zona === "cry" ? "Aggiorna crypto" : "Aggiorna dati"}).</div>`;
       $("#rot-tabella").innerHTML = "";
       $("#perf-grafico").innerHTML = "";
       return;
     }
-    if (!st.visibile) return;
+    if (!st.visibile || giro !== st.giro) return;
     st.calc = c;
     if (st.fine == null || st.fine > c.ultimo) st.fine = c.ultimo;
     if (st.fine < c.primo) st.fine = c.primo;
@@ -125,11 +177,20 @@
     disegnaPerformance(c);
   }
 
+  // i pulsanti degli universi della zona aperta (si disegnano anche prima che arrivino i dati)
+  function disegnaUniversi(g) {
+    const btn = x => `<button type="button" data-v="${x.id}" aria-pressed="${x.id === g.id}">${esc(x.nome)}</button>`;
+    const zona = gruppiZona(st.zona);
+    const calcolati = zona.filter(x => x.fonte), etf = zona.filter(x => x.mercato === "globale");
+    $("#rot-universo").innerHTML = st.zona === "eur"
+      ? `${calcolati.map(btn).join("")}<span class="seg-label">ETF in euro</span>${etf.map(btn).join("")}`
+      : zona.map(btn).join("");
+    $("#rot-universo").closest(".ctrl").hidden = zona.length < 2;
+  }
+
   function disegnaControlli(c) {
     const g = c.g;
-    const us = gruppi().filter(x => x.mercato === "usa"), gl = gruppi().filter(x => x.mercato === "globale");
-    const btn = x => `<button type="button" data-v="${x.id}" aria-pressed="${x.id === g.id}">${esc(x.nome)}</button>`;
-    $("#rot-universo").innerHTML = `<span class="seg-label">USA $</span>${us.map(btn).join("")}<span class="seg-label">Globali €</span>${gl.map(btn).join("")}`;
+    disegnaUniversi(g);
     $("#rot-bench").innerHTML = g.benchmark.map(k => `<option value="${k}"${k === c.benchKey ? " selected" : ""}>${esc(nomeBench(k, g))}</option>`).join("");
     R.$$("#rot-barre button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === st.barre)));
     R.$$("#rot-scala button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === st.scala)));
@@ -143,9 +204,9 @@
     const dataBarra = c.px.date[c.ib[st.fine]];
     const provv = c.barre.provvisoria && st.fine === c.ultimo;
     $("#rot-data").textContent = dataIt(dataBarra) + (provv ? " (settimana in corso)" : "");
-    $("#rot-titolo").textContent = `${g.nome} contro ${nomeBench(c.benchKey, g)}`;
+    $("#rot-titolo").textContent = `${g.nome} contro ${g.info && g.info[c.benchKey] && g.info[c.benchKey].titolo ? g.info[c.benchKey].titolo : nomeBench(c.benchKey, g)}`;
     const calcolo = { nuova: "calcolo nuovo", semplice: "medie semplici", classica: "calcolo classico" }[st.formula];
-    $("#rot-sub").textContent = `Barre ${st.barre === "settimanali" ? "settimanali" : "giornaliere"} · ${calcolo} · prezzi ${g.mercato === "usa" ? "in dollari" : "in euro"}, dividendi inclusi · dati al ${dataIt(c.px.aggiornato)}` +
+    $("#rot-sub").textContent = `Barre ${st.barre === "settimanali" ? "settimanali" : "giornaliere"} · ${calcolo} · ${g.nota || `prezzi ${g.mercato === "usa" ? "in dollari" : "in euro"}, dividendi inclusi`} · dati al ${dataIt(c.px.aggiornato)}` +
       (c.px.correzioni && c.px.correzioni.length ? ` · ${c.px.correzioni.length} ${c.px.correzioni.length === 1 ? "prezzo corretto" : "prezzi corretti"}` : "");
     $("#rot-tab-titolo").textContent = st.prezzi ? "Prezzi dell'universo" : "Posizione e movimento";
   }
@@ -242,7 +303,7 @@
       grp.append(svg("title", null, `${info.breve} (${t}): ${Rot.QUADRANTI[qd]} · RS-Ratio ${num(testa[0], 2)} · RS-Momentum ${num(testa[1], 2)}`));
       root.append(grp);
       // etichetta: la prima posizione libera intorno alla testa (sugli schermi stretti basta il ticker)
-      const nomeEt = W < 560 ? t.replace(/\..*$/, "") : info.breve;
+      const nomeEt = W < 560 && !c.g.fonte ? t.replace(/\..*$/, "") : info.breve;
       const w = nomeEt.length * 7.4 + 4, h = 14;
       const prove = [[11, 4, "start"], [-11, 4, "end"], [0, -12, "middle"], [0, 21, "middle"], [10, -9, "start"], [-10, -9, "end"], [10, 17, "start"], [-10, 17, "end"]];
       let scelta = null;
@@ -279,7 +340,8 @@
     const mi = Rot.misure(r.ratio, r.mom, st.fine);
     if (!mi) { tip.hidden = true; return; }
     const info = infoTitolo(t, c.g);
-    const unita = st.barre === "settimanali" ? (mi.durata === 1 ? "settimana" : "settimane") : (mi.durata === 1 ? "seduta" : "sedute");
+    const giorni = c.g.calendario === "crypto";
+    const unita = st.barre === "settimanali" ? (mi.durata === 1 ? "settimana" : "settimane") : giorni ? (mi.durata === 1 ? "giorno" : "giorni") : (mi.durata === 1 ? "seduta" : "sedute");
     tip.innerHTML = `<div class="d">${esc(info.breve)} <span class="muted">· ${esc(t)}</span>${info.nome !== info.breve ? `<small class="sub-line">${esc(info.nome)}</small>` : ""}</div>
       <div class="r"><span>Quadrante</span><span class="quad-pill" style="--c:var(--q-${mi.quadrante})">${NOMI_Q[mi.quadrante]}</span></div>
       <div class="r"><span>RS-Ratio</span><span>${num(mi.ratio, 2)}</span></div>
@@ -312,7 +374,7 @@
       const iEnd = c.ib[st.fine];
       const riga = (t, bench) => {
         const serie = t === "PTF" ? c.bench : c.px.serie[t];
-        const pz = Rot.prezzi(c.px.date.slice(0, iEnd + 1), serie.slice(0, iEnd + 1));
+        const pz = Rot.prezzi(c.px.date.slice(0, iEnd + 1), serie.slice(0, iEnd + 1), passiDi(c.g));
         return { t, info: t === "PTF" ? { breve: "PTF", nome: "Portafoglio di riferimento" } : infoTitolo(t, c.g), p: pz, bench };
       };
       const righe = c.titoli.map(t => riga(t, false)).filter(x => x.p);
@@ -323,7 +385,7 @@
       const td = v => `<td class="${cls(v)}">${pct(v, 1)}</td>`;
       $("#rot-tabella").innerHTML = `<thead><tr>${th("t", "Titolo", true)}${th("ultimo", "Ultimo")}${th("w1", "1S")}${th("m1", "1M")}${th("m3", "3M")}${th("m6", "6M")}${th("ytd", "Anno")}${th("a1", "1A")}${th("dd52", "DD 52s")}${th("vsM200", "vs M200")}</tr></thead><tbody>` +
         righe.map(x => `<tr data-t="${x.t}" class="${x.bench ? "bench-row" : ""}${attivo === x.t ? " hl" : ""}">
-          <td class="l"><b>${esc(x.info.breve)}</b>${x.bench ? ' <span class="tag">confronto</span>' : ""}<small class="sub-line">${esc(x.t)}</small></td>
+          <td class="l"><b>${esc(x.info.breve)}</b>${x.bench ? ' <span class="tag">confronto</span>' : ""}<small class="sub-line">${esc(c.g.fonte ? x.info.nome : x.t)}</small></td>
           <td>${num(x.p.ultimo, x.p.ultimo >= 100 ? 2 : 3)}</td>${td(x.p.w1)}${td(x.p.m1)}${td(x.p.m3)}${td(x.p.m6)}${td(x.p.ytd)}${td(x.p.a1)}
           <td class="${cls(x.p.dd52)}">${pct(x.p.dd52, 1)}</td>${td(x.p.vsM200)}
         </tr>`).join("") + "</tbody>";
@@ -338,12 +400,12 @@
       return dir * (va - vb);
     });
     const delta = v => v == null ? "" : `<small class="${cls(v)}">${R.segnato(v, 2)}</small>`;
-    const unita = st.barre === "settimanali" ? "sett." : "sedute";
+    const unita = st.barre === "settimanali" ? "sett." : c.g.calendario === "crypto" ? "giorni" : "sedute";
     $("#rot-tabella").innerHTML = `<thead><tr>${th("t", "Titolo", true)}${th("quadrante", "Quadrante", true)}${th("ratio", "RS-Ratio")}${th("mom", "RS-Mom.")}${th("direzione", "Direzione")}${th("velocita", "Velocità")}${th("distanza", "Distanza")}${th("durata", "Da")}<th class="l">Prima</th></tr></thead><tbody>` +
       righe.map(x => {
         const m = x.m;
         return `<tr data-t="${x.t}" class="${attivo === x.t ? "hl" : ""}">
-          <td class="l"><span class="tk-cell"><span class="qdot" style="--c:var(--q-${m.quadrante})"></span><span><b>${esc(x.info.breve)}</b><small class="sub-line">${esc(x.t)}</small></span></span></td>
+          <td class="l"><span class="tk-cell"><span class="qdot" style="--c:var(--q-${m.quadrante})"></span><span><b>${esc(x.info.breve)}</b><small class="sub-line">${esc(c.g.fonte ? x.info.nome : x.t)}</small></span></span></td>
           <td class="l"><span class="quad-pill" style="--c:var(--q-${m.quadrante})">${NOMI_Q[m.quadrante]}</span></td>
           <td>${num(m.ratio, 2)} ${delta(m.dRatio)}</td>
           <td>${num(m.mom, 2)} ${delta(m.dMom)}</td>
@@ -408,9 +470,9 @@
       ["leader", "miglioramento", "indebolimento", "ritardo"].map(k => `<span><i class="sw" style="background:var(--q-${k})"></i>${NOMI_Q[k]}</span>`).join("") +
       `<span><i class="sw dash" style="color:var(--ink)"></i>${esc(c.benchKey === "PTF" ? "Portafoglio (PTF)" : nomeBench(c.benchKey, c.g))}</span>`;
     const iEnd = c.ib[st.fine];
-    const i0 = Math.max(0, iEnd - st.periodo);
+    const i0 = Math.max(0, iEnd - barreDi(c.g, st.periodo));
     const W = Math.max(320, box.clientWidth || 900), H = W < 600 ? 280 : 340;
-    const m = { l: 44, r: W < 600 ? 104 : 150, t: 12, b: 28 };
+    const m = { l: 44, r: W < 600 ? 112 : 172, t: 12, b: 28 };
     const pw = W - m.l - m.r, ph = H - m.t - m.b;
     const linee = c.titoli.map(t => ({ t, info: infoTitolo(t, c.g), v: c.px.serie[t] }));
     linee.push({ t: c.benchKey, info: c.benchKey === "PTF" ? { breve: "PTF" } : infoTitolo(c.benchKey, c.g), v: c.bench, bench: true });
@@ -523,8 +585,12 @@
     if (g) g.parentNode.insertBefore(g, g.parentNode.querySelector("g:last-of-type"));
   }
 
+  function ferma() {
+    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; }
+  }
+
   function spostaFine(delta) {
-    if (!st.calc) return;
+    if (!st.calc || st.fine == null) return;
     st.fine = Math.max(st.calc.primo, Math.min(st.calc.ultimo, st.fine + delta));
     ridisegnaRapido();
   }
@@ -542,23 +608,24 @@
     if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; return; }
     const c = st.calc;
     if (!c) return;
-    const giro = st.barre === "settimanali" ? 52 : 126;
+    const giro = st.barre === "settimanali" ? 52 : barreDi(c.g, 126);
     if (st.fine >= c.ultimo) st.fine = Math.max(c.primo, c.ultimo - giro);
     $("#rot-play").innerHTML = ICONA_PAUSA;
     st.play = setInterval(() => {
-      if (!st.visibile || st.fine >= st.calc.ultimo) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; return; }
+      if (!st.visibile || !st.calc || st.fine == null || st.fine >= st.calc.ultimo) { ferma(); return; }
       st.fine++;
       ridisegnaRapido();
     }, st.barre === "settimanali" ? 320 : 110);
   }
 
   function salva() {
-    R.store.set("rot.universo", st.universo); R.store.set("rot.bench", st.bench); R.store.set("rot.barre", st.barre);
+    R.store.set("rot.universi", st.universi); R.store.set("rot.universo", st.universo); R.store.set("rot.bench", st.bench); R.store.set("rot.barre", st.barre);
     R.store.set("rot.formula", st.formula); R.store.set("rot.coda", st.coda); R.store.set("rot.scala", st.scala);
     R.store.set("rot.prezzi", st.prezzi); R.store.set("rot.periodo", st.periodo); R.store.set("rot.ordine", st.ordine);
   }
 
   function cambia(fn, ricalcolo = true) {
+    if (ricalcolo) ferma();
     fn();
     salva();
     if (ricalcolo) { st.fine = null; disegna(); } else ridisegnaRapido();
@@ -567,9 +634,9 @@
   function init() {
     $("#rot-universo").addEventListener("click", e => {
       const b = e.target.closest("button[data-v]");
-      if (b) cambia(() => { st.universo = b.dataset.v; st.evidenza = null; });
+      if (b && gruppiZona(st.zona).some(g => g.id === b.dataset.v)) cambia(() => { st.universo = b.dataset.v; st.evidenza = null; st.passaggio = null; });
     });
-    $("#rot-bench").addEventListener("change", e => cambia(() => { st.bench[st.universo] = e.target.value; }));
+    $("#rot-bench").addEventListener("change", e => cambia(() => { st.bench[gruppo().id] = e.target.value; }));
     $("#rot-barre").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) cambia(() => { st.barre = b.dataset.v; }); });
     $("#rot-formula").addEventListener("change", e => cambia(() => { st.formula = e.target.value; }));
     $("#rot-scala").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) cambia(() => { st.scala = b.dataset.v; }, false); });
@@ -645,15 +712,23 @@
     window.addEventListener("resize", R.debounce(() => { if (st.visibile) ridisegnaRapido(); }, 200));
   }
 
-  async function mostra() {
+  const NOMI_ZONE = { usa: "USA", eur: "Europa", cry: "Crypto" };
+
+  async function mostra(param, ctx) {
     st.visibile = true;
-    document.title = "Rotazione · Radar Settori";
+    const zona = ctx && NOMI_ZONE[ctx.zona] ? ctx.zona : "usa";
+    if (zona !== st.zona) {
+      ferma();
+      st.zona = zona; st.fine = null; st.evidenza = null; st.passaggio = null; st.calc = null;
+      if (st.u) disegnaUniversi(gruppo());
+    }
+    document.title = `${NOMI_ZONE[zona]} · Rotazione · Radar Settori`;
     await disegna();
   }
 
   function nascondi() {
     st.visibile = false;
-    if (st.play) { clearInterval(st.play); st.play = null; $("#rot-play").innerHTML = ICONA_PLAY; }
+    ferma();
   }
 
   function tasto(e) {
@@ -673,14 +748,14 @@
     const data = c.px.date[iEnd];
     const provv = c.barre.provvisoria && st.fine === c.ultimo;
     const calcolo = { nuova: "calcolo nuovo (log del rapporto, medie esponenziali 10/30 divise per la volatilità)", semplice: "medie semplici (10/30 e 9)", classica: "calcolo classico (scarti standardizzati su 26 barre)" }[st.formula];
-    const unita = st.barre === "settimanali" ? "settimane" : "sedute";
-    const unita1 = st.barre === "settimanali" ? "settimana" : "seduta";
+    const unita = st.barre === "settimanali" ? "settimane" : g.calendario === "crypto" ? "giorni" : "sedute";
+    const unita1 = st.barre === "settimanali" ? "settimana" : g.calendario === "crypto" ? "giorno" : "seduta";
     const out = [];
     out.push(`## Pagina aperta: Rotazione relativa · ${g.nome} contro ${nomeBench(c.benchKey, g)}`);
     out.push("La pagina mostra il grafico di rotazione relativa: ogni titolo è un punto con la sua scia; asse orizzontale RS-Ratio (sopra 100 fa meglio del confronto), " +
       "asse verticale RS-Momentum (sopra 100 il vantaggio cresce). Quadranti: Leader (in alto a destra), In indebolimento (in basso a destra), In ritardo (in basso a sinistra), " +
       "In miglioramento (in alto a sinistra); di solito si gira in senso orario. Sotto: tabella di posizione e movimento, andamento base 100 e, per le asset class, il portafoglio di riferimento.");
-    out.push(`Impostazioni: barre ${st.barre}, ${calcolo}, data mostrata ${dataIt(data)}${provv ? " (settimana in corso: l'ultimo punto è provvisorio)" : ""}, scia di ${st.coda} barre, prezzi in ${g.mercato === "usa" ? "dollari" : "euro"} con dividendi.`);
+    out.push(`Impostazioni: barre ${st.barre}, ${calcolo}, data mostrata ${dataIt(data)}${provv ? " (settimana in corso: l'ultimo punto è provvisorio)" : ""}, scia di ${st.coda} barre, ${g.nota || `prezzi in ${g.mercato === "usa" ? "dollari" : "euro"} con dividendi`}.`);
     const attivo = st.passaggio || st.evidenza;
     if (attivo) out.push(`Titolo evidenziato ora: ${infoTitolo(attivo, g).breve} (${attivo}).`);
     out.push(`Posizione e movimento: nome | ticker | quadrante | RS-Ratio (variazione nell'ultima barra) | RS-Momentum (variazione) | direzione in gradi di bussola | velocità | distanza dal centro | barre nel quadrante | quadrante precedente`);
@@ -697,7 +772,7 @@
     }
     out.push("Prezzi fino alla data mostrata: nome | ultimo | 1 settimana | 1 mese | 3 mesi | 6 mesi | da inizio anno | 1 anno | dal massimo a 52 settimane | sulla media 200");
     const riga = (t, info, serie) => {
-      const p = Rot.prezzi(c.px.date.slice(0, iEnd + 1), serie.slice(0, iEnd + 1));
+      const p = Rot.prezzi(c.px.date.slice(0, iEnd + 1), serie.slice(0, iEnd + 1), passiDi(g));
       if (p) out.push(`${info.breve} (${t}) | ${num(p.ultimo, 2)} | ${pct(p.w1, 1)} | ${pct(p.m1, 1)} | ${pct(p.m3, 1)} | ${pct(p.m6, 1)} | ${pct(p.ytd, 1)} | ${pct(p.a1, 1)} | ${pct(p.dd52, 1)} | ${pct(p.vsM200, 1)}`);
     };
     for (const t of c.titoli) riga(t, infoTitolo(t, g), c.px.serie[t]);
@@ -715,10 +790,12 @@
 
   // usato dalla barra dei comandi
   async function apri(opzioni) {
+    ferma();
     if (!st.u) st.u = await R.dati.universi();
     const g0 = gruppi();
-    if (opzioni.universo) st.universo = opzioni.universo;
-    const g = g0.find(x => x.id === st.universo) || g0[0];
+    const g = g0.find(x => x.id === (opzioni.universo || st.universo)) || g0[0];
+    st.zona = g.zona;
+    st.universo = g.id;
     if (opzioni.bench && g.benchmark.includes(opzioni.bench)) st.bench[g.id] = opzioni.bench;
     if (opzioni.evidenzia) {
       st.evidenza = opzioni.evidenzia;
@@ -727,9 +804,11 @@
     }
     st.fine = null;
     salva();
-    R.vai("#rot");
-    if (st.visibile) disegna();
+    const hash = `#${g.zona}/rotazione`;
+    if (location.hash !== hash) R.vai(hash);
+    else if (st.visibile) disegna();
   }
 
-  R.viste.rot = { init, mostra, nascondi, tasto, apri, contesto, gruppi: async () => { if (!st.u) st.u = await R.dati.universi(); return gruppi(); } };
+  // per la casella di ricerca: gli universi di universi.json (quelli calcolati si cercano nelle loro zone)
+  R.viste.rot = { init, mostra, nascondi, tasto, apri, contesto, gruppi: async () => { if (!st.u) st.u = await R.dati.universi(); return gruppi().filter(g => !g.fonte); } };
 })();

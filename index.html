@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Radar Settori</title>
-  <meta name="description" content="Settori S&P 500 ed ETF globali: ampiezza di mercato, zone blu e trigger, forza relativa, mappa dei possibili minimi e storico degli stati.">
+  <meta name="description" content="USA, Europa e crypto: ampiezza di mercato, zone blu e trigger dei settori S&P 500, forza relativa, mappe dei possibili minimi, azioni europee, bitcoin e portafoglio.">
   <meta name="theme-color" content="#0c0d10">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
@@ -26,12 +26,12 @@
     } catch (e) {}
   </script>
 </head>
-<body data-view="mon">
-  <div class="shell">
+<body data-view="home" data-zona="home">
 
-    <!-- ===== barra laterale ===== -->
-    <aside class="sidebar">
-      <a class="brand" href="#mon" aria-label="Radar Settori, torna al Monitor">
+  <!-- ===== barra in alto: zone e strumenti ===== -->
+  <header class="app-bar" id="app-bar">
+    <div class="bar-riga">
+      <a class="brand" href="#home" aria-label="Radar Settori, vai alla Home">
         <svg viewBox="0 0 40 40" aria-hidden="true">
           <defs>
             <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
@@ -45,30 +45,34 @@
           <circle cx="20" cy="20" r="2" fill="#fff"/>
           <circle cx="14.5" cy="25.5" r="2.4" fill="#fff"/>
         </svg>
-        <div><b>Radar Settori</b><span>Ampiezza, forza relativa<br>e possibili minimi</span></div>
+        <div><b>Radar Settori</b><span>USA, Europa e crypto</span></div>
       </a>
 
-      <nav class="views" id="viste" aria-label="Viste">
-        <a href="#mon" data-view="mon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="4" rx="1.5"/><rect x="3" y="10" width="18" height="4" rx="1.5"/><rect x="3" y="16" width="18" height="4" rx="1.5"/></svg><span>Monitor</span><kbd>1</kbd></a>
-        <a href="#rot" data-view="rot"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17"/><circle cx="16" cy="8" r="1.8" class="fill"/></svg><span>Rotazione</span><kbd>2</kbd></a>
-        <a href="#btm" data-view="btm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><circle cx="8" cy="15" r="1.8" class="fill"/><circle cx="13" cy="10" r="1.8" class="fill"/><circle cx="17" cy="13" r="1.8" class="fill"/></svg><span>Bottom Map</span><kbd>3</kbd></a>
-        <a href="#sec" data-view="sec"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l5-6 4 3 5-7 4 4"/><path d="M3 21h18"/></svg><span>Settore</span><kbd>4</kbd></a>
-        <a href="#alr" data-view="alr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span>Alert</span><kbd>5</kbd></a>
-        <a href="#tit" data-view="tit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" stroke-linejoin="round"/></svg><span>I miei titoli</span><kbd>6</kbd></a>
-        <a href="#cry" data-view="cry"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 7.5v9M9.5 7.5h3.8a2.1 2.1 0 0 1 0 4.2H9.5M9.5 11.7h4.3a2.4 2.4 0 0 1 0 4.8H9.5M11 6v1.5M11 16.5V18"/></svg><span>Crypto</span><kbd>7</kbd></a>
-        <a href="#eur" data-view="eur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/></svg><span>Europa</span><kbd>8</kbd></a>
+      <nav class="zone" id="zone" aria-label="Zone">
+        <a href="#home" data-zona="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2L12 4.8l8 6.4"/><path d="M6.3 9.6V19h11.4V9.6"/><path d="M10 19v-5h4v5"/></svg><span>Home</span></a>
+        <a href="#usa" data-zona="usa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8 8.6L12 4.4l8.2 4.2"/><path d="M5.8 9.4v8M10 9.4v8M14 9.4v8M18.2 9.4v8"/><path d="M3.8 19.6h16.4"/></svg><span>USA</span></a>
+        <a href="#eur" data-zona="eur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/></svg><span>Europa</span></a>
+        <a href="#cry" data-zona="cry"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 7.5v9M9.5 7.5h3.8a2.1 2.1 0 0 1 0 4.2H9.5M9.5 11.7h4.3a2.4 2.4 0 0 1 0 4.8H9.5M11 6v1.5M11 16.5V18"/></svg><span>Crypto</span></a>
+        <a href="#tit" data-zona="tit" class="zona-pf" aria-label="Portafoglio" title="Portafoglio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="17" height="12" rx="2.2"/><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5"/><path d="M3.5 12.5h17"/></svg><span>Portafoglio</span></a>
       </nav>
 
-      <div class="side-head">
-        <span>Settori</span>
-        <span>% sopra M200</span>
+      <div class="cmd" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="suggerimenti">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+        <input id="comando" type="text" autocomplete="off" spellcheck="false"
+               placeholder="Cerca titoli e settori…" aria-label="Cerca un titolo, un settore o un comando" aria-autocomplete="list">
+        <kbd>/</kbd>
+        <div class="suggest" id="suggerimenti" role="listbox" hidden></div>
       </div>
-      <nav class="sector-list" id="settori" aria-label="Settori"></nav>
 
-      <div class="side-foot">
-        <div class="foot-row">
-        <div class="stamp" id="aggiornato">caricamento…</div>
-        <div class="foot-btns">
+      <div class="strumenti" id="strumenti">
+        <button class="icon-btn cerca-btn" id="apri-cerca" type="button" aria-label="Cerca" title="Cerca (tasto /)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
+        </button>
+        <div class="altri" id="altri">
+          <button class="copia-btn" id="copia-claude" type="button" title="Copia i numeri di questa pagina da incollare nella chat di Claude (tasto C)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h8A1.5 1.5 0 0 1 14.5 5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Copia per Claude</span>
+          </button>
           <button class="theme-btn" id="tema" type="button" aria-label="Cambia tema chiaro/scuro" title="Tema chiaro o scuro">
             <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
             <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -77,32 +81,41 @@
           <button class="theme-btn" id="cvd" type="button" aria-pressed="false" title="Colori adatti a chi confonde rosso e verde: rialzi in blu, ribassi in arancio">CVD</button>
           <button class="theme-btn" id="aiuto" type="button" title="Guida (tasto ?)" aria-label="Apri la guida">?</button>
         </div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ===== contenuto ===== -->
-    <main class="main">
-      <div class="topbar">
-        <div class="cmd" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="suggerimenti">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.2-4.2"/></svg>
-          <input id="comando" type="text" autocomplete="off" spellcheck="false"
-                 placeholder="Cerca un settore, un'azione americana o europea, una crypto…" aria-label="Comando o ticker" aria-autocomplete="list">
-          <kbd>/</kbd>
-          <div class="suggest" id="suggerimenti" role="listbox" hidden></div>
-        </div>
-        <div class="data-badge" id="stato-dati" hidden></div>
-        <button class="copia-btn" id="copia-claude" type="button" title="Copia i numeri di questa pagina da incollare nella chat di Claude (tasto C)">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 15.5H5A1.5 1.5 0 0 1 3.5 14V5A1.5 1.5 0 0 1 5 3.5h8A1.5 1.5 0 0 1 14.5 5v.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          <span>Copia per Claude</span>
+        <button class="icon-btn altro-btn" id="altro" type="button" aria-label="Altri comandi" aria-expanded="false" title="Altri comandi">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg>
         </button>
       </div>
+    </div>
+    <div class="bar-sotto" id="bar-sotto" hidden>
+      <nav class="sotto" id="sotto" aria-label="Pagine della zona"></nav>
+      <div class="data-badge" id="stato-dati" hidden></div>
+    </div>
+  </header>
+
+  <main class="main">
+
+      <!-- ======================= HOME ======================= -->
+      <section class="view" id="view-home" data-view="home" hidden>
+        <header class="view-head home-head">
+          <div>
+            <div class="kicker" id="home-kicker">&nbsp;</div>
+            <h1>Il quadro di oggi</h1>
+            <p class="view-sub" id="home-sub">USA, Europa e crypto in una pagina: tendenza, ampiezza e cosa si muove. Clic su una scheda per entrare nella zona.</p>
+          </div>
+        </header>
+        <div class="home-zone" id="home-zone">
+          <article class="card home-card" id="home-usa" data-zona="usa"></article>
+          <article class="card home-card" id="home-eur" data-zona="eur"></article>
+          <article class="card home-card" id="home-cry" data-zona="cry"></article>
+        </div>
+        <article class="card home-pf" id="home-pf"></article>
+      </section>
 
       <!-- ======================= 1 MONITOR ======================= -->
       <section class="view" id="view-mon" data-view="mon" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 1 · Monitor</div>
+            <div class="kicker">USA · Monitor</div>
             <h1>Il quadro di tutti i settori</h1>
             <p class="view-sub" id="mon-sub">&nbsp;</p>
           </div>
@@ -126,7 +139,7 @@
       <section class="view" id="view-rot" data-view="rot" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 2 · Rotazione relativa</div>
+            <div class="kicker">USA · Rotazione</div>
             <h1 id="rot-titolo">Rotazione</h1>
             <p class="view-sub" id="rot-sub">&nbsp;</p>
           </div>
@@ -239,7 +252,7 @@
       <section class="view" id="view-btm" data-view="btm" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 3 · Bottom Map</div>
+            <div class="kicker">USA · Bottom Map</div>
             <h1>Quanto sono vicini i settori a un possibile minimo</h1>
             <p class="view-sub">Orizzontale: profondità del drawdown rispetto alla storia del settore (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.</p>
           </div>
@@ -263,6 +276,7 @@
 
       <!-- ======================= 4 SETTORE ======================= -->
       <section class="view" id="view-sec" data-view="sec" hidden>
+        <nav class="sector-list sec-scelta" id="settori" aria-label="Scegli il settore"></nav>
         <header class="hero">
           <div class="hero-left">
             <div class="kicker" id="kicker">&nbsp;</div>
@@ -312,7 +326,7 @@
       <section class="view" id="view-alr" data-view="alr" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 5 · Alert</div>
+            <div class="kicker">USA · Alert</div>
             <h1>Ogni cambio di stato, dal 2005 a oggi</h1>
             <p class="view-sub" id="alr-sub">&nbsp;</p>
           </div>
@@ -341,7 +355,7 @@
           <summary>Per chi gestisce il sito</summary>
           <ol>
             <li>L'aggiornamento parte da solo la sera dopo la chiusura di Wall Street e riprova due volte nella notte, se Yahoo è in ritardo (GitHub → <b>Actions</b> → <b>Aggiorna dati</b>). Per lanciarlo subito: <b>Run workflow</b>.</li>
-            <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della vista Settore prepara il testo da incollare.</li>
+            <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della pagina di un settore USA prepara il testo da incollare.</li>
             <li>I parametri degli stati si cambiano alla voce <code>"parametri"</code> dello stesso file (nomi in cima a <code>signals.js</code>).</li>
             <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>universi.json</code>: vengono letti al successivo aggiornamento.</li>
             <li>La lista di «I miei titoli» sta in <code>miei-titoli.txt</code>, un ticker di Yahoo Finance per riga: i prezzi arrivano con l'aggiornamento successivo.</li>
@@ -355,7 +369,7 @@
       <section class="view" id="view-tit" data-view="tit" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 6 · I miei titoli</div>
+            <div class="kicker">Portafoglio</div>
             <h1 id="tit-h1">Il mio portafoglio</h1>
             <p class="view-sub">Valore, risultato, composizione e rischio del portafoglio in euro, poi trend e forza relativa di tutti i titoli che segui.</p>
           </div>
@@ -416,12 +430,12 @@
         </article>
       </section>
 
-      <!-- ======================= 7 CRYPTO ======================= -->
+      <!-- ======================= CRYPTO: Monitor, Bottom Map, Analisi, Correlazioni ======================= -->
       <section class="view" id="view-cry" data-view="cry" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 7 · Crypto</div>
-            <h1>Bitcoin e le prime 10 crypto</h1>
+            <div class="kicker">Crypto · Monitor</div>
+            <h1 id="cry-h1">Bitcoin e le prime 10 crypto</h1>
             <p class="view-sub" id="cry-sub">&nbsp;</p>
           </div>
         </header>
@@ -430,20 +444,49 @@
           <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna crypto</b> (o <b>Aggiorna dati</b>) → <b>Run workflow</b>, poi ricarica la pagina.</p>
         </article>
         <div id="cry-corpo">
-          <section class="kpis" id="cry-kpi" aria-label="Bitcoin in sintesi"></section>
-          <article class="card novita" id="cry-sintesi" aria-live="polite"></article>
-          <article class="card tit-dettaglio" id="cry-dettaglio" hidden></article>
-          <article class="card">
+          <section class="kpis" id="cry-kpi" aria-label="Bitcoin in sintesi" data-pag="monitor"></section>
+          <article class="card novita" id="cry-sintesi" aria-live="polite" data-pag="monitor"></article>
+          <article class="card tit-dettaglio" id="cry-dettaglio" data-pag="monitor" hidden></article>
+          <article class="card" data-pag="monitor">
             <div class="card-title"><h2>Le prime per capitalizzazione</h2><span class="muted small-inline" id="cry-conta"></span></div>
             <div class="table-wrap"><table class="tbl cry-tbl" id="cry-tabella"></table></div>
             <p class="small" id="cry-nota-tab"></p>
           </article>
 
-          <div class="cry-barra">
+          <!-- Bottom Map -->
+          <div class="btm-grid largo" data-pag="mappa">
+            <article class="card">
+              <div class="card-head">
+                <div class="card-title"><h2>Dal massimo di un anno e dalla media 200</h2></div>
+                <div class="controls">
+                  <label class="ctrl-inline" for="cry-mappa-coda">Scia di <b id="cry-mappa-coda-val">6</b> settimane</label>
+                  <input type="range" id="cry-mappa-coda" min="0" max="26" value="8" aria-label="Settimane di scia">
+                </div>
+              </div>
+              <div class="bmap" id="cry-mappa-grafico"></div>
+              <div class="legend bm-legend" id="cry-mappa-legenda"></div>
+            </article>
+            <article class="card">
+              <div class="card-title"><h2>Le monete</h2></div>
+              <p class="sub">Prima chi è più sotto la propria media 200. Sotto la distanza dal massimo di un anno, quella dal massimo storico; sotto la distanza dalla media, di quanto è cambiata lungo la scia. Clic per il grafico.</p>
+              <div class="table-wrap"><table class="tbl" id="cry-mappa-tabella"></table></div>
+            </article>
+          </div>
+          <article class="card notes" data-pag="mappa">
+            <div class="card-title"><h2>Come leggere la mappa</h2></div>
+            <div class="notes-grid">
+              <div><h3><i class="dot" style="background:var(--soglia)"></i>Gli assi</h3><p>Più a sinistra, più la moneta è lontana dal suo massimo degli ultimi 365 giorni; più in basso, più il prezzo è sotto la sua media a 200 giorni. Il colore della testa è la tendenza, la scia unisce un punto per settimana.</p></div>
+              <div><h3><i class="dot" style="background:var(--st-attenzione)"></i>Le aree</h3><p>Sotto il −20% il prezzo vale meno di 0,8 volte la media 200 (multiplo di Mayer sotto 0,8): per bitcoin sono stati i forti sconti dei minimi dei mercati ribassisti. L'angolo in basso a sinistra aggiunge un calo di oltre il 50% dal massimo dell'anno.</p></div>
+              <div><h3><i class="dot" style="background:var(--q-leader)"></i>Cosa guardare</h3><p>Le scie che risalgono verso destra dicono che il prezzo si riavvicina alla media e al massimo; quelle che scendono a sinistra che il ribasso si allarga. Sono posizioni del passato recente, non previsioni.</p></div>
+            </div>
+          </article>
+
+          <!-- Analisi -->
+          <div class="cry-barra" data-pag="analisi">
             <span>Analisi di</span>
             <div class="chips" id="cry-moneta" role="group" aria-label="Moneta da analizzare"></div>
           </div>
-          <article class="card">
+          <article class="card" data-pag="analisi">
             <div class="card-head">
               <div class="card-title"><h2 id="cry-dopo-titolo">Cosa è successo dopo</h2></div>
               <div class="seg" id="cry-orizzonte" role="group" aria-label="Orizzonte"></div>
@@ -451,7 +494,7 @@
             <div class="table-wrap"><table class="tbl dopo-tbl" id="cry-dopo"></table></div>
             <p class="small" id="cry-dopo-nota"></p>
           </article>
-          <div class="cry-due">
+          <div class="cry-due" data-pag="analisi">
             <article class="card">
               <div class="card-title"><h2 id="cry-stagioni-titolo">Stagionalità</h2></div>
               <div class="table-wrap"><table class="tbl stag-tbl" id="cry-stagioni"></table></div>
@@ -464,7 +507,7 @@
               <p class="small">Senza commissioni, tasse e scarti di prezzo: con molte entrate all'anno i costi veri pesano. Nel rendimento annuo è in grassetto la strada che ha reso di più; il calo massimo dice quanto si sarebbe dovuto sopportare.</p>
             </article>
           </div>
-          <article class="card">
+          <article class="card" data-pag="analisi">
             <div class="card-head">
               <div class="card-title"><h2>Il ciclo dell'halving</h2></div>
               <div class="legend" id="cry-cicli-legenda"></div>
@@ -473,7 +516,8 @@
             <div class="cry-grafico" id="cry-cicli"></div>
             <div class="table-wrap"><table class="tbl" id="cry-cicli-tab"></table></div>
           </article>
-          <article class="card">
+          <!-- Correlazioni -->
+          <article class="card" data-pag="correlazioni">
             <div class="card-head">
               <div class="card-title"><h2>Correlazioni</h2></div>
               <div class="seg" id="cry-finestra" role="group" aria-label="Periodo delle correlazioni"></div>
@@ -487,7 +531,7 @@
             <div class="cry-grafico" id="cry-mercati"></div>
             <p class="small">Solo sulle sedute di borsa: il rendimento di bitcoin del lunedì comprende il fine settimana. Sopra 0,5 bitcoin si è mosso come quel mercato, fra −0,2 e 0,2 per conto suo, sotto zero in senso opposto.</p>
           </article>
-          <article class="card notes">
+          <article class="card notes" data-pag="monitor analisi correlazioni">
             <div class="card-title"><h2>Come leggere questa pagina</h2></div>
             <div class="notes-grid">
               <div>
@@ -512,12 +556,12 @@
         </div>
       </section>
 
-      <!-- ======================= 8 EUROPA ======================= -->
+      <!-- ======================= EUROPA: Monitor, Bottom Map, Settori e indici, Azioni ======================= -->
       <section class="view" id="view-eur" data-view="eur" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Vista 8 · Europa</div>
-            <h1>Le azioni europee</h1>
+            <div class="kicker">Europa · Monitor</div>
+            <h1 id="eur-h1">Le borse europee</h1>
             <p class="view-sub" id="eur-sub">&nbsp;</p>
           </div>
         </header>
@@ -526,34 +570,75 @@
           <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna dati</b> → <b>Run workflow</b>, poi ricarica la pagina.</p>
         </article>
         <div id="eur-corpo">
-          <section class="kpis" id="eur-kpi" aria-label="L'Europa in sintesi"></section>
-          <article class="card novita" id="eur-sintesi" aria-live="polite"></article>
-          <article class="card">
-            <div class="card-title"><h2>Gli indici</h2><span class="muted small-inline">clic su un indice per vedere solo le sue azioni</span></div>
+          <!-- Monitor -->
+          <section class="kpis" id="eur-kpi" aria-label="L'Europa in sintesi" data-pag="monitor"></section>
+          <article class="card novita" id="eur-sintesi" aria-live="polite" data-pag="monitor"></article>
+
+          <!-- Settori e indici: la scelta -->
+          <article class="card eur-scelta" id="eur-scelta" data-pag="settori"></article>
+
+          <!-- andamento e ampiezza: tutta l'Europa nel Monitor, il gruppo scelto in Settori e indici -->
+          <article class="card" id="eur-quadro" data-pag="monitor settori"></article>
+
+          <article class="card" data-pag="monitor">
+            <div class="card-title"><h2>Gli indici</h2><span class="muted small-inline">clic su un indice per il suo andamento e le sue azioni</span></div>
             <div class="table-wrap"><table class="tbl eur-tbl" id="eur-indici"></table></div>
           </article>
-          <article class="card">
+          <article class="card" data-pag="monitor">
             <div class="card-title"><h2>I settori</h2><span class="muted small-inline">rotazione contro la media delle azioni europee</span></div>
             <div class="table-wrap"><table class="tbl eur-tbl" id="eur-settori"></table></div>
             <p class="small" id="eur-settori-nota"></p>
           </article>
-          <article class="card" id="eur-quadro"></article>
-          <article class="card tit-dettaglio" id="eur-dettaglio" hidden></article>
-          <article class="card" id="eur-azioni">
+
+          <!-- Bottom Map -->
+          <div class="btm-grid largo" data-pag="mappa">
+            <article class="card">
+              <div class="card-head">
+                <div class="seg" id="eur-mappa-tipo" role="group" aria-label="Cosa mostrare">
+                  <button type="button" data-v="indici">Indici</button>
+                  <button type="button" data-v="settori">Settori</button>
+                </div>
+                <div class="controls">
+                  <label class="ctrl-inline" for="eur-mappa-coda">Scia di <b id="eur-mappa-coda-val">6</b> settimane</label>
+                  <input type="range" id="eur-mappa-coda" min="0" max="26" value="8" aria-label="Settimane di scia">
+                </div>
+              </div>
+              <div class="bmap" id="eur-mappa-grafico"></div>
+              <div class="legend bm-legend" id="eur-mappa-legenda"></div>
+            </article>
+            <article class="card">
+              <div class="card-title"><h2>Ampiezza e distanza dal massimo</h2></div>
+              <p class="sub">Prima chi ha meno azioni sopra la media 200. Sotto, quanto sono cambiate lungo la scia. Clic per l'andamento e le azioni del gruppo.</p>
+              <div class="table-wrap"><table class="tbl" id="eur-mappa-tabella"></table></div>
+            </article>
+          </div>
+          <article class="card notes" data-pag="mappa">
+            <div class="card-title"><h2>Come leggere la mappa</h2></div>
+            <div class="notes-grid">
+              <div><h3><i class="dot" style="background:var(--soglia)"></i>Gli assi</h3><p>Più a sinistra, più l'indice (o il paniere del settore) è lontano dal suo massimo delle ultime 52 settimane; più in basso, meno delle sue azioni sono sopra la propria media a 200 sedute. La testa è colorata per tendenza, la scia unisce un punto per settimana.</p></div>
+              <div><h3><i class="dot" style="background:var(--st-attenzione)"></i>Le aree</h3><p>La fascia in basso è dove meno di un'azione su cinque è sopra la media 200: un ribasso che ha coinvolto quasi tutti. Oltre il −20% dal massimo si parla di mercato ribassista; l'angolo che unisce le due cose è quello dei ribassi più ampi e diffusi.</p></div>
+              <div><h3><i class="dot" style="background:var(--q-leader)"></i>A differenza degli USA</h3><p>Per l'Europa non ci sono livelli blu né zone calcolate sulla storia dal 2005: la storia dei prezzi è di due o tre anni. La mappa dice dove si trova ogni gruppo e dove sta andando, non dà segnali.</p></div>
+            </div>
+          </article>
+
+          <!-- Settori e indici, Azioni -->
+          <article class="card tit-dettaglio" id="eur-dettaglio" data-pag="settori azioni" hidden></article>
+          <article class="card" id="eur-azioni" data-pag="settori azioni">
             <div class="card-head">
               <div class="card-title"><h2 id="eur-azioni-titolo">Le azioni</h2></div>
               <div class="controls eur-filtri">
-                <input class="filter" id="eur-cerca" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca per nome o ticker…" aria-label="Cerca un'azione per nome o ticker">
-                <select class="select" id="eur-settore" aria-label="Settore"></select>
+                <input class="filter" id="eur-cerca" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca fra tutte: nome, ticker, paese…" aria-label="Cerca un'azione per nome, ticker, paese o settore" data-pag="azioni">
+                <select class="select" id="eur-indice" aria-label="Indice" data-pag="azioni"></select>
+                <select class="select" id="eur-settore" aria-label="Settore" data-pag="azioni"></select>
                 <select class="select" id="eur-mostra" aria-label="Quali azioni mostrare"></select>
               </div>
             </div>
-            <div class="chips eur-chips" id="eur-chips" role="group" aria-label="Indice"></div>
+            <p class="eur-spenti" id="eur-filtri-spenti" hidden>La ricerca guarda fra tutte le azioni: indice, settore e «mostra» non contano. <button type="button" class="btn-link">Togli la ricerca</button></p>
             <div class="table-wrap"><table class="tbl tit-tbl eur-tbl" id="eur-tabella"></table></div>
             <div class="eur-altre" id="eur-altre"></div>
-            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo. Forza relativa contro il proprio indice, nella valuta locale. Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
+            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo. Forza relativa contro il proprio indice, nella valuta locale. <span data-pag="azioni">La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). </span>Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
           </article>
-          <article class="card notes">
+          <article class="card notes" data-pag="monitor settori azioni">
             <div class="card-title"><h2>Come leggere questa pagina</h2></div>
             <div class="notes-grid">
               <div>
@@ -562,11 +647,11 @@
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--q-leader)"></i>Forza relativa</h3>
-                <p>La stessa formula della vista Rotazione, su barre settimanali: per un'azione contro il suo indice, per un indice contro lo STOXX Europe 600 (in euro), per un settore contro la media di tutte le azioni. <b>Leader</b>: più forte e ancora in accelerazione; <b>in indebolimento</b>: più forte ma rallenta; <b>in ritardo</b>: più debole; <b>in miglioramento</b>: più debole ma recupera.</p>
+                <p>La stessa formula della Rotazione, su barre settimanali: per un'azione contro il suo indice, per un indice contro lo STOXX Europe 600 (in euro), per un settore contro la media di tutte le azioni. <b>Leader</b>: più forte e ancora in accelerazione; <b>in indebolimento</b>: più forte ma rallenta; <b>in ritardo</b>: più debole; <b>in miglioramento</b>: più debole ma recupera.</p>
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--soglia)"></i>Fonti e limiti</h3>
-                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia, ricontrollata ogni settimana; settori secondo la classificazione di Yahoo. Da due a tre anni di storia, prezzi non corretti per i dividendi. Numeri per capire, non consigli di investimento.</p>
+                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana); settori secondo la classificazione di Yahoo. Per l'Irlanda il livello è quello dell'ISEQ All Share. Da due a tre anni di storia, prezzi non corretti per i dividendi. Numeri per capire, non consigli di investimento.</p>
               </div>
             </div>
           </article>
@@ -577,8 +662,7 @@
         Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
         Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
-    </main>
-  </div>
+  </main>
 
   <!-- ===== guida ===== -->
   <div class="modal" id="guida" hidden role="dialog" aria-modal="true" aria-labelledby="guida-titolo">
@@ -589,16 +673,13 @@
       </div>
       <div class="guida-grid">
         <section>
-          <h3>Le otto viste</h3>
+          <h3>Home e zone</h3>
           <ul>
-            <li><b>Monitor</b>: tutti i settori insieme, con lo stato e quello che manca al prossimo passaggio.</li>
-            <li><b>Rotazione</b>: chi sta guadagnando o perdendo forza rispetto a un termine di confronto, per settori, MAG7 ed ETF in euro.</li>
-            <li><b>Bottom Map</b>: profondità del ribasso contro distanza dal livello blu, con la scia delle ultime settimane.</li>
-            <li><b>Settore</b>: grafici, tutti i titoli del settore (mappa e tabella), episodi di zona blu e livello regolabile.</li>
-            <li><b>Alert</b>: la striscia degli stati dal 2005, lo storico completo dei cambi di stato e le statistiche.</li>
-            <li><b>I miei titoli</b>: il portafoglio (valore, risultato, composizione, beta, volatilità e rischio di ogni titolo, protetto con password) e i titoli della tua lista, con trend, calo dal massimo e forza relativa. La lista sta nel file <code>miei-titoli.txt</code>.</li>
-            <li><b>Crypto</b>: bitcoin e le prime 10 crypto: tendenza sulle medie, ciclo dell'halving, stagionalità, cosa è successo dopo situazioni simili, correlazioni fra monete e con i mercati.</li>
-            <li><b>Europa</b>: le circa 300 azioni di FTSE MIB, DAX, CAC 40, IBEX 35, AEX, SMI e FTSE 100, con ampiezza e forza relativa di indici e settori; da ogni azione si aggiunge alla lista o al portafoglio.</li>
+            <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave) e il riepilogo del portafoglio.</li>
+            <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
+            <li><b>Europa</b>, le circa 470 azioni dei 15 indici principali: <b>Monitor</b> (STOXX Europe 600, ampiezza, indici e settori), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (distanza dal massimo contro ampiezza), <b>Settori e indici</b> (andamento e azioni del gruppo scelto), <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
+            <li><b>Crypto</b>, bitcoin e le prime 10: <b>Monitor</b>, <b>Rotazione</b> (monete contro bitcoin), <b>Bottom Map</b> (distanza dal massimo di un anno contro distanza dalla media 200), <b>Analisi</b> (cosa è successo dopo, regola della media 200, stagionalità, halving), <b>Correlazioni</b>.</li>
+            <li><b>Portafoglio</b>: valore, risultato, composizione e rischio (protetto con password) e i titoli della tua lista (<code>miei-titoli.txt</code>).</li>
           </ul>
           <h3>Parlare con Claude</h3>
           <ul>
@@ -613,27 +694,25 @@
         <section>
           <h3>Casella di ricerca <kbd>/</kbd></h3>
           <ul>
-            <li>Il ticker di un ETF settoriale, per esempio <code>XLE</code>, apre la sua pagina.</li>
-            <li>Il ticker o il nome di <b>qualsiasi azione dell'S&amp;P 500</b> (<code>AAPL</code>, <code>coca cola</code>, <code>BRK.B</code>) apre il suo settore con il titolo in evidenza e la sua scheda.</li>
-            <li>Gli ETF della rotazione (<code>EIMI</code> anche senza borsa, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; se serve si passa all'universo giusto, e se è il termine di confronto attuale se ne sceglie un altro.</li>
-            <li>Un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
-            <li>I ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) aprono il loro grafico in «I miei titoli».</li>
-            <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella vista Crypto.</li>
-            <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>unicredit</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); gli indici (<code>DAX</code>, <code>FTSE MIB</code>) aprono la vista Europa con le loro azioni.</li>
-            <li>Viste: <code>MON</code>, <code>ROT</code> o <code>RRG</code>, <code>BTM</code>, <code>SEC</code>, <code>ALRT</code>, <code>MIEI</code>, <code>CRYPTO</code>, <code>EUROPA</code>; guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code> (inverte).</li>
+            <li>Il ticker di un ETF settoriale, per esempio <code>XLE</code>, apre il suo settore negli USA; il ticker o il nome di <b>qualsiasi azione dell'S&amp;P 500</b> (<code>AAPL</code>, <code>coca cola</code>, <code>BRK.B</code>) apre il suo settore con il titolo in evidenza.</li>
+            <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>novo nordisk</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); un indice (<code>DAX</code>, <code>FTSE MIB</code>) o un settore europeo (<code>Finanziari</code>) apre il suo andamento con le sue azioni.</li>
+            <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella zona Crypto; i ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) il loro grafico nel Portafoglio.</li>
+            <li>Gli ETF della rotazione (<code>EIMI</code>, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
+            <li>Pagine: <code>HOME</code>, <code>USA</code>, <code>EUROPA</code>, <code>CRYPTO</code>, <code>PORTAFOGLIO</code>; <code>MON</code>, <code>ROT</code>, <code>BTM</code> e <code>SEC</code> aprono quella pagina nella zona in cui sei; <code>ALRT</code>, <code>AZIONI</code>, <code>ANALISI</code>, <code>CORR</code>. Guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code>.</li>
+            <li>Se un titolo non c'è, la casella propone di cercarlo su Yahoo Finance per trovarne il ticker.</li>
           </ul>
-          <p class="small">Si può anche scrivere nell'indirizzo: <code>#XLE</code> per un settore, <code>#XLK/AAPL</code> o solo <code>#AAPL</code> per un'azione, <code>#mon</code>, <code>#rot</code>, <code>#btm</code>, <code>#sec</code>, <code>#alr</code>, <code>#tit</code>, <code>#cry</code>, <code>#eur</code> per le viste, <code>#tit/ENEL.MI</code> per un titolo della tua lista, <code>#cry/ETH</code> per una crypto, <code>#eur/ENEL.MI</code> per un'azione europea. Il pulsante Indietro del browser funziona.</p>
+          <p class="small">Si può anche scrivere nell'indirizzo: <code>#usa/monitor</code>, <code>#eur/mappa</code>, <code>#cry/analisi</code> per una pagina; <code>#usa/settori/XLK/AAPL</code> (o solo <code>#AAPL</code>) per un'azione americana, <code>#eur/settori/DAX</code> per un indice europeo, <code>#eur/azioni/ENEL.MI</code> per un'azione europea, <code>#cry/monitor/ETH</code> per una crypto, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
         </section>
         <section>
           <h3>Tastiera</h3>
           <ul class="keys">
-            <li><kbd>1</kbd> … <kbd>8</kbd> vai alla vista</li>
-            <li><kbd>←</kbd> <kbd>→</kbd> periodo nella vista Settore, data nella Rotazione</li>
+            <li><kbd>1</kbd> Home, <kbd>2</kbd> USA, <kbd>3</kbd> Europa, <kbd>4</kbd> Crypto, <kbd>5</kbd> Portafoglio</li>
+            <li><kbd>←</kbd> <kbd>→</kbd> periodo nella pagina di un settore USA, data nella Rotazione</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato, chiude il grafico del titolo o la finestra aperta</li>
             <li><kbd>?</kbd> apre questa guida</li>
             <li><kbd>C</kbd> copia i dati della pagina per Claude</li>
-            <li>Se il cursore è sull'elenco delle viste, le frecce passano da una vista all'altra.</li>
+            <li>Con il cursore sulla barra delle zone o su quella delle pagine, le frecce passano alla zona o alla pagina vicina.</li>
           </ul>
           <label class="switch"><input type="checkbox" id="tasti-attivi" checked><span class="track"><i></i></span>Tasti rapidi (lettere e numeri) attivi</label>
           <p class="small"><b>CVD</b> mostra rialzi e ribassi in blu e arancio, colori che si distinguono anche confondendo rosso e verde. Tema, livelli, pesi e universo scelti restano salvati solo in questo browser.</p>
@@ -648,6 +727,7 @@
   <script src="calendario.js"></script>
   <script src="chart.js"></script>
   <script src="core.js"></script>
+  <script src="mappa.js"></script>
   <script src="view-settore.js"></script>
   <script src="view-monitor.js"></script>
   <script src="view-rotazione.js"></script>
@@ -660,6 +740,7 @@
   <script src="view-crypto.js"></script>
   <script src="europa-calcoli.js"></script>
   <script src="view-europa.js"></script>
+  <script src="view-home.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>
 </body>

@@ -46,6 +46,10 @@ def test_tickers_from_wikipedia():
     assert be.ticker_yahoo("ADS.DE", "DAX") == "ADS.DE" and be.ticker_yahoo("ADS", "DAX") == "ADS.DE"
     assert be.ticker_yahoo("Euronext: MT", "CAC 40") == "MT.PA"
     assert be.norm_nome("Stellantis N.V.") == be.norm_nome("Stellantis")
+    assert be.ticker_yahoo("NOVO B", "OMX Copenhagen 25") == "NOVO-B.CO"         # classi di azioni nordiche
+    assert be.ticker_yahoo("NDA-FI.HE", "OMX Helsinki 25") == "NDA-FI.HE"
+    assert be.ticker_yahoo("OSE: AKRBP", "OBX") == "AKRBP.OL"
+    assert be.ticker_yahoo("Euronext Brussels: ABI", "BEL 20") == "ABI.BR"
 
 
 def test_most_recent_list_wins():

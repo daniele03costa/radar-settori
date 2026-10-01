@@ -73,6 +73,8 @@
     settore: etf => carica(`data/settori/${etf}.json?v=${versione()}`),
     tuttiSettori: () => Promise.all(R.meta.settori.map(s => R.dati.settore(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
     indice: () => carica(`data/indice.json?v=${versione()}`),
+    // gli stati dei settori calcolati ogni notte con i livelli predefiniti (per la Home)
+    stati: () => carica(`data/stati.json?v=${versione()}`),
     universi: () => carica("universi.json", { cache: "no-cache" }),
     // elenco di tutti i titoli dell'S&P 500 con il loro settore (dal file dedicato, o dai file dei settori)
     titoli: () => carica(`data/titoli.json?v=${versione()}`)
@@ -82,9 +84,9 @@
     prezzi: mercato => carica(mercato === "globale" ? "data/prezzi_globali.json" : "data/prezzi_usa.json", { cache: "no-cache" }),
     // i titoli della lista personale (miei-titoli.txt), con i due termini di confronto
     miei: () => carica("data/prezzi_miei.json", { cache: "no-cache" }),
-    // bitcoin e le prime crypto (vista 7), caricate solo quando si apre la vista
+    // bitcoin e le prime crypto, caricate quando servono (Home e zona Crypto)
     crypto: () => carica("data/prezzi_crypto.json", { cache: "no-cache" }),
-    // azioni europee (vista 8): l'elenco aggiornato dall'aggiornamento automatico, altrimenti quello di base
+    // azioni europee: l'elenco aggiornato dall'aggiornamento automatico, altrimenti quello di base
     europaLista: () => carica("data/europa_lista.json", { cache: "no-cache" }).catch(() => carica("europa.json", { cache: "no-cache" })),
     europa: () => carica("data/prezzi_europa.json", { cache: "no-cache" }),
     // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi
@@ -216,7 +218,7 @@
   // ordine degli stati nel Monitor (prima i più "caldi")
   R.ORDINE_STATI = { fallito: 0, trigger: 1, blu: 2, attenzione: 3, cooldown: 4, normale: 5 };
 
-  // ---------- spiegazione delle regole (vista Settore e Alert) ----------
+  // ---------- spiegazione delle regole (pagine Settori e Alert degli USA) ----------
   R.htmlRegole = function (conParametri) {
     const P = R.parametri();
     const righe = conParametri ? `

@@ -162,7 +162,7 @@
     const d = st.dati, a = st.analisi;
     const meta = R.meta.settori.find(s => s.etf === d.etf) || {};
     const simbolo = d.simbolo_breadth || meta.simbolo_breadth;
-    $("#kicker").textContent = `Select Sector SPDR · ${d.gics}`;
+    $("#kicker").textContent = `USA · Settori · ${d.gics}`;
     $("#titolo").innerHTML = `${esc(d.nome)}<span class="etf">${d.etf}</span>`;
     $("#links").innerHTML = `
       <a class="btn-link" href="https://www.tradingview.com/chart/?symbol=AMEX%3A${d.etf}" target="_blank" rel="noopener">${d.etf} su TradingView ↗</a>

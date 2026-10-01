@@ -1,5 +1,5 @@
 /*
- * Radar Settori — calcoli della vista Crypto (nel browser e in Node per i test).
+ * Radar Settori — calcoli della zona Crypto (nel browser e in Node per i test).
  *
  * Le serie sono giornaliere su tutti i giorni di calendario (le crypto quotano sempre): le medie a 50 e
  * 200 giorni sono quindi medie di 50 e 200 giorni di calendario, come si usa per bitcoin; la "media

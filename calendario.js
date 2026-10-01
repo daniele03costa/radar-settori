@@ -1,5 +1,5 @@
 /*
- * Radar Settori — calendari di borsa (NYSE e Borsa Italiana) e controllo dei dati in ritardo.
+ * Radar Settori — calendari di borsa (NYSE e Borsa Italiana), quello delle crypto (tutti i giorni) e controllo dei dati in ritardo.
  * Funziona sia nel browser (window.Calendario) sia in Node (module.exports).
  */
 (function (root) {
@@ -74,6 +74,7 @@
   }
 
   function eSeduta(d, mercato) {
+    if (mercato === "crypto") return true;                 // le crypto si scambiano tutti i giorni
     const x = new Date(d + "T00:00:00Z");
     const wd = x.getUTCDay();
     if (wd === 0 || wd === 6) return false;
@@ -109,6 +110,8 @@
    * e scarica anche le chiusure europee dello stesso giorno.
    */
   function sedutaAttesa(now, mercato, sogliaMinuti) {
+    // crypto: la giornata finisce a mezzanotte UTC e l'aggiornamento gira poco dopo (con un margine di 5 ore)
+    if (mercato === "crypto") return iso(add(new Date(iso(new Date((now || new Date()).getTime() - 5 * 3600e3)) + "T00:00:00Z"), -1));
     const ny = oraNY(now || new Date());
     const soglia = sogliaMinuti == null ? 18 * 60 + 45 : sogliaMinuti;
     let giorno = ny.data;

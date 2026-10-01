@@ -15,7 +15,7 @@
   const CHIAVE_PW = "radar.pf.pw";
   const INTESTAZIONE_FILE = `# Il mio portafoglio: una riga per titolo
 #   ticker   quantità   prezzo medio di carico   [valuta del carico]   [data del primo acquisto]   [nota]
-# Il ticker è quello di Yahoo Finance (MSFT, ENEL.MI, IUSQ.DE, BTC-EUR); le azioni europee si aggiungono dalla vista Europa.
+# Il ticker è quello di Yahoo Finance (MSFT, ENEL.MI, IUSQ.DE, BTC-EUR); le azioni europee si aggiungono dalla zona Europa (pagina Azioni).
 # Decimali con la virgola o con il punto, senza separatori delle migliaia.
 # Se hai comprato in euro un titolo che quota in un'altra valuta (per esempio su Trade Republic) scrivi EUR dopo il prezzo.
 # La liquidità: LIQUIDITA importo (in euro), oppure LIQUIDITA USD importo.
@@ -238,7 +238,7 @@ LIQUIDITA  2000
       const europee = a.senzaPrezzi.filter(p => eu && eu.has(p.t)), altri = a.senzaPrezzi.filter(p => !(eu && eu.has(p.t)));
       const elenco = arr => `<b>${arr.map(p => esc(p.t)).join(", ")}</b>`;
       let testo = `Senza prezzi, per ora fuori dai conti: ${elenco(a.senzaPrezzi)}.`;
-      if (europee.length) testo += ` ${europee.length === 1 ? "L'azione europea arriva" : "Le azioni europee arrivano"} con il prossimo aggiornamento dei dati della vista Europa.`;
+      if (europee.length) testo += ` ${europee.length === 1 ? "L'azione europea arriva" : "Le azioni europee arrivano"} con il prossimo aggiornamento dei dati della zona Europa.`;
       if (altri.length) {
         testo += st.cifrato
           ? ` Il file è protetto e l'aggiornamento automatico non lo legge: scrivi ${elenco(altri)} anche in <a class="linkish" href="${esc(R.github("miei-titoli.txt").modifica)}" target="_blank" rel="noopener">miei-titoli.txt</a> (una riga per ticker), poi aspetta il prossimo aggiornamento.`
@@ -409,7 +409,7 @@ LIQUIDITA  2000
       const senza = st.a ? st.a.senzaPrezzi.map(p => esc(p.t)).join(", ") : "";
       avvio(st.file && st.file.posizioni.length
         ? `<h2>I prezzi del portafoglio non ci sono ancora</h2><p>${senza ? `Mancano i prezzi di <b>${senza}</b>. ` : ""}${st.cifrato
-          ? `Il file è protetto: l'aggiornamento automatico scarica i prezzi dei titoli scritti anche in <code>miei-titoli.txt</code> (le azioni europee della vista Europa ci sono già). Aggiungi lì i ticker, poi GitHub → Actions → Aggiorna dati → Run workflow.`
+          ? `Il file è protetto: l'aggiornamento automatico scarica i prezzi dei titoli scritti anche in <code>miei-titoli.txt</code> (le azioni europee della zona Europa ci sono già). Aggiungi lì i ticker, poi GitHub → Actions → Aggiorna dati → Run workflow.`
           : `Si scaricano con il prossimo aggiornamento automatico (o subito: GitHub → Actions → Aggiorna dati → Run workflow).`}</p>`
         : `<h2>Il portafoglio è vuoto</h2><p>Scrivi i tuoi titoli nel file con <b>Modifica il portafoglio</b>: una riga per titolo con ticker, quantità e prezzo di carico.</p>`);
       return;
@@ -459,6 +459,26 @@ LIQUIDITA  2000
     return { esiste: st.testo != null, cifrato: st.cifrato, aperto: st.chiaro != null, tickers: f ? f.posizioni.map(p => p.t) : [] };
   }
 
+  // per la Home: valore, risultato e andamento, senza toccare la pagina del portafoglio
+  async function riepilogo() {
+    const stato = await pronto();
+    if (!stato.esiste) return { stato: "assente" };
+    if (stato.cifrato && !stato.aperto) return { stato: "bloccato" };
+    const f = P.leggi(st.chiaro || "");
+    if (!f.posizioni.length && !f.liquidita.length) return { stato: "vuoto" };
+    let dati = null;
+    try { dati = await R.dati.miei(); } catch (e) { dati = null; }
+    dati = await completaPrezzi(dati || { titoli: [], cambi: {}, confronti: {} }, f.posizioni);
+    let a = null;
+    try {
+      a = P.analizza({
+        posizioni: f.posizioni, liquidita: f.liquidita, titoli: titoliPerCalcolo(dati, {}), cambi: dati.cambi || {},
+        bench: dati.confronti && dati.confronti.europa ? { date: dati.confronti.europa.date, prezzi: dati.confronti.europa.prezzi } : null,
+      });
+    } catch (e) { a = null; }
+    return { stato: a && a.righe.length ? "aperto" : "senza-prezzi", a };
+  }
+
   async function disegna(dati, extra) {
     st.dati = dati; st.extra = extra || {};
     await leggiFile();
@@ -469,7 +489,7 @@ LIQUIDITA  2000
         <p>Con quantità e prezzi di carico il sito calcola valore e risultato in euro, composizione per tipo, valuta, area e settore, beta e volatilità rispetto all'ACWI (il tuo PAC), il calo massimo e quanto ogni titolo pesa sul rischio.</p>
         <ol><li>Premi <b>Crea il portafoglio protetto</b>: scrivi una riga per titolo (ticker, quantità, prezzo di carico) e la liquidità, poi scegli una password.</li>
         <li>Il sito cifra il testo nel browser e ti apre GitHub con il file <code>portafoglio.txt</code> già pronto: premi <b>Commit changes</b>.</li>
-        <li>Dopo un minuto ricarica il sito. Le azioni europee puoi aggiungerle anche dalla vista Europa, con il pulsante <b>Aggiungi al portafoglio</b>.</li></ol>
+        <li>Dopo un minuto ricarica il sito. Le azioni europee puoi aggiungerle anche dalla zona Europa, pagina Azioni, con il pulsante <b>Aggiungi al portafoglio</b>.</li></ol>
         <div class="pf-azioni"><button type="button" class="btn-primary" id="pf-crea">Crea il portafoglio protetto</button></div>
         <p class="small">Il repository è pubblico: con la password su GitHub arriva solo il file cifrato, illeggibile per chi non la conosce.</p>`);
       return;
@@ -593,7 +613,7 @@ LIQUIDITA  2000
         ? "GitHub apre il file nuovo con il testo già scritto: premi <b>Commit changes</b> (se il file è vuoto, incolla il testo copiato)."
         : "Su GitHub seleziona tutto il contenuto del file (Ctrl+A), incolla questo testo al suo posto (Ctrl+V) e premi <b>Commit changes</b>."} Dopo un minuto ricarica il sito.</p>
       ${mancano.length ? `<h3>Poi aggiungi a miei-titoli.txt</h3>
-        <p class="small">L'aggiornamento automatico non conosce la password, quindi scarica i prezzi solo dei titoli scritti anche in <code>miei-titoli.txt</code> (le azioni europee della vista Europa ci sono già). Mancano questi, una riga per ticker:</p>
+        <p class="small">L'aggiornamento automatico non conosce la password, quindi scarica i prezzi solo dei titoli scritti anche in <code>miei-titoli.txt</code> (le azioni europee della zona Europa ci sono già). Mancano questi, una riga per ticker:</p>
         <textarea readonly rows="${Math.min(6, mancano.length)}" id="pf-uscita2">${esc(mancano.join("\n"))}</textarea>
         <div class="pf-azioni"><button type="button" class="btn-link" id="pf-copia2">Copia le righe</button>
           <a class="btn-link" href="${esc(R.github("miei-titoli.txt").modifica)}" target="_blank" rel="noopener">Apri miei-titoli.txt su GitHub ↗</a></div>` : ""}
@@ -607,7 +627,7 @@ LIQUIDITA  2000
   }
 
   /**
-   * Aggiunge un titolo (dalla vista Europa): quantità, prezzo, valuta e data, poi la finestra con tutto il file.
+   * Aggiunge un titolo (dalla zona Europa): quantità, prezzo, valuta e data, poi la finestra con tutto il file.
    * voce = { t, nome, prezzo, valuta, data }
    */
   async function aggiungi(voce) {
@@ -702,5 +722,5 @@ LIQUIDITA  2000
     return out.join("\n");
   }
 
-  R.portafoglio = { init, disegna, contesto, pronto, aggiungi, tickers: () => (st.file ? st.file.posizioni.map(p => p.t) : []) };
+  R.portafoglio = { init, disegna, contesto, pronto, riepilogo, aggiungi, tickers: () => (st.file ? st.file.posizioni.map(p => p.t) : []) };
 })();

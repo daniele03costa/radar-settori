@@ -179,7 +179,7 @@
       R.store.set("btm.coda", settimane);
       if (visibile) disegna();
     });
-    const apri = e => { const el = e.target.closest("[data-etf]"); if (el) R.vai("#" + el.dataset.etf); };
+    const apri = e => { const el = e.target.closest("[data-etf]"); if (el) R.vai("#usa/settori/" + el.dataset.etf); };
     $("#btm-grafico").addEventListener("click", apri);
     $("#btm-grafico").addEventListener("keydown", e => { if (e.key === "Enter") apri(e); });
     $("#btm-tabella").addEventListener("click", apri);

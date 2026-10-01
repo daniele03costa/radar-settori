@@ -115,3 +115,27 @@ test("dati in ritardo: seduta attesa secondo l'ora di New York", () => {
   assert.deepEqual(C.ritardo("2026-09-23", sera, "nyse"), { attesa: "2026-09-25", sedute: 2 });
   assert.equal(C.ritardo("2026-09-25", sera, "nyse").sedute, 0);
 });
+
+test("crypto: ogni giorno è una seduta, settimane di sette giorni e dati attesi dopo la mezzanotte UTC", () => {
+  assert.equal(C.eSeduta("2026-09-27", "crypto"), true);                       // domenica
+  assert.equal(C.successiva("2026-09-26", "crypto"), "2026-09-27");
+  assert.equal(C.sedutaAttesa(new Date("2026-09-30T03:00:00Z"), "crypto"), "2026-09-28");   // l'aggiornamento non è ancora passato
+  assert.equal(C.sedutaAttesa(new Date("2026-09-30T06:00:00Z"), "crypto"), "2026-09-29");
+  assert.deepEqual(C.ritardo("2026-09-27", new Date("2026-09-30T06:00:00Z"), "crypto"), { attesa: "2026-09-29", sedute: 2 });
+  // barre settimanali: la settimana finisce di domenica
+  const date = [];
+  for (let d = new Date("2026-09-14T00:00:00Z"); date.length < 16; d.setUTCDate(d.getUTCDate() + 1)) date.push(d.toISOString().slice(0, 10));
+  const b = R.barre(date, "settimanali", d => C.successiva(d, "crypto"));
+  assert.deepEqual(b.indici.map(i => date[i]), ["2026-09-20", "2026-09-27", "2026-09-29"]);
+  assert.equal(b.provvisoria, true);
+});
+
+test("tabella dei prezzi: passi in sedute di borsa o in giorni di calendario", () => {
+  const date = [], serie = [];
+  for (let d = new Date("2025-01-01T00:00:00Z"), k = 0; k < 400; k++, d.setUTCDate(d.getUTCDate() + 1)) { date.push(d.toISOString().slice(0, 10)); serie.push(100 + k); }
+  const borsa = R.prezzi(date, serie), crypto = R.prezzi(date, serie, { w1: 7, m1: 30, m3: 91, m6: 182, a1: 365, max: 365, media: 200 });
+  assert.ok(Math.abs(borsa.m1 - ((499 / 478) - 1) * 100) < 1e-9);           // 21 passi indietro
+  assert.ok(Math.abs(crypto.m1 - ((499 / 469) - 1) * 100) < 1e-9);          // 30 giorni indietro
+  assert.ok(Math.abs(crypto.a1 - ((499 / 134) - 1) * 100) < 1e-9);
+  assert.equal(crypto.dd52, 0);
+});

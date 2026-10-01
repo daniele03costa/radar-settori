@@ -1,9 +1,13 @@
 /*
- * Radar Settori — vista 7: Crypto.
- * Bitcoin e le prime 10 criptovalute per capitalizzazione (stablecoin escluse): tendenza sulle medie 50 e 200,
- * multiplo di Mayer e media 200 settimane, ciclo dell'halving, cosa è successo dopo situazioni simili,
- * la regola della media 200 contro «sempre investito», stagionalità mensile, correlazioni fra monete e con i mercati.
- * I calcoli stanno in crypto-calcoli.js (window.Crypto).
+ * Radar Settori — zona Crypto.
+ * Bitcoin e le prime 10 criptovalute per capitalizzazione (stablecoin escluse), in quattro pagine (la Rotazione,
+ * monete contro bitcoin, è in view-rotazione.js):
+ *   - Monitor: tendenza sulle medie 50 e 200, multiplo di Mayer e media 200 settimane, la tabella delle prime 10;
+ *   - Bottom Map: ogni moneta per distanza dal massimo di un anno e distanza dalla media 200, con la scia;
+ *   - Analisi: cosa è successo dopo situazioni simili, la regola della media 200 contro «sempre investito»,
+ *     stagionalità mensile, ciclo dell'halving;
+ *   - Correlazioni: fra le monete e fra bitcoin e i mercati.
+ * Fornisce anche il riepilogo per la Home e le serie per la Rotazione. I calcoli stanno in crypto-calcoli.js (window.Crypto).
  */
 (function () {
   "use strict";
@@ -36,8 +40,16 @@
     mayer: C.FASCE.mayer.map(f => f.k), massimo: C.FASCE.massimo.map(f => f.k), paura: C.FASCE.paura.map(f => f.k),
   };
 
+  const PAGINE = {
+    monitor: "Bitcoin e le prime 10 crypto", mappa: "Quanto sono lontane dal massimo di un anno",
+    analisi: "Halving, stagionalità e cosa è successo dopo", correlazioni: "Correlazioni fra monete e con i mercati",
+  };
+  const NOMI_PAGINE = { monitor: "Monitor", mappa: "Bottom Map", analisi: "Analisi", correlazioni: "Correlazioni" };
+
   const st = {
     visibile: false,
+    pagina: "monitor",
+    coda: R.store.get("cry.mappa.coda", 6),              // settimane di scia nella Bottom Map
     x: null,                                              // dati preparati
     aperta: null,                                         // moneta nel dettaglio
     scelta: R.store.get("cry.moneta", "BTC"),            // moneta delle analisi
@@ -50,6 +62,8 @@
   // ---------------- formati ----------------
 
   const cifre = v => (v == null || !isFinite(v) ? "—" : v >= 1000 ? num(v, 0) : v >= 100 ? num(v, 1) : v >= 1 ? num(v, 2) : v >= 0.01 ? num(v, 4) : num(v, 6));
+  // una variazione (0,05 = +5%): «—» se manca, per esempio per una moneta con poca storia
+  const pv = (v, d = 1) => (v == null || !isFinite(v) ? "—" : pct(v * 100, d));
   const dollari = v => `${cifre(v)}<span class="valuta">$</span>`;
   const dollariTesto = v => `${cifre(v)} $`;
   const miliardi = v => (v == null ? "—" : `${num(v / 1e9, v >= 1e10 ? 0 : 1)} mld $`);
@@ -89,6 +103,15 @@
     return { d, N, date: d.date, monete, btc, paura, mercati, amp: C.ampiezza(monete.map(m => m.a)), cache: new Map() };
   }
 
+  // carica e prepara i dati una volta sola (li usano le pagine, la Home e la Rotazione); null se non ci sono
+  async function carica() {
+    let d = null;
+    try { d = await R.dati.crypto(); } catch (e) { return null; }
+    if (!d || !d.monete || !d.monete.length || !d.date || !d.date.length) return null;
+    if (!st.x || st.x.d !== d) st.x = prepara(d);
+    return st.x;
+  }
+
   const moneta = sim => st.x && (st.x.monete.find(m => m.simbolo === sim) || null);
   const memo = (chiave, fn) => { if (!st.x.cache.has(chiave)) st.x.cache.set(chiave, fn()); return st.x.cache.get(chiave); };
   const condizioni = m => memo("cond|" + m.simbolo, () => C.condizioni(m.a, st.x.paura));
@@ -114,12 +137,12 @@
     const paura30 = x.paura ? x.paura[t30] : null;
     const dom = x.d.dominanza;
     $("#cry-kpi").innerHTML = [
-      tile("var(--price)", "Bitcoin", `${cifre(o.prezzo)}<small> $</small>`, `7 giorni ${pct(o.g7 * 100, 1)} · 30 giorni ${pct(o.g30 * 100, 1)}`),
-      tile(COLORE_STATO[o.stato], "Sulla media 200", pct(o.vs200 * 100, 1),
+      tile("var(--price)", "Bitcoin", `${cifre(o.prezzo)}<small> $</small>`, `7 giorni ${pv(o.g7, 1)} · 30 giorni ${pv(o.g30, 1)}`),
+      tile(COLORE_STATO[o.stato], "Sulla media 200", pv(o.vs200, 1),
         s ? `${s.sopra ? "sopra" : "sotto"} da ${giorni(s.giorni)} · Mayer ${num(o.mayer, 2)}` : "—",
         o.mayerPercentile != null ? `Multiplo di Mayer ${num(o.mayer, 2)}: più alto ${R.art("del", num(o.mayerPercentile, 0) + "%")} dei giorni dal ${dataIt(x.date[x.btc.a.primo])}` : ""),
-      tile("var(--faint)", "Media 200 settimane", o.vs1400 == null ? "—" : pct(o.vs1400 * 100, 0), o.m1400 ? `la media è a ${dollariTesto(o.m1400)}` : "servono 4 anni di dati"),
-      tile("var(--neg)", "Dal massimo", pct(o.dd * 100, 1), o.ath ? `massimo ${dollariTesto(o.ath.prezzo)} del ${dataIt(o.ath.data)}` : "—"),
+      tile("var(--faint)", "Media 200 settimane", o.vs1400 == null ? "—" : pv(o.vs1400, 0), o.m1400 ? `la media è a ${dollariTesto(o.m1400)}` : "servono 4 anni di dati"),
+      tile("var(--neg)", "Dal massimo", pv(o.dd, 1), o.ath ? `massimo ${dollariTesto(o.ath.prezzo)} del ${dataIt(o.ath.data)}` : "—"),
       ora ? tile("var(--q-indebolimento)", "Dall'ultimo halving", `${ora.giorni}<small> giorni</small>`, `halving del ${dataIt(ora.data)}`) : "",
       tile("var(--q-leader)", "Sopra la media 200", `${amp.sopra[t]}<small>/${amp.totale[t]}</small>`,
         `fra le prime ${x.monete.length} · un mese fa ${amp.sopra[t30] ?? "—"}/${amp.totale[t30] ?? "—"}`),
@@ -138,8 +161,8 @@
       const d = dopo(b, "tendenza", 90)[o.stato];
       out.push({
         c: COLORE_STATO[o.stato],
-        html: `<b>Bitcoin</b> è ${o.striscia.sopra ? "sopra" : "sotto"} la media 200 da ${giorni(o.striscia.giorni)} (${pct(o.vs200 * 100, 1)}) e la media 50 è ${b.a.m50[t] >= b.a.m200[t] ? "sopra" : "sotto"} la media 200: ${pill(o.stato)}.` +
-          (d ? ` Nella sua storia, dai giorni con questa tendenza il prezzo 3 mesi dopo era più alto ${R.art("nel", volte(d.positivi))} dei casi, con una mediana di ${pct(d.mediana * 100, 0)} (${d.episodi} ${d.episodi === 1 ? "episodio" : "episodi"}).` : ""),
+        html: `<b>Bitcoin</b> è ${o.striscia.sopra ? "sopra" : "sotto"} la media 200 da ${giorni(o.striscia.giorni)} (${pv(o.vs200, 1)}) e la media 50 è ${b.a.m50[t] >= b.a.m200[t] ? "sopra" : "sotto"} la media 200: ${pill(o.stato)}.` +
+          (d ? ` Nella sua storia, dai giorni con questa tendenza il prezzo 3 mesi dopo era più alto ${R.art("nel", volte(d.positivi))} dei casi, con una mediana di ${pv(d.mediana, 0)} (${d.episodi} ${d.episodi === 1 ? "episodio" : "episodi"}).` : ""),
       });
     }
     // livelli di prezzo di riferimento
@@ -159,8 +182,8 @@
       const elenco = (arr, f) => arr.map(f).join(passati.length === 2 ? " e " : ", ");
       out.push({
         c: "var(--q-indebolimento)",
-        html: `Siamo al <b>giorno ${ora.giorni}</b> dall'halving del ${dataIt(ora.data)}. Nei cicli precedenti il massimo è arrivato ai giorni ${elenco(passati, c => c.massimo.giorno)} e il minimo successivo ai giorni ${elenco(passati, c => c.minimo.giorno)}, dopo cali ${passati.length > 1 ? "del " : ""}${elenco(passati, c => pct(c.minimo.calo * 100, 0))}. ` +
-          `In questo ciclo il massimo finora è del ${dataIt(ora.massimo.data)} (giorno ${ora.massimo.giorno}) e oggi il prezzo è ${pct(ora.oggi.dalMassimo * 100, 0)} da lì.`,
+        html: `Siamo al <b>giorno ${ora.giorni}</b> dall'halving del ${dataIt(ora.data)}. Nei cicli precedenti il massimo è arrivato ai giorni ${elenco(passati, c => c.massimo.giorno)} e il minimo successivo ai giorni ${elenco(passati, c => c.minimo.giorno)}, dopo cali ${passati.length > 1 ? "del " : ""}${elenco(passati, c => pv(c.minimo.calo, 0))}. ` +
+          `In questo ciclo il massimo finora è del ${dataIt(ora.massimo.data)} (giorno ${ora.massimo.giorno}) e oggi il prezzo è ${pv(ora.oggi.dalMassimo, 0)} da lì.`,
       });
     }
     // ampiezza e altcoin
@@ -173,7 +196,7 @@
     });
     // stagionalità
     const sm = mensili(b), meseOra = Number(x.date[t].slice(5, 7)) - 1, giorno = Number(x.date[t].slice(8, 10));
-    const descr = k => { const r = sm.riepilogo[k]; return r ? `<b>${MESI_LUNGHI[k]}</b> è stato positivo in ${r.positivi} anni su ${r.casi} (mediana ${pct(r.mediana * 100, 1)})` : null; };
+    const descr = k => { const r = sm.riepilogo[k]; return r ? `<b>${MESI_LUNGHI[k]}</b> è stato positivo in ${r.positivi} anni su ${r.casi} (mediana ${pv(r.mediana, 1)})` : null; };
     const pezzi = [descr(meseOra), giorno >= 20 ? descr((meseOra + 1) % 12) : null].filter(Boolean);
     if (pezzi.length) out.push({ c: "var(--soglia)", html: `Stagionalità di bitcoin: ${pezzi.join("; ")}.` });
     // sentimento
@@ -183,7 +206,7 @@
       out.push({
         c: "var(--q-indebolimento)",
         html: `Fear &amp; Greed a <b>${x.paura[t]}</b> (${etichettaPaura(x.paura[t])}).` +
-          (d ? ` Nei giorni con ${f.nome.replace(/ \(.*\)/, "")} dal 2018, bitcoin 3 mesi dopo era più alto ${R.art("nel", volte(d.positivi))} dei casi, mediana ${pct(d.mediana * 100, 0)}.` : ""),
+          (d ? ` Nei giorni con ${f.nome.replace(/ \(.*\)/, "")} dal 2018, bitcoin 3 mesi dopo era più alto ${R.art("nel", volte(d.positivi))} dei casi, mediana ${pv(d.mediana, 0)}.` : ""),
       });
     }
     // mercati
@@ -239,12 +262,12 @@
         return `<tr class="clic${st.aperta === m.simbolo ? " hl" : ""}" data-s="${esc(m.simbolo)}" tabindex="0">
           <td class="l"><span class="tit-nome"><b>${esc(m.simbolo)}</b> <span class="muted">${esc(m.nome)}</span></span><small class="sub-line">${m.rango ? `${m.rango}ª · ` : ""}${miliardi(m.cap)}</small></td>
           <td class="l">${R.sparkline(m.a.p.slice(-365), { colore: c.price })}</td>
-          <td>${dollari(o.prezzo)}<small class="sub-line"><span class="${cls(o.g1 * 100)}">${pct(o.g1 * 100, 1)}</span> in un giorno</small></td>
-          <td><span class="${cls(o.g30 * 100)}">${pct(o.g30 * 100, 1)}</span><small class="sub-line">7 giorni ${pct(o.g7 * 100, 1)}</small></td>
-          <td><span class="${cls(o.vs200 * 100)}">${o.vs200 == null ? "—" : pct(o.vs200 * 100, 1)}</span><small class="sub-line">${s ? `${s.sopra ? "sopra" : "sotto"} da ${s.giorni} g` : "storia breve"}</small></td>
+          <td>${dollari(o.prezzo)}<small class="sub-line"><span class="${cls(o.g1 * 100)}">${pv(o.g1, 1)}</span> in un giorno</small></td>
+          <td><span class="${cls(o.g30 * 100)}">${pv(o.g30, 1)}</span><small class="sub-line">7 giorni ${pv(o.g7, 1)}</small></td>
+          <td><span class="${cls(o.vs200 * 100)}">${o.vs200 == null ? "—" : pv(o.vs200, 1)}</span><small class="sub-line">${s ? `${s.sopra ? "sopra" : "sotto"} da ${s.giorni} g` : "storia breve"}</small></td>
           <td class="l">${pill(o.stato)}</td>
-          <td>${pct(o.dd * 100, 1)}</td>
-          <td>${v ? `<span class="${cls(v.rel90 * 100)}">${pct(v.rel90 * 100, 1)}</span><small class="sub-line">${v.sopraMedia == null ? "storia breve" : v.sopraMedia ? "rapporto ↑ media 200" : "rapporto ↓ media 200"}</small>` : "—"}</td>
+          <td>${pv(o.dd, 1)}</td>
+          <td>${v ? `<span class="${cls(v.rel90 * 100)}">${pv(v.rel90, 1)}</span><small class="sub-line">${v.sopraMedia == null ? "storia breve" : v.sopraMedia ? "rapporto ↑ media 200" : "rapporto ↓ media 200"}</small>` : "—"}</td>
           <td>${o.vol30 == null ? "—" : num(o.vol30 * 100, 0) + "%"}<small class="sub-line">${v && v.beta90 != null ? `beta ${num(v.beta90, 2)}` : "—"}</small></td>
         </tr>`;
       }).join("") + "</tbody>";
@@ -263,7 +286,7 @@
     box.hidden = false;
     const o = m.a.oggi, v = m.vsBtc;
     const cella = (l, val, classe, titolo) => `<div class="tit-num"${titolo ? ` title="${esc(titolo)}"` : ""}><span>${l}</span><b class="${classe || ""}">${val}</b></div>`;
-    const p100 = w => (w == null ? "—" : pct(w * 100, 1));
+    const p100 = w => (w == null ? "—" : pv(w, 1));
     box.innerHTML = `
       <div class="card-head">
         <div>
@@ -454,11 +477,11 @@
           <td class="l">${cr.k === "tendenza" ? pill(k) : esc(NOMI_GRUPPO[k])}${eOggi ? ' <span class="tag warn">oggi</span>' : ""}</td>
           <td>${s.casi.toLocaleString("it-IT")}</td>
           <td>${s.episodi}</td>
-          <td class="${cls(s.mediana * 100)}"><b>${pct(s.mediana * 100, 1)}</b></td>
+          <td class="${cls(s.mediana * 100)}"><b>${pv(s.mediana, 1)}</b></td>
           <td>${volte(s.positivi)}</td>
-          <td class="${cls(s.p10 * 100)}">${pct(s.p10 * 100, 0)}</td>
-          <td class="${cls(s.p90 * 100)}">${pct(s.p90 * 100, 0)}</td>
-          <td class="${cls(s.media * 100)}">${pct(s.media * 100, 1)}</td>
+          <td class="${cls(s.p10 * 100)}">${pv(s.p10, 0)}</td>
+          <td class="${cls(s.p90 * 100)}">${pv(s.p90, 0)}</td>
+          <td class="${cls(s.media * 100)}">${pv(s.media, 1)}</td>
         </tr>`;
       }).join("");
     }
@@ -477,10 +500,10 @@
       return `<tr class="${m.simbolo === st.scelta ? "hl" : ""}">
         <td class="l"><b>${esc(m.simbolo)}</b> <span class="muted">${esc(m.nome)}</span></td>
         <td>${R.dataBreve(st.x.date[r.da])}</td>
-        <td class="${cls(r.sempre.cagr * 100)}">${meglio ? "" : "<b>"}${pct(r.sempre.cagr * 100, 0)}${meglio ? "" : "</b>"}</td>
-        <td>${pct(r.sempre.maxdd * 100, 0)}</td>
-        <td class="${cls(r.regola.cagr * 100)}">${meglio ? "<b>" : ""}${pct(r.regola.cagr * 100, 0)}${meglio ? "</b>" : ""}</td>
-        <td>${pct(r.regola.maxdd * 100, 0)}</td>
+        <td class="${cls(r.sempre.cagr * 100)}">${meglio ? "" : "<b>"}${pv(r.sempre.cagr, 0)}${meglio ? "" : "</b>"}</td>
+        <td>${pv(r.sempre.maxdd, 0)}</td>
+        <td class="${cls(r.regola.cagr * 100)}">${meglio ? "<b>" : ""}${pv(r.regola.cagr, 0)}${meglio ? "</b>" : ""}</td>
+        <td>${pv(r.regola.maxdd, 0)}</td>
         <td>${volte(r.regola.tempo)}</td>
         <td>${num(r.regola.entrateAnno, 1)}</td>
       </tr>`;
@@ -494,7 +517,7 @@
     const cella = (v, pieno, extra, titolo) => {
       if (v == null) return `<td class="vuota">${extra ? "" : ""}</td>`;
       const col = R.divergente(v * 100, pieno);
-      return `<td class="${extra || ""}" style="background:${col.bg};color:${col.testo}"${titolo ? ` title="${esc(titolo)}"` : ""}>${pct(v * 100, 0)}</td>`;
+      return `<td class="${extra || ""}" style="background:${col.bg};color:${col.testo}"${titolo ? ` title="${esc(titolo)}"` : ""}>${pv(v, 0)}</td>`;
     };
     const righe = s.anni.slice().reverse().map(a => {
       const r = s.tab[a];
@@ -503,8 +526,8 @@
     const riga = (nome, f) => `<tr class="riep"><th class="l">${nome}</th>${s.riepilogo.map(f).join("")}<td></td></tr>`;
     $("#cry-stagioni").innerHTML = `<thead><tr><th class="l">Anno</th>${MESI.map((x, k) => `<th class="${k === meseOra ? "ora" : ""}">${x}</th>`).join("")}<th>Anno</th></tr></thead><tbody>${righe}</tbody>
       <tfoot>
-        ${riga("Media", r => (r ? `<td class="${cls(r.media * 100)}">${pct(r.media * 100, 0)}</td>` : "<td>—</td>"))}
-        ${riga("Mediana", r => (r ? `<td class="${cls(r.mediana * 100)}"><b>${pct(r.mediana * 100, 0)}</b></td>` : "<td>—</td>"))}
+        ${riga("Media", r => (r ? `<td class="${cls(r.media * 100)}">${pv(r.media, 0)}</td>` : "<td>—</td>"))}
+        ${riga("Mediana", r => (r ? `<td class="${cls(r.mediana * 100)}"><b>${pv(r.mediana, 0)}</b></td>` : "<td>—</td>"))}
         ${riga("Positivi", r => (r ? `<td>${r.positivi}/${r.casi}</td>` : "<td>—</td>"))}
       </tfoot>`;
     $("#cry-stagioni-nota").innerHTML = `Rendimento dall'ultima chiusura del mese prima all'ultima del mese. Il mese in corso ha il bordo tratteggiato e non entra nelle statistiche. ` +
@@ -563,7 +586,7 @@
         <td>${c.massimo.giorno}</td>
         <td>${cifre(c.minimo.prezzo)} $ <small class="muted">${R.dataBreve(c.minimo.data)}</small></td>
         <td>${c.minimo.giorno}</td>
-        <td class="neg">${pct(c.minimo.calo * 100, 0)}</td>
+        <td class="neg">${pv(c.minimo.calo, 0)}</td>
       </tr>`).join("") + "</tbody>";
   }
 
@@ -641,47 +664,147 @@
     }).join("");
   }
 
+  // ---------------- Bottom Map ----------------
+
+  // distanza dal massimo dei 365 giorni precedenti
+  function dalMassimoAnno(p, i) {
+    let max = -Infinity;
+    for (let k = Math.max(0, i - 364); k <= i; k++) if (p[k] != null && p[k] > max) max = p[k];
+    return p[i] != null && isFinite(max) && max > 0 ? p[i] / max - 1 : null;
+  }
+
+  // un punto alla settimana (ogni 7 giorni, a ritroso dall'ultimo)
+  function vociMappa() {
+    const x = st.x, t = x.N - 1;
+    const idx = [];
+    for (let k = st.coda; k >= 0; k--) if (t - 7 * k >= 0) idx.push(t - 7 * k);
+    return x.monete.map(m => ({
+      k: m.simbolo, nome: m.nome, m,
+      punti: idx.map(i => ({ i, data: x.date[i], x: dalMassimoAnno(m.a.p, i), y: m.a.m200[i] && m.a.p[i] != null ? m.a.p[i] / m.a.m200[i] - 1 : null }))
+        .filter(q => q.x != null && q.y != null),
+    })).filter(v => v.punti.length);
+  }
+
+  function disegnaMappa() {
+    const voci = vociMappa();
+    $("#cry-mappa-coda").value = st.coda;
+    $("#cry-mappa-coda-val").textContent = st.coda;
+    let xlo = 0, ylo = 0, yhi = 0;
+    for (const v of voci) for (const q of v.punti) { xlo = Math.min(xlo, q.x); ylo = Math.min(ylo, q.y); yhi = Math.max(yhi, q.y); }
+    const xmin = Math.min(-0.5, Math.floor((xlo - 0.05) / 0.1) * 0.1);
+    const ymin = Math.min(-0.4, Math.floor((ylo - 0.05) / 0.1) * 0.1), ymax = Math.max(0.6, Math.ceil((yhi + 0.1) / 0.1) * 0.1);
+    const pctT = v => (Math.abs(v) < 1e-9 ? "0%" : `${v > 0 ? "+" : "−"}${num(Math.abs(v) * 100, 0)}%`);
+    const perVoce = new Map(voci.map(v => [v.k, v]));
+    const settimane = k => `${k} ${k === 1 ? "settimana" : "settimane"}`;
+    mappa = R.mappa($("#cry-mappa-grafico"), {
+      etichetta: "Crypto: distanza dal massimo di un anno e distanza dalla media a 200 giorni",
+      x: { min: xmin, max: 0, tacche: R.tacche(xmin, 0, 7), formato: pctT, titolo: "Distanza dal massimo degli ultimi 365 giorni", sinistra: "← più lontano dal massimo", destra: "sul massimo →" },
+      y: { min: ymin, max: ymax, tacche: R.tacche(ymin, ymax, 7), formato: pctT, titolo: "Prezzo sulla media 200 giorni" },
+      bande: [
+        { y0: ymin, y1: -0.2, classe: "bm-att", testo: "Sotto 0,8 volte la media 200 (Mayer)", testoBreve: "Mayer sotto 0,8", basso: true },
+        ...(ymax > 1.4 ? [{ y0: 1.4, y1: ymax, classe: "bm-att", testo: "Sopra 2,4 volte la media 200", testoBreve: "Mayer sopra 2,4" }] : []),
+        { x0: xmin, x1: -0.5, y0: ymin, y1: -0.2, classe: "bm-blu" },
+      ],
+      linee: [{ y: 0, testo: "media 200" }, { x: -0.5, testo: "−50%" }],
+      voci: voci.map(v => ({ k: v.k, etichetta: v.k, colore: v.m.a.oggi.stato ? COLORE_STATO[v.m.a.oggi.stato] : "var(--faint)", punti: v.punti })),
+      tip: k => {
+        const v = perVoce.get(k), h = v.punti[v.punti.length - 1], p0 = v.punti[0], o = v.m.a.oggi;
+        return `<div class="d">${esc(v.k)} <span class="muted">· ${esc(v.nome)}</span></div>
+          <div class="r"><span>Tendenza</span><span>${pill(o.stato)}</span></div>
+          <div class="r"><span>Dal massimo di un anno</span><span>${pv(h.x, 1)}</span></div>
+          <div class="r"><span>Dal massimo storico</span><span>${pv(o.dd, 1)}</span></div>
+          <div class="r"><span>Sulla media 200</span><span>${pv(h.y, 1)} (Mayer ${num(1 + h.y, 2)})</span></div>
+          ${v.punti.length > 1 ? `<div class="r"><span>In ${settimane(v.punti.length - 1)}</span><span>${R.segnato((h.y - p0.y) * 100, 0)} punti sulla media</span></div>` : ""}`;
+      },
+      apri: k => R.vai("#cry/monitor/" + k),
+    });
+    $("#cry-mappa-legenda").innerHTML = C.ORDINE_STATI.map(k => `<span><i class="sw dot" style="background:${COLORE_STATO[k]}"></i>${C.STATI[k]}</span>`).join("") +
+      `<span class="lungo"><i class="sw box bm-sw-att"></i>Mayer sotto 0,8${ymax > 1.4 ? " o sopra 2,4" : ""}</span><span class="lungo"><i class="sw box bm-sw-blu"></i>Mayer sotto 0,8 e oltre il 50% sotto il massimo</span>`;
+    const righe = voci.map(v => ({ v, h: v.punti[v.punti.length - 1], p0: v.punti[0] })).sort((u, w) => u.h.y - w.h.y);
+    $("#cry-mappa-tabella").innerHTML = `<thead><tr><th class="l">Moneta</th><th title="Distanza dal massimo degli ultimi 365 giorni; sotto, dal massimo storico">Dal massimo</th><th title="Distanza dalla media a 200 giorni; sotto, la variazione lungo la scia">Media 200</th></tr></thead><tbody>` +
+      righe.map(({ v, h, p0 }) => `<tr class="clic" data-k="${esc(v.k)}" tabindex="0">
+        <td class="l"><span class="tk-cell"><span class="qdot" style="--c:${v.m.a.oggi.stato ? COLORE_STATO[v.m.a.oggi.stato] : "var(--faint)"}" title="${v.m.a.oggi.stato ? esc(C.STATI[v.m.a.oggi.stato]) : ""}"></span><span class="tk-txt"><span class="tk-line"><b>${esc(v.k)}</b></span><small class="sub-line">${esc(v.nome)}</small></span></span></td>
+        <td>${pv(h.x, 0)}<small class="sub-line">storico ${pv(v.m.a.oggi.dd, 0)}</small></td>
+        <td><b>${pv(h.y, 0)}</b><small class="sub-line ${cls((h.y - p0.y) * 100)}">${v.punti.length > 1 ? `${R.segnato((h.y - p0.y) * 100, 0)} punti` : "&nbsp;"}</small></td>
+      </tr>`).join("") + "</tbody>";
+  }
+
+  // ---------------- per la Home e la Rotazione ----------------
+
+  async function riepilogo() {
+    const x = await carica();
+    if (!x) return null;
+    const t = x.N - 1, cc = cicli(), ora = cc[cc.length - 1];
+    return {
+      data: x.d.aggiornato, date: x.date, btc: x.btc,
+      sopra: x.amp.sopra[t], totale: x.amp.totale[t], sopraMese: x.amp.sopra[Math.max(0, t - 30)],
+      paura: x.paura ? x.paura[t] : null, pauraEtichetta: x.paura ? etichettaPaura(x.paura[t]) : "",
+      alt: altcoinMeglio(), halving: ora ? { giorni: ora.giorni, data: ora.data } : null,
+      dominanza: x.d.dominanza ? x.d.dominanza.btc : null,
+    };
+  }
+
+  // tutte le monete, bitcoin e un paniere a pesi uguali come termini di confronto
+  async function serieRotazione() {
+    const x = await carica();
+    if (!x) throw new Error("mancano i dati crypto");
+    if (x.cache.has("rot")) return x.cache.get("rot");
+    const serie = {}, titoli = {};
+    for (const m of x.monete) { serie[m.simbolo] = m.a.p; titoli[m.simbolo] = { breve: m.simbolo, nome: m.nome }; }
+    const info = { BTC: { breve: "Bitcoin", titolo: "bitcoin", nome: "Bitcoin" } };
+    if (window.Europa) {
+      serie.CRY = window.Europa.paniere(x.monete.map(m => m.a.p));
+      info.CRY = { breve: `Paniere delle prime ${x.monete.length}`, titolo: `il paniere delle prime ${x.monete.length}`, nome: `Paniere a pesi uguali delle prime ${x.monete.length}` };
+    }
+    const out = { date: x.date, aggiornato: x.d.aggiornato, serie, titoli, info, benchmark: ["BTC", "CRY"].filter(b => serie[b]) };
+    x.cache.set("rot", out);
+    return out;
+  }
+
   // ---------------- vista ----------------
 
-  function disegnaTutto() {
-    disegnaKpi();
-    disegnaSintesi();
-    disegnaTabella();
-    disegnaDettaglio();
-    disegnaScelta();
-    disegnaDopo();
-    disegnaRegola();
-    disegnaStagioni();
-    disegnaCicli();
-    disegnaCorrelazioni();
+  function disegnaPagina() {
+    switch (st.pagina) {
+      case "mappa": disegnaMappa(); break;
+      case "analisi": disegnaScelta(); disegnaDopo(); disegnaRegola(); disegnaStagioni(); disegnaCicli(); break;
+      case "correlazioni": disegnaCorrelazioni(); break;
+      default: disegnaKpi(); disegnaSintesi(); disegnaTabella(); disegnaDettaglio();
+    }
+  }
+
+  function sottotitolo(d) {
+    const base = `Chiusura del ${dataIt(d.aggiornato)} (mezzanotte UTC), prezzi in dollari.`;
+    return ({
+      monitor: `${base} Le prime ${d.monete.length} per capitalizzazione, stablecoin escluse.`,
+      mappa: `Orizzontale: distanza dal massimo degli ultimi 365 giorni. Verticale: distanza del prezzo dalla media a 200 giorni. La scia unisce le ultime settimane. ${base}`,
+      analisi: `Statistiche della storia di ogni moneta: cosa è successo dopo situazioni come quella di oggi, la regola della media 200, i mesi dell'anno e i cicli dell'halving. ${base}`,
+      correlazioni: `Quanto si muovono insieme le monete fra loro, e bitcoin con i mercati. ${base}`,
+    })[st.pagina];
   }
 
   async function disegna() {
-    let d = null;
-    try { d = await R.dati.crypto(); } catch (e) { d = null; }
+    const x = await carica();
     if (!st.visibile) return;
-    const vuoto = !d || !d.monete || !d.monete.length;
-    $("#cry-vuoto").hidden = !vuoto;
-    $("#cry-corpo").hidden = vuoto;
-    if (vuoto) {
-      $("#cry-sub").textContent = "I dati non ci sono ancora.";
-      return;
-    }
-    if (!st.x || st.x.d !== d) st.x = prepara(d);
-    if (!moneta(st.scelta)) st.scelta = st.x.btc.simbolo;
+    $("#cry-vuoto").hidden = !!x;
+    $("#cry-corpo").hidden = !x;
+    if (!x) { $("#cry-sub").textContent = "I dati non ci sono ancora."; return; }
+    if (!moneta(st.scelta)) st.scelta = x.btc.simbolo;
     if (st.aperta && !moneta(st.aperta)) st.aperta = null;
-    $("#cry-sub").textContent = `Chiusura del ${dataIt(d.aggiornato)} (mezzanotte UTC), prezzi in dollari. Le prime ${d.monete.length} per capitalizzazione, stablecoin escluse.`;
-    disegnaTutto();
+    $("#cry-h1").textContent = PAGINE[st.pagina];
+    $("#cry-sub").textContent = sottotitolo(x.d);
+    disegnaPagina();
   }
 
   function apri(sim, scorri) {
     st.aperta = st.aperta === sim ? null : sim;
-    try { history.replaceState(null, "", st.aperta ? `#cry/${st.aperta}` : "#cry"); } catch (e) { /* niente */ }
+    try { history.replaceState(null, "", st.aperta ? `#cry/monitor/${st.aperta}` : "#cry/monitor"); } catch (e) { /* niente */ }
     disegnaTabella();
     disegnaDettaglio();
     R.emit("selezione");
     if (st.aperta && scorri !== false) $("#cry-dettaglio").scrollIntoView({ block: "start", behavior: "smooth" });
   }
+
+  let mappa = null;
 
   function init() {
     $("#cry-tabella").addEventListener("click", e => {
@@ -727,27 +850,41 @@
       R.store.set("cry.finestra", st.finestra);
       disegnaCorrelazioni();
     });
-    R.on("tema", () => { if (st.visibile && st.x) disegnaTutto(); });
+    $("#cry-mappa-coda").addEventListener("input", e => {
+      st.coda = Number(e.target.value);
+      R.store.set("cry.mappa.coda", st.coda);
+      if (st.x) disegnaMappa();
+    });
+    $("#cry-mappa-tabella").addEventListener("mouseover", e => { const tr = e.target.closest("tr[data-k]"); if (mappa) mappa.evidenzia(tr ? tr.dataset.k : null, !!tr); });
+    $("#cry-mappa-tabella").addEventListener("mouseleave", () => { if (mappa) mappa.evidenzia(null, false); });
+    $("#cry-mappa-tabella").addEventListener("click", e => { const tr = e.target.closest("tr[data-k]"); if (tr) R.vai("#cry/monitor/" + tr.dataset.k); });
+    $("#cry-mappa-tabella").addEventListener("keydown", e => { if (e.key !== "Enter") return; const tr = e.target.closest("tr[data-k]"); if (tr) R.vai("#cry/monitor/" + tr.dataset.k); });
+    R.on("tema", () => { if (st.visibile && st.x) disegnaPagina(); });
     window.addEventListener("resize", R.debounce(() => {
       if (!st.visibile || !st.x) return;
-      if (st.aperta) disegnaDettaglio();
-      disegnaCicli();
-      graficoMercati();
+      if (st.pagina === "monitor" && st.aperta) disegnaDettaglio();
+      if (st.pagina === "analisi") disegnaCicli();
+      if (st.pagina === "correlazioni") graficoMercati();
+      if (st.pagina === "mappa") disegnaMappa();
     }, 200));
   }
 
-  async function mostra(param) {
+  async function mostra(param, ctx) {
     st.visibile = true;
-    document.title = "Crypto · Radar Settori";
-    if (param) st.aperta = String(param).toUpperCase();
+    const pagina = ctx && PAGINE[ctx.pagina] ? ctx.pagina : "monitor";
+    if (pagina !== st.pagina && !param) st.aperta = null;   // arrivando da un'altra pagina, senza moneta nell'indirizzo
+    st.pagina = pagina;
+    $("#view-cry").dataset.pagina = pagina;
+    document.title = `Crypto · ${NOMI_PAGINE[pagina]} · Radar Settori`;
+    if (param && pagina === "monitor") st.aperta = String(param).toUpperCase();
     await disegna();
-    if (param && st.aperta && moneta(st.aperta)) $("#cry-dettaglio").scrollIntoView({ block: "start" });
+    if (param && pagina === "monitor" && st.aperta && moneta(st.aperta)) $("#cry-dettaglio").scrollIntoView({ block: "start" });
   }
 
   function nascondi() { st.visibile = false; }
 
   function tasto(e) {
-    if (e.key === "Escape" && st.aperta) { apri(st.aperta, false); return true; }
+    if (e.key === "Escape" && st.aperta && st.pagina === "monitor") { apri(st.aperta, false); return true; }
     return false;
   }
 
@@ -758,60 +895,80 @@
     if (!x) return "## Pagina aperta: Crypto\nI dati crypto non ci sono ancora.";
     const t = x.N - 1, b = x.btc, o = b.a.oggi;
     const testo = html => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
-    const out = ["## Pagina aperta: Crypto",
-      `Bitcoin e le prime ${x.monete.length} criptovalute per capitalizzazione (classifica ${x.d.fonte_classifica}, stablecoin escluse). Prezzi in dollari (Yahoo Finance), chiusura del ${dataIt(x.d.aggiornato)} a mezzanotte UTC. Medie su giorni di calendario; media 200 settimane = 1400 giorni.`,
-      "### Cosa dicono i numeri", ...frasi().map(f => "- " + testo(f.html)),
-      "### Bitcoin",
-      `Prezzo ${cifre(o.prezzo)} $; 7 giorni ${pct(o.g7 * 100, 1)}, 30 giorni ${pct(o.g30 * 100, 1)}, 90 giorni ${pct(o.g90 * 100, 1)}, 1 anno ${pct(o.g365 * 100, 1)}, da inizio anno ${pct(o.ytd * 100, 1)}.`,
-      `Sulla media 200 ${pct(o.vs200 * 100, 1)} (${o.striscia ? `${o.striscia.sopra ? "sopra" : "sotto"} da ${o.striscia.giorni} giorni` : "—"}), sulla media 50 ${pct(o.vs50 * 100, 1)}, sulla media 200 settimane ${pct(o.vs1400 * 100, 1)} (media a ${cifre(o.m1400)} $). Multiplo di Mayer ${num(o.mayer, 2)} (più alto del ${num(o.mayerPercentile, 0)}% dei giorni). Dal massimo ${pct(o.dd * 100, 1)} (massimo ${o.ath ? `${cifre(o.ath.prezzo)} $ del ${dataIt(o.ath.data)}` : "—"}). Volatilità 30 giorni ${num(o.vol30 * 100, 0)}%.`,
-      x.paura && x.paura[t] != null ? `Fear & Greed: ${x.paura[t]} (${etichettaPaura(x.paura[t])}); 30 giorni fa ${x.paura[Math.max(0, t - 30)] ?? "—"}.` : "",
-      x.d.dominanza ? `Quota di bitcoin sul valore di tutte le crypto: ${num(x.d.dominanza.btc, 1)}%${x.d.dominanza.eth != null ? ` (ethereum ${num(x.d.dominanza.eth, 1)}%)` : ""}.` : "",
-      "### Le prime per capitalizzazione",
-      "moneta | rango | capitalizzazione | prezzo $ | 1 giorno | 7 giorni | 30 giorni | 90 giorni | da inizio anno | sulla media 200 | giorni dalla stessa parte | tendenza | dal massimo | contro BTC 90 giorni | rapporto con BTC sopra la sua media 200 | beta su BTC 90 giorni | correlazione con BTC 90 giorni | volatilità 30 giorni",
-      ...x.monete.map(m => {
-        const q = m.a.oggi, v = m.vsBtc;
-        return [m.simbolo + " " + m.nome, m.rango ?? "—", miliardi(m.cap), cifre(q.prezzo), pct(q.g1 * 100, 1), pct(q.g7 * 100, 1), pct(q.g30 * 100, 1), pct(q.g90 * 100, 1), q.ytd == null ? "—" : pct(q.ytd * 100, 1),
-          q.vs200 == null ? "—" : pct(q.vs200 * 100, 1), q.striscia ? `${q.striscia.sopra ? "sopra" : "sotto"} ${q.striscia.giorni}` : "—", q.stato ? C.STATI[q.stato] : "—", pct(q.dd * 100, 1),
-          v ? pct(v.rel90 * 100, 1) : "—", v ? (v.sopraMedia == null ? "—" : v.sopraMedia ? "sì" : "no") : "—", v && v.beta90 != null ? num(v.beta90, 2) : "—", v && v.corr90 != null ? num(v.corr90, 2) : "—", q.vol30 == null ? "—" : num(q.vol30 * 100, 0) + "%"].join(" | ");
-      }),
-    ];
-    const m = moneta(st.scelta) || b, h = st.orizzonte;
-    out.push(`### Cosa è successo dopo ${ORIZZONTI[h]} (storia di ${m.simbolo} dal ${dataIt(x.date[m.a.primo])})`, "situazione | giorni | episodi | mediana | volte in rialzo | 10° percentile | 90° percentile");
-    const cond = condizioni(m);
-    for (const cr of CRITERI) {
-      if (cr.k === "paura" && !x.paura) continue;
-      const stat = dopo(m, cr.k, h);
-      for (const k of ORDINE_GRUPPI[cr.k]) {
-        const s = stat[k];
-        if (!s) continue;
-        out.push(`${cr.titolo}: ${NOMI_GRUPPO[k]}${cond[cr.k][t] === k ? " (oggi)" : ""} | ${s.casi} | ${s.episodi} | ${pct(s.mediana * 100, 1)} | ${volte(s.positivi)} | ${pct(s.p10 * 100, 0)} | ${pct(s.p90 * 100, 0)}`);
+    const out = [`## Pagina aperta: Crypto · ${NOMI_PAGINE[st.pagina]}`,
+      `Bitcoin e le prime ${x.monete.length} criptovalute per capitalizzazione (classifica ${x.d.fonte_classifica}, stablecoin escluse). Prezzi in dollari (Yahoo Finance), chiusura del ${dataIt(x.d.aggiornato)} a mezzanotte UTC. Medie su giorni di calendario; media 200 settimane = 1400 giorni.`];
+    if (st.pagina === "monitor") {
+      out.push("### Cosa dicono i numeri", ...frasi().map(f => "- " + testo(f.html)),
+        "### Bitcoin",
+        `Prezzo ${cifre(o.prezzo)} $; 7 giorni ${pv(o.g7, 1)}, 30 giorni ${pv(o.g30, 1)}, 90 giorni ${pv(o.g90, 1)}, 1 anno ${pv(o.g365, 1)}, da inizio anno ${pv(o.ytd, 1)}.`,
+        `Sulla media 200 ${pv(o.vs200, 1)} (${o.striscia ? `${o.striscia.sopra ? "sopra" : "sotto"} da ${o.striscia.giorni} giorni` : "—"}), sulla media 50 ${pv(o.vs50, 1)}, sulla media 200 settimane ${pv(o.vs1400, 1)} (media a ${cifre(o.m1400)} $). Multiplo di Mayer ${num(o.mayer, 2)} (più alto del ${num(o.mayerPercentile, 0)}% dei giorni). Dal massimo ${pv(o.dd, 1)} (massimo ${o.ath ? `${cifre(o.ath.prezzo)} $ del ${dataIt(o.ath.data)}` : "—"}). Volatilità 30 giorni ${num(o.vol30 * 100, 0)}%.`,
+        x.paura && x.paura[t] != null ? `Fear & Greed: ${x.paura[t]} (${etichettaPaura(x.paura[t])}); 30 giorni fa ${x.paura[Math.max(0, t - 30)] ?? "—"}.` : "",
+        x.d.dominanza ? `Quota di bitcoin sul valore di tutte le crypto: ${num(x.d.dominanza.btc, 1)}%${x.d.dominanza.eth != null ? ` (ethereum ${num(x.d.dominanza.eth, 1)}%)` : ""}.` : "",
+        "### Le prime per capitalizzazione",
+        "moneta | rango | capitalizzazione | prezzo $ | 1 giorno | 7 giorni | 30 giorni | 90 giorni | da inizio anno | sulla media 200 | giorni dalla stessa parte | tendenza | dal massimo | contro BTC 90 giorni | rapporto con BTC sopra la sua media 200 | beta su BTC 90 giorni | correlazione con BTC 90 giorni | volatilità 30 giorni",
+        ...x.monete.map(m => {
+          const q = m.a.oggi, v = m.vsBtc;
+          return [m.simbolo + " " + m.nome, m.rango ?? "—", miliardi(m.cap), cifre(q.prezzo), pv(q.g1, 1), pv(q.g7, 1), pv(q.g30, 1), pv(q.g90, 1), q.ytd == null ? "—" : pv(q.ytd, 1),
+            q.vs200 == null ? "—" : pv(q.vs200, 1), q.striscia ? `${q.striscia.sopra ? "sopra" : "sotto"} ${q.striscia.giorni}` : "—", q.stato ? C.STATI[q.stato] : "—", pv(q.dd, 1),
+            v ? pv(v.rel90, 1) : "—", v ? (v.sopraMedia == null ? "—" : v.sopraMedia ? "sì" : "no") : "—", v && v.beta90 != null ? num(v.beta90, 2) : "—", v && v.corr90 != null ? num(v.corr90, 2) : "—", q.vol30 == null ? "—" : num(q.vol30 * 100, 0) + "%"].join(" | ");
+        }));
+      const ap = moneta(st.aperta);
+      if (ap) {
+        out.push(`### Moneta aperta nel dettaglio: ${ap.simbolo}. Chiusure a fine mese (prezzo, media 200)`);
+        const p = ap.a.p, date = x.date;
+        for (let i = Math.max(ap.a.primo, p.length - 1 - (st.periodo || p.length)); i < p.length; i++) {
+          if (p[i] != null && (i === p.length - 1 || date[i + 1].slice(0, 7) !== date[i].slice(0, 7))) out.push(`${dataIt(date[i])}: ${cifre(p[i])} $ (media 200 ${cifre(ap.a.m200[i])} $)`);
+        }
       }
-    }
-    out.push("### La regola della media 200 (investito solo dopo una chiusura sopra la media 200, senza costi)", "moneta | dal | sempre investito: all'anno, calo massimo | regola: all'anno, calo massimo, tempo investito, entrate all'anno");
-    for (const z of x.monete) {
-      const r = regola(z);
-      if (r) out.push(`${z.simbolo} | ${dataIt(x.date[r.da])} | ${pct(r.sempre.cagr * 100, 0)}, ${pct(r.sempre.maxdd * 100, 0)} | ${pct(r.regola.cagr * 100, 0)}, ${pct(r.regola.maxdd * 100, 0)}, ${volte(r.regola.tempo)}, ${num(r.regola.entrateAnno, 1)}`);
-    }
-    const sm = mensili(m);
-    out.push(`### Stagionalità di ${m.simbolo} (rendimento mensile; il mese in corso non entra nelle statistiche)`, "mese | media | mediana | anni positivi");
-    sm.riepilogo.forEach((r, k) => { if (r) out.push(`${MESI_LUNGHI[k]} | ${pct(r.media * 100, 1)} | ${pct(r.mediana * 100, 1)} | ${r.positivi}/${r.casi}`); });
-    out.push("Rendimenti per anno: " + sm.anni.map(a => `${a} ${sm.tab[a].anno == null ? "—" : pct(sm.tab[a].anno * 100, 0)}`).join(", "));
-    const cc = cicli();
-    if (cc.length) {
-      out.push("### Cicli dell'halving di bitcoin", "halving | prezzo | massimo del ciclo (giorno, multiplo, data) | minimo dopo il massimo (giorno, calo, data)");
-      for (const c of cc) out.push(`${dataIt(c.data)}${c.completo ? "" : " (in corso, oggi giorno " + c.giorni + ")"} | ${cifre(b.a.p[c.i])} $ | giorno ${c.massimo.giorno}, ×${num(c.massimo.multiplo, 1)}, ${dataIt(c.massimo.data)} | giorno ${c.minimo.giorno}, ${pct(c.minimo.calo * 100, 0)}, ${dataIt(c.minimo.data)}`);
-    }
-    if (x.mercati.length) out.push("### Correlazione di bitcoin con i mercati (90 giorni, sedute di borsa)", x.mercati.map(mk => `${mk.nome}: ${num(ultimoValore(mk.corr), 2)}`).join("; "));
-    const ap = moneta(st.aperta);
-    if (ap) {
-      out.push(`### Moneta aperta nel dettaglio: ${ap.simbolo}. Chiusure a fine mese (prezzo, media 200)`);
-      const p = ap.a.p, date = x.date;
-      for (let i = Math.max(ap.a.primo, p.length - 1 - (st.periodo || p.length)); i < p.length; i++) {
-        if (p[i] != null && (i === p.length - 1 || date[i + 1].slice(0, 7) !== date[i].slice(0, 7))) out.push(`${dataIt(date[i])}: ${cifre(p[i])} $ (media 200 ${cifre(ap.a.m200[i])} $)`);
+    } else if (st.pagina === "analisi") {
+      const m = moneta(st.scelta) || b, h = st.orizzonte;
+      out.push(`### Cosa è successo dopo ${ORIZZONTI[h]} (storia di ${m.simbolo} dal ${dataIt(x.date[m.a.primo])})`, "situazione | giorni | episodi | mediana | volte in rialzo | 10° percentile | 90° percentile");
+      const cond = condizioni(m);
+      for (const cr of CRITERI) {
+        if (cr.k === "paura" && !x.paura) continue;
+        const stat = dopo(m, cr.k, h);
+        for (const k of ORDINE_GRUPPI[cr.k]) {
+          const z = stat[k];
+          if (!z) continue;
+          out.push(`${cr.titolo}: ${NOMI_GRUPPO[k]}${cond[cr.k][t] === k ? " (oggi)" : ""} | ${z.casi} | ${z.episodi} | ${pv(z.mediana, 1)} | ${volte(z.positivi)} | ${pv(z.p10, 0)} | ${pv(z.p90, 0)}`);
+        }
+      }
+      out.push("### La regola della media 200 (investito solo dopo una chiusura sopra la media 200, senza costi)", "moneta | dal | sempre investito: all'anno, calo massimo | regola: all'anno, calo massimo, tempo investito, entrate all'anno");
+      for (const z of x.monete) {
+        const r = regola(z);
+        if (r) out.push(`${z.simbolo} | ${dataIt(x.date[r.da])} | ${pv(r.sempre.cagr, 0)}, ${pv(r.sempre.maxdd, 0)} | ${pv(r.regola.cagr, 0)}, ${pv(r.regola.maxdd, 0)}, ${volte(r.regola.tempo)}, ${num(r.regola.entrateAnno, 1)}`);
+      }
+      const sm = mensili(m);
+      out.push(`### Stagionalità di ${m.simbolo} (rendimento mensile; il mese in corso non entra nelle statistiche)`, "mese | media | mediana | anni positivi");
+      sm.riepilogo.forEach((r, k) => { if (r) out.push(`${MESI_LUNGHI[k]} | ${pv(r.media, 1)} | ${pv(r.mediana, 1)} | ${r.positivi}/${r.casi}`); });
+      out.push("Rendimenti per anno: " + sm.anni.map(a => `${a} ${sm.tab[a].anno == null ? "—" : pct(sm.tab[a].anno * 100, 0)}`).join(", "));
+      const cc = cicli();
+      if (cc.length) {
+        out.push("### Cicli dell'halving di bitcoin", "halving | prezzo | massimo del ciclo (giorno, multiplo, data) | minimo dopo il massimo (giorno, calo, data)");
+        for (const c of cc) out.push(`${dataIt(c.data)}${c.completo ? "" : " (in corso, oggi giorno " + c.giorni + ")"} | ${cifre(b.a.p[c.i])} $ | giorno ${c.massimo.giorno}, ×${num(c.massimo.multiplo, 1)}, ${dataIt(c.massimo.data)} | giorno ${c.minimo.giorno}, ${pv(c.minimo.calo, 0)}, ${dataIt(c.minimo.data)}`);
+      }
+    } else if (st.pagina === "correlazioni") {
+      const w = st.finestra, mm = x.monete;
+      out.push(`### Correlazioni dei rendimenti giornalieri negli ultimi ${FINESTRE[w]}`);
+      for (let i = 0; i < mm.length; i++) {
+        const righe = [];
+        for (let j = i + 1; j < mm.length; j++) {
+          const l = C.legame(mm[i].a.r, mm[j].a.r, t - w + 1, t, Math.min(20, w - 5));
+          if (l) righe.push(`${mm[j].simbolo} ${num(l.r, 2)}`);
+        }
+        if (righe.length) out.push(`${mm[i].simbolo}: ${righe.join(", ")}`);
+      }
+      if (x.mercati.length) out.push("### Correlazione di bitcoin con i mercati (90 giorni, sedute di borsa)", x.mercati.map(mk => `${mk.nome}: ${num(ultimoValore(mk.corr), 2)}`).join("; "));
+    } else if (st.pagina === "mappa") {
+      out.push(`### Bottom Map, scia di ${st.coda} settimane`, "Asse orizzontale: distanza dal massimo degli ultimi 365 giorni. Asse verticale: distanza del prezzo dalla media a 200 giorni (sotto −20% = multiplo di Mayer sotto 0,8).",
+        "moneta | tendenza | dal massimo di un anno | dal massimo storico | sulla media 200 | scia settimanale (data: dal massimo; sulla media 200)");
+      for (const v of vociMappa()) {
+        const h = v.punti[v.punti.length - 1], q = v.m.a.oggi;
+        out.push(`${v.k} ${v.nome} | ${q.stato ? C.STATI[q.stato] : "—"} | ${pv(h.x, 1)} | ${pv(q.dd, 1)} | ${pv(h.y, 1)} | ` + v.punti.map(z => `${dataIt(z.data)}: ${pv(z.x, 0)}; ${pv(z.y, 0)}`).join(" → "));
       }
     }
     return out.filter(Boolean).join("\n");
   }
 
-  R.viste.cry = { init, mostra, nascondi, tasto, contesto };
+  R.viste.cry = { init, mostra, nascondi, tasto, contesto, riepilogo, serieRotazione };
 })();

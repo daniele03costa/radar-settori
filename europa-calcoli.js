@@ -1,5 +1,5 @@
 /*
- * Radar Settori — calcoli della vista Europa (window.Europa; funziona anche in Node per i test).
+ * Radar Settori — calcoli della zona Europa (window.Europa; funziona anche in Node per i test).
  *
  * I prezzi arrivano da data/prezzi_europa.json: un calendario comune (i giorni in cui ha quotato la maggior
  * parte dei titoli) e, per ogni azione e indice, le chiusure da un certo giorno in poi. Qui si calcolano:
@@ -113,7 +113,7 @@
     return { sopra, sedute: i - k + 1, almeno: !(k > 0 && p[k - 1] != null && m[k - 1] != null) };
   }
 
-  // forza relativa settimanale contro q (come nella vista Rotazione, formula «nuova») e rendimento relativo a 3 mesi
+  // forza relativa settimanale contro q (come nella Rotazione, formula «nuova») e rendimento relativo a 3 mesi
   function forzaRelativa(p, q, barre, i) {
     if (!q || !barre) return { rs: null, rs3: null };
     const pp = barre.indici.map(k => p[k]), qq = barre.indici.map(k => q[k]);
