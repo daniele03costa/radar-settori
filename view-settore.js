@@ -1,5 +1,6 @@
 /*
- * Radar Settori — vista 4: dettaglio di un settore.
+ * Radar Settori — dettaglio di un settore USA, o di un settore o indice europeo (stessa pagina, dati del mercato
+ * della zona aperta: R.mercati in core.js).
  */
 (function () {
   "use strict";
@@ -7,8 +8,14 @@
   const R = window.Radar, S = window.Signals;
   const { $, num, pct, cls, dataIt, esc } = R;
 
+  const SIMBOLI = { EUR: "€", GBp: "p", CHF: "CHF", DKK: "kr", SEK: "kr", NOK: "kr" };
+  let M = R.mercati.usa;
+  const scelti = { usa: R.store.get("settore", "XLK"), eur: R.store.get("settoreEu", "") };
+  const eu = () => M.zona === "eur";
+  // come si chiama il prezzo del gruppo
+  const nomePrezzo = d => !eu() ? `Prezzo ${d.etf}` : d.prezzo_tipo === "indice" ? `Livello ${d.nome}` : "Paniere a pesi uguali (in euro)";
   const st = {
-    etf: R.store.get("settore", "XLK"),
+    etf: scelti.usa,
     periodo: R.store.get("periodo", "3A"),
     log: R.store.get("log", false),
     ordine: R.store.get("ordine", { col: "v200", dir: -1 }),
@@ -85,7 +92,7 @@
     grafici.setData({
       date: d.date, i0, i1, zone: zone(),
       etichette: {
-        prezzo: `Prezzo ${d.etf} e media a 200 sedute`,
+        prezzo: `${nomePrezzo(d)} e media a 200 sedute`,
         dd: "Drawdown dal massimo a 52 settimane",
         ampiezza: `% titoli sopra la media 200 e 50 · livello blu ${num(lv, 0)}%`,
       },
@@ -150,7 +157,7 @@
     } else if (stato === "attenzione") {
       testo = dist != null && dist <= P.fasciaAttenzione
         ? `Attenzione · ampiezza a ${num(Math.max(0, dist), 1)} punti dal livello blu`
-        : "Attenzione · drawdown tra i più profondi della storia del settore";
+        : `Attenzione · drawdown tra i più profondi della storia ${eu() && d.tipo === "indice" ? "dell'indice" : "del settore"}`;
     } else {
       testo = dist == null ? "Ampiezza non disponibile" : `Normale · ampiezza ${num(dist, 1)} punti sopra il livello blu`;
     }
@@ -160,14 +167,21 @@
 
   function disegnaTestata() {
     const d = st.dati, a = st.analisi;
-    const meta = R.meta.settori.find(s => s.etf === d.etf) || {};
+    const meta = R.metaDi(d.etf) || {};
     const simbolo = d.simbolo_breadth || meta.simbolo_breadth;
+    if (eu()) {
+      $("#kicker").textContent = d.tipo === "indice" ? `Europa · Indici · ${d.paese}` : "Europa · Settori · tutte le borse";
+      $("#titolo").innerHTML = `${esc(d.nome)}<span class="etf">${d.tipo === "indice" ? "indice" : "settore"}</span>`;
+      const filtro = d.tipo === "indice" ? "indice" : "settore";
+      $("#links").innerHTML = `<button class="btn-link" type="button" id="sec-azioni" data-filtro="${filtro}" data-nome="${esc(d.nome)}">Le sue ${(d.titoli || []).length} azioni nella pagina Azioni →</button>`;
+    } else {
     $("#kicker").textContent = `USA · Settori · ${d.gics}`;
     $("#titolo").innerHTML = `${esc(d.nome)}<span class="etf">${d.etf}</span>`;
     $("#links").innerHTML = `
       <a class="btn-link" href="https://www.tradingview.com/chart/?symbol=AMEX%3A${d.etf}" target="_blank" rel="noopener">${d.etf} su TradingView ↗</a>
       ${simbolo ? `<a class="btn-link" href="https://www.tradingview.com/chart/?symbol=INDEX%3A${encodeURIComponent(simbolo)}" target="_blank" rel="noopener">Ampiezza del settore (${esc(simbolo)}) ↗</a>` : ""}
       <a class="btn-link" href="https://www.tradingview.com/chart/?symbol=INDEX%3AS5TH" target="_blank" rel="noopener">Ampiezza S&amp;P 500 (S5TH) ↗</a>`;
+    }
     const { stato, testo } = descriviStato(d, a);
     const b = $("#stato");
     b.className = "badge st-" + stato;
@@ -230,7 +244,7 @@
     const tl = R.titoliLivello(b200, n, lv);
     const distCol = dist == null ? "var(--faint)" : dist <= 0 ? "var(--st-blu)" : dist <= P.fasciaAttenzione ? "var(--st-attenzione)" : "var(--faint)";
     $("#kpi").innerHTML =
-      tile("var(--price)", `Ultimo ${d.etf}`, num(ultimo, 2), `<span class="${cls(vsMa)}">${vsMa == null ? "—" : pct(vsMa, 1)}</span> sulla media 200`,
+      tile("var(--price)", eu() ? (d.prezzo_tipo === "indice" ? `Ultimo ${esc(d.nome)}` : "Paniere del settore") : `Ultimo ${d.etf}`, num(ultimo, 2), `<span class="${cls(vsMa)}">${vsMa == null ? "—" : pct(vsMa, 1)}</span> sulla media 200`,
         R.sparkline(anno(d.close), { colore: c.price })) +
       tile("var(--b200)", "Titoli sopra la media 200", sopra == null ? "—" : `${sopra}<small> su ${n}</small>`, `${num(b200, 1)}% · ultimi 12 mesi`,
         R.sparkline(anno(d.b200), { colore: c.b200, livello: lv, min: 0, area: true })) +
@@ -264,12 +278,12 @@
         <div class="scale"><span>0%</span><span>oggi ${num(b200, 1)}% · livello ${num(lv, 0)}%</span><span>100%</span></div>
       </div>
       <p>Dal ${dataIt(primo)} l'ampiezza ha chiuso a questo livello o sotto ${R.art("nel", `<b>${num(st.analisi.quotaSotto, 1)}%</b>`)} delle sedute.
-        ${n ? `Il settore ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>, quindi il livello ${R.art("del", num(lv, 0) + "%")} vuol dire <b>${R.titoliLivello(0, n, lv).soglia} ${R.titoliLivello(0, n, lv).soglia === 1 ? "titolo" : "titoli"} su ${n}</b> sopra la media 200${R.titoliLivello(0, n, lv).soglia === 0 ? ", cioè tutti sotto" : ""}.` : ""}
+        ${n ? `${eu() && d.tipo === "indice" ? "L'indice" : "Il settore"} ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>, quindi il livello ${R.art("del", num(lv, 0) + "%")} vuol dire <b>${R.titoliLivello(0, n, lv).soglia} ${R.titoliLivello(0, n, lv).soglia === 1 ? "titolo" : "titoli"} su ${n}</b> sopra la media 200${R.titoliLivello(0, n, lv).soglia === 0 ? ", cioè tutti sotto" : ""}.` : ""}
         Livello di riarmo: <b>${num(st.analisi.riarmo, 0)}%</b>.</p>
-      <p class="small">Predefinito: ${num(def, 0)}% (tabella quant-rea «200 LEVEL SETTORI»).
+      <p class="small">Predefinito: ${num(def, 0)}% (${eu() ? "5° percentile dell'ampiezza dal 2005: per l'Europa non c'è una tabella di riferimento" : "tabella quant-rea «200 LEVEL SETTORI»"}).
         ${lv !== def ? `<button class="linkish" type="button" id="soglia-reset">Torna a ${num(def, 0)}%</button>` : ""}
         La modifica vale solo in questo browser e serve a vedere come cambiano zone blu, trigger ed episodi.
-        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata nel file <code>settings.json</code>).</p>`;
+        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata nel file <code>${eu() ? "europa.json" : "settings.json"}</code>).</p>`;
   }
 
   function disegnaTitoli() {
@@ -287,29 +301,31 @@
     };
     const list = titoli.filter(trova).sort(ordina);
     const th = (k, lab, left) => `<th class="sortable${left ? " l" : ""}" data-col="${k}" aria-sort="${col === k ? (dir > 0 ? "ascending" : "descending") : "none"}">${lab}</th>`;
-    const tv = t => `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(t.replace(/-/g, "."))}`;
+    const tv = t => (eu() ? M.linkTitolo(d.etf, t) : `https://www.tradingview.com/chart/?symbol=${encodeURIComponent(t.replace(/-/g, "."))}`);
+    const fuori = eu() ? "" : ` target="_blank" rel="noopener"`;
+    const prezzo = t => num(t.ultimo, 2) + (eu() ? `<span class="valuta">${SIMBOLI[t.valuta] || t.valuta || ""}</span>` : "");
     // mappa a tessere: tutti i titoli, dal più forte al più debole rispetto alla media 200
     const tessere = titoli.slice().sort((a, b) => (b.v200 ?? -999) - (a.v200 ?? -999)).map(t => {
       const c = R.divergente(t.v200, 20);
       return `<button type="button" class="tile${t.t === st.titolo ? " on" : ""}${f && !trova(t) ? " off" : ""}" data-t="${esc(t.t)}" style="--c:${c.bg};--tc:${c.testo}"
-        title="${esc(t.nome)}: ${pct(t.v200, 1)} dalla media 200, ${pct(t.v50, 1)} dalla media 50, ${pct(t.dd52, 1)} dal massimo a 52 settimane"><b>${esc(t.t)}</b><span>${t.v200 == null ? "—" : pct(t.v200, 1)}</span></button>`;
+        title="${esc(t.nome)}${eu() ? ` (${esc(t.t)})` : ""}: ${pct(t.v200, 1)} dalla media 200, ${pct(t.v50, 1)} dalla media 50, ${pct(t.dd52, 1)} dal massimo a 52 settimane"><b>${esc(eu() ? t.t.replace(/\.[A-Z]+$/, "") : t.t)}</b><span>${t.v200 == null ? "—" : pct(t.v200, 1)}</span></button>`;
     }).join("");
     const sel = st.titolo && titoli.find(t => t.t === st.titolo);
     const classifica = titoli.filter(t => t.v200 != null).sort((a, b) => b.v200 - a.v200);
     const posto = sel ? classifica.findIndex(t => t.t === sel.t) + 1 : 0;
     const scheda = sel ? `<div class="stock-detail">
         <div><b>${esc(sel.t)}</b> <span class="sd-name">${esc(sel.nome)}</span></div>
-        <div class="controls"><a class="btn-link" href="${tv(sel.t)}" target="_blank" rel="noopener">Grafico su TradingView ↗</a><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi la scheda">×</button></div>
-        <div class="sd-vals"><span>Ultimo <b>${num(sel.ultimo, 2)}</b></span><span>vs media 200 <b class="${cls(sel.v200)}">${pct(sel.v200, 1)}</b></span>
+        <div class="controls"><a class="btn-link" href="${tv(sel.t)}"${fuori}>${eu() ? "Scheda dell'azione →" : "Grafico su TradingView ↗"}</a><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi la scheda">×</button></div>
+        <div class="sd-vals"><span>Ultimo <b>${prezzo(sel)}</b></span><span>vs media 200 <b class="${cls(sel.v200)}">${pct(sel.v200, 1)}</b></span>
           <span>vs media 50 <b class="${cls(sel.v50)}">${pct(sel.v50, 1)}</b></span><span>dal massimo a 52 settimane <b>${pct(sel.dd52, 1)}</b></span>
-          ${posto ? `<span>${posto}° su ${classifica.length} nel settore</span>` : ""}</div>
+          ${posto ? `<span>${posto}° su ${classifica.length} ${eu() && d.tipo === "indice" ? "nell'indice" : "nel settore"}</span>` : ""}${eu() && sel.paese ? `<span>${esc(sel.paese)}</span>` : ""}</div>
       </div>` : st.mancante ? `<div class="stock-detail avviso">
         <div><b>${esc(st.mancante.t)}</b> <span class="sd-name">${esc(st.mancante.nome || "")}</span></div>
         <div class="controls"><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi l'avviso">×</button></div>
         <div class="sd-vals">È nell'S&amp;P 500 ma Yahoo Finance non ha ancora abbastanza prezzi (servono almeno 50 sedute): comparirà qui con i prossimi aggiornamenti.</div>
       </div>` : "";
     const riga = t => `<tr data-t="${esc(t.t)}" class="${t.t === st.titolo ? "hl" : ""}">
-        <td class="l"><span class="stk"><a href="${tv(t.t)}" target="_blank" rel="noopener" title="${esc(t.nome)} su TradingView">${esc(t.t)}</a><span class="nm">${esc(t.nome)}</span></span></td>
+        <td class="l"><span class="stk"><a href="${tv(t.t)}"${fuori} title="${esc(t.nome)}${eu() ? ": scheda dell'azione" : " su TradingView"}">${esc(t.t)}</a><span class="nm">${esc(t.nome)}</span></span></td>
         <td class="${cls(t.v200)}">${pct(t.v200, 1)}</td>
         <td class="${cls(t.v50)}">${pct(t.v50, 1)}</td>
         <td>${pct(t.dd52, 1)}</td>
@@ -324,8 +340,8 @@
     $("#titoli-card").innerHTML = `
       <div class="card-head titoli-head">
         <div>
-          <div class="card-title"><h2>Titoli del settore</h2></div>
-          <p class="sub">${titoli.length} azioni dell'S&amp;P 500, <b>${sopra}</b> sopra la media 200. Clic su una tessera per la scheda del titolo.</p>
+          <div class="card-title"><h2>${eu() && d.tipo === "indice" ? "Titoli dell'indice" : "Titoli del settore"}</h2></div>
+          <p class="sub">${titoli.length} ${eu() ? (d.tipo === "indice" ? `azioni dell'indice ${esc(d.nome)}` : "azioni europee del settore") : "azioni dell'S&amp;P 500"}, <b>${sopra}</b> sopra la media 200. Clic su una tessera per la scheda del titolo.</p>
         </div>
         <input class="filter" id="filtro-titoli" type="search" placeholder="Filtra per ticker o nome…" value="${esc(st.filtro)}" aria-label="Filtra i titoli">
       </div>
@@ -333,7 +349,7 @@
       <div class="tile-scale"><span>−20% o meno</span><i></i><span>+20% o più</span><span class="muted">· distanza dalla media 200</span></div>
       ${scheda}
       ${list.length ? `<div class="stock-cols">${parti.map(tabella).join("")}</div>` : `<p class="muted">Nessun titolo con questo filtro.</p>`}
-      <p class="small">Dati al ${dataIt(d.date[N - 1])}. Clic su un ticker per il grafico su TradingView, sulla riga per la scheda. Un titolo quotato da meno di 200 sedute non ha ancora la media 200 e non entra nella percentuale.</p>`;
+      <p class="small">Dati al ${dataIt(d.date[N - 1])}. ${eu() ? "Clic su un ticker per la scheda completa dell'azione (grafico, segui, portafoglio), sulla riga per il riepilogo qui. Prezzi nella valuta della borsa." : "Clic su un ticker per il grafico su TradingView, sulla riga per la scheda."} Un titolo quotato da meno di 200 sedute non ha ancora la media 200 e non entra nella percentuale.</p>`;
     if (hadFocus) { const inp = $("#filtro-titoli"); inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
   }
 
@@ -384,12 +400,13 @@
     });
     $("#log").addEventListener("change", e => { st.log = e.target.checked; R.store.set("log", st.log); if (st.dati) disegnaGrafici(); });
     $("#soglia-card").addEventListener("click", e => {
+      if (!st.dati) return;
       const b = e.target.closest("button[data-step]");
       if (b) R.impostaLivello(st.dati.etf, R.livello(st.dati.etf) + Number(b.dataset.step));
       if (e.target.id === "soglia-reset") R.ripristinaLivello(st.dati.etf);
       if (e.target.id === "copia-config") {
         const tutte = {};
-        R.meta.settori.forEach(s => { tutte[s.etf] = R.livello(s.etf); });
+        M.meta().settori.forEach(s => { tutte[s.etf] = R.livello(s.etf); });
         const txt = `"soglie": ${JSON.stringify(tutte)}`;
         const ok = () => { e.target.textContent = "Copiata ✓"; setTimeout(() => { e.target.textContent = "Copia configurazione"; }, 1800); };
         try { navigator.clipboard.writeText(txt).then(ok, () => window.prompt("Copia questo testo:", txt)); }
@@ -397,7 +414,11 @@
       }
     });
     $("#soglia-card").addEventListener("input", e => { if (e.target.id === "soglia-range") $("#soglia-val").textContent = e.target.value + "%"; });
-    $("#soglia-card").addEventListener("change", e => { if (e.target.id === "soglia-range") R.impostaLivello(st.dati.etf, Number(e.target.value)); });
+    $("#soglia-card").addEventListener("change", e => { if (st.dati && e.target.id === "soglia-range") R.impostaLivello(st.dati.etf, Number(e.target.value)); });
+    $("#links").addEventListener("click", e => {
+      const b = e.target.closest("#sec-azioni");
+      if (b && R.viste.eur && R.viste.eur.filtra) R.viste.eur.filtra(b.dataset.filtro, b.dataset.nome);
+    });
     $("#titoli-card").addEventListener("click", e => {
       if (e.target.id === "chiudi-titolo") { mostraTitolo(null); return; }
       const tile = e.target.closest(".tile[data-t]");
@@ -426,28 +447,51 @@
     });
   }
 
-  async function mostra(param) {
+  // un gruppo europeo si può chiamare anche per nome («Energia», «FTSE MIB», vecchi indirizzi)
+  const slug = x => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  async function mostra(param, ctx) {
     st.visibile = true;
+    const m = R.mercato(ctx && ctx.zona);
+    if (m !== M) {
+      scelti[M.zona] = st.etf; M = m; st.etf = scelti[M.zona]; st.dati = null; st.analisi = null;
+      // niente numeri dell'altro mercato mentre arrivano quelli nuovi
+      ["#kpi", "#titoli-card", "#soglia-card", "#links", "#riassunto", "#episodi", "#legenda"].forEach(k => { $(k).innerHTML = ""; });
+      $("#kicker").textContent = M.zona === "eur" ? "Europa · Settori e indici" : "USA · Settori";
+      $("#titolo").innerHTML = "&nbsp;";
+      $("#stato").className = "badge"; $("#stato").innerHTML = "&nbsp;";
+      if (grafici) { creaGrafici(); }
+    }
+    $("#regole-settore").innerHTML = R.htmlRegole(false, M);
+    R.testiZona($("#view-sec"), M.zona);
+    try { await M.pronto(); }
+    catch (e) { $("#titolo").textContent = "I dati dell'ampiezza europea non ci sono ancora"; $("#kicker").textContent = "Europa · Settori"; return; }
+    if (m !== M || !st.visibile) return;
     const [p0, p1] = String(param || "").split("/");
+    const elenco = M.meta().settori;
     let etf = (p0 || st.etf || "").toUpperCase();
+    if (!elenco.some(s => s.etf === etf)) {
+      const k = slug(p0 || st.etf);
+      const x = k && elenco.find(s => s.etf === k || slug(s.nome) === k || slug(s.codice) === k);
+      etf = x ? x.etf : elenco[0].etf;
+    }
     const titolo = p1 ? p1.toUpperCase() : null;
-    if (!R.meta.settori.some(s => s.etf === etf)) etf = R.meta.settori[0].etf;
-    st.etf = etf;
-    R.store.set("settore", etf);
+    st.etf = scelti[M.zona] = etf;
+    R.store.set(eu() ? "settoreEu" : "settore", etf);
     R.emit("settore", etf);
-    document.title = `${etf} · Radar Settori`;
+    document.title = `${R.codice(etf)} · Radar Settori`;
     if (!grafici) creaGrafici();
     let d;
-    try { d = await R.dati.settore(etf); }
-    catch (e) { $("#titolo").textContent = "Dati del settore non disponibili"; return; }
-    if (st.etf !== etf || !st.visibile) return;
+    try { d = await M.settore(etf); }
+    catch (e) { $("#titolo").textContent = eu() ? "Dati del gruppo non disponibili" : "Dati del settore non disponibili"; return; }
+    if (st.etf !== etf || !st.visibile || m !== M) return;
     const nuovo = st.dati !== d;
     st.dati = d;
     if (nuovo) { st.filtro = ""; st.titolo = null; }
     st.mancante = null;
     ricalcola();
     if (titolo && (d.titoli || []).some(t => t.t === titolo)) { st.filtro = ""; mostraTitolo(titolo, true); return; }
-    if (titolo) {
+    if (titolo && !eu()) {
       // nell'indice ma senza abbastanza prezzi: lo si dice invece di non mostrare niente
       const x = R._mappaTitoli && R._mappaTitoli.get(titolo);
       st.titolo = null;
@@ -468,17 +512,22 @@
     const out = [];
     const { testo } = descriviStato(d, a);
     const periodo = { "3A": "ultimi 3 anni", "10A": "ultimi 10 anni", MAX: "dal 2005" }[st.periodo] || st.periodo;
-    out.push(`## Pagina aperta: Settore ${d.etf} · ${d.nome} (GICS ${d.gics}), dati al ${dataIt(d.date[t])}`);
-    out.push("La pagina mostra: stato del settore, riquadri con i numeri di oggi, un grafico a tre pannelli " +
-      "(prezzo dell'ETF con la media a 200 sedute e i triangoli dei trigger; drawdown dal massimo a 52 settimane; " +
+    const X = eu() ? (d.prezzo_tipo === "indice" ? "livello dell'indice" : "paniere") : "ETF";
+    out.push(eu()
+      ? `## Pagina aperta: Europa · Settori · ${d.tipo === "indice" ? `indice ${d.nome} (${d.paese})` : `settore ${d.nome} (tutte le borse europee del sito)`}, dati al ${dataIt(d.date[t])}`
+      : `## Pagina aperta: Settore ${d.etf} · ${d.nome} (GICS ${d.gics}), dati al ${dataIt(d.date[t])}`);
+    if (eu()) out.push(`Prezzo usato: ${d.prezzo_tipo === "indice" ? `livello dell'indice ${d.nome} in punti (Yahoo Finance)` : "paniere a pesi uguali delle azioni del gruppo, in euro, base 100"}. ` +
+      "Ampiezza calcolata con le azioni di oggi anche per gli anni passati (survivorship bias); livello blu predefinito = 5° percentile dell'ampiezza dal 2005.");
+    out.push(`La pagina mostra: stato ${eu() ? "del gruppo" : "del settore"}, riquadri con i numeri di oggi, un grafico a tre pannelli ` +
+      `(${eu() ? X : "prezzo dell'ETF"} con la media a 200 sedute e i triangoli dei trigger; drawdown dal massimo a 52 settimane; ` +
       "percentuale di titoli sopra la media 200 e 50 con la linea tratteggiata del livello blu e le zone blu colorate), " +
-      "la mappa a tessere e la tabella di tutti i titoli del settore, gli episodi di zona blu, il livello blu regolabile e le regole.");
+      `la mappa a tessere e la tabella di tutti i titoli ${eu() && d.tipo === "indice" ? "dell'indice" : "del settore"}, gli episodi di zona blu, il livello blu regolabile e le regole.`);
     out.push(`Grafico impostato su: ${periodo}${st.log ? ", scala logaritmica" : ""}.`);
     out.push(`Stato: ${testo}.`);
     const b200 = d.b200[t], n = d.n[t];
     const sopra = b200 == null ? null : Math.round((b200 / 100) * n);
     const vsMa = d.close[t] != null && d.ma200[t] ? (d.close[t] / d.ma200[t] - 1) * 100 : null;
-    out.push(`Oggi: ETF ${num(d.close[t], 2)} (${pct(vsMa, 1)} sulla media 200 a ${num(d.ma200[t], 2)}); ` +
+    out.push(`Oggi: ${X} ${num(d.close[t], 2)} (${pct(vsMa, 1)} sulla media 200 a ${num(d.ma200[t], 2)}); ` +
       `${sopra == null ? "—" : sopra} titoli su ${n} sopra la media 200 = ${num(b200, 1)}%; sopra la media 50 ${num(d.b50[t], 1)}%` +
       `${d.b20 ? `; sopra la media 20 ${num(d.b20[t], 1)}%` : ""}; drawdown ${pct(d.dd[t], 1)}, più profondo ${R.art("del", num(a.ddPerc[t], 0) + "%")} delle sedute passate.`);
     out.push(`Livello blu in uso: ${num(lv, 0)}%${lv !== def ? ` (cambiato in questo browser; quello predefinito è ${num(def, 0)}%)` : " (predefinito)"}; ` +
@@ -493,7 +542,7 @@
 
     // storico: fine di ogni mese nel periodo del grafico, più le ultime sedute
     const [i0] = intervallo();
-    out.push(`Storico a fine mese (${periodo}): data | chiusura ETF | media 200 | drawdown | % sopra media 200 | % sopra media 50 | stato`);
+    out.push(`Storico a fine mese (${periodo}): data | chiusura ${X} | media 200 | drawdown | % sopra media 200 | % sopra media 50 | stato`);
     const riga = i => `${dataIt(d.date[i])} | ${num(d.close[i], 2)} | ${num(d.ma200[i], 2)} | ${pct(d.dd[i], 1)} | ${num(d.b200[i], 1)} | ${num(d.b50[i], 1)} | ${S.STATI[a.stati[i]] || "—"}`;
     for (let i = i0; i <= t; i++) {
       if (i === t || d.date[i + 1].slice(0, 7) !== d.date[i].slice(0, 7)) out.push(riga(i));
@@ -506,7 +555,7 @@
     out.push(`Episodi di zona blu dal 2005 con livello ${num(lv, 0)}%: ${ep.length}` +
       (a.casi3 ? `; a 3 mesi dal trigger mediana ${pct(a.mediana3, 1)}, in guadagno ${R.art("il", num(a.positivi3, 0) + "%")} dei ${a.casi3} casi` : "") + ".");
     if (ep.length) {
-      out.push("inizio zona blu | ampiezza minima | drawdown all'ingresso | ETF a 3 mesi dall'ingresso | trigger | conferme | ETF a +1M, +3M, +6M dal trigger | calo massimo nei 3 mesi dopo il trigger | trigger falliti prima");
+      out.push(`inizio zona blu | ampiezza minima | drawdown all'ingresso | ${X} a 3 mesi dall'ingresso | trigger | conferme | ${X} a +1M, +3M, +6M dal trigger | calo massimo nei 3 mesi dopo il trigger | trigger falliti prima`);
       for (const e of ep.slice().reverse()) {
         const trig = e.segnale != null ? `${dataIt(d.date[e.segnale])}${e.stato === "verifica" ? " (in verifica)" : ""}` : "nessuno (zona blu in corso)";
         out.push(`${dataIt(d.date[e.inizio])} | ${num(e.minB, 1)}% | ${pct(e.ddInizio, 1)} | ${pct(e.r3Inizio, 1)} | ${trig} | ${e.motivi.map(x => S.MOTIVI[x]).join(" + ") || "—"} | ` +
@@ -516,7 +565,7 @@
 
     // titoli
     const titoli = (d.titoli || []).slice().sort((x, y) => (y.v200 ?? -999) - (x.v200 ?? -999));
-    out.push(`Tutti i ${titoli.length} titoli del settore (azioni dell'S&P 500), dal più forte al più debole rispetto alla media 200: ticker | nome | ultimo prezzo | distanza dalla media 200 | dalla media 50 | dal massimo a 52 settimane`);
+    out.push(`Tutti i ${titoli.length} titoli ${eu() ? (d.tipo === "indice" ? "dell'indice (prezzi nella valuta della borsa)" : "del settore (azioni europee, prezzi nella valuta della borsa)") : "del settore (azioni dell'S&P 500)"}, dal più forte al più debole rispetto alla media 200: ticker | nome | ultimo prezzo | distanza dalla media 200 | dalla media 50 | dal massimo a 52 settimane`);
     for (const x of titoli) out.push(`${x.t} | ${x.nome} | ${num(x.ultimo, 2)} | ${pct(x.v200, 1)} | ${pct(x.v50, 1)} | ${pct(x.dd52, 1)}`);
     const sel = st.titolo && titoli.find(x => x.t === st.titolo);
     if (sel) out.push(`Titolo aperto nella scheda: ${sel.t} (${sel.nome}), ${titoli.filter(x => x.v200 != null).findIndex(x => x.t === sel.t) + 1}° su ${titoli.filter(x => x.v200 != null).length} per distanza dalla media 200.`);

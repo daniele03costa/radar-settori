@@ -23,6 +23,8 @@
 
 .lower { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; align-items: start; }
 .lower .notes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.mon-tbl tr.grp th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding-top: 16px; background: none; cursor: default; }
+.mon-tbl tbody:first-of-type tr.grp th { padding-top: 6px; }
 .ep-tbl .grp th { font-size: 11.5px; font-weight: 600; color: var(--ink-2); border-bottom: 0; padding-bottom: 0; }
 .ep-tbl .grp th + th, .ep-tbl tr:not(.grp) th:nth-child(5), .ep-tbl td:nth-child(5) { border-left: 1px solid var(--line); padding-left: 14px; }
 .ep-tbl td.conf { text-align: left; white-space: normal; min-width: 150px; }
@@ -266,6 +268,8 @@ details.card li { margin: 6px 0; font-size: 13.5px; color: var(--ink-2); }
 .tbl .arrow { margin: 0 3px; }
 .tbl td.piu { text-align: center; padding-top: 16px; }
 .alr-wrap { max-height: 720px; overflow: auto; }
+#alr-settore { max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+#view-alr .card-head .controls { min-width: 0; max-width: 100%; }
 .alr-wrap thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
 .guida-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
 .guida-grid h3 { font-size: 14px; font-weight: 600; margin: 6px 0 8px; }
@@ -397,18 +401,8 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
 #eur-corpo { display: flex; flex-direction: column; gap: 16px; }
 #eur-corpo[hidden] { display: none; }
 #eur-corpo > * { margin-top: 0; margin-bottom: 0; }
-#eur-kpi { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-@media (min-width: 1680px) { #eur-kpi { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
-#eur-kpi .kpi .s { white-space: normal; overflow: visible; line-height: 1.4; }
-#eur-kpi .kpi .v { white-space: normal; overflow-wrap: anywhere; line-height: 1.15; }
 .eur-tbl td { padding-top: 10px; padding-bottom: 10px; }
 .eur-tbl .spark { display: block; width: 120px; height: 30px; }
-.eur-amp { display: inline-flex; align-items: center; gap: 8px; }
-.eur-amp .b { width: 72px; height: 6px; border-radius: 3px; background: var(--grid); position: relative; overflow: hidden; flex: none; }
-.eur-amp .b i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--b200); }
-.eur-amp b { font-weight: 600; font-variant-numeric: tabular-nums; }
-.eur-migliori { white-space: normal !important; min-width: 170px; max-width: 280px; line-height: 1.5; font-size: 12.5px; }
-.eur-migliori .linkish { font-weight: 500; }
 .eur-filtri { flex: 1 1 520px; justify-content: flex-end; }
 .eur-filtri .filter { width: 250px; margin: 0; }
 .eur-chips { margin: 0 0 6px; transition: opacity .15s; }
@@ -416,10 +410,6 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
 .eur-altre { display: flex; justify-content: center; margin-top: 12px; }
 .eur-altre:empty { display: none; }
 #eur-tabella td .empty-note { padding: 24px 0; }
-.tit-num b .eur-rs3 { font-size: 12.5px; font-weight: 500; margin-left: 6px; }
-@media (max-width: 1499px) {
-  #eur-indici th:nth-child(2), #eur-indici td:nth-child(2), #eur-settori th:nth-child(2), #eur-settori td:nth-child(2) { display: none; }
-}
 
 /* ============ pagine delle zone: si vede solo quello che appartiene alla pagina aperta ============ */
 .view[data-pagina="monitor"] [data-pag]:not([data-pag~="monitor"]),
@@ -504,19 +494,11 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
   .hc-valore { font-size: 25px; }
 }
 
-/* ============ Europa: scelta del gruppo, Bottom Map ============ */
-.eur-scelta { display: grid; gap: 10px; }
-.eur-scelta-riga { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: start; }
-.eur-scelta-l { font-size: 12px; font-weight: 600; color: var(--muted); padding-top: 7px; }
-.eur-scelta .small { margin: 2px 0 0; }
-.eur-scelta .small .sw.dot { display: inline-block; margin: 0 2px 0 4px; }
-.eur-selnum { margin: 2px 0 10px; }
-.eur-migl { margin: 0 0 12px !important; line-height: 1.7; }
+/* ============ Europa: azioni, Bottom Map delle crypto ============ */
 .eur-spenti { margin: 0 0 8px; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; }
+#cry-mappa-tabella td:first-child { white-space: normal; }
+#cry-mappa-tabella .tk-line { max-width: 150px; }
 .bm-sw-att { background: color-mix(in srgb, var(--st-attenzione) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-attenzione) 40%, transparent); }
-#eur-mappa-tabella td:first-child, #cry-mappa-tabella td:first-child { white-space: normal; }
-#eur-mappa-tabella .tk-line, #cry-mappa-tabella .tk-line { max-width: 150px; }
-#eur-mappa-tipo { margin-right: auto; }
 
 /* ============ schermi più piccoli ============ */
 @media (max-width: 1280px) {
@@ -554,7 +536,6 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
   .eur-filtri { flex-basis: 100%; }
   #eur-tabella th:nth-child(5), #eur-tabella td:nth-child(5), #eur-tabella th:nth-child(7), #eur-tabella td:nth-child(7) { display: none; }
   .eur-filtri .filter, .eur-filtri .select { width: 100%; }
-  #eur-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #mon-kpi { grid-template-columns: minmax(0, 1fr); }   /* le tessere del Monitor hanno frasi lunghe */
   .tit-tbl th:nth-child(2), .tit-tbl td:nth-child(2) { display: none; }
   .tit-numeri { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -564,11 +545,6 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
   .ctrl.grow, .ctrl:has(#rot-universo), .ctrl:has(#rot-scala) { grid-column: 1 / -1; }
   .ctrl .select { min-width: 0; width: 100%; }
   .ctrl #rot-coda { width: 100%; }
-  .eur-scelta-riga { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  .eur-scelta-l { padding-top: 0; }
-  .eur-scelta .chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px 4px; scrollbar-width: none; }
-  .eur-scelta .chips::-webkit-scrollbar { display: none; }
-  .eur-scelta .chip-btn { flex: none; }
   .hc-numeri { gap: 6px; }
   .hc-numeri div { padding: 7px 8px; }
 }

@@ -116,7 +116,7 @@
         <header class="view-head">
           <div>
             <div class="kicker">USA · Monitor</div>
-            <h1>Il quadro di tutti i settori</h1>
+            <h1 data-eur="Il quadro di settori e indici europei">Il quadro di tutti i settori</h1>
             <p class="view-sub" id="mon-sub">&nbsp;</p>
           </div>
         </header>
@@ -124,12 +124,12 @@
         <article class="card novita" id="mon-novita" aria-live="polite"></article>
         <div class="mon-grid">
           <article class="card">
-            <div class="card-title"><h2>Settori, prima i più vicini a un segnale</h2><span class="muted small-inline">clic per aprire il settore</span></div>
+            <div class="card-title"><h2 data-eur="Settori e indici, prima i più vicini a un segnale">Settori, prima i più vicini a un segnale</h2><span class="muted small-inline" data-eur="clic per aprirlo">clic per aprire il settore</span></div>
             <div class="table-wrap"><table class="tbl mon-tbl" id="mon-tabella"></table></div>
           </article>
           <article class="card">
             <div class="card-title"><h2>Da tenere d'occhio</h2></div>
-            <p class="sub">Per ogni settore interessante, cosa serve perché cambi stato.</p>
+            <p class="sub" data-eur="Per ogni settore o indice interessante, cosa serve perché cambi stato.">Per ogni settore interessante, cosa serve perché cambi stato.</p>
             <ul class="watch" id="mon-osservare"></ul>
           </article>
         </div>
@@ -253,10 +253,15 @@
         <header class="view-head">
           <div>
             <div class="kicker">USA · Bottom Map</div>
-            <h1>Quanto sono vicini i settori a un possibile minimo</h1>
-            <p class="view-sub">Orizzontale: profondità del drawdown rispetto alla storia del settore (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.</p>
+            <h1 data-eur="Quanto sono vicini settori e indici europei a un possibile minimo">Quanto sono vicini i settori a un possibile minimo</h1>
+            <p class="view-sub" data-eur="Orizzontale: profondità del drawdown rispetto alla storia del settore o dell'indice dal 2005 (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.">Orizzontale: profondità del drawdown rispetto alla storia del settore (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.</p>
           </div>
           <div class="controls">
+            <div class="seg" id="btm-tipo" role="group" aria-label="Cosa mostrare" data-solo="eur" hidden>
+              <button type="button" data-tipo="settore" aria-pressed="true">Settori</button>
+              <button type="button" data-tipo="indice" aria-pressed="false">Indici</button>
+              <button type="button" data-tipo="tutti" aria-pressed="false">Tutti</button>
+            </div>
             <label class="ctrl-inline" for="btm-coda">Scia di <b id="btm-coda-val">8</b> settimane</label>
             <input type="range" id="btm-coda" min="0" max="26" value="8" aria-label="Settimane di scia">
           </div>
@@ -268,7 +273,7 @@
           </article>
           <article class="card">
             <div class="card-title"><h2>Quanto manca</h2></div>
-            <p class="sub">Quanti titoli devono ancora scendere sotto la media 200 perché il settore arrivi al livello blu (sotto: titoli sopra la media oggi → al livello). Per la zona blu serve anche un drawdown oltre il 70° percentile (✓).</p>
+            <p class="sub"><span data-eur="Quanti titoli devono ancora scendere sotto la media 200 perché il gruppo arrivi al livello blu">Quanti titoli devono ancora scendere sotto la media 200 perché il settore arrivi al livello blu</span> (sotto: titoli sopra la media oggi → al livello). Per la zona blu serve anche un drawdown oltre il 70° percentile (✓).</p>
             <div class="table-wrap"><table class="tbl" id="btm-tabella"></table></div>
           </article>
         </div>
@@ -276,7 +281,7 @@
 
       <!-- ======================= 4 SETTORE ======================= -->
       <section class="view" id="view-sec" data-view="sec" hidden>
-        <nav class="sector-list sec-scelta" id="settori" aria-label="Scegli il settore"></nav>
+        <nav class="sector-list sec-scelta" id="settori" aria-label="Scegli il settore o l'indice"></nav>
         <header class="hero">
           <div class="hero-left">
             <div class="kicker" id="kicker">&nbsp;</div>
@@ -310,9 +315,9 @@
           <p class="lead" id="riassunto">&nbsp;</p>
           <div class="table-wrap"><table class="tbl ep-tbl" id="episodi"></table></div>
           <p class="fine">
-            Rendimenti dell'ETF con dividendi reinvestiti, dall'ingresso in zona blu e dal trigger.
+            <span data-eur="Rendimenti del livello dell'indice (in valuta locale, di solito senza dividendi) o, per un settore, del paniere a pesi uguali delle sue azioni in euro (dividendi inclusi), dall'ingresso in zona blu e dal trigger. L'ampiezza è calcolata con le azioni di oggi anche per gli anni passati: mancano le società uscite o sparite, quindi i primi anni sono un po' ottimisti. Va letta come contesto, non come prova che il segnale funzioni.">Rendimenti dell'ETF con dividendi reinvestiti, dall'ingresso in zona blu e dal trigger.
             L'ampiezza dei primi anni è ricostruita con i titoli presenti allora nell'indice, per quanto i prezzi lo permettono:
-            va letta come contesto, non come prova che il segnale funzioni.
+            va letta come contesto, non come prova che il segnale funzioni.</span>
           </p>
         </article>
 
@@ -338,7 +343,7 @@
             <div class="legend" id="alr-legenda"></div>
           </div>
           <div class="storia" id="alr-storia"></div>
-          <p class="small">Una riga per settore, una colonna per ogni gruppo di sedute: vince lo stato più importante. Le tacche più alte segnano l'inizio di un trigger e i fallimenti. Passa sopra per la data, clic per aprire il settore.</p>
+          <p class="small" data-eur="Una riga per settore e per indice, una colonna per ogni gruppo di sedute: vince lo stato più importante. Le tacche più alte segnano l'inizio di un trigger e i fallimenti. Passa sopra per la data, clic per aprire il gruppo.">Una riga per settore, una colonna per ogni gruppo di sedute: vince lo stato più importante. Le tacche più alte segnano l'inizio di un trigger e i fallimenti. Passa sopra per la data, clic per aprire il settore.</p>
         </article>
         <article class="card">
           <div class="card-head">
@@ -355,11 +360,11 @@
           <summary>Per chi gestisce il sito</summary>
           <ol>
             <li>L'aggiornamento parte da solo la sera dopo la chiusura di Wall Street e riprova due volte nella notte, se Yahoo è in ritardo (GitHub → <b>Actions</b> → <b>Aggiorna dati</b>). Per lanciarlo subito: <b>Run workflow</b>.</li>
-            <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della pagina di un settore USA prepara il testo da incollare.</li>
+            <li>I livelli blu predefiniti stanno in <code>settings.json</code>, voce <code>"soglie"</code>: il pulsante «Copia configurazione» della pagina di un settore USA prepara il testo da incollare. Per l'Europa si aggiunge una voce <code>"soglie"</code> in <code>europa.json</code> (testo dalla pagina di un settore o indice europeo); senza, vale il 5° percentile dell'ampiezza dal 2005.</li>
             <li>I parametri degli stati si cambiano alla voce <code>"parametri"</code> dello stesso file (nomi in cima a <code>signals.js</code>).</li>
             <li>Titoli, nomi brevi, confronti e portafoglio della rotazione stanno in <code>universi.json</code>: vengono letti al successivo aggiornamento.</li>
             <li>La lista di «I miei titoli» sta in <code>miei-titoli.txt</code>, un ticker di Yahoo Finance per riga: i prezzi arrivano con l'aggiornamento successivo.</li>
-            <li>Ogni aggiornamento scrive anche <code>data/stati.json</code>, il riepilogo degli stati che legge l'avviso del mattino.</li>
+            <li>Ogni aggiornamento scrive anche <code>data/stati.json</code> (USA) e <code>data/europa/stati.json</code> (Europa), il riepilogo degli stati.</li>
             <li>Le crypto si aggiornano con l'aggiornamento della notte e, se c'è, con <b>Aggiorna crypto</b>, che gira ogni giorno anche nel fine settimana. Monete, esclusioni e ticker di Yahoo stanno in <code>crypto.json</code>.</li>
           </ol>
         </details>
@@ -556,12 +561,12 @@
         </div>
       </section>
 
-      <!-- ======================= EUROPA: Monitor, Bottom Map, Settori e indici, Azioni ======================= -->
+      <!-- ======================= EUROPA: Azioni (Monitor, Bottom Map, Settori e indici e Alert sono le pagine degli USA) ======================= -->
       <section class="view" id="view-eur" data-view="eur" hidden>
         <header class="view-head">
           <div>
-            <div class="kicker">Europa · Monitor</div>
-            <h1 id="eur-h1">Le borse europee</h1>
+            <div class="kicker">Europa · Azioni</div>
+            <h1>Le azioni europee</h1>
             <p class="view-sub" id="eur-sub">&nbsp;</p>
           </div>
         </header>
@@ -570,88 +575,36 @@
           <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna dati</b> → <b>Run workflow</b>, poi ricarica la pagina.</p>
         </article>
         <div id="eur-corpo">
-          <!-- Monitor -->
-          <section class="kpis" id="eur-kpi" aria-label="L'Europa in sintesi" data-pag="monitor"></section>
-          <article class="card novita" id="eur-sintesi" aria-live="polite" data-pag="monitor"></article>
-
-          <!-- Settori e indici: la scelta -->
-          <article class="card eur-scelta" id="eur-scelta" data-pag="settori"></article>
-
-          <!-- andamento e ampiezza: tutta l'Europa nel Monitor, il gruppo scelto in Settori e indici -->
-          <article class="card" id="eur-quadro" data-pag="monitor settori"></article>
-
-          <article class="card" data-pag="monitor">
-            <div class="card-title"><h2>Gli indici</h2><span class="muted small-inline">clic su un indice per il suo andamento e le sue azioni</span></div>
-            <div class="table-wrap"><table class="tbl eur-tbl" id="eur-indici"></table></div>
-          </article>
-          <article class="card" data-pag="monitor">
-            <div class="card-title"><h2>I settori</h2><span class="muted small-inline">rotazione contro la media delle azioni europee</span></div>
-            <div class="table-wrap"><table class="tbl eur-tbl" id="eur-settori"></table></div>
-            <p class="small" id="eur-settori-nota"></p>
-          </article>
-
-          <!-- Bottom Map -->
-          <div class="btm-grid largo" data-pag="mappa">
-            <article class="card">
-              <div class="card-head">
-                <div class="seg" id="eur-mappa-tipo" role="group" aria-label="Cosa mostrare">
-                  <button type="button" data-v="indici">Indici</button>
-                  <button type="button" data-v="settori">Settori</button>
-                </div>
-                <div class="controls">
-                  <label class="ctrl-inline" for="eur-mappa-coda">Scia di <b id="eur-mappa-coda-val">6</b> settimane</label>
-                  <input type="range" id="eur-mappa-coda" min="0" max="26" value="8" aria-label="Settimane di scia">
-                </div>
-              </div>
-              <div class="bmap" id="eur-mappa-grafico"></div>
-              <div class="legend bm-legend" id="eur-mappa-legenda"></div>
-            </article>
-            <article class="card">
-              <div class="card-title"><h2>Ampiezza e distanza dal massimo</h2></div>
-              <p class="sub">Prima chi ha meno azioni sopra la media 200. Sotto, quanto sono cambiate lungo la scia. Clic per l'andamento e le azioni del gruppo.</p>
-              <div class="table-wrap"><table class="tbl" id="eur-mappa-tabella"></table></div>
-            </article>
-          </div>
-          <article class="card notes" data-pag="mappa">
-            <div class="card-title"><h2>Come leggere la mappa</h2></div>
-            <div class="notes-grid">
-              <div><h3><i class="dot" style="background:var(--soglia)"></i>Gli assi</h3><p>Più a sinistra, più l'indice (o il paniere del settore) è lontano dal suo massimo delle ultime 52 settimane; più in basso, meno delle sue azioni sono sopra la propria media a 200 sedute. La testa è colorata per tendenza, la scia unisce un punto per settimana.</p></div>
-              <div><h3><i class="dot" style="background:var(--st-attenzione)"></i>Le aree</h3><p>La fascia in basso è dove meno di un'azione su cinque è sopra la media 200: un ribasso che ha coinvolto quasi tutti. Oltre il −20% dal massimo si parla di mercato ribassista; l'angolo che unisce le due cose è quello dei ribassi più ampi e diffusi.</p></div>
-              <div><h3><i class="dot" style="background:var(--q-leader)"></i>A differenza degli USA</h3><p>Per l'Europa non ci sono livelli blu né zone calcolate sulla storia dal 2005: la storia dei prezzi è di due o tre anni. La mappa dice dove si trova ogni gruppo e dove sta andando, non dà segnali.</p></div>
-            </div>
-          </article>
-
-          <!-- Settori e indici, Azioni -->
-          <article class="card tit-dettaglio" id="eur-dettaglio" data-pag="settori azioni" hidden></article>
-          <article class="card" id="eur-azioni" data-pag="settori azioni">
+          <article class="card tit-dettaglio" id="eur-dettaglio" hidden></article>
+          <article class="card" id="eur-azioni">
             <div class="card-head">
               <div class="card-title"><h2 id="eur-azioni-titolo">Le azioni</h2></div>
               <div class="controls eur-filtri">
-                <input class="filter" id="eur-cerca" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca fra tutte: nome, ticker, paese…" aria-label="Cerca un'azione per nome, ticker, paese o settore" data-pag="azioni">
-                <select class="select" id="eur-indice" aria-label="Indice" data-pag="azioni"></select>
-                <select class="select" id="eur-settore" aria-label="Settore" data-pag="azioni"></select>
+                <input class="filter" id="eur-cerca" type="search" autocomplete="off" spellcheck="false" placeholder="Cerca fra tutte: nome, ticker, paese…" aria-label="Cerca un'azione per nome, ticker, paese o settore">
+                <select class="select" id="eur-indice" aria-label="Indice"></select>
+                <select class="select" id="eur-settore" aria-label="Settore"></select>
                 <select class="select" id="eur-mostra" aria-label="Quali azioni mostrare"></select>
               </div>
             </div>
             <p class="eur-spenti" id="eur-filtri-spenti" hidden>La ricerca guarda fra tutte le azioni: indice, settore e «mostra» non contano. <button type="button" class="btn-link">Togli la ricerca</button></p>
             <div class="table-wrap"><table class="tbl tit-tbl eur-tbl" id="eur-tabella"></table></div>
             <div class="eur-altre" id="eur-altre"></div>
-            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo. Forza relativa contro il proprio indice, nella valuta locale. <span data-pag="azioni">La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). </span>Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
+            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo. Forza relativa contro il proprio indice, nella valuta locale. La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
           </article>
-          <article class="card notes" data-pag="monitor settori azioni">
+          <article class="card notes">
             <div class="card-title"><h2>Come leggere questa pagina</h2></div>
             <div class="notes-grid">
               <div>
                 <h3><i class="dot" style="background:var(--b200)"></i>Ampiezza</h3>
-                <p>È la quota di azioni sopra la propria media a 200 sedute (e a 50). Se l'indice sale ma l'ampiezza scende, il rialzo si regge su pochi titoli; se l'indice è debole ma l'ampiezza risale, la debolezza si sta restringendo. <b>Nuovi massimi e minimi</b>: le azioni che nell'ultima settimana hanno toccato il prezzo più alto o più basso delle ultime 52 settimane.</p>
+                <p>Per ogni azione: distanza dalla media a 200 e a 50 sedute e dal massimo delle ultime 52 settimane. <b>Nuovi massimi e minimi</b>: le azioni che nell'ultima settimana hanno toccato il prezzo più alto o più basso delle ultime 52 settimane. La quota di azioni sopra la media 200 di ogni settore e indice, con livelli blu e zone, è nelle pagine Monitor, Settori e indici, Bottom Map e Alert.</p>
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--q-leader)"></i>Forza relativa</h3>
-                <p>La stessa formula della Rotazione, su barre settimanali: per un'azione contro il suo indice, per un indice contro lo STOXX Europe 600 (in euro), per un settore contro la media di tutte le azioni. <b>Leader</b>: più forte e ancora in accelerazione; <b>in indebolimento</b>: più forte ma rallenta; <b>in ritardo</b>: più debole; <b>in miglioramento</b>: più debole ma recupera.</p>
+                <p>La stessa formula della Rotazione, su barre settimanali, contro l'indice dell'azione. <b>Leader</b>: più forte e ancora in accelerazione; <b>in indebolimento</b>: più forte ma rallenta; <b>in ritardo</b>: più debole; <b>in miglioramento</b>: più debole ma recupera.</p>
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--soglia)"></i>Fonti e limiti</h3>
-                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana); settori secondo la classificazione di Yahoo. Per l'Irlanda il livello è quello dell'ISEQ All Share. Da due a tre anni di storia, prezzi non corretti per i dividendi. Numeri per capire, non consigli di investimento.</p>
+                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana); settori secondo la classificazione di Yahoo. Per l'Irlanda il livello è quello dell'ISEQ All Share. In questa pagina da due a tre anni di storia, prezzi rettificati per split e dividendi. Numeri per capire, non consigli di investimento.</p>
               </div>
             </div>
           </article>
@@ -659,7 +612,7 @@
       </section>
 
       <footer>
-        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
+        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia (ampiezza europea dal 2005 calcolata con le azioni di oggi; livelli blu europei = 5° percentile della storia di ogni gruppo); crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
         Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
   </main>
@@ -677,7 +630,7 @@
           <ul>
             <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave) e il riepilogo del portafoglio.</li>
             <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
-            <li><b>Europa</b>, le circa 470 azioni dei 15 indici principali: <b>Monitor</b> (STOXX Europe 600, ampiezza, indici e settori), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (distanza dal massimo contro ampiezza), <b>Settori e indici</b> (andamento e azioni del gruppo scelto), <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
+            <li><b>Europa</b>, le stesse pagine degli USA per gli 11 settori europei e i 15 indici principali (circa 470 azioni): <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori e indici</b> (grafici dal 2005, azioni, episodi e livello blu di ognuno), <b>Alert</b> (storico degli stati), più <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
             <li><b>Crypto</b>, bitcoin e le prime 10: <b>Monitor</b>, <b>Rotazione</b> (monete contro bitcoin), <b>Bottom Map</b> (distanza dal massimo di un anno contro distanza dalla media 200), <b>Analisi</b> (cosa è successo dopo, regola della media 200, stagionalità, halving), <b>Correlazioni</b>.</li>
             <li><b>Portafoglio</b>: valore, risultato, composizione e rischio (protetto con password) e i titoli della tua lista (<code>miei-titoli.txt</code>).</li>
           </ul>
@@ -695,13 +648,13 @@
           <h3>Casella di ricerca <kbd>/</kbd></h3>
           <ul>
             <li>Il ticker di un ETF settoriale, per esempio <code>XLE</code>, apre il suo settore negli USA; il ticker o il nome di <b>qualsiasi azione dell'S&amp;P 500</b> (<code>AAPL</code>, <code>coca cola</code>, <code>BRK.B</code>) apre il suo settore con il titolo in evidenza.</li>
-            <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>novo nordisk</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); un indice (<code>DAX</code>, <code>FTSE MIB</code>) o un settore europeo (<code>Finanziari</code>) apre il suo andamento con le sue azioni.</li>
+            <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>novo nordisk</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); un indice (<code>DAX</code>, <code>FTSE MIB</code>) o un settore europeo (<code>Finanziari</code>) apre la sua pagina con stato, ampiezza dal 2005, zone blu e azioni.</li>
             <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella zona Crypto; i ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) il loro grafico nel Portafoglio.</li>
             <li>Gli ETF della rotazione (<code>EIMI</code>, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
             <li>Pagine: <code>HOME</code>, <code>USA</code>, <code>EUROPA</code>, <code>CRYPTO</code>, <code>PORTAFOGLIO</code>; <code>MON</code>, <code>ROT</code>, <code>BTM</code> e <code>SEC</code> aprono quella pagina nella zona in cui sei; <code>ALRT</code>, <code>AZIONI</code>, <code>ANALISI</code>, <code>CORR</code>. Guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code>.</li>
             <li>Se un titolo non c'è, la casella propone di cercarlo su Yahoo Finance per trovarne il ticker.</li>
           </ul>
-          <p class="small">Si può anche scrivere nell'indirizzo: <code>#usa/monitor</code>, <code>#eur/mappa</code>, <code>#cry/analisi</code> per una pagina; <code>#usa/settori/XLK/AAPL</code> (o solo <code>#AAPL</code>) per un'azione americana, <code>#eur/settori/DAX</code> per un indice europeo, <code>#eur/azioni/ENEL.MI</code> per un'azione europea, <code>#cry/monitor/ETH</code> per una crypto, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
+          <p class="small">Si può anche scrivere nell'indirizzo: <code>#usa/monitor</code>, <code>#eur/mappa</code>, <code>#cry/analisi</code> per una pagina; <code>#usa/settori/XLK/AAPL</code> (o solo <code>#AAPL</code>) per un'azione americana, <code>#eur/settori/DAX</code> o <code>#eur/settori/ENERGIA</code> per un indice o un settore europeo, <code>#eur/azioni/ENEL.MI</code> per un'azione europea, <code>#cry/monitor/ETH</code> per una crypto, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
         </section>
         <section>
           <h3>Tastiera</h3>

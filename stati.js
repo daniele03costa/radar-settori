@@ -6,7 +6,8 @@
  * Serve all'avviso automatico del mattino: dice in quale stato è ogni settore, che cosa è
  * cambiato nelle ultime sedute, quanti titoli mancano al livello blu e se i dati sono in ritardo.
  *
- * Uso:  node stati.js [cartella_dati]   (lo lancia da solo build_data.py alla fine dell'aggiornamento)
+ * Uso:  node stati.js [cartella_dati]   (lo lancia da solo build_data.py alla fine dell'aggiornamento; per l'Europa
+ *       build_europa.py lo lancia su data/europa, dove meta.json dice anche il calendario di borsa da usare)
  */
 "use strict";
 
@@ -37,14 +38,18 @@ function calcola(adesso, cartella = DATA) {
   const cfg = leggi(path.join(ROOT, "settings.json"));
   const meta = leggi(path.join(cartella, "meta.json"));
   const parametri = meta.parametri || {};
+  const mercato = meta.calendario || "nyse";
   const S = Signals.STATI;
   const settori = [];
   const cambi = [];
 
+  // i file dell'Europa non ripetono le date: sono quelle di indice.json
+  let dateComuni = null;
   for (const s of meta.settori) {
     const file = path.join(cartella, "settori", `${s.etf}.json`);
     if (!fs.existsSync(file)) continue;
     const d = leggi(file);
+    if (!d.date) d.date = dateComuni = dateComuni || leggi(path.join(cartella, "indice.json")).date;
     const lv = (cfg.soglie && cfg.soglie[s.etf] != null) ? cfg.soglie[s.etf] : d.soglia_default;
     const a = Signals.analizza(d, lv, parametri);
     const N = d.date.length, t = N - 1;
@@ -57,6 +62,7 @@ function calcola(adesso, cartella = DATA) {
     const voce = {
       etf: s.etf,
       nome: s.nome,
+      ...(s.codice ? { codice: s.codice, tipo: s.tipo } : {}),
       stato,
       stato_nome: S[stato],
       dal: d.date[k],
@@ -94,7 +100,7 @@ function calcola(adesso, cartella = DATA) {
       if (!da || !aa || da === aa) continue;
       const tli = titoliLivello(d.b200[i], d.n[i], lv);
       cambi.push({
-        data: d.date[i], etf: s.etf, nome: s.nome, da, a: aa, da_nome: S[da], a_nome: S[aa],
+        data: d.date[i], etf: s.etf, nome: s.nome, ...(s.codice ? { codice: s.codice } : {}), da, a: aa, da_nome: S[da], a_nome: S[aa],
         ampiezza: r1(d.b200[i]), titoli_sopra: tli ? tli.sopra : null, titoli_totali: d.n[i], drawdown: r1(d.dd[i]),
       });
     }
@@ -107,14 +113,16 @@ function calcola(adesso, cartella = DATA) {
   return {
     aggiornato: ultima,
     generato: (adesso || new Date()).toISOString().replace(/\.\d+Z$/, "Z"),
-    ritardo: Cal.ritardo(ultima, adesso || new Date(), "nyse"),
+    ritardo: Cal.ritardo(ultima, adesso || new Date(), mercato),
     // la seduta che deve arrivare con il prossimo aggiornamento: se è già passata da un giorno, i dati sono indietro
-    prossima_seduta: Cal.successiva(ultima, "nyse"),
-    ampiezza_sp500: meta.indice ? r1(meta.indice.b200) : null,
+    prossima_seduta: Cal.successiva(ultima, mercato),
+    [mercato === "nyse" ? "ampiezza_sp500" : "ampiezza_indice"]: meta.indice ? r1(meta.indice.b200) : null,
     cambi_ultima_seduta: cambi.filter(c => c.data === ultima),
     cambi_recenti: cambi,
     settori,
-    nota: "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js.",
+    nota: mercato === "nyse"
+      ? "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js."
+      : "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js.",
   };
 }
 
@@ -128,7 +136,7 @@ if (require.main === module) {
   try { uguale = senzaOra(leggi(file)) === senzaOra(out); } catch (e) { /* file nuovo */ }
   if (!uguale) fs.writeFileSync(file, JSON.stringify(out, null, 1));
   const n = out.cambi_ultima_seduta.length;
-  console.log(`stati.json: ${out.settori.length} settori, ${n} ${n === 1 ? "cambio" : "cambi"} di stato nella seduta del ${out.aggiornato}`);
+  console.log(`${path.relative(ROOT, file)}: ${out.settori.length} ${out.ampiezza_indice !== undefined ? "settori e indici" : "settori"}, ${n} ${n === 1 ? "cambio" : "cambi"} di stato nella seduta del ${out.aggiornato}`);
 }
 
 module.exports = { calcola, titoliLivello };

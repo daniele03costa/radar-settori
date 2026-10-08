@@ -67,6 +67,7 @@
     return p;
   }
   const versione = () => encodeURIComponent((R.meta && (R.meta.generato || R.meta.aggiornato)) || "");
+  const versioneEu = () => encodeURIComponent((R.metaEu && (R.metaEu.generato || R.metaEu.aggiornato)) || "");
 
   R.dati = {
     meta: () => carica("data/meta.json", { cache: "no-store" }),
@@ -89,6 +90,13 @@
     // azioni europee: l'elenco aggiornato dall'aggiornamento automatico, altrimenti quello di base
     europaLista: () => carica("data/europa_lista.json", { cache: "no-cache" }).catch(() => carica("europa.json", { cache: "no-cache" })),
     europa: () => carica("data/prezzi_europa.json", { cache: "no-cache" }),
+    // ampiezza storica di settori e indici europei (stessa forma dei settori USA)
+    europaMeta: () => carica("data/europa/meta.json", { cache: "no-cache" }),
+    europaIndice: () => carica(`data/europa/indice.json?v=${versioneEu()}`),
+    europaGruppo: id => Promise.all([carica(`data/europa/settori/${id}.json?v=${versioneEu()}`), R.dati.europaIndice()])
+      .then(([d, i]) => { if (!d.date && d.b200.length === i.date.length) d.date = i.date; return window.Signals.completa(d); }),
+    europaGruppi: () => Promise.all(R.metaEu.settori.map(s => R.dati.europaGruppo(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
+    europaStati: () => carica(`data/europa/stati.json?v=${versioneEu()}`),
     // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi
     listaMiei: () => fetch("miei-titoli.txt", { cache: "no-cache" }).then(r => (r.ok ? r.text() : "")).then(R.leggiListaMiei).catch(() => []),
   };
@@ -161,14 +169,16 @@
   };
 
   // ---------- livelli blu e analisi ----------
+  // la voce di un gruppo (settore USA, settore o indice europeo) nel suo meta.json
+  R.metaDi = id => (R.meta && R.meta.settori.find(s => s.etf === id)) || (R.metaEu && R.metaEu.settori.find(s => s.etf === id)) || null;
   R.livelliLocali = R.store.get("soglie", {});
   R.livello = etf => {
     if (R.livelliLocali[etf] != null) return R.livelliLocali[etf];
-    const m = R.meta && R.meta.settori.find(s => s.etf === etf);
+    const m = R.metaDi(etf);
     return m ? m.soglia_default : 10;
   };
   R.livelloDefault = etf => {
-    const m = R.meta && R.meta.settori.find(s => s.etf === etf);
+    const m = R.metaDi(etf);
     return m ? m.soglia_default : 10;
   };
   R.impostaLivello = (etf, v) => {
@@ -202,6 +212,107 @@
   };
   R.analisi = etf => R.dati.settore(etf).then(d => R.analisiSync(etf, d));
 
+  // ---------- i due mercati con ampiezza e stati: USA (settori dell'S&P 500) ed Europa (settori e indici) ----------
+  // Monitor, Bottom Map, Settori e Alert sono le stesse pagine per tutti e due: cambia solo da dove arrivano i dati
+  // e come si chiamano le cose.
+  let caricaEu = null;
+  R.mercati = {
+    usa: {
+      zona: "usa", nome: "USA", cal: "nyse",
+      pronto: () => Promise.resolve(R.meta),
+      meta: () => R.meta,
+      settore: id => R.dati.settore(id),
+      tutti: () => R.dati.tuttiSettori(),
+      indice: () => R.dati.indice(),
+      cod: s => s.etf,
+      sotto: s => s.nome,
+      link: id => "#usa/settori/" + id,
+      linkTitolo: (id, t) => `#usa/settori/${id}/${t}`,
+      tipi: null,
+      t: {
+        gruppo: "settore", gruppi: "settori", Gruppo: "Settore", Gruppi: "Settori", unGruppo: "un settore", delGruppo: "del settore",
+        nGruppi: n => `${n} settori`, tutti: "tutti gli 11 settori", tuttiI: "tutti i settori",
+        indice: "S&P 500", indiceIntero: "S&P 500 intero", indiceKpi: "S&P 500, titoli sopra la media 200",
+        bench: "SPY", rotazione: "Rotazione vs SPY", rotazioneTesto: "Rotazione contro SPY", prezzo: "ETF", prezzoDel: "dell'ETF", ilPrezzo: "l'ETF", azioni: "azioni dell'S&P 500", inIndice: "nell'S&P 500",
+        dal: "dal 2005", rendimenti: "I rendimenti sono dell'ETF, dividendi inclusi.",
+      },
+    },
+    eur: {
+      zona: "eur", nome: "Europa", cal: "milano",
+      // il riepilogo dei gruppi arriva solo quando si entra nella zona (o la Home lo chiede)
+      pronto: () => {
+        if (R.metaEu) return Promise.resolve(R.metaEu);
+        if (!caricaEu) caricaEu = R.dati.europaMeta().then(m => { R.metaEu = m; R.emit("prezzi", { mercato: "europaAmpiezza", aggiornato: m.aggiornato }); return m; })
+          .catch(e => { caricaEu = null; throw e; });
+        return caricaEu;
+      },
+      meta: () => R.metaEu,
+      settore: id => R.dati.europaGruppo(id),
+      tutti: () => R.dati.europaGruppi(),
+      indice: () => R.dati.europaIndice(),
+      cod: s => s.codice || s.etf,
+      sotto: s => (s.tipo === "indice" ? (s.codice !== s.nome ? `${s.nome} · ${s.paese}` : `indice · ${s.paese}`)
+        : s.codice !== s.nome ? `settore · ${s.nome.toLowerCase()}` : "settore europeo"),
+      link: id => "#eur/settori/" + id,
+      linkTitolo: (id, t) => "#eur/azioni/" + t,
+      tipi: [["settore", "Settori europei"], ["indice", "Indici"]],
+      t: {
+        gruppo: "gruppo", gruppi: "settori e indici", Gruppo: "Settore o indice", Gruppi: "Settori e indici", unGruppo: "un settore o un indice", delGruppo: "del gruppo",
+        nGruppi: n => `${n} settori e indici`, tutti: "tutti i settori e gli indici", tuttiI: "tutti i settori e gli indici",
+        indice: "Europa", indiceIntero: "Tutte le azioni europee del sito", indiceKpi: "Europa, azioni sopra la media 200",
+        bench: "STOXX 600", rotazione: "Rotazione relativa", rotazioneTesto: "Rotazione (settori contro la media delle azioni europee, indici contro lo STOXX 600, in euro)", prezzo: "prezzo", prezzoDel: "del prezzo", ilPrezzo: "il prezzo", azioni: "azioni europee", inIndice: "fra le azioni europee",
+        dal: "dal 2005", rendimenti: "I rendimenti sono del livello dell'indice (in valuta locale, di solito senza dividendi) o, per i settori, di un paniere a pesi uguali delle sue azioni in euro (dividendi inclusi).",
+      },
+    },
+  };
+  R.mercato = zona => R.mercati[zona === "eur" ? "eur" : "usa"];
+  // il mercato a cui appartiene un gruppo
+  R.mercatoDi = id => (R.meta && R.meta.settori.some(s => s.etf === id) ? R.mercati.usa : R.mercati.eur);
+  // nome breve di un gruppo per le frasi: «XLE» negli USA, «Energia» o «DAX» in Europa
+  R.codice = id => { const s = R.metaDi(id); return s ? (s.codice || s.etf) : id; };
+
+  // testi delle pagine che cambiano fra USA ed Europa: l'elemento con data-eur ha il testo europeo,
+  // quello scritto nella pagina è per gli USA
+  R.testiZona = (box, zona) => {
+    R.$$("[data-eur]", box).forEach(el => {
+      if (el.dataset.usa == null) el.dataset.usa = el.innerHTML;
+      el.innerHTML = zona === "eur" ? el.dataset.eur : el.dataset.usa;
+    });
+    R.$$("[data-solo]", box).forEach(el => { el.hidden = el.dataset.solo !== zona; });
+  };
+
+  // quadrante settimanale di ogni gruppo contro il termine di confronto: SPY negli USA; in Europa, come nella
+  // Rotazione, i settori contro la media a pesi uguali delle azioni europee e gli indici contro lo STOXX 600, in euro
+  R.rotazioneGruppi = async function (M, tutti) {
+    const Rot = window.Rotazione, Cal = window.Calendario;
+    const out = {};
+    try {
+      let date, benchDi, serie;
+      if (M.zona === "eur") {
+        const ind = await M.indice();
+        date = ind.date;
+        benchDi = s => (s.tipo === "indice" ? ind.close : ind.paniere);
+        serie = id => { const d = tutti[id] || {}; return d.close_eur || d.close; };
+      } else {
+        const px = await R.dati.prezzi("usa");
+        date = px.date; benchDi = () => px.serie.SPY; serie = id => px.serie[id];
+      }
+      const b = Rot.barre(date.slice(-800), "settimanali", d => Cal.successiva(d, M.cal));
+      const off = date.length - Math.min(date.length, 800);
+      b.indici = b.indici.map(i => i + off);
+      for (const s of M.meta().settori) {
+        const sr = serie(s.etf), bench = benchDi(s);
+        if (!sr || !bench) continue;
+        const pb = b.indici.map(i => bench[i]);
+        const p = b.indici.map(i => sr[i]);
+        const r = Rot.calcola(p, pb, "nuova");
+        out[s.etf] = Rot.misure(r.ratio, r.mom, p.length - 1);
+        if (out[s.etf]) out[s.etf].provvisoria = b.provvisoria;
+      }
+    } catch (e) { /* senza rotazione */ }
+    return out;
+  };
+
   // ---------- colori ----------
   R.colori = () => ({
     price: R.css("--price"), priceArea: R.css("--price-area"), ma: R.css("--ma"), dd: R.css("--dd"), ddArea: R.css("--dd-area"),
@@ -219,8 +330,16 @@
   R.ORDINE_STATI = { fallito: 0, trigger: 1, blu: 2, attenzione: 3, cooldown: 4, normale: 5 };
 
   // ---------- spiegazione delle regole (pagine Settori e Alert degli USA) ----------
-  R.htmlRegole = function (conParametri) {
+  R.htmlRegole = function (conParametri, M) {
     const P = R.parametri();
+    const eu = M && M.zona === "eur";
+    const ampiezza = eu
+      ? `È la quota di azioni del settore o dell'indice (fra le circa 470 europee del sito) che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
+            Le chiusure sono rettificate per split e dividendi. Per gli anni passati si usano i titoli di oggi: mancano le società uscite dagli indici o sparite, quindi l'ampiezza dei primi anni è un po' più alta del vero.`
+      : `È la quota di titoli dell'S&amp;P 500 del settore che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
+            Le chiusure sono corrette per gli split ma non per i dividendi; per gli anni passati si usano i titoli che erano nell'indice allora.`;
+    const prezzo = eu ? "il prezzo del gruppo (il livello dell'indice o, per un settore, un paniere a pesi uguali delle sue azioni in euro)" : "l'ETF";
+    const delGruppo = eu ? "del gruppo" : "del settore";
     const righe = conParametri ? `
       <details class="param">
         <summary>Parametri in uso</summary>
@@ -241,10 +360,9 @@
       <div class="notes-grid">
         <div>
           <h3><i class="dot" style="background:var(--b200)"></i>Ampiezza</h3>
-          <p>È la quota di titoli dell'S&amp;P 500 del settore che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
-            Le chiusure sono corrette per gli split ma non per i dividendi; per gli anni passati si usano i titoli che erano nell'indice allora.</p>
+          <p>${ampiezza}</p>
           <h3 class="gap"><i class="dot" style="background:var(--st-attenzione)"></i>Attenzione</h3>
-          <p>L'ampiezza è a non più di ${P.fasciaAttenzione} punti sopra il livello blu, oppure il drawdown è più profondo di ${P.ddAttenzione} sedute su 100 della storia del settore.</p>
+          <p>L'ampiezza è a non più di ${P.fasciaAttenzione} punti sopra il livello blu, oppure il drawdown è più profondo di ${P.ddAttenzione} sedute su 100 della storia ${delGruppo}.</p>
         </div>
         <div>
           <h3><i class="dot" style="background:var(--st-blu)"></i>Zona blu</h3>
@@ -257,16 +375,16 @@
           <p>L'ampiezza deve rialzarsi di almeno ${P.recuperoPunti} punti sopra il livello blu (o di ${P.recuperoTitoli} titoli, se valgono di più) e di almeno ${P.recuperoTitoli} titoli sopra il minimo toccato nella zona. Poi serve una conferma, scelta fra tre:</p>
           <ul>
             <li><b>spinta di ampiezza</b>: la quota sopra la media 20 passa da ${P.spinta20.da}% o meno a ${P.spinta20.a}% o più in ${P.spinta20.sedute} sedute, oppure quella sopra la media 50 da ${P.spinta50.da}% o meno a ${P.spinta50.a}% o più in ${P.spinta50.sedute};</li>
-            <li><b>prezzo in ripresa</b>: l'ETF chiude sopra una media a 20 sedute che sta salendo;</li>
+            <li><b>prezzo in ripresa</b>: ${prezzo} chiude sopra una media a 20 sedute che sta salendo;</li>
             <li><b>divergenza</b>: il prezzo segna un nuovo minimo mentre l'ampiezza resta sopra il suo.</li>
           </ul>
           <p>Le conferme diventano due quando la zona dura da più di ${P.zonaLunga} sedute o dopo un trigger fallito. Se l'ampiezza schizza direttamente sopra il livello di riarmo (<b>rimbalzo a V</b>) il trigger scatta senza conferme.</p>
           <h3 class="gap"><i class="dot" style="background:var(--st-fallito)"></i>Fallito</h3>
-          <p>Se nelle ${P.verifica} sedute dopo il trigger l'ETF chiude sotto il minimo della zona, meno la sua variazione giornaliera media, il trigger si annulla e si torna in zona blu.</p>
+          <p>Se nelle ${P.verifica} sedute dopo il trigger ${eu ? "il prezzo" : "l'ETF"} chiude sotto il minimo della zona, meno la sua variazione giornaliera media, il trigger si annulla e si torna in zona blu.</p>
         </div>
       </div>
       ${righe}
-      <p class="small">Va usato per scegliere dove approfondire, non come regola automatica: ogni settore ha pochi episodi e spesso l'ampiezza tocca il fondo prima del prezzo.</p>`;
+      <p class="small">Va usato per scegliere dove approfondire, non come regola automatica: ogni ${eu ? "gruppo" : "settore"} ha pochi episodi e spesso l'ampiezza tocca il fondo prima del prezzo.${eu ? " In Europa i livelli blu predefiniti sono il 5° percentile dell'ampiezza dal 2005 di ogni gruppo: non c'è una tabella di riferimento come per gli USA." : ""}</p>`;
   };
 
   // ---------- piccoli grafici ----------

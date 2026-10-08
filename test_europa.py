@@ -98,3 +98,63 @@ def test_prices_file():
         assert azn is None or azn["prezzi"][-1] is None or len(azn["prezzi"]) < len(p["date"])
         assert list(p["cambi"]) == ["GBP"] and p["cambi"]["GBP"]["date"][-1] == "2026-09-29"    # anche i cambi senza la seduta aperta
         assert abs(p["cambi"]["GBP"]["valori"][0] - cols["EURGBP=X"][0]) < 1e-5
+
+
+def test_breadth_history_groups_and_states():
+    """Storia lunga: ampiezza di settori e indici, prezzo del gruppo, livello blu predefinito, stati con stati.js."""
+    import shutil
+    import europa_ampiezza as ea
+    idx = pd.bdate_range("2003-09-01", "2026-09-29")
+    n = len(idx)
+    rng = np.random.default_rng(3)
+    mercato = rng.normal(0.0003, 0.01, n)
+    crollo = idx.searchsorted(pd.Timestamp("2008-06-02"))
+    mercato[crollo:crollo + 180] -= 0.004                                  # un ribasso diffuso
+    lista = json.loads(json.dumps(LISTA))
+    for k in range(8):                                                     # altri titoli per avere gruppi veri
+        lista["titoli"].append({"t": f"X{k}.MI", "nome": f"Banca {k}", "indici": ["FTSE MIB"], "paese": "Italia",
+                                "settore": "Finanziari", "valuta": "EUR"})
+    lista["titoli"].append({"t": "X0.L", "nome": "Banca 0", "indici": ["FTSE 100"], "paese": "Regno Unito",
+                            "settore": "Finanziari", "valuta": "GBp"})       # la stessa società a Londra
+    cols = {}
+    for j, x in enumerate(lista["titoli"]):
+        p = 50 * np.exp(np.cumsum(mercato + rng.normal(0, 0.012, n)))
+        if j == 2:
+            p[: n // 2] = np.nan                                           # in borsa da metà periodo
+        if j == 3:
+            p[n // 3] *= 100                                               # un errore di Yahoo per un giorno
+        cols[x["t"]] = p
+    cols["FTSEMIB.MI"] = 20000 * np.exp(np.cumsum(mercato))
+    cols["^FTSE"] = np.where(np.arange(n) < n // 2, np.nan, 7000 * np.exp(np.cumsum(mercato)))   # poca storia: paniere
+    cols["^STOXX"] = 400 * np.exp(np.cumsum(mercato))
+    cols["EURGBP=X"] = np.full(n, 0.85)
+    px = pd.DataFrame(cols, index=idx)
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "europa"
+        lista["soglie"] = {"FTSE-MIB": 7}
+        meta = ea.scrivi(px, idx, lista, out, "2005-01-03", {}, lista["confronto"])
+        assert meta and meta["calendario"] == "milano"
+        ids = {s["etf"]: s for s in meta["settori"]}
+        assert "FINANZIARI" in ids and ids["FINANZIARI"]["tipo"] == "settore"
+        assert ids["FTSE-MIB"]["soglia_default"] == 7 and ids["FTSE-MIB"]["prezzo_tipo"] == "indice"
+        assert ids["FTSE-100"]["prezzo_tipo"] == "paniere"                 # Yahoo con poca storia per l'indice
+        assert all(1 <= s["soglia_default"] <= 60 for s in meta["settori"])
+        fin = json.loads((out / "settori" / "FINANZIARI.json").read_text())
+        ind = json.loads((out / "indice.json").read_text())
+        assert fin["date"] == ind["date"] and ind["date"][0] == "2005-01-03" and len(fin["b200"]) == len(ind["date"])
+        assert fin["ma200"][0] is not None                                  # media 200 dalla storia prima del 2005
+        assert len(fin["titoli"]) == 9                                     # la banca quotata due volte conta una volta
+        assert ids["FTSE-MIB"]["n"] == 12 and not list(out.glob("**/*.tmp"))
+        assert len(fin["close"]) == len(ind["date"]) and fin["close"][0] is not None
+        k = ind["date"].index(next(x for x in ind["date"] if x >= "2009-01-02"))
+        assert fin["b200"][k] < 30 < max(v for v in fin["b200"] if v is not None)   # il ribasso si vede nell'ampiezza
+        # l'errore di un giorno non sposta il paniere più del taglio (al massimo +100% e poi −50%)
+        r = np.diff(np.log(np.array([v for v in fin["close"] if v is not None])))
+        assert np.abs(r).max() < np.log(2.01)
+        assert fin["titoli"] and {"t", "v200", "dd52", "valuta"} <= set(fin["titoli"][0])
+        if shutil.which("node"):
+            import subprocess
+            subprocess.run(["node", str(Path(be.__file__).parent / "stati.js"), str(out)], check=True, capture_output=True)
+            st = json.loads((out / "stati.json").read_text())
+            assert len(st["settori"]) == len(meta["settori"]) and "ampiezza_indice" in st
+            assert st["settori"][0]["codice"]

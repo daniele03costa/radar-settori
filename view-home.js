@@ -77,8 +77,11 @@
 
   // ---------------- dati degli USA ----------------
 
+  // livelli blu cambiati in questo browser per i gruppi di un mercato
+  const localiDi = settori => settori.some(s => (R.livelliLocali || {})[s.etf] != null);
+
   function statiUsa(stati) {
-    const locali = Object.keys(R.livelliLocali || {}).length > 0;
+    const locali = localiDi(R.meta.settori);
     // con livelli blu cambiati in questo browser gli stati si ricalcolano dai file dei settori (poi arriva «stati-settori»)
     if ((locali || !stati) && !R._settoriPronti && R.caricaStatiSettori) R.caricaStatiSettori();
     if (R._settoriPronti && (locali || !stati)) {
@@ -140,7 +143,7 @@
     }
     // cambi di stato recenti
     const cambi = ((x.stati && x.stati.cambi_recenti) || []).slice(0, 3);
-    if (cambi.length && !Object.keys(R.livelliLocali || {}).length) {
+    if (cambi.length && !localiDi(R.meta.settori)) {
       punti.push({ c: "var(--faint)", html: `Ultimi cambi: ${cambi.map(c => `<a href="#usa/settori/${c.etf}">${c.etf}</a> ${c.da_nome.toLowerCase()} → ${c.a_nome.toLowerCase()} (${dataIt(c.data).slice(0, 5)})`).join(", ")}.` });
     }
     // ampiezza dell'S&P 500
@@ -203,20 +206,60 @@
     box.innerHTML = testa(z, nome, `#${z}/monitor`) + `<p class="hc-vuoto">${testo}</p>`;
   }
 
+  // identificativo di un settore o indice europeo nei file dell'ampiezza: «FTSE MIB» → FTSE-MIB
+  const idEu = x => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "");
+
   // ---------------- Europa ----------------
+
+  // stati di settori e indici europei: quelli calcolati ogni notte, o ricalcolati con i livelli di questo browser
+  function statiEu(stati) {
+    const meta = R.metaEu;
+    if (!meta) return null;
+    const locali = localiDi(meta.settori);
+    if ((locali || !stati) && !R._gruppiEuPronti && R.caricaStatiSettori) R.caricaStatiSettori("eur");
+    if (R._gruppiEuPronti && (locali || !stati)) {
+      return meta.settori.map(s => {
+        let stato = null;
+        try { const d = R._gruppiEuPronti[s.etf]; if (d) stato = R.analisiSync(s.etf, d).statoOggi; } catch (e) { /* niente */ }
+        return { etf: s.etf, cod: s.codice || s.etf, nome: s.nome, stato: stato || "normale" };
+      });
+    }
+    if (stati && stati.settori) return stati.settori.map(s => ({ etf: s.etf, cod: s.codice || s.etf, nome: s.nome, stato: s.stato || "normale" }));
+    return null;
+  }
+
+  async function riepilogoEu() {
+    const [x, stati] = await Promise.all([
+      R.viste.eur.riepilogo(),
+      R.mercati.eur.pronto().then(() => R.dati.europaStati()).catch(() => null),
+    ]);
+    if (x) x.stati = stati;
+    return x;
+  }
 
   function disegnaEur(x) {
     const box = $("#home-eur");
     const s = x.indice, a = s ? s.a : null;
     const punti = [];
+    const gruppi = statiEu(x.stati);
+    if (gruppi) {
+      const caldi = ["fallito", "trigger", "blu", "attenzione", "cooldown"].map(k => [k, gruppi.filter(g => g.stato === k)]).filter(([, v]) => v.length);
+      const link = g => `<a href="#eur/settori/${g.etf}" title="${esc(g.nome)}">${esc(g.cod)}</a>`;
+      punti.push({
+        c: caldi.length ? `var(--st-${caldi[0][0]})` : "var(--st-normale)",
+        html: caldi.length
+          ? caldi.map(([k, v]) => `<span class="st-pill st-${k}">${S.STATI[k]}</span> ${v.map(link).join(", ")}`).join(" · ")
+          : "Nessun settore o indice europeo in zona blu o in attenzione.",
+      });
+    }
     if (x.indici.length >= 4) {
       const forti = x.indici.slice(0, 2), deboli = x.indici.slice(-1);
-      const link = i => `<a href="#eur/settori/${encodeURIComponent(i.nome)}">${esc(i.nome)}</a> ${p100(i.m3)}`;
+      const link = i => `<a href="#eur/settori/${idEu(i.nome)}">${esc(i.nome)}</a> ${p100(i.m3)}`;
       punti.push({ c: "var(--soglia)", html: `Indici a 3 mesi, in euro: più forti ${forti.map(link).join(", ")}; più debole ${deboli.map(link).join("")}.` });
     }
     const lead = x.settori.filter(z => z.rs && z.rs.quadrante === "leader").sort((u, v) => v.rs.ratio - u.rs.ratio);
     const migl = x.settori.filter(z => z.rs && z.rs.quadrante === "miglioramento").sort((u, v) => v.rs.mom - u.rs.mom);
-    const linkS = z => `<a href="#eur/settori/${encodeURIComponent(z.nome)}">${esc(z.nome)}</a>`;
+    const linkS = z => `<a href="#eur/settori/${idEu(z.nome)}">${esc(z.nome)}</a>`;
     if (lead.length || migl.length) {
       punti.push({ c: "var(--q-leader)", html: `Settori sulla media europea: ${[lead.length ? `leader ${elenco(lead.slice(0, 3).map(linkS))}` : "", migl.length ? `in miglioramento ${elenco(migl.slice(0, 2).map(linkS))}` : ""].filter(Boolean).join("; ")}.` });
     }
@@ -319,7 +362,7 @@
 
   const PASSI = {
     usa: [riepilogoUsa, disegnaUsa, "I prezzi USA non ci sono ancora: arrivano con l'aggiornamento automatico."],
-    eur: [() => R.viste.eur.riepilogo(), disegnaEur, "I dati delle azioni europee non ci sono ancora: arrivano con l'aggiornamento automatico."],
+    eur: [riepilogoEu, disegnaEur, "I dati delle azioni europee non ci sono ancora: arrivano con l'aggiornamento automatico."],
     cry: [() => R.viste.cry.riepilogo(), disegnaCry, "I dati crypto non ci sono ancora: arrivano con l'aggiornamento automatico."],
     pf: [() => R.portafoglio.riepilogo(), disegnaPf, ""],
   };
@@ -354,8 +397,12 @@
       const card = e.target.closest(".home-card[data-zona]");
       if (card) R.vai(`#${card.dataset.zona}/monitor`);
     });
-    R.on("livelli", () => { st.pronti.usa = null; if (st.visibile) disegna(); });
-    R.on("stati-settori", () => { if (st.visibile && st.pronti.usa) disegnaUsa(st.pronti.usa); });
+    R.on("livelli", () => { if (st.visibile) disegna(); });
+    R.on("stati-settori", z => {
+      if (!st.visibile) return;
+      if (z === "eur") { if (st.pronti.eur) disegnaEur(st.pronti.eur); }
+      else if (st.pronti.usa) disegnaUsa(st.pronti.usa);
+    });
     R.on("portafoglio", () => { st.pronti.pf = null; if (st.visibile) disegna(); });
     R.on("tema", () => { if (st.visibile) disegna(); });
     window.addEventListener("resize", R.debounce(() => { if (st.visibile) disegna(); }, 250));
@@ -390,6 +437,8 @@
         `Azioni europee sopra la media 200: ${e.amp.sopra} su ${e.amp.validi} (un mese fa ${e.amp.mese == null ? "—" : num(e.amp.mese * 100, 0) + "%"}). Nuovi massimi a 52 settimane nell'ultima settimana: ${e.nMax}, nuovi minimi: ${e.nMin}.`,
         "Indici a 3 mesi in euro: " + e.indici.map(i => `${i.nome} ${p100(i.m3)}`).join(", ") + ".",
         "Settori (forza relativa sulla media europea): " + e.settori.map(z => `${z.nome} ${z.rs ? NOMI_Q[z.rs.quadrante] : "—"}`).join(", ") + ".");
+      const g = statiEu(e.stati);
+      if (g) out.push("Stati di settori e indici europei (ampiezza dal 2005, stesse regole degli USA): " + g.map(z => `${z.cod} ${S.STATI[z.stato] || z.stato}`).join(", ") + ".");
     }
     const c = st.pronti.cry;
     if (c) {

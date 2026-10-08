@@ -1,6 +1,6 @@
 /*
- * Radar Settori — vista 5: registro dei cambi di stato dal 2005, con statistiche
- * e la striscia degli stati di ogni settore nel tempo.
+ * Radar Settori — Alert: registro dei cambi di stato dal 2005, con statistiche e la striscia degli stati
+ * di ogni settore USA (o di ogni settore e indice europeo) nel tempo.
  */
 (function () {
   "use strict";
@@ -9,7 +9,9 @@
   const { $, num, pct, dataIt, esc, cls } = R;
   let visibile = false;
   let tipi = new Set(R.store.get("alr.tipi", ["blu", "trigger", "fallito"]));
-  let settore = R.store.get("alr.settore", "");
+  let M = R.mercati.usa;
+  const scelte = { usa: R.store.get("alr.settore", ""), eur: R.store.get("alr.settoreEu", "") };
+  let settore = scelte.usa;
   let limite = 300;
   let storia = null;   // geometria dell'ultima striscia disegnata (per il passaggio del mouse)
   let ultimo = null;   // ultimi dati calcolati (per la chat)
@@ -36,7 +38,7 @@
       const s = a.stati[t];
       if (!s) continue;
       if (s !== prima) {
-        const ev = { t, data: d.date[t], etf, da: prima, a: s, b200: d.b200[t], dd: d.dd[t], perc: a.ddPerc[t] };
+        const ev = { t, data: d.date[t], etf, cod: R.codice(etf), da: prima, a: s, b200: d.b200[t], dd: d.dd[t], perc: a.ddPerc[t] };
         if (s === "trigger" && trigger.has(t)) {
           const x = trigger.get(t);
           ev.motivi = x.motivi;
@@ -66,8 +68,12 @@
     const box = $("#alr-storia");
     const W = Math.max(320, box.clientWidth || 900);
     const stretto = W < 640;
-    const rowH = stretto ? 13 : 16, gap = stretto ? 5 : 6, lab = stretto ? 44 : 56, asse = 24;
-    const H = perSettore.length * (rowH + gap) - gap + asse + 4;
+    const eu = M.zona === "eur";
+    const rowH = stretto ? 13 : 16, gap = stretto ? 5 : 6, lab = eu ? (stretto ? 74 : 104) : (stretto ? 44 : 56), asse = 24;
+    const intestazioni = [];            // in Europa: una riga di titolo prima dei settori e prima degli indici
+    let righeTot = perSettore.length;
+    if (eu && M.tipi) { righeTot += M.tipi.filter(([k]) => perSettore.some(x => x.tipo === k)).length; }
+    const H = righeTot * (rowH + gap) - gap + asse + 4;
     const dpr = window.devicePixelRatio || 1;
     let cv = box.querySelector("canvas");
     if (!cv) {
@@ -102,7 +108,7 @@
     ctx.textBaseline = "alphabetic";
     const y0 = new Date(t0).getUTCFullYear(), y1 = new Date(t1).getUTCFullYear();
     const passoAnni = pw < 500 ? 5 : pw < 900 ? 2 : 1;
-    const yAsse = perSettore.length * (rowH + gap) - gap;
+    const yAsse = righeTot * (rowH + gap) - gap;
     for (let y = y0 + 1; y <= y1; y++) {
       const x = Math.round(X(Date.UTC(y, 0, 1))) + 0.5;
       ctx.fillStyle = griglia;
@@ -114,14 +120,28 @@
     }
 
     const righe = [];
-    perSettore.forEach((x, r) => {
+    let r = -1, tipoPrima = null;
+    perSettore.forEach(x => {
+      r++;
+      if (eu && M.tipi && x.tipo !== tipoPrima) {
+        // riga di titolo del gruppo
+        const nome = (M.tipi.find(t => t[0] === x.tipo) || [])[1] || "";
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = tenue;
+        ctx.font = `600 11px ${R.css("--font")}`;
+        ctx.textAlign = "left";
+        ctx.fillText(nome.toUpperCase(), 0, r * (rowH + gap) + rowH / 2 + 4);
+        intestazioni.push(r);
+        tipoPrima = x.tipo;
+        r++;
+      }
       const y = r * (rowH + gap);
       const spento = settore && settore !== x.etf;
       ctx.globalAlpha = spento ? 0.3 : 1;
       ctx.fillStyle = spento ? tenue : inchiostro;
       ctx.font = `600 12px ${R.css("--font")}`;
       ctx.textAlign = "left";
-      ctx.fillText(x.etf, 0, y + rowH / 2 + 4);
+      ctx.fillText(x.cod, 0, y + rowH / 2 + 4, lab - 6);
       // fondo della riga
       ctx.fillStyle = traccia;
       ctx.fillRect(x0, y, pw, rowH);
@@ -157,7 +177,7 @@
         prima = s;
       }
       ctx.globalAlpha = 1;
-      righe.push({ etf: x.etf, nome: x.nome, y, st, dd });
+      righe.push({ etf: x.etf, nome: x.nome, cod: x.cod, sotto: x.sotto, y, st, dd, r });
     });
     storia = { W, H, x0, pw, rowH, gap, righe, t0, t1, yAsse };
   }
@@ -169,7 +189,7 @@
     const rect = cv.getBoundingClientRect();
     const x = ev.clientX - rect.left, y = ev.clientY - rect.top;
     const r = Math.floor(y / (storia.rowH + storia.gap));
-    const riga = storia.righe[r];
+    const riga = storia.righe.find(z => z.r === r);
     if (!riga || x < storia.x0 || x > storia.x0 + storia.pw || y > storia.yAsse) { tip.hidden = true; box.classList.remove("puntatore"); return null; }
     const t = storia.t0 + ((x - storia.x0) / storia.pw) * (storia.t1 - storia.t0);
     // seduta più vicina
@@ -180,7 +200,7 @@
     // da quanto dura lo stato
     let k = i;
     while (k > 0 && riga.st[k - 1] === riga.st[i]) k--;
-    tip.innerHTML = `<div class="d">${riga.etf} · ${esc(riga.nome)}</div>
+    tip.innerHTML = `<div class="d">${esc(riga.cod)} · ${esc(riga.sotto)}</div>
       <div class="r"><span>${dataIt(riga.dd[i])}</span><span class="st-pill st-${s}">${S.STATI[s]}</span></div>
       <div class="r"><span>Stato iniziato il</span><span>${dataIt(riga.dd[k])}</span></div>`;
     tip.hidden = false;
@@ -194,12 +214,21 @@
 
   // ---------- vista ----------
   async function disegna() {
-    const tutti = await R.dati.tuttiSettori();
-    if (!visibile) return;
-    const perSettore = R.meta.settori.map(s => {
+    const m = M;
+    let tutti;
+    try { await m.pronto(); tutti = await m.tutti(); }
+    catch (e) {
+      if (visibile && m === M) $("#alr-kpi").innerHTML = `<p class="empty-note">${m.zona === "eur" ? "I dati dell'ampiezza europea non ci sono ancora: arrivano con il prossimo aggiornamento automatico." : "Dati non disponibili."}</p>`;
+      return;
+    }
+    if (!visibile || m !== M) return;
+    // in Europa: prima i settori, poi gli indici
+    const ordine = m.tipi ? m.tipi.flatMap(([k]) => m.meta().settori.filter(s => s.tipo === k)) : m.meta().settori;
+    const perSettore = ordine.map(s => {
       const d = tutti[s.etf], a = R.analisiSync(s.etf, d);
-      return { etf: s.etf, nome: s.nome, d, a, ev: eventi(s.etf, d, a) };
+      return { etf: s.etf, nome: s.nome, cod: m.cod(s), sotto: m.sotto(s), tipo: s.tipo, d, a, ev: eventi(s.etf, d, a) };
     });
+    if (settore && !perSettore.some(x => x.etf === settore)) settore = "";
     const scelti = perSettore.filter(x => !settore || x.etf === settore);
 
     // statistiche
@@ -209,27 +238,30 @@
     const r3 = confermati.map(e => e.r3).filter(v => v != null);
     const attese = confermati.map(e => e.segnale - e.inizio);
     const primo = perSettore[0] ? perSettore[0].d.date[perSettore[0].d.b200.findIndex(v => v != null)] : "2005-01-03";
-    $("#alr-sub").textContent = `Stati ricalcolati per ogni seduta dal ${dataIt(primo)} con i livelli blu in uso${Object.keys(R.livelliLocali).length ? " (alcuni cambiati in questo browser)" : ""}. I rendimenti sono dell'ETF, dividendi inclusi.`;
+    const cambiati = Object.keys(R.livelliLocali).some(k => perSettore.some(x => x.etf === k));
+    $("#alr-sub").textContent = `Stati ricalcolati per ogni seduta dal ${dataIt(primo)} con i livelli blu in uso${cambiati ? " (alcuni cambiati in questo browser)" : ""}. ${m.t.rendimenti}` +
+      (m.zona === "eur" ? " Le azioni sono quelle di oggi anche per gli anni passati." : "");
     const tile = (k, l, v, s) => `<div class="kpi"${k ? ` style="--k:${k}"` : ""}><div class="l">${k ? "<i></i>" : ""}${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
     $("#alr-kpi").innerHTML =
-      tile("var(--st-blu)", "Zone blu", episodi.length, settore ? `${settore}, dal ${primo.slice(0, 4)}` : `tutti i settori, dal ${primo.slice(0, 4)}`) +
+      tile("var(--st-blu)", "Zone blu", episodi.length, settore ? `${esc(R.codice(settore))}, dal ${primo.slice(0, 4)}` : `${m.t.tuttiI}, dal ${primo.slice(0, 4)}`) +
       tile("var(--st-trigger)", "Trigger confermati", confermati.length, `${nFalliti} ${nFalliti === 1 ? "fallito" : "falliti"} prima`) +
       tile("var(--st-fallito)", "Trigger falliti", `${confermati.length + nFalliti ? num((nFalliti / (confermati.length + nFalliti)) * 100, 0) : "—"}<small>%</small>`, "sul totale dei trigger") +
       tile(null, "3 mesi dopo il trigger", `<span class="${cls(mediana(r3))}">${pct(mediana(r3), 1)}</span>`, `mediana su ${r3.length} ${r3.length === 1 ? "caso" : "casi"}`) +
       tile(null, "Positivi a 3 mesi", `${r3.length ? num((r3.filter(v => v > 0).length / r3.length) * 100, 0) : "—"}<small>%</small>`, "dei trigger con 3 mesi di dati") +
       tile(null, "Attesa del trigger", `${attese.length ? num(mediana(attese), 0) : "—"}<small> sedute</small>`, "mediana dall'ingresso in zona blu");
 
+    if (selectDi !== m.zona) disegnaFiltri();
     disegnaStoria(perSettore);
 
     // tabella
-    let tutte = scelti.flatMap(x => x.ev.map(e => Object.assign(e, { nome: x.nome })));
+    let tutte = scelti.flatMap(x => x.ev.map(e => Object.assign(e, { nome: x.nome, sotto: x.sotto })));
     tutte = tutte.filter(e => tipi.has(e.a) && e.da != null).sort((x, y) => (y.data.localeCompare(x.data)) || x.etf.localeCompare(y.etf));
     ultimo = { perSettore, tutte, primo, episodi: episodi.length, confermati: confermati.length, nFalliti, r3, attese };
     const mostrate = tutte.slice(0, limite);
     const pill = s => s ? `<span class="st-pill st-${s}">${S.STATI[s]}</span>` : "";
     $("#alr-conta").textContent = `${tutte.length} ${tutte.length === 1 ? "evento" : "eventi"}`;
     $("#alr-tabella").innerHTML = `<thead><tr>
-        <th class="l">Data</th><th class="l">Settore</th><th class="l">Cambio</th><th>Ampiezza</th><th>Drawdown</th>
+        <th class="l">Data</th><th class="l">${m.zona === "eur" ? "Gruppo" : "Settore"}</th><th class="l">Cambio</th><th>Ampiezza</th><th>Drawdown</th>
         <th class="l">Dettagli</th><th>+1M</th><th>+3M</th><th>+6M</th>
       </tr></thead><tbody>` +
       (mostrate.map(e => {
@@ -240,7 +272,7 @@
         const r = v => `<td class="${cls(v)}">${e.a === "trigger" ? pct(v, 1) : ""}</td>`;
         return `<tr class="clic" data-etf="${e.etf}">
           <td class="l">${dataIt(e.data)}</td>
-          <td class="l"><b>${e.etf}</b><small class="sub-line">${esc(e.nome)}</small></td>
+          <td class="l"><b>${esc(e.cod)}</b><small class="sub-line">${esc(e.sotto)}</small></td>
           <td class="l nowrap">${pill(e.da)} <span class="muted arrow">→</span> ${pill(e.a)}</td>
           <td>${num(e.b200, 1)}%</td>
           <td>${pct(e.dd, 1)}</td>
@@ -252,10 +284,16 @@
       (tutte.length > limite ? `<tfoot><tr><td colspan="9" class="piu"><button class="btn-link" type="button" id="alr-altri">Mostra altri ${Math.min(300, tutte.length - limite)} (di ${tutte.length})</button></td></tr></tfoot>` : "");
   }
 
+  let selectDi = null;     // di quale mercato è l'elenco dei gruppi nel menu
   function disegnaFiltri() {
+    selectDi = M.meta() ? M.zona : null;
     $("#alr-tipi").innerHTML = TIPI.map(t => `<button type="button" class="chip-btn st-${t}" data-t="${t}" aria-pressed="${tipi.has(t)}">${S.STATI[t]}</button>`).join("");
-    $("#alr-settore").innerHTML = `<option value="">Tutti i settori</option>` +
-      R.meta.settori.map(s => `<option value="${s.etf}"${s.etf === settore ? " selected" : ""}>${s.etf} · ${esc(s.nome)}</option>`).join("");
+    const meta = M.meta();
+    const opz = s => `<option value="${s.etf}"${s.etf === settore ? " selected" : ""}>${esc(M.cod(s))} · ${esc(M.sotto(s))}</option>`;
+    $("#alr-settore").setAttribute("aria-label", M.t.Gruppo);
+    $("#alr-settore").innerHTML = `<option value="">${M.zona === "eur" ? "Tutti i settori e gli indici" : "Tutti i settori"}</option>` + (!meta ? "" : M.tipi
+      ? M.tipi.map(([k, nome]) => `<optgroup label="${esc(nome)}">${meta.settori.filter(s => s.tipo === k).map(opz).join("")}</optgroup>`).join("")
+      : meta.settori.map(opz).join(""));
     $("#alr-legenda").innerHTML = ["attenzione", "blu", "trigger", "fallito", "cooldown"]
       .map(s => `<span><i class="sw box" style="background:var(--st-${s})"></i>${S.STATI[s]}</span>`).join("") +
       `<span><i class="sw box" style="background:var(--surface-3)"></i>Normale</span>`;
@@ -274,16 +312,21 @@
       limite = 300;
       disegna();
     });
-    $("#alr-settore").addEventListener("change", e => { settore = e.target.value; R.store.set("alr.settore", settore); limite = 300; disegna(); });
+    $("#alr-settore").addEventListener("change", e => {
+      settore = scelte[M.zona] = e.target.value;
+      R.store.set(M.zona === "eur" ? "alr.settoreEu" : "alr.settore", settore);
+      limite = 300;
+      disegna();
+    });
     $("#alr-tabella").addEventListener("click", e => {
       if (e.target.id === "alr-altri") { limite += 300; disegna(); return; }
       const tr = e.target.closest("tr[data-etf]");
-      if (tr && !e.target.closest("button")) R.vai("#usa/settori/" + tr.dataset.etf);
+      if (tr && !e.target.closest("button")) R.vai(M.link(tr.dataset.etf));
     });
     const box = $("#alr-storia");
     box.addEventListener("mousemove", tipStoria);
     box.addEventListener("mouseleave", () => { const t = box.querySelector(".chart-tip"); if (t) t.hidden = true; box.classList.remove("puntatore"); });
-    box.addEventListener("click", e => { const riga = tipStoria(e); if (riga) R.vai("#usa/settori/" + riga.etf); });
+    box.addEventListener("click", e => { const riga = tipStoria(e); if (riga) R.vai(M.link(riga.etf)); });
     R.on("livelli", () => { if (visibile) disegna(); });
     R.on("tema", () => { if (visibile) disegna(); });
     window.addEventListener("resize", R.debounce(() => { if (visibile) disegna(); }, 200));
@@ -294,33 +337,51 @@
     if (!ultimo) return "## Pagina aperta: Alert\nI dati non sono ancora caricati.";
     const u = ultimo;
     const out = [];
-    out.push("## Pagina aperta: Alert (storico dei cambi di stato)");
-    out.push("La pagina mostra le statistiche dei trigger, la striscia degli stati di ogni settore dal 2005 (una riga per settore, colorata per stato), il registro dei cambi di stato e le regole.");
-    out.push(`Filtri: tipi di evento ${Array.from(tipi).map(t => S.STATI[t]).join(", ") || "nessuno"}; settore ${settore || "tutti"}.`);
-    out.push(`Statistiche${settore ? ` di ${settore}` : " di tutti i settori"} dal ${dataIt(u.primo)}: ${u.episodi} zone blu; ${u.confermati} trigger confermati e ${u.nFalliti} falliti` +
+    const eu = M.zona === "eur";
+    out.push(`## Pagina aperta: ${eu ? "Europa" : "USA"} · Alert (storico dei cambi di stato)`);
+    out.push(`La pagina mostra le statistiche dei trigger, la striscia degli stati di ogni ${eu ? "settore e indice europeo" : "settore"} dal 2005 (una riga per ${eu ? "gruppo" : "settore"}, colorata per stato), il registro dei cambi di stato e le regole.` +
+      (eu ? " Prezzo: livello dell'indice o paniere a pesi uguali del settore; ampiezza calcolata con le azioni di oggi anche per gli anni passati." : ""));
+    out.push(`Filtri: tipi di evento ${Array.from(tipi).map(t => S.STATI[t]).join(", ") || "nessuno"}; ${eu ? "gruppo" : "settore"} ${settore ? R.codice(settore) : "tutti"}.`);
+    out.push(`Statistiche${settore ? ` di ${R.codice(settore)}` : ` di ${M.t.tuttiI}`} dal ${dataIt(u.primo)}: ${u.episodi} zone blu; ${u.confermati} trigger confermati e ${u.nFalliti} falliti` +
       `${u.confermati + u.nFalliti ? ` (${num((u.nFalliti / (u.confermati + u.nFalliti)) * 100, 0)}% falliti)` : ""}; ` +
-      `ETF a 3 mesi dal trigger: mediana ${pct(mediana(u.r3), 1)}, positivi ${u.r3.length ? num((u.r3.filter(v => v > 0).length / u.r3.length) * 100, 0) : "—"}% su ${u.r3.length} casi; ` +
+      `${eu ? "Prezzo" : "ETF"} a 3 mesi dal trigger: mediana ${pct(mediana(u.r3), 1)}, positivi ${u.r3.length ? num((u.r3.filter(v => v > 0).length / u.r3.length) * 100, 0) : "—"}% su ${u.r3.length} casi; ` +
       `attesa mediana tra ingresso in zona blu e trigger: ${u.attese.length ? num(mediana(u.attese), 0) : "—"} sedute.`);
-    out.push("Stato attuale e zone blu di ogni settore: settore | stato oggi | numero di zone blu | trigger confermati | falliti");
+    out.push(`Stato attuale e zone blu di ogni ${eu ? "gruppo" : "settore"}: ${eu ? "gruppo" : "settore"} | stato oggi | numero di zone blu | trigger confermati | falliti`);
     for (const x of u.perSettore) {
       const ok = x.a.episodi.filter(e => e.segnale != null).length;
       const ko = x.a.episodi.reduce((k, e) => k + e.falliti.length, 0);
-      out.push(`${x.etf} ${x.nome} | ${S.STATI[x.a.statoOggi || "normale"]} | ${x.a.episodi.length} | ${ok} | ${ko}`);
+      out.push(`${x.cod} ${eu ? `(${x.sotto})` : x.nome} | ${S.STATI[x.a.statoOggi || "normale"]} | ${x.a.episodi.length} | ${ok} | ${ko}`);
     }
     const mostrate = u.tutte.slice(0, 60);
-    out.push(`Registro filtrato: ${u.tutte.length} eventi; i più recenti ${mostrate.length}: data | settore | da → a | % sopra media 200 | drawdown | dettagli | ETF +1M, +3M, +6M (solo per i trigger)`);
+    out.push(`Registro filtrato: ${u.tutte.length} eventi; i più recenti ${mostrate.length}: data | ${eu ? "gruppo" : "settore"} | da → a | % sopra media 200 | drawdown | dettagli | ${eu ? "prezzo" : "ETF"} +1M, +3M, +6M (solo per i trigger)`);
     for (const e of mostrate) {
       let det = "";
       if (e.a === "trigger") det = (e.motivi || []).map(m => S.MOTIVI[m]).join(" + ") + (e.fallito ? ", poi fallito" : "");
       else if (e.a === "fallito") det = e.trigger ? `annulla il trigger del ${dataIt(e.trigger)}` : "";
       else if (e.a === "blu") det = `drawdown ${R.art("al", num(e.perc, 0) + "°")} percentile`;
-      out.push(`${dataIt(e.data)} | ${e.etf} | ${S.STATI[e.da]} → ${S.STATI[e.a]} | ${num(e.b200, 1)}% | ${pct(e.dd, 1)} | ${det || "—"} | ${e.a === "trigger" ? `${pct(e.r1, 1)}, ${pct(e.r3, 1)}, ${pct(e.r6, 1)}` : "—"}`);
+      out.push(`${dataIt(e.data)} | ${e.cod} | ${S.STATI[e.da]} → ${S.STATI[e.a]} | ${num(e.b200, 1)}% | ${pct(e.dd, 1)} | ${det || "—"} | ${e.a === "trigger" ? `${pct(e.r1, 1)}, ${pct(e.r3, 1)}, ${pct(e.r6, 1)}` : "—"}`);
     }
     return out.join("\n");
   }
 
-  function mostra() { visibile = true; document.title = "Alert · Radar Settori"; return disegna(); }
+  function mostra(param, ctx) {
+    visibile = true;
+    const m = R.mercato(ctx && ctx.zona);
+    if (m !== M) {
+      M = m;
+      settore = scelte[M.zona] || "";
+      limite = 300;
+      ultimo = null; storia = null;
+      ["#alr-kpi", "#alr-tabella", "#alr-storia"].forEach(k => { $(k).innerHTML = ""; });
+      $("#alr-conta").textContent = "";
+      $("#alr-sub").innerHTML = "&nbsp;";
+    }
+    $("#regole-alert").innerHTML = R.htmlRegole(true, M);
+    R.testiZona($("#view-alr"), M.zona);
+    document.title = `Alert ${M.nome} · Radar Settori`;
+    return disegna();
+  }
   function nascondi() { visibile = false; }
 
-  R.viste.alr = { init, mostra, nascondi, contesto };
+  R.viste.alr = { init, mostra, nascondi, contesto, mercato: () => M };
 })();

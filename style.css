@@ -207,6 +207,17 @@ code, kbd { font-family: var(--font-code); }
 .sec .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--b200); opacity: .85; }
 .sec .bar s { position: absolute; top: -2px; width: 2px; height: 7px; background: var(--soglia); border-radius: 1px; }
 .sec .stato { grid-column: 2 / 4; font-size: 11px; font-weight: 600; color: var(--c); margin-top: 1px; }
+/* Europa: 26 gruppi con nomi più lunghi: il nome su tutta la riga, sotto il paese e la percentuale, divisi in due gruppi */
+.sec-scelta.eu { grid-template-columns: repeat(auto-fill, minmax(126px, 1fr)); gap: 6px; }
+.sec-scelta.eu .sec { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "t t" "n v" "bar bar" "stato stato"; padding: 6px 9px 7px; }
+.sec-scelta.eu .sec .t { grid-area: t; font-size: 12px; letter-spacing: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.sec-scelta.eu .sec .t::before { display: inline-block; margin-right: 6px; vertical-align: 1px; }
+.sec-scelta.eu .sec .n { grid-area: n; font-size: 11.5px; color: var(--muted); }
+.sec-scelta.eu .sec .v { grid-area: v; font-size: 12px; }
+.sec-scelta.eu .sec .bar { grid-area: bar; }
+.sec-scelta.eu .sec .stato { grid-area: stato; }
+.sec-gruppo { grid-column: 1 / -1; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 6px 0 -2px; }
+.sec-gruppo:first-child { margin-top: 0; }
 
 .theme-btn {
   display: inline-flex; align-items: center; gap: 7px; justify-content: center; flex: none;
@@ -506,6 +517,8 @@ footer { padding: 28px 2px 0; font-size: 12.5px; color: var(--muted); max-width:
   .sec-scelta .sec { flex: 0 0 140px; grid-template-columns: 1fr auto; padding: 7px 10px; }
   .sec-scelta .sec .n { grid-column: 1 / -1; grid-row: 2; font-size: 12px; }
   .sec-scelta .sec .bar, .sec-scelta .sec .stato { grid-column: 1 / -1; }
+  .sec-scelta .sec-gruppo { flex: none; align-self: center; margin: 0 2px 0 6px; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; }
+  .sec-scelta .sec-gruppo:first-child { margin-left: 0; }
   .view-head h1, .hero h1 { font-size: 22px; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .kpi .v { font-size: 21px; }

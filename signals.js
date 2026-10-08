@@ -152,7 +152,15 @@
    * d: { date, close, adj, ma200, dd, b200, b50, b20, n }
    * livello: livello blu (% di titoli sopra la media 200)
    */
+  // i file dell'Europa non hanno le colonne che si ricavano dal prezzo: prezzo rettificato e media 200
+  function completa(d) {
+    if (!d.adj) d.adj = d.close;
+    if (!d.ma200) d.ma200 = sma(d.close, 200).map(v => (v == null ? null : Math.round(v * 1e4) / 1e4));
+    return d;
+  }
+
   function analizza(d, livello, parametri) {
+    completa(d);
     const P = Object.assign({}, PARAMETRI, parametri || {});
     const N = d.date.length;
     const S = preparaSerie(d, P);
@@ -317,7 +325,7 @@
     };
   }
 
-  const api = { PARAMETRI, MOTIVI, STATI, analizza, sma, median, percentileRank, percentiliStorici, spinte };
+  const api = { PARAMETRI, MOTIVI, STATI, analizza, completa, sma, median, percentileRank, percentiliStorici, spinte };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Signals = api;
 })(typeof window !== "undefined" ? window : globalThis);

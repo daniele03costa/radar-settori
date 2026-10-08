@@ -97,3 +97,14 @@ test("percentile storico del drawdown senza guardare al futuro", () => {
   const p = S.percentiliStorici([-1, -2, -3, -1]);
   assert.deepEqual(p.map(Math.round), [0, 50, 67, 0]);
 });
+
+test("dati europei senza prezzo rettificato e media 200: si ricavano dal prezzo e danno gli stessi stati", () => {
+  const d = serie(700, t => (t < 300 ? calma(t) : t < 305 ? { close: 80, dd: -20, b200: 2, b20: 5 } : { close: 85, dd: -15, b200: 20, b20: 75 }));
+  const eu = Object.assign({}, d);
+  delete eu.adj; delete eu.ma200;
+  const a = S.analizza(d, 5), b = S.analizza(eu, 5);
+  assert.deepEqual(b.stati, a.stati);
+  assert.equal(eu.adj, eu.close);
+  assert.equal(eu.ma200[198], null);
+  assert.ok(Math.abs(eu.ma200[650] - 85) < 1e-6);
+});

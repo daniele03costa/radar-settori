@@ -11,7 +11,7 @@
  */
 "use strict";
 
-const VERSIONE = "2026-09-30-zone";
+const VERSIONE = "2026-10-08-europa-stati";
 const GUSCIO = `radar-guscio-${VERSIONE}`;
 const DATI = "radar-dati";
 const ATTESA_RETE = 6000;

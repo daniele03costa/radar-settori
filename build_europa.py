@@ -3,7 +3,9 @@
 Radar Settori — dati della vista Europa: le azioni dei sette indici principali (FTSE MIB, DAX, CAC 40,
 IBEX 35, AEX, SMI, FTSE 100), con gli indici stessi e lo STOXX Europe 600 come confronto.
 
-Produce data/prezzi_europa.json (dal 1° gennaio di due anni prima: 2-3 anni di chiusure, una riga di prezzi per titolo).
+Produce data/prezzi_europa.json (dal 1° gennaio di due anni prima: 2-3 anni di chiusure, una riga di prezzi per titolo)
+e, con la storia dal 2005, l'ampiezza dei settori e degli indici europei con i loro stati (data/europa/, vedi
+europa_ampiezza.py).
   1. la lista parte da europa.json; una volta alla settimana si confrontano le composizioni con Wikipedia
      e si accettano solo piccoli cambiamenti (entrate e uscite trimestrali), riconoscendo i titoli anche per
      nome; la lista aggiornata si salva in data/europa_lista.json;
@@ -31,6 +33,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+import europa_ampiezza  # noqa: E402
 from europa_settori import settore_it  # noqa: E402
 from orari import seduta_in_corso  # noqa: E402
 
@@ -38,6 +41,8 @@ LISTA_BASE = ROOT / "europa.json"
 DATA_DIR = ROOT / "data"
 LISTA_DATI = DATA_DIR / "europa_lista.json"
 OUT_PATH = DATA_DIR / "prezzi_europa.json"
+AMPIEZZA_DIR = DATA_DIR / "europa"
+INIZIO_DOWNLOAD = "2003-09-01"   # la storia lunga serve all'ampiezza: medie a 200 sedute e massimi a 52 settimane già pronti nel 2005
 
 MIN_RISPOSTE = 0.80
 # unità di valuta per un euro: indici e panieri dei settori si confrontano in euro
@@ -209,13 +214,17 @@ def yahoo_prezzi(simboli: List[str], inizio: str) -> pd.DataFrame:
 
 
 def calendario_maggioranza(px: pd.DataFrame) -> pd.DatetimeIndex:
+    """I giorni in cui ha quotato almeno metà dei titoli già in borsa quel giorno (negli anni passati molti
+    titoli di oggi non c'erano ancora)."""
     attivi = px.notna().sum(axis=1)
-    return px.index[attivi >= 0.5 * attivi.max()]
+    iniziati = px.notna().cummax().sum(axis=1)
+    return px.index[(attivi >= 0.5 * iniziati) & (attivi > 0)]
 
 
 def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], pd.DataFrame] = yahoo_prezzi,
                  prendi_html: Optional[Callable[[str], Optional[str]]] = html_wikipedia,
-                 adesso: Optional[pd.Timestamp] = None, lista: Optional[dict] = None) -> Optional[dict]:
+                 adesso: Optional[pd.Timestamp] = None, lista: Optional[dict] = None,
+                 ampiezza_dir: Optional[Path] = None) -> Optional[dict]:
     lista = lista or carica_lista()
     oggi = (adesso or pd.Timestamp.now(tz="UTC")).date()
     try:
@@ -233,7 +242,7 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
     indici = lista["indici"] + [dict(lista["confronto"], paese="Europa")] if lista.get("confronto") else lista["indici"]
     inizio = inizio_storia(oggi)
     log(f"Europa: scarico {len(simboli)} titoli e {len(indici)} indici…")
-    px = scarica(simboli + [i["yahoo"] for i in indici] + list(CAMBI.values()), inizio)
+    px = scarica(simboli + [i["yahoo"] for i in indici] + list(CAMBI.values()), INIZIO_DOWNLOAD)
     if px is None or px.empty:
         log("Europa: nessun prezzo, resta il file già pubblicato")
         return None
@@ -244,7 +253,8 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
     if len(presenti) < MIN_RISPOSTE * len(simboli):
         log(f"Europa: prezzi solo per {len(presenti)} titoli su {len(simboli)}: resta il file già pubblicato")
         return None
-    cal = calendario_maggioranza(px[presenti])
+    cal_lungo = calendario_maggioranza(px[presenti])
+    cal = cal_lungo[cal_lungo >= pd.Timestamp(inizio)]
     try:
         with open(out_path, encoding="utf-8") as f:
             prima = json.load(f).get("aggiornato")
@@ -278,7 +288,7 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
     for valuta, t in CAMBI.items():
         if t in px.columns:
             s = px[t].dropna()
-            s = s[s > 0]
+            s = s[(s > 0) & (s.index >= pd.Timestamp(inizio))]
             if len(s) >= 20:
                 cambi[valuta] = {"date": [d.strftime("%Y-%m-%d") for d in s.index], "valori": [cifre(v, 6) for v in s.to_numpy()]}
     payload = {
@@ -295,7 +305,45 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
     log(f"Europa: {len(uscita)} titoli e {len(usc_indici)} indici al {ultimo}"
         + (f", senza prezzi: {', '.join(payload['mancanti'][:12])}" if payload["mancanti"] else ""))
+
+    # ampiezza storica di settori e indici, con gli stati (come negli USA)
+    cartella = ampiezza_dir or out_path.parent / AMPIEZZA_DIR.name
+    try:
+        cfg = json.loads((ROOT / "settings.json").read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        cfg = {}
+    try:
+        # i livelli blu scritti a mano stanno in europa.json (la lista aggiornata in automatico non li ha)
+        soglie = lista.get("soglie")
+        try:
+            soglie = json.loads(LISTA_BASE.read_text(encoding="utf-8")).get("soglie") or soglie
+        except Exception:  # noqa: BLE001
+            pass
+        meta = europa_ampiezza.scrivi(px, cal_lungo, dict(lista, soglie=soglie or {}), cartella, cfg.get("inizio_storico", "2005-01-03"),
+                                      cfg.get("parametri", {}), lista.get("confronto"))
+        if meta:
+            log(f"Europa: ampiezza di {len(meta['settori'])} settori e indici dal {meta['inizio']}")
+            aggiorna_stati(cartella)
+    except Exception as e:  # noqa: BLE001
+        log(f"Europa: ampiezza non aggiornata ({e})")
     return {"titoli": len(uscita), "indici": len(usc_indici), "aggiornato": ultimo}
+
+
+def aggiorna_stati(cartella: Path) -> bool:
+    """Stati di settori e indici con i livelli predefiniti (data/europa/stati.json), calcolati con signals.js."""
+    import shutil
+    import subprocess
+    node = shutil.which("node")
+    if not node:
+        log("Node non disponibile: stati europei non aggiornati")
+        return False
+    try:
+        r = subprocess.run([node, str(ROOT / "stati.js"), str(cartella)], capture_output=True, text=True, timeout=180)
+    except Exception as e:  # noqa: BLE001
+        log(f"Stati europei non aggiornati ({e})")
+        return False
+    log((r.stdout or r.stderr).strip()[:300])
+    return r.returncode == 0
 
 
 def main() -> int:
