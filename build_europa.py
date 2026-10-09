@@ -213,6 +213,31 @@ def yahoo_prezzi(simboli: List[str], inizio: str) -> pd.DataFrame:
     return build_prices.yahoo_prices(simboli, inizio, batch=40)
 
 
+def yahoo_ultimi(simboli: List[str], batch: int = 40) -> Dict[str, Tuple[pd.Timestamp, float]]:
+    """Ultimo prezzo scambiato (barre da 15 minuti), a gruppi: Yahoo mette la chiusura europea nella serie
+    giornaliera solo il giorno dopo, all'apertura."""
+    import build_prices
+    out: Dict[str, Tuple[pd.Timestamp, float]] = {}
+    for i in range(0, len(simboli), batch):
+        out.update(build_prices.yahoo_last_quotes(simboli[i:i + batch]))
+    return out
+
+
+def aggiungi_ultimi(px: pd.DataFrame, ultimi: Dict[str, Tuple[pd.Timestamp, float]]) -> pd.DataFrame:
+    """Aggiunge l'ultima chiusura dove la serie giornaliera non ce l'ha ancora."""
+    for sym, (giorno, prezzo) in ultimi.items():
+        if sym not in px.columns or prezzo is None or not np.isfinite(prezzo):
+            continue
+        s = px[sym].dropna()
+        if s.empty or giorno <= s.index[-1]:
+            continue
+        if giorno not in px.index:
+            px.loc[giorno] = np.nan
+            px = px.sort_index()
+        px.at[giorno, sym] = prezzo
+    return px
+
+
 def calendario_maggioranza(px: pd.DataFrame) -> pd.DatetimeIndex:
     """I giorni in cui ha quotato almeno metà dei titoli già in borsa quel giorno (negli anni passati molti
     titoli di oggi non c'erano ancora)."""
@@ -224,7 +249,8 @@ def calendario_maggioranza(px: pd.DataFrame) -> pd.DatetimeIndex:
 def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], pd.DataFrame] = yahoo_prezzi,
                  prendi_html: Optional[Callable[[str], Optional[str]]] = html_wikipedia,
                  adesso: Optional[pd.Timestamp] = None, lista: Optional[dict] = None,
-                 ampiezza_dir: Optional[Path] = None) -> Optional[dict]:
+                 ampiezza_dir: Optional[Path] = None,
+                 ultimi: Optional[Callable[[List[str]], Dict[str, Tuple[pd.Timestamp, float]]]] = None) -> Optional[dict]:
     lista = lista or carica_lista()
     oggi = (adesso or pd.Timestamp.now(tz="UTC")).date()
     try:
@@ -246,6 +272,11 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
     if px is None or px.empty:
         log("Europa: nessun prezzo, resta il file già pubblicato")
         return None
+    if ultimi is not None:
+        try:
+            px = aggiungi_ultimi(px, ultimi(simboli + [i["yahoo"] for i in indici]))
+        except Exception as e:  # noqa: BLE001
+            log(f"Europa: ultimi prezzi non disponibili ({e})")
     in_corso = seduta_in_corso("Borsa Italiana", adesso)
     if in_corso is not None:
         px = px[px.index < in_corso]
@@ -348,7 +379,7 @@ def aggiorna_stati(cartella: Path) -> bool:
 
 def main() -> int:
     try:
-        return 0 if build_europa() else 1
+        return 0 if build_europa(ultimi=yahoo_ultimi) else 1
     except Exception as e:  # noqa: BLE001
         log(f"Europa: errore ({e}), resta il file già pubblicato")
         return 1
