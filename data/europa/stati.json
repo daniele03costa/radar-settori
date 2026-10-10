@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-09",
- "generato": "2026-10-10T01:24:41Z",
+ "generato": "2026-10-10T04:48:42Z",
  "ritardo": {
   "attesa": "2026-10-09",
   "sedute": 0
@@ -140,8 +140,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 61.4,
-   "drawdown": -4.2,
-   "percentile_drawdown": 42
+   "drawdown": -4.4,
+   "percentile_drawdown": 43
   },
   {
    "etf": "SMI",
@@ -235,7 +235,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 57.2,
-   "drawdown": -6.6,
+   "drawdown": -6.7,
    "percentile_drawdown": 47
   },
   {
@@ -349,8 +349,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 45.1,
-   "drawdown": -5.6,
-   "percentile_drawdown": 47
+   "drawdown": -5.8,
+   "percentile_drawdown": 48
   },
   {
    "etf": "AEX",
@@ -425,7 +425,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 19,
    "punti_dal_livello": 45.5,
-   "drawdown": -5.5,
+   "drawdown": -5.6,
    "percentile_drawdown": 60
   },
   {
@@ -455,16 +455,16 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 55,
    "ampiezza_un_mese_fa": 54,
    "titoli_sopra": 55,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 36,
-   "punti_dal_livello": 36,
-   "drawdown": -3.2,
-   "percentile_drawdown": 48
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 37,
+   "punti_dal_livello": 37,
+   "drawdown": -3.3,
+   "percentile_drawdown": 49
   },
   {
    "etf": "INDUSTRIALI",

@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-09",
- "generato": "2026-10-10T01:24:40Z",
+ "generato": "2026-10-10T04:48:41Z",
  "inizio": "2005-01-03",
  "calendario": "milano",
  "settori": [
@@ -136,7 +136,7 @@
    "sopra": 53,
    "soglia_default": 13,
    "dd": -3.8,
-   "ultimo": 3454.27,
+   "ultimo": 3434.23,
    "prezzo_tipo": "paniere",
    "titoli": 98
   },
@@ -204,7 +204,7 @@
    "sopra": 24,
    "soglia_default": 8,
    "dd": -7.4,
-   "ultimo": 49763.22,
+   "ultimo": 49746.0,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -220,8 +220,8 @@
    "n": 40,
    "sopra": 23,
    "soglia_default": 12,
-   "dd": -5.5,
-   "ultimo": 25102.78,
+   "dd": -5.6,
+   "ultimo": 25087.27,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -238,7 +238,7 @@
    "sopra": 17,
    "soglia_default": 11,
    "dd": -10.6,
-   "ultimo": 7804.24,
+   "ultimo": 7803.33,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -254,8 +254,8 @@
    "n": 35,
    "sopra": 20,
    "soglia_default": 12,
-   "dd": -5.6,
-   "ultimo": 19079.0,
+   "dd": -5.8,
+   "ultimo": 19033.1,
    "prezzo_tipo": "indice",
    "titoli": 35
   },
@@ -272,7 +272,7 @@
    "sopra": 18,
    "soglia_default": 10,
    "dd": 0.0,
-   "ultimo": 1131.39,
+   "ultimo": 1130.95,
    "prezzo_tipo": "indice",
    "titoli": 25
   },
@@ -289,7 +289,7 @@
    "sopra": 11,
    "soglia_default": 6,
    "dd": -5.8,
-   "ultimo": 13782.0,
+   "ultimo": 13787.4,
    "prezzo_tipo": "indice",
    "titoli": 19
   },
@@ -304,9 +304,9 @@
    "b20": 57.0,
    "n": 100,
    "sopra": 55,
-   "soglia_default": 19,
-   "dd": -3.2,
-   "ultimo": 10560.04,
+   "soglia_default": 18,
+   "dd": -3.3,
+   "ultimo": 10552.1,
    "prezzo_tipo": "indice",
    "titoli": 100
   },
@@ -407,8 +407,8 @@
    "n": 19,
    "sopra": 12,
    "soglia_default": 6,
-   "dd": -6.6,
-   "ultimo": 6549.85,
+   "dd": -6.7,
+   "ultimo": 6543.45,
    "prezzo_tipo": "indice",
    "titoli": 19
   },
@@ -441,8 +441,8 @@
    "n": 14,
    "sopra": 10,
    "soglia_default": 10,
-   "dd": -4.2,
-   "ultimo": 13921.72,
+   "dd": -4.4,
+   "ultimo": 13901.81,
    "prezzo_tipo": "indice",
    "titoli": 14
   }
