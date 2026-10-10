@@ -1,12 +1,12 @@
 {
  "aggiornato": "2026-10-09",
- "generato": "2026-10-09T22:54:44Z",
+ "generato": "2026-10-10T01:24:41Z",
  "ritardo": {
   "attesa": "2026-10-09",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-12",
- "ampiezza_indice": 55.6,
+ "ampiezza_indice": 55.8,
  "cambi_ultima_seduta": [],
  "cambi_recenti": [],
  "settori": [
@@ -45,7 +45,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 15.3,
-   "drawdown": -7.3,
+   "drawdown": -7.2,
    "percentile_drawdown": 73
   },
   {
@@ -140,8 +140,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 61.4,
-   "drawdown": -4.4,
-   "percentile_drawdown": 43
+   "drawdown": -4.2,
+   "percentile_drawdown": 42
   },
   {
    "etf": "SMI",
@@ -292,7 +292,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 58.7,
-   "drawdown": -3,
+   "drawdown": -3.1,
    "percentile_drawdown": 44
   },
   {
@@ -455,16 +455,16 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 18,
-   "ampiezza": 54,
+   "livello": 19,
+   "ampiezza": 55,
    "ampiezza_un_mese_fa": 54,
-   "titoli_sopra": 54,
+   "titoli_sopra": 55,
    "titoli_totali": 100,
-   "titoli_al_livello": 18,
+   "titoli_al_livello": 19,
    "titoli_che_mancano": 36,
    "punti_dal_livello": 36,
-   "drawdown": -3.3,
-   "percentile_drawdown": 49
+   "drawdown": -3.2,
+   "percentile_drawdown": 48
   },
   {
    "etf": "INDUSTRIALI",
@@ -475,13 +475,13 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 13,
-   "ampiezza": 53.1,
+   "ampiezza": 54.1,
    "ampiezza_un_mese_fa": 57.1,
-   "titoli_sopra": 52,
+   "titoli_sopra": 53,
    "titoli_totali": 98,
    "titoli_al_livello": 12,
-   "titoli_che_mancano": 40,
-   "punti_dal_livello": 40.1,
+   "titoli_che_mancano": 41,
+   "punti_dal_livello": 41.1,
    "drawdown": -3.8,
    "percentile_drawdown": 58
   },
