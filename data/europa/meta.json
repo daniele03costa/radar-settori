@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-12",
- "generato": "2026-10-13T01:28:08Z",
+ "generato": "2026-10-13T04:53:00Z",
  "inizio": "2005-01-03",
  "calendario": "milano",
  "settori": [
@@ -51,7 +51,7 @@
    "sopra": 19,
    "soglia_default": 13,
    "dd": -6.3,
-   "ultimo": 2087.58,
+   "ultimo": 2087.59,
    "prezzo_tipo": "paniere",
    "titoli": 41
   },
@@ -119,7 +119,7 @@
    "sopra": 19,
    "soglia_default": 24,
    "dd": -2.7,
-   "ultimo": 3848.74,
+   "ultimo": 3848.75,
    "prezzo_tipo": "paniere",
    "titoli": 34
   },
@@ -323,7 +323,7 @@
    "sopra": 15,
    "soglia_default": 13,
    "dd": -2.3,
-   "ultimo": 5866.84,
+   "ultimo": 5866.85,
    "prezzo_tipo": "paniere",
    "titoli": 23
   },
@@ -340,7 +340,7 @@
    "sopra": 19,
    "soglia_default": 12,
    "dd": -3.1,
-   "ultimo": 3402.74,
+   "ultimo": 3408.2,
    "prezzo_tipo": "paniere",
    "titoli": 30
   },
