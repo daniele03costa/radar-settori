@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-13",
- "generato": "2026-10-14T01:37:37Z",
+ "generato": "2026-10-14T05:03:49Z",
  "ritardo": {
   "attesa": "2026-10-13",
   "sedute": 0
@@ -312,7 +312,7 @@
    "titoli_che_mancano": 15,
    "punti_dal_livello": 41.1,
    "drawdown": -3.6,
-   "percentile_drawdown": 61
+   "percentile_drawdown": 60
   },
   {
    "etf": "OMX-STOCKHOLM-30",
@@ -455,14 +455,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 13,
+   "livello": 12,
    "ampiezza": 50.5,
    "ampiezza_un_mese_fa": 52.6,
    "titoli_sopra": 49,
    "titoli_totali": 97,
-   "titoli_al_livello": 12,
-   "titoli_che_mancano": 37,
-   "punti_dal_livello": 37.5,
+   "titoli_al_livello": 11,
+   "titoli_che_mancano": 38,
+   "punti_dal_livello": 38.5,
    "drawdown": -3.4,
    "percentile_drawdown": 56
   },
@@ -474,14 +474,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 57,
    "ampiezza_un_mese_fa": 56,
    "titoli_sopra": 57,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 38,
-   "punti_dal_livello": 38,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 39,
+   "punti_dal_livello": 39,
    "drawdown": -2.4,
    "percentile_drawdown": 40
   },
