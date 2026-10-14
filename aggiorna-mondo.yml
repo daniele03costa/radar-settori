@@ -1,4 +1,4 @@
-name: Aggiorna Asia ed emergenti
+name: .github/workflows/Aggiorna Asia ed emergenti
 
 on:
   schedule:
