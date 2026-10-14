@@ -1,6 +1,7 @@
 /*
  * Radar Settori — Rotazione relativa (RS-Ratio / RS-Momentum), una per zona:
  *   USA: settori S&P 500 e MAG7 (in dollari); Europa: settori e indici europei (dalla zona Europa) ed ETF in euro;
+ *   Asia ed Emergenti: i loro settori e indici, in euro;
  *   Crypto: le prime 10 contro bitcoin o contro il loro paniere (dalla zona Crypto, giorni di calendario).
  */
 (function () {
@@ -11,11 +12,15 @@
 
   // universi calcolati dai dati delle altre zone: le serie arrivano da view-europa.js e view-crypto.js
   const VIRTUALI = [
-    { id: "eu-settori", nome: "Settori europei", zona: "eur", fonte: "europa", tipo: "settori", calendario: "milano", nota: "panieri a pesi uguali delle azioni di ogni settore, in euro, dividendi esclusi" },
+    { id: "eu-settori", nome: "Settori europei", zona: "eur", fonte: "europa", tipo: "settori", calendario: "milano", nota: "panieri a pesi uguali delle azioni di ogni settore, in euro" },
     { id: "eu-indici", nome: "Indici europei", zona: "eur", fonte: "europa", tipo: "indici", calendario: "milano", nota: "indici convertiti in euro, dividendi esclusi" },
+    { id: "asi-settori", nome: "Settori asiatici", zona: "asi", fonte: "europa", tipo: "settori", calendario: "feriale", nota: "panieri a pesi uguali delle azioni di ogni settore, in euro" },
+    { id: "asi-indici", nome: "Indici asiatici", zona: "asi", fonte: "europa", tipo: "indici", calendario: "feriale", nota: "indici convertiti in euro, dividendi esclusi" },
+    { id: "emg-settori", nome: "Settori dei paesi emergenti", zona: "emg", fonte: "europa", tipo: "settori", calendario: "feriale", nota: "panieri a pesi uguali delle azioni di ogni settore, in euro" },
+    { id: "emg-indici", nome: "Indici dei paesi emergenti", zona: "emg", fonte: "europa", tipo: "indici", calendario: "feriale", nota: "indici convertiti in euro, dividendi esclusi" },
     { id: "crypto", nome: "Prime 10 crypto", zona: "cry", fonte: "crypto", calendario: "crypto", nota: "prezzi in dollari, un giorno = un giorno di calendario" },
   ];
-  const PREDEFINITI = { usa: "settori", eur: "eu-settori", cry: "crypto" };
+  const PREDEFINITI = { usa: "settori", eur: "eu-settori", asi: "asi-indici", emg: "emg-indici", cry: "crypto" };
 
   // l'universo scelto in ogni zona (prima c'era un universo solo: si porta nella sua zona)
   function universiSalvati() {
@@ -88,7 +93,7 @@
   // i prezzi di un universo; per quelli calcolati arrivano anche i titoli e i termini di confronto
   async function prezziGruppo(g) {
     if (g.fonte === "europa" || g.fonte === "crypto") {
-      const r = g.fonte === "europa" ? await R.viste.eur.serieRotazione(g.tipo) : await R.viste.cry.serieRotazione();
+      const r = g.fonte === "europa" ? await R.viste.eur.serieRotazione(g.tipo, g.zona) : await R.viste.cry.serieRotazione();
       Object.assign(g, { titoli: r.titoli, info: r.info, benchmark: r.benchmark, benchmark_default: r.benchmark[0] });
       return { date: r.date, serie: r.serie, aggiornato: r.aggiornato };
     }
@@ -161,7 +166,7 @@
       $("#rot-bench").innerHTML = "";
       $("#perf-legenda").innerHTML = "";
       $("#rot-portafoglio").hidden = true;
-      $("#rot-grafico").innerHTML = `<div class="empty-note">I prezzi per la rotazione non sono ancora disponibili. Si scaricano con l'aggiornamento automatico (GitHub → Actions → ${st.zona === "cry" ? "Aggiorna crypto" : "Aggiorna dati"}).</div>`;
+      $("#rot-grafico").innerHTML = `<div class="empty-note">I prezzi per la rotazione non sono ancora disponibili. Si scaricano con l'aggiornamento automatico (GitHub → Actions → ${st.zona === "cry" ? "Aggiorna crypto" : st.zona === "asi" || st.zona === "emg" ? "Aggiorna Asia ed emergenti" : "Aggiorna dati"}).</div>`;
       $("#rot-tabella").innerHTML = "";
       $("#perf-grafico").innerHTML = "";
       return;
@@ -712,7 +717,7 @@
     window.addEventListener("resize", R.debounce(() => { if (st.visibile) ridisegnaRapido(); }, 200));
   }
 
-  const NOMI_ZONE = { usa: "USA", eur: "Europa", cry: "Crypto" };
+  const NOMI_ZONE = { usa: "USA", eur: "Europa", asi: "Asia", emg: "Emergenti", cry: "Crypto" };
 
   async function mostra(param, ctx) {
     st.visibile = true;

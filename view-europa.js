@@ -1,5 +1,5 @@
 /*
- * Radar Settori — zona Europa, pagina Azioni.
+ * Radar Settori — pagina Azioni delle zone Europa, Asia ed Emergenti (una sola pagina, i dati della zona aperta).
  * Le azioni degli indici principali delle borse europee (FTSE MIB, DAX, CAC 40, IBEX 35, AEX, SMI, FTSE 100, OMX Copenhagen 25,
  * OMX Stockholm 30, OMX Helsinki 25, OBX, BEL 20, ATX, PSI, ISEQ): tutte, cercabili per nome, con filtri e ordinamento,
  * e la scheda di ciascuna con il grafico, da cui si aggiunge alla lista dei titoli seguiti o al portafoglio.
@@ -15,7 +15,16 @@
 
   const NOMI_Q = { leader: "Leader", indebolimento: "In indebolimento", ritardo: "In ritardo", miglioramento: "In miglioramento" };
   const COLORE_STATO = { rialzo: "var(--q-leader)", recupero: "var(--q-miglioramento)", debolezza: "var(--q-indebolimento)", ribasso: "var(--q-ritardo)" };
-  const SIMBOLI = { EUR: "€", GBp: "p", CHF: "CHF", DKK: "kr", SEK: "kr", NOK: "kr" };
+  const SIMBOLI = R.SIMBOLI_VALUTA;
+  // le tre zone: da dove arrivano i dati e come si chiama il termine di confronto
+  const ZONE = {
+    eur: { nome: "Europa", cal: "milano", confronto: "^STOXX", nomeConfronto: "STOXX Europe 600", breveConfronto: "STOXX 600", titoloConfronto: "lo STOXX Europe 600",
+      media: "Media europea", mediaTitolo: "la media europea", agg: "europee", h1: "Le azioni europee", aggiornamento: "Aggiorna dati" },
+    asi: { nome: "Asia", cal: "feriale", confronto: null, media: "Media asiatica", mediaTitolo: "la media asiatica", agg: "asiatiche", h1: "Le azioni asiatiche",
+      aggiornamento: "Aggiorna Asia ed emergenti" },
+    emg: { nome: "Emergenti", cal: "feriale", confronto: "EEM", nomeConfronto: "MSCI Emerging Markets", breveConfronto: "EEM", titoloConfronto: "l'MSCI Emerging Markets (ETF EEM)",
+      media: "Media emergenti", mediaTitolo: "la media dei paesi emergenti", agg: "dei paesi emergenti", h1: "Le azioni dei paesi emergenti", aggiornamento: "Aggiorna Asia ed emergenti" },
+  };
   const PERIODI = [[126, "6 mesi"], [252, "1 anno"], [504, "2 anni"]];
   const PASSO = 60;                                          // righe mostrate prima di «mostra tutte»
   const FILTRI = [
@@ -33,22 +42,33 @@
   const norm = x => String(x || "").toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Z0-9&]+/g, " ").trim();
 
   // nomi brevi per i grafici
-  const BREVI_INDICI = { "OMX Copenhagen 25": "OMXC25", "OMX Stockholm 30": "OMXS30", "OMX Helsinki 25": "OMXH25" };
+  const BREVI_INDICI = { "OMX Copenhagen 25": "OMXC25", "OMX Stockholm 30": "OMXS30", "OMX Helsinki 25": "OMXH25",
+    "FTSE TWSE Taiwan 50": "Taiwan 50", "FTSE Bursa Malaysia KLCI": "KLCI", "FTSE/JSE Top 40": "JSE Top 40", "S&P/BMV IPC": "IPC", "S&P Merval": "Merval", "S&P IPSA": "IPSA" };
   const BREVI_SETTORI = { "Consumi discrezionali": "Discrezionali", "Beni di prima necessità": "Prima necessità" };
 
-  const st = {
+  // lo stato della pagina, uno per zona (filtri, ricerca, ordine, azione aperta); le scelte restano nel browser
+  const pre = z => (z === "eur" ? "eur." : z + ".");
+  const NOTE_VALUTE = {
+    eur: "euro; pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo",
+    asi: "yen (¥) per Tokyo, dollari di Hong Kong (HK$), yuan (CN¥) per Shanghai e Shenzhen, won (₩) per Seul, dollari taiwanesi (NT$), rupie indiane (₹), rupie indonesiane (Rp), baht (฿), ringgit (RM)",
+    emg: "real (R$) per San Paolo, pesos messicani (MX$), argentini (AR$) e cileni (CLP), cent di rand (c) per Johannesburg, lire turche (₺), złoty (zł) per Varsavia",
+  };
+  const nuovoStato = z => ({
+    zona: z,
     visibile: false,
     x: null,                                                // dati preparati
-    // filtri e ricerca
-    f: { indice: R.store.get("eur.indice", null), settore: R.store.get("eur.settore", null), filtro: R.store.get("eur.filtro", "") },
+    f: { indice: R.store.get(pre(z) + "indice", null), settore: R.store.get(pre(z) + "settore", null), filtro: R.store.get(pre(z) + "filtro", "") },
     cerca: "",
-    ordine: R.store.get("eur.ordine", { col: "rs", dir: 1 }),
-    periodo: PERIODI.some(([k]) => k === R.store.get("eur.periodo", 252)) ? R.store.get("eur.periodo", 252) : 252,
+    ordine: R.store.get(pre(z) + "ordine", { col: "rs", dir: 1 }),
+    periodo: PERIODI.some(([k]) => k === R.store.get(pre(z) + "periodo", 252)) ? R.store.get(pre(z) + "periodo", 252) : 252,
     tutte: false,
     aperto: null,
     lista: new Set(), portafoglio: new Set(),
-  };
-  let preparato = null;                                     // { d, promessa } dei dati preparati
+  });
+  const stati = { eur: nuovoStato("eur"), asi: nuovoStato("asi"), emg: nuovoStato("emg") };
+  let st = stati.eur;
+  const C = () => ZONE[st.zona];
+  const preparati = {};                                     // per zona: { d, promessa } dei dati preparati
 
   // ---------------- formati ----------------
 
@@ -57,8 +77,7 @@
   const frazione = o => (o && o.validi ? o.sopra / o.validi : null);
   const cifre = v => (v == null || !isFinite(v) ? "—" : v >= 1000 ? num(v, 0) : v >= 100 ? num(v, 1) : num(v, 2));
   const prezzo = (v, valuta) => `${cifre(v)}<span class="valuta">${SIMBOLI[valuta] || valuta || ""}</span>`;
-  const NOMI_VALUTE = { GBp: "pence di sterlina", CHF: "franchi svizzeri", DKK: "corone danesi", SEK: "corone svedesi", NOK: "corone norvegesi" };
-  const nomeValuta = v => NOMI_VALUTE[v] || "euro";
+  const nomeValuta = v => R.NOMI_VALUTA[v] || v || "euro";
   const pill = s => (s ? `<span class="st-pill" style="--c:${COLORE_STATO[s]}">${E.STATI[s]}</span>` : "—");
   const quad = rs => (rs ? `<span class="quad" style="--c:var(--q-${rs.quadrante})"><i></i>${NOMI_Q[rs.quadrante]}</span>${R.freccia(rs.direzione)}` : "—");
   const maiuscola = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -76,11 +95,13 @@
   // una pausa per lasciare respirare la pagina (sul telefono i calcoli su 470 azioni durano più di un secondo)
   const pausa = () => new Promise(r => setTimeout(r, 0));
 
-  async function prepara(d, lista, cambi) {
+  async function prepara(d, lista, cambi, zona) {
+    const Z = ZONE[zona];
     const N = d.date.length, date = d.date;
-    const barre = Rot.barre(date, "settimanali", g => Cal.successiva(g, "milano"));
+    const barre = Rot.barre(date, "settimanali", g => Cal.successiva(g, Z.cal));
     const info = new Map(((lista && lista.indici) || []).map(i => [i.nome, i]));
-    const yahooConfronto = (lista && lista.confronto && lista.confronto.yahoo) || "^STOXX";
+    const yahooConfronto = (lista && lista.confronto && lista.confronto.yahoo) || Z.confronto;
+    const valutaConfronto = (lista && lista.confronto && lista.confronto.valuta) || "EUR";
     const tutti = d.indici.map(i => {
       const inf = info.get(i.nome) || {};
       const a = E.analizza(E.piena(N, i.i0, i.prezzi), date, null, barre);
@@ -123,13 +144,24 @@
     }
 
     // la stessa società quotata in due indici (Shell ad Amsterdam e a Londra, Airbus a Parigi e a Francoforte…)
-    // conta una volta sola nei totali di tutta l'Europa e dei settori
+    // conta una volta sola nei totali di tutta la zona e dei settori
     const visti = new Set();
     const uniche = titoli.filter(t => { const k = norm(t.nome); if (visti.has(k)) return false; visti.add(k); return true; });
 
     await pausa();
-    // indici: ampiezza delle loro azioni e forza relativa sullo STOXX Europe 600, in euro
-    const qStoxx = confronto ? confronto.a.p : null;
+    // tutta la zona: ampiezza di tutte le azioni e paniere a pesi uguali in euro
+    const gt = uniche.map(t => t.a);
+    const europa = {
+      b200: E.ampiezza(gt, "m200"), b50: E.ampiezza(gt, "m50"),
+      oggi200: E.conta(gt, "m200", N - 1), oggi50: E.conta(gt, "m50", N - 1),
+      paniere: E.riempi(E.paniere(uniche.map(t => t.eur))),
+    };
+
+    await pausa();
+    // indici: ampiezza delle loro azioni e forza relativa sul termine di confronto (STOXX Europe 600, EEM) o, se
+    // non c'è, sulla media della zona, tutto in euro
+    if (confronto) confronto.eur = E.riempi(E.inEuro(confronto.a.p, valutaConfronto, date, cambi) || confronto.a.p);
+    const qStoxx = confronto ? confronto.eur : europa.paniere;
     for (const i of indici) {
       i.membri = titoli.filter(t => t.indici.includes(i.nome));
       const g = i.membri.map(t => t.a);
@@ -143,15 +175,6 @@
       const fr = E.forzaRelativa(i.eur, qStoxx, barre, N - 1);
       i.rs = fr.rs; i.rs3 = fr.rs3;
     }
-
-    await pausa();
-    // tutta l'Europa: ampiezza di tutte le azioni e paniere a pesi uguali in euro
-    const gt = uniche.map(t => t.a);
-    const europa = {
-      b200: E.ampiezza(gt, "m200"), b50: E.ampiezza(gt, "m50"),
-      oggi200: E.conta(gt, "m200", N - 1), oggi50: E.conta(gt, "m50", N - 1),
-      paniere: E.riempi(E.paniere(uniche.map(t => t.eur))),
-    };
 
     await pausa();
     // settori: paniere a pesi uguali in euro contro quello di tutte le azioni
@@ -168,41 +191,43 @@
       };
     }).filter(Boolean);
 
-    return { d, N, date, barre, indici, confronto, titoli, uniche, europa, settori, senzaCambi, cache: new Map() };
+    return { d, N, date, barre, indici, confronto, titoli, uniche, europa, settori, senzaCambi, zona, cache: new Map() };
   }
 
   const titolo = t => (st.x && t ? st.x.titoli.find(z => z.t === t) || null : null);
 
-  // carica e prepara i dati una volta sola (li usano le pagine, la Home e la Rotazione); null se non ci sono
-  async function carica() {
+  // carica e prepara i dati di una zona una volta sola (li usano la pagina, la Home e la Rotazione); null se non ci sono
+  async function carica(zona = st.zona) {
     let d = null, lista = null;
-    try { [d, lista] = await Promise.all([R.dati.europa(), R.dati.europaLista().catch(() => null)]); } catch (e) { return null; }
+    try { [d, lista] = await Promise.all([R.dati.prezziZona(zona), R.dati.listaZona(zona).catch(() => null)]); } catch (e) { return null; }
     if (!d || !d.titoli || !d.titoli.length || !d.date || !d.date.length) return null;
-    if (!preparato || preparato.d !== d) {
-      preparato = {
+    let p = preparati[zona];
+    if (!p || p.d !== d) {
+      p = preparati[zona] = {
         d,
         promessa: (async () => {
-          // i cambi sono nel file europeo; se mancano, quelli della lista personale
+          // i cambi sono nel file della zona; per l'Europa, se mancano, quelli della lista personale
           let cambi = d.cambi && Object.keys(d.cambi).length ? d.cambi : null;
-          if (!cambi || !cambi.GBP || !cambi.CHF) {
+          if (zona === "eur" && (!cambi || !cambi.GBP || !cambi.CHF)) {
             try { cambi = Object.assign({}, (await R.dati.miei()).cambi || {}, cambi || {}); } catch (e) { /* senza cambi si usa la valuta locale */ }
           }
-          return await prepara(d, lista, cambi);
+          return await prepara(d, lista, cambi || {}, zona);
         })(),
       };
     }
-    st.x = await preparato.promessa;
-    return st.x;
+    const x = await p.promessa;
+    stati[zona].x = x;
+    return x;
   }
 
   // per la Home
-  async function riepilogo() {
-    const x = await carica();
+  async function riepilogo(zona = "eur") {
+    const x = await carica(zona);
     if (!x) return null;
     const t = x.N - 1, t21 = Math.max(0, t - 21), e = x.europa;
     return {
       data: x.d.aggiornato, date: x.date, n: x.titoli.length, nIndici: x.indici.length,
-      indice: x.confronto ? { nome: "STOXX Europe 600", a: x.confronto.a } : null,
+      indice: x.confronto ? { nome: ZONE[zona].nomeConfronto, a: x.confronto.a } : null,
       paniereA: E.analizza(e.paniere, x.date, null, null),
       amp: { q: frazione(e.oggi200), sopra: e.oggi200.sopra, validi: e.oggi200.validi, mese: e.b200[t21] },
       indici: x.indici.filter(i => i.m3Eur != null).map(i => ({ nome: i.nome, m3: i.m3Eur, rs: i.rs })).sort((u, v) => v.m3 - u.m3),
@@ -212,14 +237,15 @@
   }
 
   // per la Rotazione: i settori (panieri in euro) o gli indici (in euro), con i termini di confronto
-  async function serieRotazione(tipo) {
-    const x = await carica();
-    if (!x) throw new Error("mancano i dati europei");
+  async function serieRotazione(tipo, zona = "eur") {
+    const Z = ZONE[zona];
+    const x = await carica(zona);
+    if (!x) throw new Error("mancano i dati della zona");
     const chiave = "rot|" + tipo;
     if (x.cache.has(chiave)) return x.cache.get(chiave);
     const serie = { EUROPA: x.europa.paniere }, titoli = {};
-    const info = { EUROPA: { breve: "Media europea", titolo: "la media europea", nome: `Media a pesi uguali delle ${x.uniche.length} azioni europee, in euro` } };
-    if (x.confronto) { serie["^STOXX"] = x.confronto.a.p; info["^STOXX"] = { breve: "STOXX 600", titolo: "lo STOXX Europe 600", nome: "STOXX Europe 600" }; }
+    const info = { EUROPA: { breve: Z.media, titolo: Z.mediaTitolo, nome: `Media a pesi uguali delle ${x.uniche.length} azioni ${Z.agg}, in euro` } };
+    if (x.confronto) { serie["^STOXX"] = x.confronto.eur || x.confronto.a.p; info["^STOXX"] = { breve: Z.breveConfronto, titolo: Z.titoloConfronto, nome: Z.nomeConfronto + (zona === "eur" ? "" : ", in euro") }; }
     if (tipo === "indici") {
       for (const i of x.indici) { serie[i.nome] = i.eur; titoli[i.nome] = { breve: BREVI_INDICI[i.nome] || i.nome, nome: `${i.nome !== (BREVI_INDICI[i.nome] || i.nome) ? i.nome + " · " : ""}${i.paese}${i.valuta !== "EUR" ? ", in euro" : ""}${i.paniere ? ", paniere delle sue azioni" : ""}` }; }
     } else {
@@ -363,6 +389,7 @@
 
   // con una ricerca scritta si cerca fra tutte, senza i filtri
   function filtrate() {
+    if (!st.x) return [];
     const parole = norm(st.cerca).split(" ").filter(Boolean);
     if (parole.length) return st.x.titoli.filter(z => trovato(z, parole));
     return st.x.titoli.filter(z => (!st.f.indice || z.indici.includes(st.f.indice)) && (!st.f.settore || z.settore === st.f.settore) && passa(z, st.f.filtro));
@@ -370,6 +397,7 @@
 
   function disegnaFiltri() {
     const x = st.x, f = st.f;
+    if (!x) return;
     $("#eur-indice").innerHTML = `<option value="">Tutti gli indici</option>` +
       x.indici.map(i => `<option value="${esc(i.nome)}"${st.f.indice === i.nome ? " selected" : ""}>${esc(i.nome)}</option>`).join("");
     $("#eur-settore").innerHTML = `<option value="">Tutti i settori</option>` +
@@ -380,6 +408,7 @@
   }
 
   function disegnaTabella() {
+    if (!st.x) return;
     const x = st.x, o = st.ordine;
     const val = (z, k) => (k === "nome" ? z.nome : k === "rs" ? E.ordineForza(z.a.rs) : z.a[k]);
     const righe = filtrate().sort(ordina(val, o.col, o.dir));
@@ -505,32 +534,37 @@
   // ---------------- vista ----------------
 
   function salva() {
-    R.store.set("eur.indice", st.f.indice); R.store.set("eur.settore", st.f.settore); R.store.set("eur.filtro", st.f.filtro);
+    const p = pre(st.zona);
+    R.store.set(p + "indice", st.f.indice); R.store.set(p + "settore", st.f.settore); R.store.set(p + "filtro", st.f.filtro);
   }
 
   function sottotitolo() {
     const x = st.x, data = dataIt(x.d.aggiornato);
     let indietro = "";
     try {
-      const r = Cal.ritardo(x.d.aggiornato, new Date(), "milano");
+      const r = Cal.ritardo(x.d.aggiornato, new Date(), C().cal);
       if (r.sedute > 0) indietro = ` Attenzione: i prezzi sono indietro di ${R.sedute(r.sedute)} (attesa la chiusura del ${dataIt(r.attesa)}); li recupera il prossimo aggiornamento automatico.`;
     } catch (e) { /* niente */ }
     return `Tutte le ${x.titoli.length} azioni dei ${x.indici.length} indici, cercabili per nome, ticker, paese o settore, con filtri e ordinamento. Chiusure fino al ${data}.` + indietro;
   }
 
   function disegnaPagina() {
+    $("#eur-h1").textContent = C().h1;
     $("#eur-sub").textContent = sottotitolo();
+    $("#eur-note-valute").textContent = NOTE_VALUTE[st.zona];
     disegnaDettaglio(); disegnaFiltri(); disegnaTabella();
   }
 
   async function disegna() {
-    const x = await carica();
-    if (!st.visibile) return;
+    const s0 = st;
+    const x = await carica(s0.zona);
+    if (!s0.visibile || st !== s0) return;
     $("#eur-vuoto").hidden = !!x;
     $("#eur-corpo").hidden = !x;
-    if (!x) { $("#eur-sub").textContent = "I dati non ci sono ancora."; return; }
+    $("#eur-h1").textContent = C().h1;
+    if (!x) { $("#eur-sub").textContent = "I dati non ci sono ancora."; $("#eur-vuoto-agg").textContent = C().aggiornamento; return; }
     await aggiornaMiei();
-    if (!st.visibile) return;
+    if (!s0.visibile || st !== s0) return;
     // scelte che non esistono più
     if (st.f.indice && !x.indici.some(i => i.nome === st.f.indice)) st.f.indice = null;
     if (st.f.settore && !x.settori.some(z => z.nome === st.f.settore)) st.f.settore = null;
@@ -539,8 +573,9 @@
   }
 
   function apri(t, scorri) {
+    if (!st.x) return;
     st.aperto = st.aperto === t ? null : t;
-    try { history.replaceState(null, "", st.aperto ? `#eur/azioni/${st.aperto}` : "#eur/azioni"); } catch (e) { /* niente */ }
+    try { history.replaceState(null, "", st.aperto ? `#${st.zona}/azioni/${st.aperto}` : `#${st.zona}/azioni`); } catch (e) { /* niente */ }
     disegnaTabella();
     disegnaDettaglio();
     R.emit("selezione");
@@ -577,7 +612,7 @@
       if (th) {
         const col = th.dataset.col;
         st.ordine = { col, dir: st.ordine.col === col ? -st.ordine.dir : (col === "nome" || col === "rs" ? 1 : -1) };
-        R.store.set("eur.ordine", st.ordine);
+        R.store.set(pre(st.zona) + "ordine", st.ordine);
         disegnaTabella();
         return;
       }
@@ -598,7 +633,7 @@
       if (e.target.closest("#eur-segui")) { apriSegui(z); return; }
       if (e.target.closest("#eur-aggiungi")) { aggiungiAlPortafoglio(z); return; }
       const b = e.target.closest("#eur-periodo button[data-v]");
-      if (b) { st.periodo = Number(b.dataset.v); R.store.set("eur.periodo", st.periodo); disegnaDettaglio(); }
+      if (b) { st.periodo = Number(b.dataset.v); R.store.set(pre(st.zona) + "periodo", st.periodo); disegnaDettaglio(); }
     });
     R.on("tema", () => { if (st.visibile && st.x) disegnaPagina(); });
     R.on("portafoglio", async () => {
@@ -611,22 +646,37 @@
     }, 200));
   }
 
-  async function mostra(param) {
+  // passa a un'altra zona: niente righe della zona di prima mentre arrivano quelle nuove
+  let zonaDisegnata = null;
+  function cambiaZona(zona) {
+    if (stati[zona] !== st) { st.visibile = false; st = stati[zona]; }
+    if (zonaDisegnata !== zona) {
+      zonaDisegnata = zona;
+      $("#eur-tabella").innerHTML = ""; $("#eur-dettaglio").hidden = true; $("#eur-dettaglio").innerHTML = ""; $("#eur-altre").innerHTML = "";
+      $("#eur-sub").innerHTML = "&nbsp;"; $("#eur-h1").textContent = ZONE[zona].h1; $("#eur-azioni-titolo").textContent = "Le azioni";
+      $("#eur-cerca").value = st.cerca;
+    }
+  }
+
+  async function mostra(param, ctx) {
+    const zona = ctx && ZONE[ctx.zona] ? ctx.zona : "eur";
+    cambiaZona(zona);
     st.visibile = true;
     st.tutte = false;
     if (param) st.aperto = String(param).toUpperCase();
-    document.title = "Europa · Azioni · Radar Settori";
+    document.title = `${C().nome} · Azioni · Radar Settori`;
     await disegna();
     if (param && st.aperto && titolo(st.aperto)) $("#eur-dettaglio").scrollIntoView({ block: "start" });
   }
 
   // dalla pagina di un settore o di un indice: le sue azioni, con il filtro già messo
-  function filtra(tipo, nome) {
+  function filtra(tipo, nome, zona = "eur") {
+    cambiaZona(ZONE[zona] ? zona : "eur");
     st.f = { indice: tipo === "indice" ? nome : null, settore: tipo === "settore" ? nome : null, filtro: "" };
     st.cerca = "";
     st.aperto = null;
     salva();
-    R.vai("#eur/azioni");
+    R.vai(`#${st.zona}/azioni`);
   }
 
   function nascondi() { st.visibile = false; }
@@ -640,13 +690,14 @@
 
   function contesto() {
     const x = st.x;
-    if (!x) return "## Pagina aperta: Europa\nI dati delle azioni europee non ci sono ancora.";
+    if (!x) return `## Pagina aperta: ${C().nome} · Azioni\nI dati delle azioni ${C().agg} non ci sono ancora.`;
     const t = x.N - 1, t21 = Math.max(0, t - 21);
     const testo = html => html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
     const rs = r => (r ? `${NOMI_Q[r.quadrante]}, direzione ${r.direzione == null ? "—" : num(r.direzione, 0) + "°"}` : "—");
-    const out = ["## Pagina aperta: Europa · Azioni",
-      `Le ${x.titoli.length} azioni di ${elenco(x.indici.map(i => i.nome))}, chiusure fino al ${dataIt(x.d.aggiornato)} (Yahoo Finance), prezzi nella valuta di ogni borsa (pence per Londra, franchi per Zurigo, corone per Copenaghen, Stoccolma e Oslo). ` +
-      "Ampiezza = quota di azioni sopra la propria media a 200 (o 50) sedute. Forza relativa = rotazione settimanale (stessa formula della Rotazione): per le azioni contro il loro indice, per gli indici contro lo STOXX Europe 600 in euro, per i settori (panieri a pesi uguali in euro) contro il paniere di tutte le azioni."];
+    const Z = C();
+    const out = [`## Pagina aperta: ${Z.nome} · Azioni`,
+      `Le ${x.titoli.length} azioni di ${elenco(x.indici.map(i => i.nome))}, chiusure fino al ${dataIt(x.d.aggiornato)} (Yahoo Finance), prezzi nella valuta di ogni borsa (${NOTE_VALUTE[st.zona]}). ` +
+      `Ampiezza = quota di azioni sopra la propria media a 200 (o 50) sedute. Forza relativa = rotazione settimanale (stessa formula della Rotazione): per le azioni contro il loro indice, per gli indici contro ${Z.confronto ? Z.titoloConfronto : Z.mediaTitolo} in euro, per i settori (panieri a pesi uguali in euro) contro il paniere di tutte le azioni.`];
     const tabellaAzioni = (righe, titoloTab) => {
       const MAX = 120;
       out.push(`### ${titoloTab}: ${righe.length}${righe.length > MAX ? `, qui le prime ${MAX} nell'ordine della tabella` : ""}`,

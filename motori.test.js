@@ -139,3 +139,14 @@ test("tabella dei prezzi: passi in sedute di borsa o in giorni di calendario", (
   assert.ok(Math.abs(crypto.a1 - ((499 / 134) - 1) * 100) < 1e-9);
   assert.equal(crypto.dd52, 0);
 });
+
+test("calendario feriale di Asia ed Emergenti: lunedì-venerdì tranne Capodanno e Natale, attesa dopo le 20:30 di New York", () => {
+  const Cal = require("./calendario.js");
+  assert.equal(Cal.successiva("2026-10-09", "feriale"), "2026-10-12");
+  assert.equal(Cal.successiva("2026-12-24", "feriale"), "2026-12-28");
+  assert.equal(Cal.eSeduta("2027-01-01", "feriale"), false);
+  // martedì 13 alle 23:00 italiane (17 di New York): si aspetta ancora la seduta di lunedì 12
+  assert.deepEqual(Cal.ritardo("2026-10-12", new Date("2026-10-13T21:00:00Z"), "feriale"), { attesa: "2026-10-12", sedute: 0 });
+  assert.equal(Cal.ritardo("2026-10-12", new Date("2026-10-14T01:00:00Z"), "feriale").sedute, 0);   // una festa locale non basta
+  assert.equal(Cal.ritardo("2026-10-09", new Date("2026-10-14T01:00:00Z"), "feriale").sedute, 2);
+});

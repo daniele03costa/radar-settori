@@ -170,7 +170,8 @@ code, kbd { font-family: var(--font-code); }
 }
 .zone a:hover { background: var(--surface-2); color: var(--ink); }
 .zone a[aria-current="true"] { background: var(--sel); color: var(--sel-ink); }
-.zone a.zona-pf { margin-left: 8px; border-color: var(--line-2); }
+.zone a.zona-pf { margin-left: 8px; border-color: var(--line-2); padding: 0 10px; }
+.zone a.zona-pf span { display: none; }                  /* il portafoglio: solo l'icona (il nome è nel suggerimento) */
 .zone a.zona-pf[aria-current="true"] { border-color: transparent; }
 .zone svg { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -474,9 +475,15 @@ footer { padding: 28px 2px 0; font-size: 12.5px; color: var(--muted); max-width:
   .copia-btn span { display: none; }
   .copia-btn { width: 32px; padding: 0; justify-content: center; }
 }
+/* sette zone nella barra: sotto i 1700 px le zone senza icona e il portafoglio solo con l'icona */
+@media (max-width: 1699px) {
+  .zone a { padding: 0 11px; }
+  .zone a:not(.zona-pf) svg { display: none; }
+  .cmd { flex-basis: 200px; }
+}
 @media (max-width: 1280px) {
   .brand div { display: none; }
-  .zone a { padding: 0 11px; }
+  .zone a { padding: 0 10px; }
 }
 @media (max-width: 1100px) {
   .bar-riga { flex-wrap: wrap; }

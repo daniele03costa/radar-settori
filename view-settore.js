@@ -1,5 +1,5 @@
 /*
- * Radar Settori — dettaglio di un settore USA, o di un settore o indice europeo (stessa pagina, dati del mercato
+ * Radar Settori — dettaglio di un settore USA, o di un settore o indice di Europa, Asia o Emergenti (stessa pagina, dati del mercato
  * della zona aperta: R.mercati in core.js).
  */
 (function () {
@@ -8,10 +8,10 @@
   const R = window.Radar, S = window.Signals;
   const { $, num, pct, cls, dataIt, esc } = R;
 
-  const SIMBOLI = { EUR: "€", GBp: "p", CHF: "CHF", DKK: "kr", SEK: "kr", NOK: "kr" };
+  const SIMBOLI = R.SIMBOLI_VALUTA;
   let M = R.mercati.usa;
-  const scelti = { usa: R.store.get("settore", "XLK"), eur: R.store.get("settoreEu", "") };
-  const eu = () => M.zona === "eur";
+  const scelti = { usa: R.store.get("settore", "XLK"), eur: R.store.get("settoreEu", ""), asi: R.store.get("settoreAsi", ""), emg: R.store.get("settoreEmg", "") };
+  const eu = () => M.misto;
   // come si chiama il prezzo del gruppo
   const nomePrezzo = d => !eu() ? `Prezzo ${d.etf}` : d.prezzo_tipo === "indice" ? `Livello ${d.nome}` : "Paniere a pesi uguali (in euro)";
   const st = {
@@ -170,7 +170,7 @@
     const meta = R.metaDi(d.etf) || {};
     const simbolo = d.simbolo_breadth || meta.simbolo_breadth;
     if (eu()) {
-      $("#kicker").textContent = d.tipo === "indice" ? `Europa · Indici · ${d.paese}` : "Europa · Settori · tutte le borse";
+      $("#kicker").textContent = d.tipo === "indice" ? `${M.nome} · Indici · ${d.paese}` : `${M.nome} · Settori · tutte le borse della zona`;
       $("#titolo").innerHTML = `${esc(d.nome)}<span class="etf">${d.tipo === "indice" ? "indice" : "settore"}</span>`;
       const filtro = d.tipo === "indice" ? "indice" : "settore";
       $("#links").innerHTML = `<button class="btn-link" type="button" id="sec-azioni" data-filtro="${filtro}" data-nome="${esc(d.nome)}">Le sue ${(d.titoli || []).length} azioni nella pagina Azioni →</button>`;
@@ -280,10 +280,10 @@
       <p>Dal ${dataIt(primo)} l'ampiezza ha chiuso a questo livello o sotto ${R.art("nel", `<b>${num(st.analisi.quotaSotto, 1)}%</b>`)} delle sedute.
         ${n ? `${eu() && d.tipo === "indice" ? "L'indice" : "Il settore"} ha ${n} titoli: uno vale <b>${num(100 / n, 1)} punti</b>, quindi il livello ${R.art("del", num(lv, 0) + "%")} vuol dire <b>${R.titoliLivello(0, n, lv).soglia} ${R.titoliLivello(0, n, lv).soglia === 1 ? "titolo" : "titoli"} su ${n}</b> sopra la media 200${R.titoliLivello(0, n, lv).soglia === 0 ? ", cioè tutti sotto" : ""}.` : ""}
         Livello di riarmo: <b>${num(st.analisi.riarmo, 0)}%</b>.</p>
-      <p class="small">Predefinito: ${num(def, 0)}% (${eu() ? "5° percentile dell'ampiezza dal 2005: per l'Europa non c'è una tabella di riferimento" : "tabella quant-rea «200 LEVEL SETTORI»"}).
+      <p class="small">Predefinito: ${num(def, 0)}% (${eu() ? `5° percentile dell'ampiezza dal 2005: per ${M.t.ilNome} non c'è una tabella di riferimento` : "tabella quant-rea «200 LEVEL SETTORI»"}).
         ${lv !== def ? `<button class="linkish" type="button" id="soglia-reset">Torna a ${num(def, 0)}%</button>` : ""}
         La modifica vale solo in questo browser e serve a vedere come cambiano zone blu, trigger ed episodi.
-        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata nel file <code>${eu() ? "europa.json" : "settings.json"}</code>).</p>`;
+        <button class="linkish" type="button" id="copia-config">Copia configurazione</button> per renderla valida per tutti (va incollata nel file <code>${eu() ? M.t.file : "settings.json"}</code>).</p>`;
   }
 
   function disegnaTitoli() {
@@ -341,7 +341,7 @@
       <div class="card-head titoli-head">
         <div>
           <div class="card-title"><h2>${eu() && d.tipo === "indice" ? "Titoli dell'indice" : "Titoli del settore"}</h2></div>
-          <p class="sub">${titoli.length} ${eu() ? (d.tipo === "indice" ? `azioni dell'indice ${esc(d.nome)}` : "azioni europee del settore") : "azioni dell'S&amp;P 500"}, <b>${sopra}</b> sopra la media 200. Clic su una tessera per la scheda del titolo.</p>
+          <p class="sub">${titoli.length} ${eu() ? (d.tipo === "indice" ? `azioni dell'indice ${esc(d.nome)}` : `azioni ${M.t.agg} del settore`) : "azioni dell'S&amp;P 500"}, <b>${sopra}</b> sopra la media 200. Clic su una tessera per la scheda del titolo.</p>
         </div>
         <input class="filter" id="filtro-titoli" type="search" placeholder="Filtra per ticker o nome…" value="${esc(st.filtro)}" aria-label="Filtra i titoli">
       </div>
@@ -417,7 +417,7 @@
     $("#soglia-card").addEventListener("change", e => { if (st.dati && e.target.id === "soglia-range") R.impostaLivello(st.dati.etf, Number(e.target.value)); });
     $("#links").addEventListener("click", e => {
       const b = e.target.closest("#sec-azioni");
-      if (b && R.viste.eur && R.viste.eur.filtra) R.viste.eur.filtra(b.dataset.filtro, b.dataset.nome);
+      if (b && R.viste.eur && R.viste.eur.filtra) R.viste.eur.filtra(b.dataset.filtro, b.dataset.nome, M.zona);
     });
     $("#titoli-card").addEventListener("click", e => {
       if (e.target.id === "chiudi-titolo") { mostraTitolo(null); return; }
@@ -457,7 +457,7 @@
       scelti[M.zona] = st.etf; M = m; st.etf = scelti[M.zona]; st.dati = null; st.analisi = null;
       // niente numeri dell'altro mercato mentre arrivano quelli nuovi
       ["#kpi", "#titoli-card", "#soglia-card", "#links", "#riassunto", "#episodi", "#legenda"].forEach(k => { $(k).innerHTML = ""; });
-      $("#kicker").textContent = M.zona === "eur" ? "Europa · Settori e indici" : "USA · Settori";
+      $("#kicker").textContent = M.misto ? `${M.nome} · Settori e indici` : "USA · Settori";
       $("#titolo").innerHTML = "&nbsp;";
       $("#stato").className = "badge"; $("#stato").innerHTML = "&nbsp;";
       if (grafici) { creaGrafici(); }
@@ -465,7 +465,7 @@
     $("#regole-settore").innerHTML = R.htmlRegole(false, M);
     R.testiZona($("#view-sec"), M.zona);
     try { await M.pronto(); }
-    catch (e) { $("#titolo").textContent = "I dati dell'ampiezza europea non ci sono ancora"; $("#kicker").textContent = "Europa · Settori"; return; }
+    catch (e) { $("#titolo").textContent = "I dati dell'ampiezza non ci sono ancora"; $("#kicker").textContent = `${M.nome} · Settori e indici`; $("#stato").className = "badge"; $("#stato").textContent = M.t.manca; return; }
     if (m !== M || !st.visibile) return;
     const [p0, p1] = String(param || "").split("/");
     const elenco = M.meta().settori;
@@ -477,7 +477,7 @@
     }
     const titolo = p1 ? p1.toUpperCase() : null;
     st.etf = scelti[M.zona] = etf;
-    R.store.set(eu() ? "settoreEu" : "settore", etf);
+    R.store.set(eu() ? "settore" + M.store : "settore", etf);
     R.emit("settore", etf);
     document.title = `${R.codice(etf)} · Radar Settori`;
     if (!grafici) creaGrafici();
@@ -514,7 +514,7 @@
     const periodo = { "3A": "ultimi 3 anni", "10A": "ultimi 10 anni", MAX: "dal 2005" }[st.periodo] || st.periodo;
     const X = eu() ? (d.prezzo_tipo === "indice" ? "livello dell'indice" : "paniere") : "ETF";
     out.push(eu()
-      ? `## Pagina aperta: Europa · Settori · ${d.tipo === "indice" ? `indice ${d.nome} (${d.paese})` : `settore ${d.nome} (tutte le borse europee del sito)`}, dati al ${dataIt(d.date[t])}`
+      ? `## Pagina aperta: ${M.nome} · Settori e indici · ${d.tipo === "indice" ? `indice ${d.nome} (${d.paese})` : `settore ${d.nome} (tutte le borse della zona)`}, dati al ${dataIt(d.date[t])}`
       : `## Pagina aperta: Settore ${d.etf} · ${d.nome} (GICS ${d.gics}), dati al ${dataIt(d.date[t])}`);
     if (eu()) out.push(`Prezzo usato: ${d.prezzo_tipo === "indice" ? `livello dell'indice ${d.nome} in punti (Yahoo Finance)` : "paniere a pesi uguali delle azioni del gruppo, in euro, base 100"}. ` +
       "Ampiezza calcolata con le azioni di oggi anche per gli anni passati (survivorship bias); livello blu predefinito = 5° percentile dell'ampiezza dal 2005.");
@@ -565,7 +565,7 @@
 
     // titoli
     const titoli = (d.titoli || []).slice().sort((x, y) => (y.v200 ?? -999) - (x.v200 ?? -999));
-    out.push(`Tutti i ${titoli.length} titoli ${eu() ? (d.tipo === "indice" ? "dell'indice (prezzi nella valuta della borsa)" : "del settore (azioni europee, prezzi nella valuta della borsa)") : "del settore (azioni dell'S&P 500)"}, dal più forte al più debole rispetto alla media 200: ticker | nome | ultimo prezzo | distanza dalla media 200 | dalla media 50 | dal massimo a 52 settimane`);
+    out.push(`Tutti i ${titoli.length} titoli ${eu() ? (d.tipo === "indice" ? "dell'indice (prezzi nella valuta della borsa)" : `del settore (azioni ${M.t.agg}, prezzi nella valuta della borsa)`) : "del settore (azioni dell'S&P 500)"}, dal più forte al più debole rispetto alla media 200: ticker | nome | ultimo prezzo | distanza dalla media 200 | dalla media 50 | dal massimo a 52 settimane`);
     for (const x of titoli) out.push(`${x.t} | ${x.nome} | ${num(x.ultimo, 2)} | ${pct(x.v200, 1)} | ${pct(x.v50, 1)} | ${pct(x.dd52, 1)}`);
     const sel = st.titolo && titoli.find(x => x.t === st.titolo);
     if (sel) out.push(`Titolo aperto nella scheda: ${sel.t} (${sel.nome}), ${titoli.filter(x => x.v200 != null).findIndex(x => x.t === sel.t) + 1}° su ${titoli.filter(x => x.v200 != null).length} per distanza dalla media 200.`);

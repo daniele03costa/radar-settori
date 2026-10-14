@@ -79,10 +79,11 @@
   // prezzi in euro; cambi = { USD: { date, valori } } con le unità di valuta per un euro. null se manca il cambio
   function inEuro(prezzi, valuta, calendario, cambi) {
     if (!valuta || valuta === "EUR") return prezzi;
-    const c = cambi && cambi[valuta === "GBp" ? "GBP" : valuta];
+    const CENT = { GBp: "GBP", ZAc: "ZAR" };                   // pence di Londra, cent di Johannesburg
+    const c = cambi && cambi[CENT[valuta] || valuta];
     if (!c || !c.date || !c.date.length) return null;
     const fx = allinea(c.date, c.valori, calendario, 10);
-    const f = valuta === "GBp" ? 100 : 1;                     // pence → sterline
+    const f = CENT[valuta] ? 100 : 1;
     return prezzi.map((v, t) => (v != null && fx[t] ? v / fx[t] / f : null));
   }
 

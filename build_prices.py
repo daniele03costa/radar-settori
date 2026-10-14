@@ -377,7 +377,11 @@ PORTAFOGLIO = ROOT / "portafoglio.txt"
 BENCH_MIEI = {"usa": "SPY", "europa": "IUSQ.DE"}     # S&P 500 in dollari, azionario mondiale (ACWI) in euro
 VALUTE = {"MI": "EUR", "DE": "EUR", "F": "EUR", "PA": "EUR", "AS": "EUR", "MC": "EUR", "BR": "EUR", "LS": "EUR",
           "VI": "EUR", "HE": "EUR", "IR": "EUR", "L": "GBp", "SW": "CHF", "CO": "DKK", "ST": "SEK", "OL": "NOK",
-          "TO": "CAD", "T": "JPY", "HK": "HKD", "AX": "AUD"}
+          "TO": "CAD", "T": "JPY", "HK": "HKD", "AX": "AUD",
+          # Asia ed Emergenti (le borse delle zone del sito)
+          "SS": "CNY", "SZ": "CNY", "KS": "KRW", "KQ": "KRW", "TW": "TWD", "TWO": "TWD", "NS": "INR", "BO": "INR", "JK": "IDR",
+          "BK": "THB", "KL": "MYR", "SI": "SGD", "SA": "BRL", "MX": "MXN", "BA": "ARS", "SN": "CLP", "JO": "ZAc", "IS": "TRY", "WA": "PLN"}
+CENTESIMI = {"GBp": "GBP", "ZAc": "ZAR"}     # pence di Londra e cent di Johannesburg: il cambio è quello della valuta intera
 CASSA = {"LIQUIDITA", "LIQUIDITÀ", "CASH", "CONTANTI"}
 TIPI_YAHOO = {"EQUITY": "Azione", "ETF": "ETF", "CRYPTOCURRENCY": "Crypto", "MUTUALFUND": "Fondo", "INDEX": "Indice",
               "CURRENCY": "Valuta", "FUTURE": "Future"}
@@ -542,7 +546,7 @@ def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str
         return None
 
     # cambi: quante unità di valuta per un euro (EURUSD=X…), per portare tutto in euro
-    valute = sorted({("GBP" if v["valuta"] == "GBp" else v["valuta"]) for v in voci if v["valuta"]} | {"USD", "GBP", "CHF"})
+    valute = sorted({CENTESIMI.get(v["valuta"], v["valuta"]) for v in voci if v["valuta"]} | {"USD", "GBP", "CHF"})
     valute = [v for v in valute if v and v != "EUR"]
     cambi = {}
     if valute:

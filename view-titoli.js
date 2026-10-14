@@ -278,10 +278,11 @@
       mappaSp = new Map(tt.map(z => [String(z.t).toUpperCase(), z]));
       tutti = await R.dati.tuttiSettori();
     } catch (e) { /* senza i settori si mostra il resto */ }
-    try {
-      const eu = await R.dati.europaLista();
-      mappaEu = new Map(eu.titoli.map(z => [z.t, z]));
-    } catch (e) { /* senza l'elenco europeo si mostra il resto */ }
+    // le azioni delle zone Europa, Asia ed Emergenti (con la loro zona, per aprirne la scheda)
+    mappaEu = new Map();
+    await Promise.all(["eur", "asi", "emg"].map(z => R.dati.listaZona(z)
+      .then(eu => eu.titoli.forEach(x => { if (!mappaEu.has(x.t)) mappaEu.set(x.t, Object.assign({ zona: z }, x)); }))
+      .catch(() => { /* senza l'elenco della zona si mostra il resto */ })));
     if (!st.visibile) return;
     st.mappaEu = mappaEu;
     if (R.portafoglio) {
@@ -314,7 +315,7 @@
     R.on("apri-titolo", t => {
       if (!st.visibile) return;
       if (st.righe.some(r => r.t === t)) apriTitolo(t, true, true);
-      else if (st.mappaEu && st.mappaEu.has(t)) R.vai("#eur/azioni/" + t);      // azione europea solo nel portafoglio
+      else if (st.mappaEu && st.mappaEu.has(t)) R.vai(`#${st.mappaEu.get(t).zona || "eur"}/azioni/${t}`);      // azione di una zona solo nel portafoglio
     });
     $("#tit-tabella").addEventListener("click", e => {
       const th = e.target.closest("th[data-col]");

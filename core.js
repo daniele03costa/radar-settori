@@ -67,7 +67,6 @@
     return p;
   }
   const versione = () => encodeURIComponent((R.meta && (R.meta.generato || R.meta.aggiornato)) || "");
-  const versioneEu = () => encodeURIComponent((R.metaEu && (R.metaEu.generato || R.metaEu.aggiornato)) || "");
 
   R.dati = {
     meta: () => carica("data/meta.json", { cache: "no-store" }),
@@ -90,13 +89,11 @@
     // azioni europee: l'elenco aggiornato dall'aggiornamento automatico, altrimenti quello di base
     europaLista: () => carica("data/europa_lista.json", { cache: "no-cache" }).catch(() => carica("europa.json", { cache: "no-cache" })),
     europa: () => carica("data/prezzi_europa.json", { cache: "no-cache" }),
-    // ampiezza storica di settori e indici europei (stessa forma dei settori USA)
-    europaMeta: () => carica("data/europa/meta.json", { cache: "no-cache" }),
-    europaIndice: () => carica(`data/europa/indice.json?v=${versioneEu()}`),
-    europaGruppo: id => Promise.all([carica(`data/europa/settori/${id}.json?v=${versioneEu()}`), R.dati.europaIndice()])
-      .then(([d, i]) => { if (!d.date && d.b200.length === i.date.length) d.date = i.date; return window.Signals.completa(d); }),
-    europaGruppi: () => Promise.all(R.metaEu.settori.map(s => R.dati.europaGruppo(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
-    europaStati: () => carica(`data/europa/stati.json?v=${versioneEu()}`),
+    // ampiezza storica di settori e indici europei (stessa forma dei settori USA): vedi R.mercati.eur
+    europaStati: () => R.mercati.eur.stati(),
+    // prezzi degli ultimi anni delle azioni di Asia ed Emergenti, e i loro elenchi
+    prezziZona: zona => (zona === "eur" ? R.dati.europa() : carica(`data/prezzi_${zona === "asi" ? "asia" : "emergenti"}.json`, { cache: "no-cache" })),
+    listaZona: zona => (zona === "eur" ? R.dati.europaLista() : carica(zona === "asi" ? "asia.json" : "emergenti.json", { cache: "no-cache" })),
     // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi
     listaMiei: () => fetch("miei-titoli.txt", { cache: "no-cache" }).then(r => (r.ok ? r.text() : "")).then(R.leggiListaMiei).catch(() => []),
   };
@@ -170,7 +167,12 @@
 
   // ---------- livelli blu e analisi ----------
   // la voce di un gruppo (settore USA, settore o indice europeo) nel suo meta.json
-  R.metaDi = id => (R.meta && R.meta.settori.find(s => s.etf === id)) || (R.metaEu && R.metaEu.settori.find(s => s.etf === id)) || null;
+  R.metaDi = id => {
+    const usa = R.meta && R.meta.settori.find(s => s.etf === id);
+    if (usa) return usa;
+    for (const m of Object.values(R.metaZone || {})) { const x = m && m.settori.find(s => s.etf === id); if (x) return x; }
+    return null;
+  };
   R.livelliLocali = R.store.get("soglie", {});
   R.livello = etf => {
     if (R.livelliLocali[etf] != null) return R.livelliLocali[etf];
@@ -215,10 +217,77 @@
   // ---------- i due mercati con ampiezza e stati: USA (settori dell'S&P 500) ed Europa (settori e indici) ----------
   // Monitor, Bottom Map, Settori e Alert sono le stesse pagine per tutti e due: cambia solo da dove arrivano i dati
   // e come si chiamano le cose.
-  let caricaEu = null;
+  // le zone con settori e indici (Europa, Asia, Emergenti): stessi file, in cartelle diverse
+  const ZONE_GRUPPI = {
+    eur: { nome: "Europa", cartella: "data/europa", cal: "milano", file: "europa.json", agg: "europee", aggM: "europei", aggS: "europeo", ilNome: "l'Europa",
+      bench: "STOXX 600", benchLungo: "lo STOXX 600", azioni: "circa 470", indici: 15, store: "Eu", aggiornamento: "Aggiorna dati" },
+    asi: { nome: "Asia", cartella: "data/asia", cal: "feriale", file: "asia.json", agg: "asiatiche", aggM: "asiatici", aggS: "asiatico", ilNome: "l'Asia",
+      bench: null, benchLungo: null, azioni: "circa 1.040", indici: 9, store: "Asi", aggiornamento: "Aggiorna Asia ed emergenti" },
+    emg: { nome: "Emergenti", cartella: "data/emergenti", cal: "feriale", file: "emergenti.json", agg: "dei paesi emergenti", aggM: "dei paesi emergenti", aggS: "dei paesi emergenti", ilNome: "i paesi emergenti",
+      bench: "EEM", benchLungo: "l'MSCI Emerging Markets (ETF EEM)", azioni: "circa 250", indici: 7, store: "Emg", aggiornamento: "Aggiorna Asia ed emergenti" },
+  };
+  R.ZONE_GRUPPI = ZONE_GRUPPI;
+  // simboli e nomi delle valute delle azioni (prezzi nella valuta di ogni borsa)
+  R.SIMBOLI_VALUTA = { EUR: "€", GBp: "p", CHF: "CHF", DKK: "kr", SEK: "kr", NOK: "kr", USD: "$", JPY: "¥", HKD: "HK$", CNY: "CN¥", KRW: "₩",
+    TWD: "NT$", INR: "₹", IDR: "Rp", THB: "฿", MYR: "RM", BRL: "R$", MXN: "MX$", ARS: "AR$", CLP: "CLP", ZAc: "c", ZAR: "R", TRY: "₺", PLN: "zł" };
+  R.NOMI_VALUTA = { EUR: "euro", GBp: "pence di sterlina", CHF: "franchi svizzeri", DKK: "corone danesi", SEK: "corone svedesi", NOK: "corone norvegesi",
+    USD: "dollari", JPY: "yen", HKD: "dollari di Hong Kong", CNY: "yuan", KRW: "won", TWD: "dollari taiwanesi", INR: "rupie indiane", IDR: "rupie indonesiane",
+    THB: "baht", MYR: "ringgit", BRL: "real", MXN: "pesos messicani", ARS: "pesos argentini", CLP: "pesos cileni", ZAc: "cent di rand", ZAR: "rand",
+    TRY: "lire turche", PLN: "złoty" };
+  R.metaZone = {};
+
+  function mercatoGruppi(zona) {
+    const c = ZONE_GRUPPI[zona];
+    let caricamento = null;
+    const v = () => encodeURIComponent((R.metaZone[zona] && (R.metaZone[zona].generato || R.metaZone[zona].aggiornato)) || "");
+    const indice = () => carica(`${c.cartella}/indice.json?v=${v()}`);
+    const gruppo = id => Promise.all([carica(`${c.cartella}/settori/${id}.json?v=${v()}`), indice()])
+      .then(([d, i]) => { if (!d.date && d.b200.length === i.date.length) d.date = i.date; return window.Signals.completa(d); });
+    const M = {
+      zona, nome: c.nome, cal: c.cal, cartella: c.cartella, file: c.file, store: c.store, misto: true,
+      // il riepilogo dei gruppi arriva solo quando si entra nella zona (o la Home lo chiede)
+      pronto: () => {
+        if (R.metaZone[zona]) return Promise.resolve(R.metaZone[zona]);
+        if (!caricamento) caricamento = carica(`${c.cartella}/meta.json`, { cache: "no-cache" }).then(m => {
+          R.metaZone[zona] = m;
+          if (zona === "eur") R.metaEu = m;
+          R.emit("prezzi", { mercato: "ampiezza-" + zona, aggiornato: m.aggiornato });
+          return m;
+        }).catch(e => { caricamento = null; throw e; });
+        return caricamento;
+      },
+      meta: () => R.metaZone[zona] || null,
+      settore: gruppo,
+      tutti: () => Promise.all(R.metaZone[zona].settori.map(s => gruppo(s.etf).then(d => [s.etf, d]))).then(Object.fromEntries),
+      indice,
+      stati: () => carica(`${c.cartella}/stati.json?v=${v()}`),
+      cod: s => s.codice || s.etf,
+      sotto: s => (s.tipo === "indice" ? (s.codice !== s.nome ? `${s.nome} · ${s.paese}` : `indice · ${s.paese}`)
+        : s.codice !== s.nome ? `settore · ${s.nome.toLowerCase()}` : `settore ${c.aggS}`),
+      link: id => `#${zona}/settori/${id}`,
+      linkTitolo: (id, t) => `#${zona}/azioni/${t}`,
+      tipi: [["settore", `Settori ${c.aggM}`], ["indice", "Indici"]],
+      t: {
+        gruppo: "gruppo", gruppi: "settori e indici", Gruppo: "Settore o indice", Gruppi: "Settori e indici", unGruppo: "un settore o un indice", delGruppo: "del gruppo",
+        nGruppi: n => `${n} settori e indici`, tutti: "tutti i settori e gli indici", tuttiI: "tutti i settori e gli indici",
+        regione: c.nome, ilNome: c.ilNome, agg: c.agg, aggM: c.aggM, aggS: c.aggS, file: c.file, aggiornamento: c.aggiornamento,
+        indice: c.nome, indiceIntero: `Tutte le azioni ${c.agg} del sito`, indiceKpi: `${c.nome}, azioni sopra la media 200`,
+        bench: c.bench, rotazione: "Rotazione relativa",
+        rotazioneTesto: c.bench ? `Rotazione (settori contro la media delle azioni ${c.agg}, indici contro ${c.benchLungo}, in euro)` : `Rotazione (settori e indici contro la media delle azioni ${c.agg}, in euro)`,
+        prezzo: "prezzo", prezzoDel: "del prezzo", ilPrezzo: "il prezzo", azioni: `azioni ${c.agg}`, inIndice: `fra le azioni ${c.agg}`,
+        dal: "dal 2005", rendimenti: "I rendimenti sono del livello dell'indice (in valuta locale, di solito senza dividendi) o, per i settori, di un paniere a pesi uguali delle sue azioni in euro (dividendi inclusi).",
+        manca: `I dati dell'ampiezza di questa zona non ci sono ancora: arrivano con il prossimo aggiornamento automatico (${c.aggiornamento}).`,
+      },
+    };
+    return M;
+  }
+
+  // ---------- i mercati con ampiezza e stati: USA (settori dell'S&P 500), Europa, Asia ed Emergenti (settori e indici) ----------
+  // Monitor, Bottom Map, Settori e Alert sono le stesse pagine per tutti: cambia solo da dove arrivano i dati
+  // e come si chiamano le cose.
   R.mercati = {
     usa: {
-      zona: "usa", nome: "USA", cal: "nyse",
+      zona: "usa", nome: "USA", cal: "nyse", misto: false,
       pronto: () => Promise.resolve(R.meta),
       meta: () => R.meta,
       settore: id => R.dati.settore(id),
@@ -234,51 +303,33 @@
         nGruppi: n => `${n} settori`, tutti: "tutti gli 11 settori", tuttiI: "tutti i settori",
         indice: "S&P 500", indiceIntero: "S&P 500 intero", indiceKpi: "S&P 500, titoli sopra la media 200",
         bench: "SPY", rotazione: "Rotazione vs SPY", rotazioneTesto: "Rotazione contro SPY", prezzo: "ETF", prezzoDel: "dell'ETF", ilPrezzo: "l'ETF", azioni: "azioni dell'S&P 500", inIndice: "nell'S&P 500",
-        dal: "dal 2005", rendimenti: "I rendimenti sono dell'ETF, dividendi inclusi.",
+        dal: "dal 2005", rendimenti: "I rendimenti sono dell'ETF, dividendi inclusi.", regione: "USA", manca: "Dati non disponibili.",
       },
     },
-    eur: {
-      zona: "eur", nome: "Europa", cal: "milano",
-      // il riepilogo dei gruppi arriva solo quando si entra nella zona (o la Home lo chiede)
-      pronto: () => {
-        if (R.metaEu) return Promise.resolve(R.metaEu);
-        if (!caricaEu) caricaEu = R.dati.europaMeta().then(m => { R.metaEu = m; R.emit("prezzi", { mercato: "europaAmpiezza", aggiornato: m.aggiornato }); return m; })
-          .catch(e => { caricaEu = null; throw e; });
-        return caricaEu;
-      },
-      meta: () => R.metaEu,
-      settore: id => R.dati.europaGruppo(id),
-      tutti: () => R.dati.europaGruppi(),
-      indice: () => R.dati.europaIndice(),
-      cod: s => s.codice || s.etf,
-      sotto: s => (s.tipo === "indice" ? (s.codice !== s.nome ? `${s.nome} · ${s.paese}` : `indice · ${s.paese}`)
-        : s.codice !== s.nome ? `settore · ${s.nome.toLowerCase()}` : "settore europeo"),
-      link: id => "#eur/settori/" + id,
-      linkTitolo: (id, t) => "#eur/azioni/" + t,
-      tipi: [["settore", "Settori europei"], ["indice", "Indici"]],
-      t: {
-        gruppo: "gruppo", gruppi: "settori e indici", Gruppo: "Settore o indice", Gruppi: "Settori e indici", unGruppo: "un settore o un indice", delGruppo: "del gruppo",
-        nGruppi: n => `${n} settori e indici`, tutti: "tutti i settori e gli indici", tuttiI: "tutti i settori e gli indici",
-        indice: "Europa", indiceIntero: "Tutte le azioni europee del sito", indiceKpi: "Europa, azioni sopra la media 200",
-        bench: "STOXX 600", rotazione: "Rotazione relativa", rotazioneTesto: "Rotazione (settori contro la media delle azioni europee, indici contro lo STOXX 600, in euro)", prezzo: "prezzo", prezzoDel: "del prezzo", ilPrezzo: "il prezzo", azioni: "azioni europee", inIndice: "fra le azioni europee",
-        dal: "dal 2005", rendimenti: "I rendimenti sono del livello dell'indice (in valuta locale, di solito senza dividendi) o, per i settori, di un paniere a pesi uguali delle sue azioni in euro (dividendi inclusi).",
-      },
-    },
+    eur: mercatoGruppi("eur"),
+    asi: mercatoGruppi("asi"),
+    emg: mercatoGruppi("emg"),
   };
-  R.mercato = zona => R.mercati[zona === "eur" ? "eur" : "usa"];
+  R.mercato = zona => R.mercati[ZONE_GRUPPI[zona] ? zona : "usa"];
   // il mercato a cui appartiene un gruppo
-  R.mercatoDi = id => (R.meta && R.meta.settori.some(s => s.etf === id) ? R.mercati.usa : R.mercati.eur);
+  R.mercatoDi = id => {
+    if (R.meta && R.meta.settori.some(s => s.etf === id)) return R.mercati.usa;
+    for (const z of Object.keys(ZONE_GRUPPI)) { const m = R.metaZone[z]; if (m && m.settori.some(s => s.etf === id)) return R.mercati[z]; }
+    return R.mercati.eur;
+  };
   // nome breve di un gruppo per le frasi: «XLE» negli USA, «Energia» o «DAX» in Europa
   R.codice = id => { const s = R.metaDi(id); return s ? (s.codice || s.etf) : id; };
 
-  // testi delle pagine che cambiano fra USA ed Europa: l'elemento con data-eur ha il testo europeo,
-  // quello scritto nella pagina è per gli USA
+  // testi delle pagine che cambiano fra USA e le altre zone: l'elemento con data-eur ha il testo delle zone con
+  // settori e indici ({europei} diventa «europei», «asiatici»…), quello scritto nella pagina è per gli USA;
+  // data-solo="eur" si vede nelle zone con settori e indici, data-solo="usa" solo negli USA
   R.testiZona = (box, zona) => {
+    const M = R.mercato(zona);
     R.$$("[data-eur]", box).forEach(el => {
       if (el.dataset.usa == null) el.dataset.usa = el.innerHTML;
-      el.innerHTML = zona === "eur" ? el.dataset.eur : el.dataset.usa;
+      el.innerHTML = M.misto ? el.dataset.eur.replace(/\{europei\}/g, M.t.aggM).replace(/\{europee\}/g, M.t.agg) : el.dataset.usa;
     });
-    R.$$("[data-solo]", box).forEach(el => { el.hidden = el.dataset.solo !== zona; });
+    R.$$("[data-solo]", box).forEach(el => { el.hidden = el.dataset.solo === "usa" ? M.misto : !M.misto; });
   };
 
   // quadrante settimanale di ogni gruppo contro il termine di confronto: SPY negli USA; in Europa, come nella
@@ -288,11 +339,14 @@
     const out = {};
     try {
       let date, benchDi, serie;
-      if (M.zona === "eur") {
+      if (M.misto) {
         const ind = await M.indice();
         date = ind.date;
-        benchDi = s => (s.tipo === "indice" ? ind.close : ind.paniere);
-        serie = id => { const d = tutti[id] || {}; return d.close_eur || d.close; };
+        const conf = ind.close_eur || ind.close;
+        benchDi = s => (s.tipo === "indice" && conf ? conf : ind.paniere);
+        // un indice in valuta locale senza la serie in euro (cambio mancante) non si confronta: con l'inflazione
+        // del peso argentino, per esempio, sembrerebbe sempre «Leader»
+        serie = id => { const d = tutti[id] || {}; return d.close_eur || (!d.valuta || d.valuta === "EUR" ? d.close : null); };
       } else {
         const px = await R.dati.prezzi("usa");
         date = px.date; benchDi = () => px.serie.SPY; serie = id => px.serie[id];
@@ -332,9 +386,10 @@
   // ---------- spiegazione delle regole (pagine Settori e Alert degli USA) ----------
   R.htmlRegole = function (conParametri, M) {
     const P = R.parametri();
-    const eu = M && M.zona === "eur";
+    const eu = !!(M && M.misto);
+    const Z = eu ? ZONE_GRUPPI[M.zona] : null;
     const ampiezza = eu
-      ? `È la quota di azioni del settore o dell'indice (fra le circa 470 europee del sito) che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
+      ? `È la quota di azioni del settore o dell'indice (fra le ${Z.azioni} ${Z.agg} del sito) che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
             Le chiusure sono rettificate per split e dividendi. Per gli anni passati si usano i titoli di oggi: mancano le società uscite dagli indici o sparite, quindi l'ampiezza dei primi anni è un po' più alta del vero.`
       : `È la quota di titoli dell'S&amp;P 500 del settore che chiudono sopra la propria media a 200 sedute (e, come riferimento, a 50 e a 20).
             Le chiusure sono corrette per gli split ma non per i dividendi; per gli anni passati si usano i titoli che erano nell'indice allora.`;
@@ -384,7 +439,7 @@
         </div>
       </div>
       ${righe}
-      <p class="small">Va usato per scegliere dove approfondire, non come regola automatica: ogni ${eu ? "gruppo" : "settore"} ha pochi episodi e spesso l'ampiezza tocca il fondo prima del prezzo.${eu ? " In Europa i livelli blu predefiniti sono il 5° percentile dell'ampiezza dal 2005 di ogni gruppo: non c'è una tabella di riferimento come per gli USA." : ""}</p>`;
+      <p class="small">Va usato per scegliere dove approfondire, non come regola automatica: ogni ${eu ? "gruppo" : "settore"} ha pochi episodi e spesso l'ampiezza tocca il fondo prima del prezzo.${eu ? ` Per ${Z.ilNome} i livelli blu predefiniti sono il 5° percentile dell'ampiezza dal 2005 di ogni gruppo: non c'è una tabella di riferimento come per gli USA.` : ""}</p>`;
   };
 
   // ---------- piccoli grafici ----------

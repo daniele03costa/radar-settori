@@ -10,12 +10,12 @@
   const R = window.Radar;
   const { $ } = R;
 
-  function regole(eu) {
+  function regole(eu, M) {
     const P = R.parametri();
     return [
       "## Come funziona Radar Settori",
       eu
-        ? "- Ampiezza (Europa): percentuale di azioni di un settore (tutte le azioni europee del sito di quel settore) o di un indice (le sue azioni di oggi) che chiudono sopra la propria media mobile a 200 sedute, dal 2005; si guardano anche le medie a 50 e 20. Prezzi rettificati per split e dividendi; per il passato si usano le azioni di oggi (survivorship bias: i primi anni sono un po' ottimisti)."
+        ? `- Ampiezza (${M.nome}): percentuale di azioni di un settore (tutte le azioni ${M.t.agg} del sito di quel settore) o di un indice (le sue azioni di oggi) che chiudono sopra la propria media mobile a 200 sedute, dal 2005; si guardano anche le medie a 50 e 20. Prezzi rettificati per split e dividendi; per il passato si usano le azioni di oggi (survivorship bias: i primi anni sono un po' ottimisti).`
         : "- Ampiezza: percentuale di titoli del settore (nell'S&P 500) che chiudono sopra la propria media mobile a 200 sedute; si guardano anche le medie a 50 e 20. Prezzi corretti per gli split, non per i dividendi; per il passato si usano i titoli che erano nell'indice allora.",
       eu
         ? "- Livello blu: soglia di ampiezza propria di ogni gruppo, predefinita al 5° percentile della sua ampiezza dal 2005; si può cambiare nel browser. Prezzo del gruppo: livello dell'indice o, per un settore, paniere a pesi uguali delle sue azioni in euro."
@@ -52,7 +52,9 @@
     const date = [
       d.meta ? `ampiezza USA alla chiusura del ${R.dataIt(d.meta)}` : "",
       d.europa ? `azioni europee del ${R.dataIt(d.europa)}` : "",
-      d.europaAmpiezza ? `ampiezza europea del ${R.dataIt(d.europaAmpiezza)}` : "",
+      d["ampiezza-eur"] ? `ampiezza europea del ${R.dataIt(d["ampiezza-eur"])}` : "",
+      d["ampiezza-asi"] ? `Asia del ${R.dataIt(d["ampiezza-asi"])}` : "",
+      d["ampiezza-emg"] ? `paesi emergenti del ${R.dataIt(d["ampiezza-emg"])}` : "",
       d.crypto ? `crypto del ${R.dataIt(d.crypto)} (mezzanotte UTC)` : "",
     ].filter(Boolean);
     const parti = [
@@ -67,12 +69,13 @@
         try { parti.push(await R.viste.mon.panoramica()); } catch (e) { /* la panoramica è un di più */ }
       }
       parti.push(regole(false));
-    } else if (zona === "eur") {
-      // Europa: la panoramica di settori e indici con i loro stati, se la pagina aperta non è già il Monitor
+    } else if (zona === "eur" || zona === "asi" || zona === "emg") {
+      // la panoramica di settori e indici della zona con i loro stati, se la pagina aperta non è già il Monitor
+      const M = R.mercati[zona];
       if (v !== "mon") {
-        try { parti.push(await R.viste.mon.panoramica(false, R.mercati.eur)); } catch (e) { /* un di più */ }
+        try { parti.push(await R.viste.mon.panoramica(false, M)); } catch (e) { /* un di più */ }
       }
-      parti.push(regole(true));
+      parti.push(regole(true, M));
       parti.push(noteGenerali());
     } else parti.push(noteGenerali());
     return parti.join("\n\n");

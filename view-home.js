@@ -1,6 +1,6 @@
 /*
  * Radar Settori — Home: il quadro di oggi.
- * Una scheda per zona (USA, Europa, crypto) con l'indice principale, il grafico dell'ultimo anno con la media 200,
+ * Una scheda per zona (USA, Europa, Asia, Emergenti, crypto) con l'indice principale, il grafico dell'ultimo anno con la media 200,
  * la tendenza, l'ampiezza e i punti chiave, più il riepilogo del portafoglio. Ogni scheda si riempie appena
  * arrivano i suoi dati; un clic porta nella zona.
  */
@@ -12,7 +12,7 @@
 
   const COLORE_STATO = { rialzo: "var(--q-leader)", recupero: "var(--q-miglioramento)", debolezza: "var(--q-indebolimento)", ribasso: "var(--q-ritardo)" };
   const NOMI_Q = { leader: "leader", miglioramento: "in miglioramento", indebolimento: "in indebolimento", ritardo: "in ritardo" };
-  const ZONE = [["usa", "USA"], ["eur", "Europa"], ["cry", "Crypto"]];
+  const ZONE = [["usa", "USA"], ["eur", "Europa"], ["asi", "Asia"], ["emg", "Emergenti"], ["cry", "Crypto"]];
 
   const st = { visibile: false, giro: 0, pronti: {}, errori: {} };
 
@@ -212,15 +212,16 @@
   // ---------------- Europa ----------------
 
   // stati di settori e indici europei: quelli calcolati ogni notte, o ricalcolati con i livelli di questo browser
-  function statiEu(stati) {
-    const meta = R.metaEu;
+  function statiEu(stati, zona = "eur") {
+    const meta = R.metaZone[zona];
     if (!meta) return null;
     const locali = localiDi(meta.settori);
-    if ((locali || !stati) && !R._gruppiEuPronti && R.caricaStatiSettori) R.caricaStatiSettori("eur");
-    if (R._gruppiEuPronti && (locali || !stati)) {
+    const pronti = (R._gruppiPronti || {})[zona];
+    if ((locali || !stati) && !pronti && R.caricaStatiSettori) R.caricaStatiSettori(zona);
+    if (pronti && (locali || !stati)) {
       return meta.settori.map(s => {
         let stato = null;
-        try { const d = R._gruppiEuPronti[s.etf]; if (d) stato = R.analisiSync(s.etf, d).statoOggi; } catch (e) { /* niente */ }
+        try { const d = pronti[s.etf]; if (d) stato = R.analisiSync(s.etf, d).statoOggi; } catch (e) { /* niente */ }
         return { etf: s.etf, cod: s.codice || s.etf, nome: s.nome, stato: stato || "normale" };
       });
     }
@@ -275,6 +276,60 @@
       puntiHtml(punti) + piede(`Chiusura del ${dataIt(x.data)}`, "#eur/monitor", "Monitor europeo");
     const g = a || x.paniereA;
     miniGrafico($("#home-eur-graf"), { date: x.date, prezzo: g.p, media: g.m200, n: 252, formato: cifre, nome: a ? "STOXX 600" : "Paniere", etichetta: "STOXX Europe 600 nell'ultimo anno con la media a 200 sedute" });
+  }
+
+  // ---------------- Asia ed Emergenti (dai file dell'ampiezza: niente prezzi di mille azioni nella Home) ----------------
+
+  async function riepilogoZona(zona) {
+    const M = R.mercati[zona];
+    const meta = await M.pronto();
+    const [ind, stati] = await Promise.all([M.indice(), M.stati().catch(() => null)]);
+    const N = ind.date.length, k0 = Math.max(0, N - 600);
+    const date = ind.date.slice(k0);
+    const conf = ind.close && ind.close.some(v => v != null) ? ind.close.slice(k0) : null;
+    const a = E.analizza(conf || ind.paniere.slice(k0), date, null, null);
+    const b = ind.b200;
+    return {
+      zona, meta, stati, date, a, conConfronto: !!conf, nomeConfronto: ind.confronto, data: meta.aggiornato,
+      amp: { ora: b[N - 1], mese: b[Math.max(0, N - 22)], n: ind.n[N - 1] },
+      indici: meta.settori.filter(g => g.tipo === "indice" && g.m3_eur != null).sort((u, v) => v.m3_eur - u.m3_eur),
+      settori: meta.settori.filter(g => g.tipo === "settore" && g.m3_eur != null).sort((u, v) => v.m3_eur - u.m3_eur),
+    };
+  }
+
+  function disegnaZona(x) {
+    const zona = x.zona, M = R.mercati[zona], box = $(`#home-${zona}`);
+    const punti = [];
+    const gruppi = statiEu(x.stati, zona);
+    if (gruppi) {
+      const caldi = ["fallito", "trigger", "blu", "attenzione", "cooldown"].map(k => [k, gruppi.filter(g => g.stato === k)]).filter(([, v]) => v.length);
+      const link = g => `<a href="#${zona}/settori/${g.etf}" title="${esc(g.nome)}">${esc(g.cod)}</a>`;
+      punti.push({
+        c: caldi.length ? `var(--st-${caldi[0][0]})` : "var(--st-normale)",
+        html: caldi.length
+          ? caldi.map(([k, v]) => `<span class="st-pill st-${k}">${S.STATI[k]}</span> ${v.map(link).join(", ")}`).join(" · ")
+          : `Nessun settore o indice ${M.t.aggS} in zona blu o in attenzione.`,
+      });
+    }
+    const lk = g => `<a href="#${zona}/settori/${g.etf}">${esc(g.codice || g.nome)}</a> ${pct(g.m3_eur, 1)}`;
+    if (x.indici.length >= 3) {
+      punti.push({ c: "var(--soglia)", html: `Indici a 3 mesi, in euro: più forti ${x.indici.slice(0, 2).map(lk).join(", ")}; più debole ${lk(x.indici[x.indici.length - 1])}.` });
+    }
+    if (x.settori.length >= 3) {
+      punti.push({ c: "var(--q-leader)", html: `Settori a 3 mesi, in euro: più forte ${lk(x.settori[0])}, più debole ${lk(x.settori[x.settori.length - 1])}.` });
+    }
+    const a = x.a;
+    const nIndici = x.meta.settori.filter(g => g.tipo === "indice").length;
+    box.innerHTML = testa(zona, M.nome, `#${zona}/monitor`) + indiceHtml({
+      nome: x.conConfronto ? esc(x.nomeConfronto || "Confronto") : `Media ${zona === "asi" ? "asiatica" : "dei paesi emergenti"}`,
+      sotto: x.conConfronto ? `in dollari · ${nIndici} indici seguiti` : `${x.amp.n} azioni di ${nIndici} indici, pesi uguali, in euro`,
+      valore: cifre(a.ultimo), a,
+    }) + `<div class="hc-grafico" id="home-${zona}-graf"></div>` + numeri([
+      ["1 mese", p100(a.m1), cls100(a.m1)], ["Da inizio anno", p100(a.ytd), cls100(a.ytd)], ["Dal massimo", p100(a.dd52), ""],
+    ]) + ampiezza(x.amp.ora == null ? null : x.amp.ora / 100, `${num(x.amp.ora, 0)}%`, `${x.amp.n} azioni · un mese fa ${num(x.amp.mese, 0)}%`, `Azioni ${M.t.agg} sopra la media 200`) +
+      puntiHtml(punti) + piede(`Chiusura del ${dataIt(x.data)}`, `#${zona}/monitor`, `Monitor ${zona === "asi" ? "asiatico" : "dei paesi emergenti"}`);
+    miniGrafico($(`#home-${zona}-graf`), { date: x.date, prezzo: a.p, media: a.m200, n: 252, formato: cifre, nome: x.conConfronto ? (x.nomeConfronto || "") : "Media",
+      etichetta: `${x.conConfronto ? x.nomeConfronto : "Media della zona"} nell'ultimo anno con la media a 200 sedute` });
   }
 
   // ---------------- crypto ----------------
@@ -354,15 +409,19 @@
     const pezzi = [];
     if (d.usa || d.meta) pezzi.push(`USA alla chiusura di ${giorno(d.usa || d.meta)}`);
     if (d.europa) pezzi.push(`Europa di ${giorno(d.europa)}`);
+    if (d["ampiezza-asi"]) pezzi.push(`Asia di ${giorno(d["ampiezza-asi"])}`);
+    if (d["ampiezza-emg"]) pezzi.push(`paesi emergenti di ${giorno(d["ampiezza-emg"])}`);
     if (d.crypto) pezzi.push(`crypto di ${giorno(d.crypto)} (mezzanotte UTC)`);
     $("#home-sub").textContent = pezzi.length
       ? `Dati: ${elenco(pezzi)}. Clic su una scheda per entrare nella zona.`
-      : "USA, Europa e crypto in una pagina: tendenza, ampiezza e cosa si muove. Clic su una scheda per entrare nella zona.";
+      : "USA, Europa, Asia, paesi emergenti e crypto in una pagina: tendenza, ampiezza e cosa si muove. Clic su una scheda per entrare nella zona.";
   }
 
   const PASSI = {
     usa: [riepilogoUsa, disegnaUsa, "I prezzi USA non ci sono ancora: arrivano con l'aggiornamento automatico."],
     eur: [riepilogoEu, disegnaEur, "I dati delle azioni europee non ci sono ancora: arrivano con l'aggiornamento automatico."],
+    asi: [() => riepilogoZona("asi"), disegnaZona, "I dati dell'Asia non ci sono ancora: arrivano con l'aggiornamento automatico (Aggiorna Asia ed emergenti)."],
+    emg: [() => riepilogoZona("emg"), disegnaZona, "I dati dei paesi emergenti non ci sono ancora: arrivano con l'aggiornamento automatico (Aggiorna Asia ed emergenti)."],
     cry: [() => R.viste.cry.riepilogo(), disegnaCry, "I dati crypto non ci sono ancora: arrivano con l'aggiornamento automatico."],
     pf: [() => R.portafoglio.riepilogo(), disegnaPf, ""],
   };
@@ -401,6 +460,7 @@
     R.on("stati-settori", z => {
       if (!st.visibile) return;
       if (z === "eur") { if (st.pronti.eur) disegnaEur(st.pronti.eur); }
+      else if (z === "asi" || z === "emg") { if (st.pronti[z]) disegnaZona(st.pronti[z]); }
       else if (st.pronti.usa) disegnaUsa(st.pronti.usa);
     });
     R.on("portafoglio", () => { st.pronti.pf = null; if (st.visibile) disegna(); });
@@ -420,7 +480,7 @@
   // ---------------- testo per «Copia per Claude» ----------------
 
   function contesto() {
-    const out = ["## Pagina aperta: Home (il quadro di oggi di USA, Europa e crypto)"];
+    const out = ["## Pagina aperta: Home (il quadro di oggi di USA, Europa, Asia, paesi emergenti e crypto)"];
     const u = st.pronti.usa;
     if (u) {
       const a = u.a;
@@ -439,6 +499,17 @@
         "Settori (forza relativa sulla media europea): " + e.settori.map(z => `${z.nome} ${z.rs ? NOMI_Q[z.rs.quadrante] : "—"}`).join(", ") + ".");
       const g = statiEu(e.stati);
       if (g) out.push("Stati di settori e indici europei (ampiezza dal 2005, stesse regole degli USA): " + g.map(z => `${z.cod} ${S.STATI[z.stato] || z.stato}`).join(", ") + ".");
+    }
+    for (const z of ["asi", "emg"]) {
+      const x = st.pronti[z];
+      if (!x) continue;
+      const M = R.mercati[z], a = x.a;
+      out.push(`### ${M.nome}: ${x.conConfronto ? x.nomeConfronto + " (in dollari)" : "media a pesi uguali delle azioni, in euro"} ${cifre(a.ultimo)} il ${dataIt(x.data)}; 1 mese ${p100(a.m1)}, da inizio anno ${p100(a.ytd)}, dal massimo a 52 settimane ${p100(a.dd52)}; sulla media 200 ${p100(a.vs200)}, ${a.stato ? E.STATI[a.stato].toLowerCase() : "tendenza non disponibile"}.`,
+        `Azioni ${M.t.agg} sopra la media 200: ${num(x.amp.ora, 1)}% di ${x.amp.n} (un mese fa ${num(x.amp.mese, 1)}%).`,
+        "Indici a 3 mesi in euro: " + x.indici.map(g => `${g.codice || g.nome} ${pct(g.m3_eur, 1)}`).join(", ") + ".",
+        "Settori a 3 mesi in euro: " + x.settori.map(g => `${g.nome} ${pct(g.m3_eur, 1)}`).join(", ") + ".");
+      const g = statiEu(x.stati, z);
+      if (g) out.push(`Stati di settori e indici ${M.t.aggM} (ampiezza dal 2005, stesse regole degli USA): ` + g.map(y => `${y.cod} ${S.STATI[y.stato] || y.stato}`).join(", ") + ".");
     }
     const c = st.pronti.cry;
     if (c) {

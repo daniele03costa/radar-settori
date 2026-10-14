@@ -129,7 +129,7 @@ def test_my_stocks_list_and_prices():
         lista.write_text("# commento\nmsft Microsoft\n\nENEL.MI Enel  # a Milano\nNONESISTE\nMSFT doppione\n", encoding="utf-8")
         assert bp.leggi_lista(lista) == [("MSFT", "Microsoft"), ("ENEL.MI", "Enel"), ("NONESISTE", "")]
         assert bp.mercato_di("ENEL.MI") == ("europa", "EUR") and bp.mercato_di("BRK-B") == ("usa", "USD")
-        assert bp.mercato_di("7203.T") == ("altro", "JPY") and bp.mercato_di("PETR4.SA") == ("altro", "")
+        assert bp.mercato_di("7203.T") == ("altro", "JPY") and bp.mercato_di("PETR4.SA") == ("altro", "BRL") and bp.mercato_di("FOO.XX") == ("altro", "")
         syms = ["MSFT", "ENEL.MI", "SPY", "IUSQ.DE"]
         df = fake_market(syms, "2023-01-01")
         out = Path(d) / "prezzi_miei.json"

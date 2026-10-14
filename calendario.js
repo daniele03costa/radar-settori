@@ -1,5 +1,7 @@
 /*
- * Radar Settori — calendari di borsa (NYSE e Borsa Italiana), quello delle crypto (tutti i giorni) e controllo dei dati in ritardo.
+ * Radar Settori — calendari di borsa (NYSE e Borsa Italiana), quello delle crypto (tutti i giorni), quello «feriale»
+ * delle zone con molte borse (Asia, Emergenti: tutti i giorni dal lunedì al venerdì tranne Capodanno e Natale)
+ * e controllo dei dati in ritardo.
  * Funziona sia nel browser (window.Calendario) sia in Node (module.exports).
  */
 (function (root) {
@@ -78,6 +80,7 @@
     const x = new Date(d + "T00:00:00Z");
     const wd = x.getUTCDay();
     if (wd === 0 || wd === 6) return false;
+    if (mercato === "feriale") return !/-(01-01|12-25)$/.test(d);
     const y = x.getUTCFullYear();
     return !(mercato === "milano" ? festeMilano(y) : festeNYSE(y)).has(d);
   }
@@ -113,7 +116,8 @@
     // crypto: la giornata finisce a mezzanotte UTC e l'aggiornamento gira poco dopo (con un margine di 5 ore)
     if (mercato === "crypto") return iso(add(new Date(iso(new Date((now || new Date()).getTime() - 5 * 3600e3)) + "T00:00:00Z"), -1));
     const ny = oraNY(now || new Date());
-    const soglia = sogliaMinuti == null ? 18 * 60 + 45 : sogliaMinuti;
+    // l'aggiornamento di Asia ed Emergenti parte dopo la chiusura dell'America Latina: si aspetta fino alle 20:30 di New York
+    const soglia = sogliaMinuti != null ? sogliaMinuti : mercato === "feriale" ? 20 * 60 + 30 : 18 * 60 + 45;
     let giorno = ny.data;
     const wd = new Date(giorno + "T00:00:00Z").getUTCDay();
     const giornoLavorativo = wd >= 1 && wd <= 5;
@@ -127,6 +131,9 @@
     if (!dataDati || !attesa || dataDati >= attesa) return { attesa, sedute: 0 };
     let n = 0, d = dataDati;
     while (d && d < attesa && n < 60) { d = successiva(d, mercato); n++; }
+    // zone con tante borse (Asia, Emergenti): il calendario non conosce le loro feste (venerdì santo, capodanno lunare…),
+    // quindi una seduta sola di differenza non basta per dire che i dati sono indietro
+    if (mercato === "feriale" && n <= 1) return { attesa, sedute: 0 };
     return { attesa, sedute: n };
   }
 

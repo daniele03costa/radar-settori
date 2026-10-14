@@ -1,0 +1,45 @@
+name: Aggiorna Asia ed emergenti
+
+on:
+  schedule:
+    # lun-ven dopo la chiusura delle borse dell'America Latina (le asiatiche hanno chiuso in mattinata),
+    # più un passaggio di recupero all'alba: Yahoo a volte pubblica le chiusure con qualche ora di ritardo
+    - cron: "52 22 * * 1-5"
+    - cron: "22 5 * * 2-6"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-mondo
+  cancel-in-progress: false
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Installa le librerie
+        run: pip install -r requirements.txt
+
+      - name: Asia (prezzi, ampiezza e stati)
+        continue-on-error: true
+        run: python build_mondo.py asia
+
+      - name: Paesi emergenti (prezzi, ampiezza e stati)
+        continue-on-error: true
+        run: python build_mondo.py emergenti
+
+      - name: Salva i dati nel repository
+        if: always()
+        # se nel frattempo il repository è cambiato, rimette i file nuovi sopra la versione aggiornata (niente conflitti)
+        run: bash salva_dati.sh "Asia ed emergenti aggiornati"

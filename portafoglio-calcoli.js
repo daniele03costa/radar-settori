@@ -15,7 +15,10 @@
   "use strict";
 
   const CASSA = new Set(["LIQUIDITA", "LIQUIDITÀ", "CASH", "CONTANTI"]);
-  const VALUTE = new Set(["EUR", "USD", "GBP", "GBX", "GBP.", "CHF", "DKK", "SEK", "NOK", "CAD", "JPY", "HKD", "AUD"]);
+  const VALUTE = new Set(["EUR", "USD", "GBP", "GBX", "GBP.", "CHF", "DKK", "SEK", "NOK", "CAD", "JPY", "HKD", "AUD",
+    "CNY", "KRW", "TWD", "INR", "IDR", "THB", "MYR", "SGD", "BRL", "MXN", "ARS", "CLP", "ZAR", "ZAC", "TRY", "PLN"]);
+  // valute quotate in centesimi: pence di Londra, cent di Johannesburg
+  const CENTESIMI = { GBp: "GBP", ZAc: "ZAR" };
   const SEDUTE_ANNO = 252;
   const INTESTAZIONE = "RADAR-CIFRATO 1";
 
@@ -40,7 +43,7 @@
     return null;
   }
 
-  const valutaDi = s => { const v = String(s || "").toUpperCase(); return v === "GBX" ? "GBp" : VALUTE.has(v) ? v : null; };
+  const valutaDi = s => { const v = String(s || "").toUpperCase(); return v === "GBX" ? "GBp" : v === "ZAC" ? "ZAc" : VALUTE.has(v) ? v : null; };
 
   function leggi(testo) {
     const out = { posizioni: [], liquidita: [], errori: [], cifrato: false };
@@ -99,12 +102,12 @@
   // unità di valuta per un euro, giorno per giorno (1 per l'euro)
   function cambio(cambi, valuta, calendario) {
     if (!valuta || valuta === "EUR") return calendario.map(() => 1);
-    const chiave = valuta === "GBp" ? "GBP" : valuta;
+    const chiave = CENTESIMI[valuta] || valuta;
     const c = cambi && cambi[chiave];
     if (!c) return calendario.map(() => null);
     return allinea(c.date, c.valori, calendario, 10);
   }
-  const fattore = valuta => (valuta === "GBp" ? 100 : 1);      // pence → sterline
+  const fattore = valuta => (CENTESIMI[valuta] ? 100 : 1);     // pence → sterline, cent → rand
 
   // ---------------- statistiche ----------------
 
@@ -257,7 +260,9 @@
       return Array.from(m.entries()).map(([nome, v]) => ({ nome, valore: v, peso: totale ? v / totale : 0 })).sort((x, y) => y.valore - x.valore);
     };
     const valutaNome = { EUR: "Euro", USD: "Dollaro", GBp: "Sterlina", GBP: "Sterlina", CHF: "Franco svizzero", DKK: "Corona danese",
-      SEK: "Corona svedese", NOK: "Corona norvegese", CAD: "Dollaro canadese", JPY: "Yen", HKD: "Dollaro di Hong Kong", AUD: "Dollaro australiano" };
+      SEK: "Corona svedese", NOK: "Corona norvegese", CAD: "Dollaro canadese", JPY: "Yen", HKD: "Dollaro di Hong Kong", AUD: "Dollaro australiano",
+      CNY: "Yuan", KRW: "Won", TWD: "Dollaro taiwanese", INR: "Rupia indiana", IDR: "Rupia indonesiana", THB: "Baht", MYR: "Ringgit", SGD: "Dollaro di Singapore",
+      BRL: "Real", MXN: "Peso messicano", ARS: "Peso argentino", CLP: "Peso cileno", ZAc: "Rand", ZAR: "Rand", TRY: "Lira turca", PLN: "Złoty" };
     const europei = new Set(["Italia", "Germania", "Francia", "Spagna", "Paesi Bassi", "Svizzera", "Regno Unito", "Irlanda", "Belgio",
       "Lussemburgo", "Danimarca", "Svezia", "Norvegia", "Finlandia", "Austria", "Portogallo", "Jersey"]);
     const area = r => (r.tipo === "Crypto" ? "Crypto" : r.tipo === "ETF" || r.tipo === "Fondo" ? "ETF e fondi" : r.paese === "Stati Uniti" ? "Stati Uniti" :

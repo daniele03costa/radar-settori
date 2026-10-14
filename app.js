@@ -13,16 +13,20 @@
     home: { nome: "Home" },
     usa: { nome: "USA", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori", "sec"], ["alert", "Alert", "alr"]] },
     eur: { nome: "Europa", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
+    asi: { nome: "Asia", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
+    emg: { nome: "Emergenti", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
     cry: { nome: "Crypto", pagine: [["monitor", "Monitor", "cry"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "cry"], ["analisi", "Analisi", "cry"], ["correlazioni", "Correlazioni", "cry"]] },
     tit: { nome: "Portafoglio" },
   };
-  const ORDINE_ZONE = ["home", "usa", "eur", "cry", "tit"];
+  const ORDINE_ZONE = ["home", "usa", "eur", "asi", "emg", "cry", "tit"];
+  // le zone con settori, indici e azioni (stesse pagine): Europa, Asia, Emergenti
+  const MISTE = ["eur", "asi", "emg"];
   const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur"];      // i moduli, per l'avvio
   // vecchi indirizzi (#mon, #rot, …) e parole comode
   const VECCHI = {
     mon: ["usa", "monitor"], rot: ["usa", "rotazione"], rrg: ["usa", "rotazione"], btm: ["usa", "mappa"], sec: ["usa", "settori"],
     alr: ["usa", "alert"], alert: ["usa", "alert"], alrt: ["usa", "alert"], miei: ["tit"], titoli: ["tit"], portafoglio: ["tit"],
-    crypto: ["cry"], cripto: ["cry"], europa: ["eur"], eu: ["eur"], us: ["usa"],
+    crypto: ["cry"], cripto: ["cry"], europa: ["eur"], eu: ["eur"], us: ["usa"], asia: ["asi"], emergenti: ["emg"], em: ["emg"],
   };
   let vistaCorrente = null, rottaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
@@ -35,7 +39,7 @@
     const M = R.mercato(rottaCorrente.zona);
     const meta = M.meta();
     if (!meta) { box.innerHTML = ""; return; }
-    const pronti = M.zona === "eur" ? R._gruppiEuPronti : R._settoriPronti;
+    const pronti = M.misto ? (R._gruppiPronti || {})[M.zona] : R._settoriPronti;
     const corrente = vistaCorrente === "sec" ? R.viste.sec.etfCorrente() : null;
     const voce = s => {
       const lv = R.livello(s.etf);
@@ -44,13 +48,13 @@
       return `<a class="sec${stato ? " st-" + stato : ""}" href="${M.link(s.etf)}" data-etf="${s.etf}" aria-current="${s.etf === corrente}"
         title="${esc(s.nome)}: ${s.sopra != null && s.n ? `${s.sopra} titoli su ${s.n}` : `${num(s.b200, 1)}% dei titoli`} sopra la media 200 (${num(s.b200, 1)}%); livello blu ${num(lv, 0)}%${s.n && s.b200 != null ? ` = ${R.titoliLivello(s.b200, s.n, lv).soglia} su ${s.n}` : ""}${stato ? " · " + S.STATI[stato] : ""}">
         <span class="t">${esc(M.cod(s))}</span>
-        <span class="n">${esc(M.zona === "eur" ? (s.tipo === "indice" ? s.paese : `${s.n || ""} titoli`) : s.nome)}</span>
+        <span class="n">${esc(M.misto ? (s.tipo === "indice" ? s.paese : `${s.n || ""} titoli`) : s.nome)}</span>
         <span class="v">${num(s.b200, 0)}%</span>
         ${stato && stato !== "normale" ? `<span class="stato st-${stato}">${S.STATI[stato]}</span>` : ""}
         <span class="bar"><i style="width:${Math.max(0, Math.min(100, s.b200 || 0))}%"></i><s style="left:${Math.min(100, lv)}%"></s></span>
       </a>`;
     };
-    box.classList.toggle("eu", M.zona === "eur");
+    box.classList.toggle("eu", M.misto);
     box.innerHTML = M.tipi
       ? M.tipi.map(([k, nome]) => `<span class="sec-gruppo">${nome}</span>` + meta.settori.filter(s => s.tipo === k).map(voce).join("")).join("")
       : meta.settori.map(voce).join("");
@@ -62,7 +66,8 @@
     if (!caricamenti[zona]) {
       const M = R.mercato(zona);
       caricamenti[zona] = M.pronto().then(() => M.tutti()).then(tutti => {
-        if (zona === "eur") R._gruppiEuPronti = tutti; else R._settoriPronti = tutti;
+        if (M.misto) { R._gruppiPronti = R._gruppiPronti || {}; R._gruppiPronti[zona] = tutti; if (zona === "eur") R._gruppiEuPronti = tutti; }
+        else R._settoriPronti = tutti;
         disegnaSettori();
         R.emit("stati-settori", zona);
       }).catch(() => { caricamenti[zona] = null; });      // si riprova alla prossima pagina
@@ -94,10 +99,10 @@
       const pag = (parti[1] || "").toLowerCase();
       if (ZONE[primo].pagine.some(p => p[0] === pag)) return rotta(primo, pag, resto(2));
       // vecchi indirizzi: #cry/ETH (una moneta), #eur/ENEL.MI (un'azione europea)
-      if (parti[1]) return rotta(primo, primo === "eur" ? "azioni" : "monitor", resto(1));
+      if (parti[1]) return rotta(primo, MISTE.includes(primo) ? "azioni" : "monitor", resto(1));
       return rotta(primo);
     }
-    if (VECCHI[primo]) { const [z, p] = VECCHI[primo]; return rotta(z, p, resto(1) && (z === "tit" || z === "cry" || z === "eur" ? resto(1).toUpperCase() : resto(1))); }
+    if (VECCHI[primo]) { const [z, p] = VECCHI[primo]; return rotta(z, p, resto(1) && (z === "tit" || z === "cry" || MISTE.includes(z) ? resto(1).toUpperCase() : resto(1))); }
     // un settore (#XLE, #XLK/AAPL), un'azione dell'S&P 500 (#AAPL), un titolo della lista o un'azione europea (#ENEL.MI)
     const up = h.toUpperCase();
     const [etf, titolo] = up.split("/");
@@ -107,16 +112,22 @@
     const mio = R._mappaMiei && (R._mappaMiei.get(up) || R._mappaMiei.get(up.replace(/\..*$/, "")));
     if (mio) return rotta("tit", null, mio.t);
     const eu = R._mappaEuropa && R._mappaEuropa.get(up);
-    if (eu) return rotta("eur", "azioni", eu.t);
+    if (eu) return rotta(eu.zona || "eur", "azioni", eu.t);
     // un indice o un settore europeo scritto da solo: #DAX, #FTSE-MIB, #ENERGIA
     const gruppo = R._gruppiEu && R._gruppiEu.get(up.replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, ""));
-    if (gruppo) return rotta("eur", "settori", gruppo);
+    if (gruppo) return rotta(gruppo.zona, "settori", gruppo.id);
     return rotta("home");
   }
 
   // barra in alto: zona scelta e pagine della zona
   function disegnaNavigazione(r) {
     $$("#zone a").forEach(a => a.setAttribute("aria-current", String(a.dataset.zona === r.zona)));
+    // sul telefono la riga delle zone scorre: la zona aperta deve vedersi
+    const zAttiva = $(`#zone a[data-zona="${r.zona}"]`), zNav = $("#zone");
+    if (zAttiva && zNav.scrollWidth > zNav.clientWidth) {
+      const ra = zAttiva.getBoundingClientRect(), rn = zNav.getBoundingClientRect();
+      if (ra.left < rn.left || ra.right > rn.right) zNav.scrollLeft += ra.left - rn.left - (rn.width - ra.width) / 2;
+    }
     const z = ZONE[r.zona];
     const bar = $("#bar-sotto");
     bar.hidden = !z.pagine;
@@ -156,7 +167,7 @@
     if (nuovaPagina) window.scrollTo(0, 0);
     // gli stati di tutti i settori (11 file) servono solo nella zona USA; in Europa solo nella pagina Settori
     if (r.zona === "usa" && !R._settoriPronti) caricaStatiSettori("usa");
-    if (r.zona === "eur" && r.vista === "sec" && !R._gruppiEuPronti) caricaStatiSettori("eur");
+    if (MISTE.includes(r.zona) && r.vista === "sec" && !(R._gruppiPronti || {})[r.zona]) caricaStatiSettori(r.zona);
     if (r.vista === "sec") disegnaSettori();
     try { await R.viste[r.vista].mostra(r.param, { zona: r.zona, pagina: r.pagina }); }
     catch (e) { console.error(e); }
@@ -178,8 +189,13 @@
 
   let indice = [];
   const TIPI_VOCE = { vista: "Pagina", comando: "Comando", settore: "Settore USA", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo", settoreEu: "Settore europeo", web: "Sito esterno" };
+  const TIPI_ZONA = {
+    asi: { europa: "Azione asiatica", indiceEu: "Indice asiatico", settoreEu: "Settore asiatico" },
+    emg: { europa: "Azione dei paesi emergenti", indiceEu: "Indice dei paesi emergenti", settoreEu: "Settore dei paesi emergenti" },
+  };
+  const tipoVoce = v => ((TIPI_ZONA[v.zona] || {})[v.tipo] || TIPI_VOCE[v.tipo] || "");
   // la zona di mercato aperta (dalla Home e dal Portafoglio: gli USA)
-  const zonaMercato = () => { const z = R.zonaCorrente(); return z === "eur" || z === "cry" ? z : "usa"; };
+  const zonaMercato = () => { const z = R.zonaCorrente(); return MISTE.includes(z) || z === "cry" ? z : "usa"; };
   // un indirizzo scritto a mano (#AAPL, #ENEL.MI…) si capisce solo quando è arrivato il suo elenco
   const riprova = () => { if (location.hash && vistaCorrente === "home" && leggiRotta().vista !== "home") applicaRotta(); };
   // testo senza accenti né segni, per confrontare "coca cola" con "Coca-Cola Company (The)"
@@ -191,17 +207,19 @@
   function costruisciIndice() {
     indice = [];
     const add = (chiavi, voce) => indice.push(Object.assign({ chiavi: Array.from(new Set(chiavi.map(norm).filter(Boolean))), ordine: 0 }, voce));
-    add(["HOME", "INIZIO", "RIEPILOGO", "QUADRO"], { etichetta: "HOME", descr: "Il quadro di oggi: USA, Europa, crypto e portafoglio", tipo: "vista", fai: () => R.vai("#home") });
+    add(["HOME", "INIZIO", "RIEPILOGO", "QUADRO"], { etichetta: "HOME", descr: "Il quadro di oggi: USA, Europa, Asia, Emergenti, crypto e portafoglio", tipo: "vista", fai: () => R.vai("#home") });
     add(["USA", "US", "STATI UNITI", "AMERICA", "S&P 500", "SP500"], { etichetta: "USA", descr: "Zona USA: i settori dell'S&P 500", tipo: "vista", fai: () => R.vai("#usa/monitor") });
     add(["EUROPA", "EUR", "EU", "BORSE EUROPEE"], { etichetta: "EUROPA", descr: "Zona Europa: indici, settori e azioni", tipo: "vista", fai: () => R.vai("#eur/monitor") });
+    add(["ASIA", "ASI", "BORSE ASIATICHE", "GIAPPONE", "CINA", "INDIA", "COREA", "TAIWAN"], { etichetta: "ASIA", descr: "Zona Asia: Giappone, Cina, Hong Kong, Corea, Taiwan, India e sud-est asiatico", tipo: "vista", fai: () => R.vai("#asi/monitor") });
+    add(["EMERGENTI", "EMG", "EM", "PAESI EMERGENTI", "BRASILE", "MESSICO", "ARGENTINA", "AMERICA LATINA", "SUDAFRICA", "TURCHIA", "POLONIA", "CILE"], { etichetta: "EMERGENTI", descr: "Zona Emergenti: America Latina, Sudafrica, Turchia e Polonia", tipo: "vista", fai: () => R.vai("#emg/monitor") });
     add(["CRYPTO", "CRY", "CRIPTO", "CRIPTOVALUTE", "CRYPTOVALUTE"], { etichetta: "CRYPTO", descr: "Zona crypto: bitcoin e le prime 10", tipo: "vista", fai: () => R.vai("#cry/monitor") });
     add(["MIEI", "TIT", "I MIEI TITOLI", "WATCHLIST", "LISTA", "PORTAFOGLIO"], { etichetta: "PORTAFOGLIO", descr: "Il portafoglio e i titoli che segui", tipo: "vista", fai: () => R.vai("#tit") });
-    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Monitor della zona aperta (USA, Europa o crypto)", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/monitor`) });
+    add(["MON", "MONITOR"], { etichetta: "MON", descr: "Monitor della zona aperta (USA, Europa, Asia, Emergenti o crypto)", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/monitor`) });
     add(["ROT", "RRG", "ROTAZIONE"], { etichetta: "ROT", descr: "Rotazione della zona aperta", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/rotazione`) });
     add(["BTM", "BOTTOM", "BOTTOM MAP", "MAPPA"], { etichetta: "BTM", descr: "Bottom Map della zona aperta", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/mappa`) });
-    add(["SEC", "SETTORE", "SETTORI"], { etichetta: "SEC", descr: "Settori della zona aperta (USA o Europa)", tipo: "vista", fai: () => R.vai(zonaMercato() === "eur" ? "#eur/settori" : "#usa/settori") });
-    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert della zona aperta (USA o Europa): lo storico degli stati", tipo: "vista", fai: () => R.vai(zonaMercato() === "eur" ? "#eur/alert" : "#usa/alert") });
-    add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Europa · tutte le azioni, cercabili", tipo: "vista", fai: () => R.vai("#eur/azioni") });
+    add(["SEC", "SETTORE", "SETTORI"], { etichetta: "SEC", descr: "Settori della zona aperta", tipo: "vista", fai: () => R.vai(MISTE.includes(zonaMercato()) ? `#${zonaMercato()}/settori` : "#usa/settori") });
+    add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert della zona aperta: lo storico degli stati", tipo: "vista", fai: () => R.vai(MISTE.includes(zonaMercato()) ? `#${zonaMercato()}/alert` : "#usa/alert") });
+    add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Tutte le azioni della zona aperta (Europa, Asia o Emergenti), cercabili", tipo: "vista", fai: () => R.vai(`#${MISTE.includes(zonaMercato()) ? zonaMercato() : "eur"}/azioni`) });
     add(["ANALISI", "HALVING", "STAGIONALITA", "CICLI"], { etichetta: "ANALISI", descr: "Crypto · halving, stagionalità, cosa è successo dopo", tipo: "vista", fai: () => R.vai("#cry/analisi") });
     add(["CORRELAZIONI", "CORR"], { etichetta: "CORR", descr: "Crypto · correlazioni fra monete e con i mercati", tipo: "vista", fai: () => R.vai("#cry/correlazioni") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
@@ -244,37 +262,46 @@
       }),
       // le azioni europee (dall'elenco: i prezzi si caricano solo nella zona Europa), i loro indici e i settori
       gruppo(3, async () => {
-        const eu = await R.dati.europaLista();
-        R._mappaEuropa = new Map();
         // stesso identificativo dei file dell'ampiezza (europa_ampiezza.py): «FTSE MIB» → FTSE-MIB
         const id = x => String(x).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "");
-        R._gruppiEu = new Map();
-        // settori e indici: quelli che hanno davvero l'ampiezza (data/europa/meta.json), altrimenti dall'elenco
-        const meta = await R.mercati.eur.pronto().catch(() => null);
-        const voci = meta ? meta.settori.map(g => ({ id: g.etf, nome: g.nome, codice: g.codice, tipo: g.tipo, paese: g.paese }))
-          : (eu.indici || []).map(i => ({ id: id(i.nome), nome: i.nome, codice: i.nome, tipo: "indice", paese: i.paese }))
-            .concat(Array.from(new Set((eu.titoli || []).map(x => x.settore).filter(Boolean))).sort().map(z => ({ id: id(z), nome: z, codice: z, tipo: "settore" })));
-        for (const g of voci) {
-          const indice = g.tipo === "indice";
-          add([g.nome, g.codice, g.nome.replace(/\s+/g, "")], {
-            etichetta: g.codice || g.nome,
-            descr: indice ? `Indice · ${g.paese}${g.codice !== g.nome ? ` (${g.nome})` : ""}: stato, ampiezza dal 2005, zone blu e le sue azioni` : `Settore europeo${g.codice !== g.nome ? ` (${g.nome})` : ""}: stato, ampiezza dal 2005, zone blu e le sue azioni`,
-            tipo: indice ? "indiceEu" : "settoreEu", ordine: 3,
-            fai: () => R.vai("#eur/settori/" + g.id),
-          });
-          R._gruppiEu.set(g.id, g.id);
-          R._gruppiEu.set(id(g.nome), g.id);
-          if (g.codice) R._gruppiEu.set(id(g.codice), g.id);
-        }
-        for (const x of eu.titoli || []) {
-          const base = x.t.replace(/\..*$/, "");
-          R._mappaEuropa.set(x.t, x);
-          const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
-          add([x.t, base, base.replace(/-/g, " "), x.nome, ...parole], {
-            etichetta: x.t, descr: `${x.nome} · ${(x.indici || []).join(", ")} · ${x.settore}`, tipo: "europa", ordine: 3,
-            fai: () => R.vai("#eur/azioni/" + x.t),
-          });
-        }
+        R._mappaEuropa = R._mappaEuropa || new Map();
+        R._gruppiEu = R._gruppiEu || new Map();
+        // Europa, Asia ed Emergenti: azioni (dall'elenco: i prezzi si caricano solo nella zona), indici e settori
+        await Promise.all(MISTE.map(async zona => {
+          const M = R.mercato(zona);
+          const eu = await R.dati.listaZona(zona).catch(() => null);
+          if (!eu) return;
+          // settori e indici: quelli che hanno davvero l'ampiezza (meta.json della zona), altrimenti dall'elenco
+          const meta = await M.pronto().catch(() => null);
+          const pre = eu.prefisso || "";
+          const voci = meta ? meta.settori.map(g => ({ id: g.etf, nome: g.nome, codice: g.codice, tipo: g.tipo, paese: g.paese }))
+            : (eu.indici || []).map(i => ({ id: id(i.nome), nome: i.nome, codice: i.nome, tipo: "indice", paese: i.paese }))
+              .concat(Array.from(new Set((eu.titoli || []).map(x => x.settore).filter(Boolean))).sort().map(z => ({ id: pre + id(z), nome: z, codice: z, tipo: "settore" })));
+          for (const g of voci) {
+            const indice = g.tipo === "indice";
+            // un settore ha lo stesso nome in tutte le zone: si cerca anche con la zona («energia asia»)
+            add(indice ? [g.nome, g.codice, g.nome.replace(/\s+/g, "")] : [g.nome, g.codice, `${g.nome} ${M.nome}`, `${g.codice} ${M.nome}`], {
+              etichetta: indice ? (g.codice || g.nome) : `${g.codice || g.nome} · ${M.nome}`,
+              descr: indice ? `Indice · ${g.paese}${g.codice !== g.nome ? ` (${g.nome})` : ""}: stato, ampiezza dal 2005, zone blu e le sue azioni`
+                : `Settore ${M.t.aggS}${g.codice !== g.nome ? ` (${g.nome})` : ""}: stato, ampiezza dal 2005, zone blu e le sue azioni`,
+              tipo: indice ? "indiceEu" : "settoreEu", zona, ordine: 3,
+              fai: () => R.vai(`#${zona}/settori/${g.id}`),
+            });
+            const v = { zona, id: g.id };
+            R._gruppiEu.set(g.id, v);
+            if (indice) { R._gruppiEu.set(id(g.nome), v); if (g.codice) R._gruppiEu.set(id(g.codice), v); }
+            else if (zona === "eur") R._gruppiEu.set(id(g.nome), v);
+          }
+          for (const x of eu.titoli || []) {
+            const base = x.t.replace(/\..*$/, "");
+            R._mappaEuropa.set(x.t, Object.assign({ zona }, x));
+            const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
+            add([x.t, base, base.replace(/-/g, " "), x.nome, ...parole], { deboli: new Set(parole.map(norm)),
+              etichetta: x.t, descr: `${x.nome} · ${(x.indici || []).join(", ")} · ${x.settore}`, tipo: "europa", zona, ordine: 3,
+              fai: () => R.vai(`#${zona}/azioni/${x.t}`),
+            });
+          }
+        }));
         riprova();
       }),
       // i titoli della lista personale: aprono il loro grafico in «I miei titoli»
@@ -286,7 +313,7 @@
           R._mappaMiei.set(x.t, x);
           if (!R._mappaMiei.has(base)) R._mappaMiei.set(base, x);
           const parole = norm(x.nome).split(" ").filter(w => w.length >= 3 && !PAROLE_VUOTE.has(w));
-          add([x.t, base, x.nome, ...parole], {
+          add([x.t, base, x.nome, ...parole], { deboli: new Set(parole.map(norm)),
             etichetta: x.t, descr: x.nome || x.t, tipo: "mio", ordine: 4,
             fai: () => R.vai("#tit/" + x.t),
           });
@@ -324,7 +351,7 @@
             if (R.meta.settori.some(s => s.etf === sym)) continue; // i settori aprono il dettaglio
             const base = sym.replace(/\..*$/, "");
             const parole = String(info.nome || "").split(/[^A-Za-zÀ-ÿ0-9&-]+/).filter(w => w.length >= 4);
-            add([sym, base, info.breve || "", ...parole], {
+            add([sym, base, info.breve || "", ...parole], { deboli: new Set(parole.map(norm)),
               etichetta: base, descr: `${info.nome || info.breve || base} · ${g.nome}`, tipo: "titolo", ordine: 5,
               fai: () => {
                 const salvati = R.store.get("rot.universi", {}) || {};
@@ -347,14 +374,15 @@
       let best = 0;
       for (const k of v.chiavi) {
         if (!k) continue;
-        if (k === q) best = Math.max(best, 100);
+        // una parola del nome di una società vale meno del ticker, del nome intero o di un settore
+        if (k === q) best = Math.max(best, v.deboli && v.deboli.has(k) ? 58 : 100);
         else if (k.startsWith(q)) best = Math.max(best, 60 - (k.length - q.length) * 0.1);
         else if (q.length >= 3 && k.includes(q)) best = Math.max(best, 30);
       }
       if (!best) return 0;
       best += { settore: 2, azione: 1, crypto: 1.5, indiceEu: 2, settoreEu: 1.8, europa: 0.5 }[v.tipo] || 0;
       // prima le voci della zona aperta
-      if (zona === "eur" && (v.tipo === "europa" || v.tipo === "indiceEu" || v.tipo === "settoreEu")) best += 3;
+      if (v.zona && v.zona === zona) best += 3;
       if (zona === "cry" && v.tipo === "crypto") best += 3;
       return best;
     };
@@ -374,13 +402,13 @@
     if (!risultati.length && norm(testo).length >= 2) {
       if (inArrivo > 0) nota = `<div class="sg-nota">Sto caricando l'elenco dei titoli…</div>`;
       else {
-        nota = `<div class="sg-nota">«${esc(testo)}» non è fra i titoli del sito (S&amp;P 500, azioni europee principali, crypto, la tua lista).</div>`;
+        nota = `<div class="sg-nota">«${esc(testo)}» non è fra i titoli del sito (S&amp;P 500, azioni degli indici principali di Europa, Asia ed emergenti, crypto, la tua lista).</div>`;
         risultati = [{ etichetta: "Yahoo ↗", descr: `Cerca «${testo}» su Yahoo Finance e trova il ticker da aggiungere a miei-titoli.txt`, tipo: "web",
           fai: () => window.open(`https://finance.yahoo.com/lookup?s=${encodeURIComponent(testo)}`, "_blank", "noopener") }];
       }
     }
     if (!risultati.length && !nota) { box.hidden = true; $(".cmd").setAttribute("aria-expanded", "false"); return; }
-    box.innerHTML = nota + risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span><em>${TIPI_VOCE[v.tipo] || ""}</em></div>`).join("");
+    box.innerHTML = nota + risultati.map((v, k) => `<div class="sg" role="option" id="sg-${k}" aria-selected="${k === 0}" data-k="${k}"><b>${esc(v.etichetta)}</b><span>${esc(v.descr)}</span><em>${tipoVoce(v)}</em></div>`).join("");
     box.hidden = false;
     $(".cmd").setAttribute("aria-expanded", "true");
   }
@@ -430,7 +458,9 @@
   const date = {};
   const FONTI_ZONA = {
     usa: [["meta", "Ampiezza", "nyse"], ["usa", "Prezzi USA", "nyse"]],
-    eur: [["europa", "Azioni europee", "milano"], ["europaAmpiezza", "Ampiezza europea", "milano"], ["globale", "ETF in euro", "milano"]],
+    eur: [["europa", "Azioni europee", "milano"], ["ampiezza-eur", "Ampiezza europea", "milano"], ["globale", "ETF in euro", "milano"]],
+    asi: [["prezzi-asi", "Azioni asiatiche", "feriale"], ["ampiezza-asi", "Ampiezza asiatica", "feriale"]],
+    emg: [["prezzi-emg", "Azioni dei paesi emergenti", "feriale"], ["ampiezza-emg", "Ampiezza dei paesi emergenti", "feriale"]],
     cry: [["crypto", "Crypto", "crypto"]],
   };
   R.dateDati = () => Object.assign({}, date);
@@ -594,8 +624,8 @@
       if (e.key === "/") { e.preventDefault(); $("#app-bar").classList.add("cerca"); $("#comando").focus(); return; }
       if (e.key === "?") { e.preventDefault(); apriGuida(); return; }
       if ((e.key === "c" || e.key === "C") && R.copiaPerClaude) { e.preventDefault(); R.copiaPerClaude(); return; }
-      // 1 Home, 2 USA, 3 Europa, 4 Crypto, 5 Portafoglio
-      if (/^[1-5]$/.test(e.key)) { e.preventDefault(); R.vai("#" + ORDINE_ZONE[Number(e.key) - 1]); return; }
+      // 1 Home, 2 USA, 3 Europa, 4 Asia, 5 Emergenti, 6 Crypto, 7 Portafoglio
+      if (/^[1-7]$/.test(e.key)) { e.preventDefault(); R.vai("#" + ORDINE_ZONE[Number(e.key) - 1]); return; }
       if (t && t.type === "range" && e.key.startsWith("Arrow")) return;
       const v = R.viste[vistaCorrente];
       if (v && v.tasto && v.tasto(e)) e.preventDefault();
@@ -613,6 +643,7 @@
     };
     avvolgi("prezzi", m => (m === "globale" ? "globale" : "usa"));
     avvolgi("europa", "europa");
+    avvolgi("prezziZona", z => (z === "eur" ? "europa" : "prezzi-" + z));
     avvolgi("crypto", "crypto");
   }
 

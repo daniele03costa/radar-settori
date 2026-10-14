@@ -1,18 +1,20 @@
 # Radar Settori
 
-Sito statico (GitHub Pages) per seguire i mercati in tre zone, USA, Europa e crypto, più il portafoglio. In alto c'è sempre la barra **Home · USA · Europa · Crypto · Portafoglio**; dentro ogni zona, la riga sotto porta alle sue pagine.
+Sito statico (GitHub Pages) per seguire i mercati in cinque zone, USA, Europa, Asia, paesi emergenti e crypto, più il portafoglio. In alto c'è sempre la barra **Home · USA · Europa · Asia · Emergenti · Crypto · Portafoglio**; dentro ogni zona, la riga sotto porta alle sue pagine.
 
 | Zona | Pagine |
 |---|---|
-| **Home** | Il quadro di oggi: una scheda per zona con l'indice principale (S&P 500, STOXX Europe 600, bitcoin), il grafico dell'ultimo anno con la media 200, la tendenza, l'ampiezza (quante azioni o monete sono sopra la media 200) e i punti chiave (stati dei settori, forza relativa, nuovi massimi e minimi, Mayer, Fear & Greed…); sotto, il riepilogo del portafoglio. Clic su una scheda per entrare nella zona. |
+| **Home** | Il quadro di oggi: una scheda per zona con l'indice principale (S&P 500, STOXX Europe 600, media asiatica, MSCI Emerging Markets, bitcoin), il grafico dell'ultimo anno con la media 200, la tendenza, l'ampiezza (quante azioni o monete sono sopra la media 200) e i punti chiave (stati dei settori, forza relativa, nuovi massimi e minimi, Mayer, Fear & Greed…); sotto, il riepilogo del portafoglio. Clic su una scheda per entrare nella zona. |
 | **USA** | **Monitor**: gli 11 settori dell'S&P 500 ordinati da chi è più vicino a un segnale, con stato, ampiezza, distanza dal livello blu, drawdown, rotazione contro SPY e «Novità della seduta». **Rotazione**: forza relativa (RS-Ratio e RS-Momentum) di settori e MAG7, con scia, animazione, tabelle e andamento base 100. **Bottom Map**: profondità del drawdown contro distanza dal livello blu, con la scia delle ultime settimane. **Settori**: si sceglie il settore; prezzo, drawdown e ampiezza con zone blu e trigger, livello blu regolabile, episodi, tutti i titoli. **Alert**: la striscia degli stati dal 2005 e tutti i cambi di stato. |
 | **Europa** | Le stesse pagine degli USA per gli 11 settori europei e i 15 indici: **Monitor** (stati e cosa manca al prossimo passaggio), **Rotazione** (settori europei in euro, indici europei contro lo STOXX 600, ETF in euro), **Bottom Map** (drawdown contro distanza dal livello blu), **Settori e indici** (grafici dal 2005, azioni, episodi e livello blu di ognuno), **Alert** (storico degli stati). In più **Azioni**: le circa 470 azioni, cercabili per nome, con filtri e la scheda di ciascuna (pulsanti **Segui** e **Aggiungi al portafoglio**). |
+| **Asia** | Le stesse pagine dell'Europa per Nikkei 225, Hang Seng, CSI 300, KOSPI 200, Taiwan 50, Nifty 50, LQ45, SET50 e KLCI (circa 1.040 azioni) e per gli 11 settori asiatici: **Monitor**, **Rotazione** (settori e indici asiatici in euro), **Bottom Map**, **Settori e indici**, **Alert**, **Azioni**. |
+| **Emergenti** | Le stesse pagine per Ibovespa (Brasile), S&P/BMV IPC (Messico), S&P Merval (Argentina), S&P IPSA (Cile), FTSE/JSE Top 40 (Sudafrica), BIST 30 (Turchia) e WIG20 (Polonia), circa 250 azioni, e i loro settori; termine di confronto l'MSCI Emerging Markets (ETF EEM). L'Asia emergente (Cina, India, Corea, Taiwan, Indonesia, Thailandia, Malesia) è nella zona Asia. |
 | **Crypto** | **Monitor**: bitcoin (tendenza, Mayer, media 200 settimane, dal massimo, halving, Fear & Greed) e le prime 10 per capitalizzazione. **Rotazione**: le monete contro bitcoin o contro il loro paniere. **Bottom Map**: ogni moneta per distanza dal massimo di un anno e distanza dalla media 200. **Analisi**: «cosa è successo dopo» situazioni simili, la regola della media 200, la stagionalità mese per mese e il ciclo dell'halving. **Correlazioni**: fra le monete e fra bitcoin e i mercati. |
 | **Portafoglio** | Il **portafoglio** (protetto con password): valore e risultato in euro, composizione, beta e volatilità rispetto all'ACWI, calo massimo, quanto ogni titolo pesa sul rischio, correlazioni e andamento contro il PAC. Sotto, i titoli della tua lista (`miei-titoli.txt`), anche fuori dall'S&P 500, con trend e forza relativa. |
 
-In più: pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, casella di ricerca (tasto `/`) che trova anche tutte le azioni dell'S&P 500 e quelle europee, tasti rapidi (`1`–`5` per le zone, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo, stampa in bianco e nero, versione per smartphone che si installa come app.
+In più: pulsante **«Copia per Claude»** (tasto `C`) per parlare con Claude dei numeri della pagina, casella di ricerca (tasto `/`) che trova anche tutte le azioni dell'S&P 500 e quelle europee, tasti rapidi (`1`–`7` per le zone, frecce, spazio, `Esc`, `?`), guida, tema chiaro/scuro, colori per daltonici (**CVD**), avviso quando i dati sono in ritardo, stampa in bianco e nero, versione per smartphone che si installa come app.
 
-I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions. Si usano solo chiusure: se l'aggiornamento parte a borsa aperta, per esempio lanciato a mano nel pomeriggio, la seduta del giorno viene scartata.
+I dati si aggiornano da soli dopo la chiusura di Wall Street (con due tentativi di recupero nella notte) tramite GitHub Actions; Asia ed Emergenti con un aggiornamento a parte (**Aggiorna Asia ed emergenti**), dopo la chiusura delle borse dell'America Latina. Si usano solo chiusure: se l'aggiornamento parte a borsa aperta, per esempio lanciato a mano nel pomeriggio, la seduta del giorno viene scartata.
 
 Solo per studio personale: non è una consulenza finanziaria.
 
@@ -94,6 +96,19 @@ Monitor, Bottom Map, Settori e indici e Alert sono **le stesse pagine degli USA*
 - **Azioni**: ricerca fra tutte per nome, ticker, paese o settore (`novo`, `svezia`, `banche`), filtro per indice, settore e situazione (sopra o sotto la media 200, quadrante della forza relativa, nuovi massimi o minimi, i tuoi titoli); ordinamento per colonna. Clic su un'azione per la scheda con il grafico, la forza relativa contro il suo indice e i pulsanti **Segui** (la aggiunge a `miei-titoli.txt`) e **Aggiungi al portafoglio**.
 
 I prezzi sono nella valuta di ogni borsa (pence per Londra, franchi per Zurigo, corone per Copenaghen, Stoccolma e Oslo), rettificati per split e dividendi; i confronti fra indici e i panieri dei settori sono in euro. Ogni notte l'aggiornamento scarica la storia dal 2003 (serve per avere medie e massimi già pronti nel 2005): la pagina Azioni usa gli ultimi due o tre anni (`data/prezzi_europa.json`), l'ampiezza tutta la storia (`data/europa/`: `meta.json`, `indice.json`, un file per gruppo in `settori/` e `stati.json`).
+
+## Asia ed Emergenti
+
+Funzionano come l'Europa (vedi sopra): ampiezza dal 2005 di ogni settore e di ogni indice, livelli blu predefiniti al 5° percentile della storia di ogni gruppo, stessi stati, stesse pagine, e la pagina **Azioni** con la scheda di ogni titolo (pulsanti **Segui** e **Aggiungi al portafoglio**).
+
+- **Asia** (`asia.json`): Nikkei 225 (Tokyo), Hang Seng (Hong Kong), CSI 300 (Shanghai e Shenzhen), KOSPI 200 (Seul), FTSE TWSE Taiwan 50 (come livello l'ETF 0050), Nifty 50 (India), LQ45 (Indonesia), SET50 (Thailandia), FTSE Bursa Malaysia KLCI. Senza un indice di confronto: settori e indici si confrontano con la media a pesi uguali di tutte le azioni, in euro.
+- **Emergenti** (`emergenti.json`): Ibovespa, S&P/BMV IPC, S&P Merval, S&P IPSA, FTSE/JSE Top 40, BIST 30, WIG20, con l'MSCI Emerging Markets (ETF EEM, in dollari) come termine di confronto.
+
+Le composizioni sono quelle di ottobre 2026, prese da fonti ufficiali e pubbliche (per questi indici Wikipedia è spesso vecchia), e **non si aggiornano da sole**: un'entrata o un'uscita si corregge a mano in `asia.json` o `emergenti.json` (una riga per titolo, ticker di Yahoo Finance) o arriva con una versione nuova del sito. I settori sono riportati agli 11 del sito; un settore con meno di 3 azioni non ha la sua pagina (succede, per esempio, alla tecnologia fra gli emergenti).
+
+Le borse hanno feste diverse: il calendario è quello dei giorni in cui ha quotato la maggioranza dei titoli e, quando una borsa è chiusa (il capodanno cinese, la Golden Week), si ripete il suo ultimo prezzo per fino a 10 sedute. I prezzi sono nella valuta di ogni borsa (Johannesburg in cent di rand); panieri e confronti in euro. L'Argentina, con l'inflazione alta, ha un indice in pesos che sale quasi sempre: lì conta di più il confronto in euro della Rotazione.
+
+L'aggiornamento **Aggiorna Asia ed emergenti** (`.github/workflows/aggiorna-mondo.yml`, `build_mondo.py`) parte dal lunedì al venerdì alle 22:52 UTC, con un passaggio di recupero all'alba; scarica ogni volta la storia dal 2003 di circa 1.300 titoli e può impiegare fino a mezz'ora.
 
 ## Crypto
 
@@ -190,8 +205,9 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 | `portafoglio.txt` | il portafoglio, cifrato con la tua password (lo crea il sito: non è nello zip) |
 | `portafoglio-calcoli.js`, `view-portafoglio.js` | calcoli del portafoglio (valore in euro, beta, volatilità, contributi al rischio, cifratura), la sua parte della zona Portafoglio e il riepilogo per la Home |
 | `build_europa.py`, `europa.json`, `europa_settori.py` | dati della zona Europa → `data/prezzi_europa.json` e `data/europa_lista.json` (composizioni controllate su Wikipedia una volta alla settimana, prezzi Yahoo dal 2003); elenco di partenza dei titoli (ed eventuali livelli blu europei, voce `"soglie"`); settori in italiano |
-| `europa_ampiezza.py` | ampiezza dal 2005 di settori e indici europei, prezzo del gruppo, livelli blu predefiniti → `data/europa/` (poi `stati.js` scrive `data/europa/stati.json`) |
-| `europa-calcoli.js`, `view-europa.js` | calcoli (ampiezza recente, panieri dei settori, forza relativa, nuovi massimi e minimi), la pagina Azioni, il riepilogo per la Home e le serie per la Rotazione |
+| `europa_ampiezza.py` | ampiezza dal 2005 di settori e indici (Europa, e con le stesse funzioni Asia ed Emergenti), prezzo del gruppo, livelli blu predefiniti → `data/europa/` (poi `stati.js` scrive `data/europa/stati.json`) |
+| `build_mondo.py`, `asia.json`, `emergenti.json`, `.github/workflows/aggiorna-mondo.yml` | dati delle zone Asia ed Emergenti → `data/prezzi_asia.json`, `data/prezzi_emergenti.json`, `data/asia/`, `data/emergenti/` (stessa forma dell'Europa); elenchi di indici, titoli, cambi; aggiornamento automatico |
+| `europa-calcoli.js`, `view-europa.js` | calcoli (ampiezza recente, panieri dei settori, forza relativa, nuovi massimi e minimi), la pagina Azioni di Europa, Asia ed Emergenti, il riepilogo per la Home e le serie per la Rotazione |
 | `build_crypto.py`, `crypto.json` | dati della zona Crypto → `data/prezzi_crypto.json` (classifica CoinGecko, prezzi Yahoo, mercati, Fear & Greed di alternative.me); impostazioni delle monete |
 | `.github/workflows/aggiorna-crypto.yml` | aggiornamento delle crypto ogni giorno, weekend compreso |
 | `requirements.txt` | librerie Python usate dall'aggiornamento |
@@ -200,8 +216,8 @@ Tutti i file stanno nella cartella principale del repository (solo l'aggiornamen
 | `settings.json` | settori, livelli blu, parametri degli stati |
 | `universi.json` | universi, termini di confronto, portafoglio di riferimento |
 | `signals.js` | macchina a stati ed episodi |
-| `rrg.js`, `portafoglio.js`, `calendario.js` | rotazione, portafoglio, calendari NYSE e Borsa Italiana |
-| `view-*.js`, `app.js`, `core.js`, `chart.js`, `mappa.js`, `style.css`, `viste.css` | la Home e le pagine delle zone (`view-home.js` è la Home; Monitor, Bottom Map, Settori e Alert servono sia gli USA sia l'Europa: i due mercati sono descritti in `core.js`, `R.mercati`), la struttura dell'app (zone, pagine, indirizzi), i grafici e la grafica |
+| `rrg.js`, `portafoglio.js`, `calendario.js` | rotazione, portafoglio, calendari NYSE, Borsa Italiana e «feriale» (Asia ed Emergenti) |
+| `view-*.js`, `app.js`, `core.js`, `chart.js`, `mappa.js`, `style.css`, `viste.css` | la Home e le pagine delle zone (`view-home.js` è la Home; Monitor, Bottom Map, Settori e Alert servono USA, Europa, Asia ed Emergenti: i mercati sono descritti in `core.js`, `R.mercati`), la struttura dell'app (zone, pagine, indirizzi), i grafici e la grafica |
 | `crypto-calcoli.js` | i calcoli della zona Crypto (medie, tendenza, cicli, stagionalità, correlazioni, regola della media 200) |
 | `manifest.webmanifest`, `sw.js`, `icona-*.png`, `apple-touch-icon.png` | l'app sul telefono: nome e icone, copia del sito per aprirlo subito e senza rete |
 | `copia-dati.js` | il pulsante «Copia per Claude» (il testo di ogni pagina lo preparano i suoi file `view-*.js`) |

@@ -46,7 +46,7 @@ LIQUIDITA  2000
   const p100 = (v, d = 1) => (v == null || !isFinite(v) ? "—" : pct(v * 100, d));
   const quota = (v, d = 0) => (v == null || !isFinite(v) ? "—" : `${num(v * 100, d)}%`);
   const cifre = v => (v == null ? "—" : v >= 1000 ? num(v, 0) : v >= 100 ? num(v, 1) : v >= 1 ? num(v, 2) : num(v, 4));
-  const SIMBOLI = { USD: "$", EUR: "€", GBp: "p", GBP: "£", CHF: "CHF", DKK: "DKK", SEK: "SEK", NOK: "NOK", CAD: "C$", JPY: "¥", HKD: "HK$", AUD: "A$" };
+  const SIMBOLI = Object.assign({}, R.SIMBOLI_VALUTA, { GBP: "£", DKK: "DKK", SEK: "SEK", NOK: "NOK", CAD: "C$", AUD: "A$", SGD: "S$" });
   // numero come va scritto nel file: virgola per i decimali, niente separatori delle migliaia
   const numeroFile = v => String(Math.round(v * 1e6) / 1e6).replace(".", ",");
 
@@ -101,22 +101,27 @@ LIQUIDITA  2000
     for (const b of Object.values(dati.confronti || {})) {
       if (b && b.t && mancano.has(b.t)) { extra.push(Object.assign({ nome: "", dal_portafoglio: true }, b)); mancano.delete(b.t); }
     }
-    if (mancano.size) {
+    // le azioni delle zone Europa, Asia ed Emergenti: i prezzi sono già nei loro file (Asia ed Emergenti si caricano
+    // solo se nel portafoglio c'è un ticker di quelle borse)
+    const SUFFISSI = { asi: /\.(T|HK|SS|SZ|KS|TW|NS|JK|BK|KL)$/, emg: /\.(SA|MX|BA|SN|JO|IS|WA)$/ };
+    for (const zona of ["eur", "asi", "emg"]) {
+      if (!mancano.size) break;
+      if (SUFFISSI[zona] && !Array.from(mancano).some(t => SUFFISSI[zona].test(t))) continue;
       try {
-        const eu = await R.dati.europa();
-        cambi = Object.assign({}, eu.cambi || {}, cambi);         // sterline e franchi anche se la lista non li ha
+        const eu = await R.dati.prezziZona(zona);
+        cambi = Object.assign({}, eu.cambi || {}, cambi);         // le valute della zona anche se la lista non le ha
         for (const x of eu.titoli) {
           if (!mancano.has(x.t)) continue;
           const date = [], prezzi = [];
           x.prezzi.forEach((v, k) => { if (v != null && eu.date[x.i0 + k]) { date.push(eu.date[x.i0 + k]); prezzi.push(v); } });
           if (!prezzi.length) continue;
           extra.push({
-            t: x.t, nome: x.nome, date, prezzi, mercato: "europa", valuta: x.valuta,
+            t: x.t, nome: x.nome, date, prezzi, mercato: zona === "eur" ? "europa" : "altro", valuta: x.valuta,
             tipo: "Azione", settore: x.settore, paese: x.paese, dal_portafoglio: true, daEuropa: true,
           });
           mancano.delete(x.t);
         }
-      } catch (e) { /* senza il file europeo restano senza prezzi */ }
+      } catch (e) { /* senza il file della zona restano senza prezzi */ }
     }
     return extra.length ? Object.assign({}, dati, { titoli: dati.titoli.concat(extra), cambi }) : dati;
   }
@@ -125,7 +130,9 @@ LIQUIDITA  2000
   async function tickerSenzaPrezzi(testo) {
     const noti = new Set(["SPY", "IUSQ.DE"]);
     try { (await R.dati.listaMiei()).forEach(x => noti.add(x.t)); } catch (e) { /* niente */ }
-    try { (await R.dati.europaLista()).titoli.forEach(x => noti.add(x.t)); } catch (e) { /* niente */ }
+    for (const z of ["eur", "asi", "emg"]) {
+      try { (await R.dati.listaZona(z)).titoli.forEach(x => noti.add(x.t)); } catch (e) { /* niente */ }
+    }
     return P.leggi(testo).posizioni.map(p => p.t).filter(t => !noti.has(t));
   }
 
@@ -226,7 +233,7 @@ LIQUIDITA  2000
           <td>${num(x.quantita, x.quantita % 1 ? 4 : 0)}<small class="sub-line">carico ${cifre(x.carico)} ${SIMBOLI[x.valutaCarico] || x.valutaCarico}</small></td>
           <td>${cifre(x.prezzo)}<span class="valuta">${SIMBOLI[x.valuta] || x.valuta}</span><small class="sub-line"><span class="${cls((g || 0) * 100)}">${p100(g)}</span> oggi in €</small></td>
           <td><b>${euro(x.valore, 0)}</b><small class="sub-line">${quota(x.peso, 1)} del totale</small></td>
-          <td><span class="${cls(x.risultato || 0)}">${euroSegno(x.risultato)}</span><small class="sub-line">${p100(x.risultatoPct)}${x.risultatoLocale != null && x.valuta !== "EUR" && x.risultatoPct != null && Math.abs(x.risultatoLocale - x.risultatoPct) > 0.002 ? ` · ${p100(x.risultatoLocale)} in ${x.valuta === "GBp" ? "GBP" : x.valuta}` : ""}</small></td>
+          <td><span class="${cls(x.risultato || 0)}">${euroSegno(x.risultato)}</span><small class="sub-line">${p100(x.risultatoPct)}${x.risultatoLocale != null && x.valuta !== "EUR" && x.risultatoPct != null && Math.abs(x.risultatoLocale - x.risultatoPct) > 0.002 ? ` · ${p100(x.risultatoLocale)} in ${x.valuta === "GBp" ? "GBP" : x.valuta === "ZAc" ? "ZAR" : x.valuta}` : ""}</small></td>
           <td class="${cls((x.vs200 || 0) * 100)}">${p100(x.vs200)}</td>
           <td>${x.beta == null ? "—" : num(x.beta, 2)}</td>
           <td><span class="pf-rischio"><i style="width:${Math.min(100, Math.max(0, (x.rischio || 0) * 100))}%"></i></span>${quota(x.rischio)}<small class="sub-line">peso ${quota(x.peso)}</small></td>
@@ -238,7 +245,7 @@ LIQUIDITA  2000
       const europee = a.senzaPrezzi.filter(p => eu && eu.has(p.t)), altri = a.senzaPrezzi.filter(p => !(eu && eu.has(p.t)));
       const elenco = arr => `<b>${arr.map(p => esc(p.t)).join(", ")}</b>`;
       let testo = `Senza prezzi, per ora fuori dai conti: ${elenco(a.senzaPrezzi)}.`;
-      if (europee.length) testo += ` ${europee.length === 1 ? "L'azione europea arriva" : "Le azioni europee arrivano"} con il prossimo aggiornamento dei dati della zona Europa.`;
+      if (europee.length) testo += ` ${europee.length === 1 ? "L'azione arriva" : "Le azioni arrivano"} con il prossimo aggiornamento dei dati della sua zona (Europa, Asia o Emergenti).`;
       if (altri.length) {
         testo += st.cifrato
           ? ` Il file è protetto e l'aggiornamento automatico non lo legge: scrivi ${elenco(altri)} anche in <a class="linkish" href="${esc(R.github("miei-titoli.txt").modifica)}" target="_blank" rel="noopener">miei-titoli.txt</a> (una riga per ticker), poi aspetta il prossimo aggiornamento.`
@@ -633,7 +640,7 @@ LIQUIDITA  2000
   async function aggiungi(voce) {
     const stato = await pronto();
     const loc = voce.valuta || "EUR";
-    const nomeValuta = loc === "GBp" ? "pence" : loc === "EUR" ? "€" : loc;
+    const nomeValuta = loc === "GBp" ? "pence" : loc === "EUR" ? "€" : (R.NOMI_VALUTA && R.NOMI_VALUTA[loc]) || loc;
     const chiedi = stato.cifrato && !stato.aperto;
     const oggi = new Date().toISOString().slice(0, 10);
     const m = R.finestra(`<div class="modal-head"><h2>Aggiungi ${esc(voce.t)} al portafoglio</h2><button class="icon-btn" type="button" data-chiudi aria-label="Chiudi">×</button></div>

@@ -4,14 +4,14 @@
  * - Pagina, stili e script: dalla copia salvata nel telefono, ricontrollata in sottofondo.
  *   Se su GitHub è cambiato qualcosa, la copia si aggiorna e il sito propone di ricaricare.
  * - Dati (cartella data/, miei-titoli.txt, portafoglio.txt, universi.json, settings.json, crypto.json,
- *   europa.json): sempre dalla rete; senza rete, o se la rete tarda più di 6 secondi, dall'ultima copia scaricata.
+ *   europa.json, asia.json, emergenti.json): sempre dalla rete; senza rete, o se la rete tarda più di 6 secondi, dall'ultima copia scaricata.
  * - Caratteri di Google e altri siti: non passano da qui.
  *
  * Quando cambia l'elenco dei file del sito, aumentare VERSIONE.
  */
 "use strict";
 
-const VERSIONE = "2026-10-08-europa-stati";
+const VERSIONE = "2026-10-14-asia-emergenti";
 const GUSCIO = `radar-guscio-${VERSIONE}`;
 const DATI = "radar-dati";
 const ATTESA_RETE = 6000;
@@ -26,7 +26,7 @@ const FILE_GUSCIO = [
 ];
 
 const radice = () => new URL("./", self.registration.scope).href;
-const eDato = url => url.pathname.includes("/data/") || /\/(miei-titoli\.txt|portafoglio\.txt|universi\.json|settings\.json|crypto\.json|europa\.json)$/.test(url.pathname);
+const eDato = url => url.pathname.includes("/data/") || /\/(miei-titoli\.txt|portafoglio\.txt|universi\.json|settings\.json|crypto\.json|europa\.json|asia\.json|emergenti\.json)$/.test(url.pathname);
 
 self.addEventListener("install", evento => {
   evento.waitUntil((async () => {

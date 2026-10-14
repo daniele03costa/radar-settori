@@ -45,13 +45,15 @@
           <circle cx="20" cy="20" r="2" fill="#fff"/>
           <circle cx="14.5" cy="25.5" r="2.4" fill="#fff"/>
         </svg>
-        <div><b>Radar Settori</b><span>USA, Europa e crypto</span></div>
+        <div><b>Radar Settori</b><span>Mercati del mondo e crypto</span></div>
       </a>
 
       <nav class="zone" id="zone" aria-label="Zone">
         <a href="#home" data-zona="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2L12 4.8l8 6.4"/><path d="M6.3 9.6V19h11.4V9.6"/><path d="M10 19v-5h4v5"/></svg><span>Home</span></a>
         <a href="#usa" data-zona="usa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.8 8.6L12 4.4l8.2 4.2"/><path d="M5.8 9.4v8M10 9.4v8M14 9.4v8M18.2 9.4v8"/><path d="M3.8 19.6h16.4"/></svg><span>USA</span></a>
         <a href="#eur" data-zona="eur"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.5 3.5 5.3 3.5 8.5s-1.1 6-3.5 8.5c-2.4-2.5-3.5-5.3-3.5-8.5s1.1-6 3.5-8.5z"/></svg><span>Europa</span></a>
+        <a href="#asi" data-zona="asi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17.5h17"/><path d="M6.5 17.5a5.5 5.5 0 0 1 11 0"/><path d="M12 6v2.2M6 8.6l1.5 1.5M18 8.6l-1.5 1.5M3.6 13.5h2.1M18.3 13.5h2.1"/></svg><span>Asia</span></a>
+        <a href="#emg" data-zona="emg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17.5l5.5-5.5 3.5 3.5L20 8"/><path d="M14.5 8H20v5.5"/></svg><span>Emergenti</span></a>
         <a href="#cry" data-zona="cry"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.5 7.5v9M9.5 7.5h3.8a2.1 2.1 0 0 1 0 4.2H9.5M9.5 11.7h4.3a2.4 2.4 0 0 1 0 4.8H9.5M11 6v1.5M11 16.5V18"/></svg><span>Crypto</span></a>
         <a href="#tit" data-zona="tit" class="zona-pf" aria-label="Portafoglio" title="Portafoglio"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="17" height="12" rx="2.2"/><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5"/><path d="M3.5 12.5h17"/></svg><span>Portafoglio</span></a>
       </nav>
@@ -100,12 +102,14 @@
           <div>
             <div class="kicker" id="home-kicker">&nbsp;</div>
             <h1>Il quadro di oggi</h1>
-            <p class="view-sub" id="home-sub">USA, Europa e crypto in una pagina: tendenza, ampiezza e cosa si muove. Clic su una scheda per entrare nella zona.</p>
+            <p class="view-sub" id="home-sub">USA, Europa, Asia, paesi emergenti e crypto in una pagina: tendenza, ampiezza e cosa si muove. Clic su una scheda per entrare nella zona.</p>
           </div>
         </header>
         <div class="home-zone" id="home-zone">
           <article class="card home-card" id="home-usa" data-zona="usa"></article>
           <article class="card home-card" id="home-eur" data-zona="eur"></article>
+          <article class="card home-card" id="home-asi" data-zona="asi"></article>
+          <article class="card home-card" id="home-emg" data-zona="emg"></article>
           <article class="card home-card" id="home-cry" data-zona="cry"></article>
         </div>
         <article class="card home-pf" id="home-pf"></article>
@@ -116,7 +120,7 @@
         <header class="view-head">
           <div>
             <div class="kicker">USA · Monitor</div>
-            <h1 data-eur="Il quadro di settori e indici europei">Il quadro di tutti i settori</h1>
+            <h1 data-eur="Il quadro di settori e indici {europei}">Il quadro di tutti i settori</h1>
             <p class="view-sub" id="mon-sub">&nbsp;</p>
           </div>
         </header>
@@ -253,7 +257,7 @@
         <header class="view-head">
           <div>
             <div class="kicker">USA · Bottom Map</div>
-            <h1 data-eur="Quanto sono vicini settori e indici europei a un possibile minimo">Quanto sono vicini i settori a un possibile minimo</h1>
+            <h1 data-eur="Quanto sono vicini settori e indici {europei} a un possibile minimo">Quanto sono vicini i settori a un possibile minimo</h1>
             <p class="view-sub" data-eur="Orizzontale: profondità del drawdown rispetto alla storia del settore o dell'indice dal 2005 (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.">Orizzontale: profondità del drawdown rispetto alla storia del settore (più a sinistra, più profondo). Verticale: punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è la zona blu; la scia unisce le ultime settimane.</p>
           </div>
           <div class="controls">
@@ -561,18 +565,18 @@
         </div>
       </section>
 
-      <!-- ======================= EUROPA: Azioni (Monitor, Bottom Map, Settori e indici e Alert sono le pagine degli USA) ======================= -->
+      <!-- ======================= AZIONI di Europa, Asia ed Emergenti (Monitor, Bottom Map, Settori e indici e Alert sono le pagine degli USA) ======================= -->
       <section class="view" id="view-eur" data-view="eur" hidden>
         <header class="view-head">
           <div>
             <div class="kicker">Europa · Azioni</div>
-            <h1>Le azioni europee</h1>
+            <h1 id="eur-h1">Le azioni europee</h1>
             <p class="view-sub" id="eur-sub">&nbsp;</p>
           </div>
         </header>
         <article class="card empty" id="eur-vuoto" hidden>
-          <h2>I dati delle azioni europee non ci sono ancora</h2>
-          <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b>Aggiorna dati</b> → <b>Run workflow</b>, poi ricarica la pagina.</p>
+          <h2>I prezzi delle azioni di questa zona non ci sono ancora</h2>
+          <p>Arrivano con il prossimo aggiornamento automatico. Per averli subito: GitHub → <b>Actions</b> → <b id="eur-vuoto-agg">Aggiorna dati</b> → <b>Run workflow</b>, poi ricarica la pagina.</p>
         </article>
         <div id="eur-corpo">
           <article class="card tit-dettaglio" id="eur-dettaglio" hidden></article>
@@ -589,7 +593,7 @@
             <p class="eur-spenti" id="eur-filtri-spenti" hidden>La ricerca guarda fra tutte le azioni: indice, settore e «mostra» non contano. <button type="button" class="btn-link">Togli la ricerca</button></p>
             <div class="table-wrap"><table class="tbl tit-tbl eur-tbl" id="eur-tabella"></table></div>
             <div class="eur-altre" id="eur-altre"></div>
-            <p class="small">Prezzi nella valuta di ogni borsa: euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo. Forza relativa contro il proprio indice, nella valuta locale. La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
+            <p class="small">Prezzi nella valuta di ogni borsa: <span id="eur-note-valute">euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo</span>. Forza relativa contro il proprio indice, nella valuta locale. La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
           </article>
           <article class="card notes">
             <div class="card-title"><h2>Come leggere questa pagina</h2></div>
@@ -604,7 +608,7 @@
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--soglia)"></i>Fonti e limiti</h3>
-                <p>Chiusure di Yahoo Finance; composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana); settori secondo la classificazione di Yahoo. Per l'Irlanda il livello è quello dell'ISEQ All Share. In questa pagina da due a tre anni di storia, prezzi rettificati per split e dividendi. Numeri per capire, non consigli di investimento.</p>
+                <p>Chiusure di Yahoo Finance. Europa: composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana), per l'Irlanda il livello è quello dell'ISEQ All Share. Asia ed Emergenti: composizioni di ottobre 2026 da fonti ufficiali e pubbliche, ferme finché non si aggiornano <code>asia.json</code> ed <code>emergenti.json</code>. Settori riportati agli 11 del sito. In questa pagina da due a tre anni di storia, prezzi rettificati per split e dividendi. Numeri per capire, non consigli di investimento.</p>
               </div>
             </div>
           </article>
@@ -612,7 +616,7 @@
       </section>
 
       <footer>
-        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia (ampiezza europea dal 2005 calcolata con le azioni di oggi; livelli blu europei = 5° percentile della storia di ogni gruppo); crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
+        Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia (ampiezza europea dal 2005 calcolata con le azioni di oggi; livelli blu europei = 5° percentile della storia di ogni gruppo); Asia ed emergenti: composizioni di ottobre 2026 da fonti ufficiali e pubbliche, stesse regole dell'Europa; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
         Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
   </main>
@@ -631,6 +635,7 @@
             <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave) e il riepilogo del portafoglio.</li>
             <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
             <li><b>Europa</b>, le stesse pagine degli USA per gli 11 settori europei e i 15 indici principali (circa 470 azioni): <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori e indici</b> (grafici dal 2005, azioni, episodi e livello blu di ognuno), <b>Alert</b> (storico degli stati), più <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
+            <li><b>Asia</b>: Nikkei 225, Hang Seng, CSI 300, KOSPI 200, Taiwan 50, Nifty 50, LQ45, SET50 e KLCI (circa 1.040 azioni), con le stesse pagine dell'Europa e gli 11 settori asiatici. <b>Emergenti</b>: Ibovespa, IPC (Messico), Merval, IPSA (Cile), JSE Top 40, BIST 30 e WIG20 (circa 250 azioni), con i settori dei paesi emergenti; termine di confronto l'MSCI Emerging Markets (ETF EEM).</li>
             <li><b>Crypto</b>, bitcoin e le prime 10: <b>Monitor</b>, <b>Rotazione</b> (monete contro bitcoin), <b>Bottom Map</b> (distanza dal massimo di un anno contro distanza dalla media 200), <b>Analisi</b> (cosa è successo dopo, regola della media 200, stagionalità, halving), <b>Correlazioni</b>.</li>
             <li><b>Portafoglio</b>: valore, risultato, composizione e rischio (protetto con password) e i titoli della tua lista (<code>miei-titoli.txt</code>).</li>
           </ul>
@@ -659,7 +664,7 @@
         <section>
           <h3>Tastiera</h3>
           <ul class="keys">
-            <li><kbd>1</kbd> Home, <kbd>2</kbd> USA, <kbd>3</kbd> Europa, <kbd>4</kbd> Crypto, <kbd>5</kbd> Portafoglio</li>
+            <li><kbd>1</kbd> Home, <kbd>2</kbd> USA, <kbd>3</kbd> Europa, <kbd>4</kbd> Asia, <kbd>5</kbd> Emergenti, <kbd>6</kbd> Crypto, <kbd>7</kbd> Portafoglio</li>
             <li><kbd>←</kbd> <kbd>→</kbd> periodo nella pagina di un settore USA, data nella Rotazione</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato, chiude il grafico del titolo o la finestra aperta</li>

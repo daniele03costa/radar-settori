@@ -1,6 +1,6 @@
 /*
  * Radar Settori — Alert: registro dei cambi di stato dal 2005, con statistiche e la striscia degli stati
- * di ogni settore USA (o di ogni settore e indice europeo) nel tempo.
+ * di ogni settore USA (o di ogni settore e indice di Europa, Asia o Emergenti) nel tempo.
  */
 (function () {
   "use strict";
@@ -10,7 +10,8 @@
   let visibile = false;
   let tipi = new Set(R.store.get("alr.tipi", ["blu", "trigger", "fallito"]));
   let M = R.mercati.usa;
-  const scelte = { usa: R.store.get("alr.settore", ""), eur: R.store.get("alr.settoreEu", "") };
+  const chiave = M => (M.misto ? "alr.settore" + M.store : "alr.settore");
+  const scelte = { usa: R.store.get("alr.settore", ""), eur: R.store.get("alr.settoreEu", ""), asi: R.store.get("alr.settoreAsi", ""), emg: R.store.get("alr.settoreEmg", "") };
   let settore = scelte.usa;
   let limite = 300;
   let storia = null;   // geometria dell'ultima striscia disegnata (per il passaggio del mouse)
@@ -68,9 +69,9 @@
     const box = $("#alr-storia");
     const W = Math.max(320, box.clientWidth || 900);
     const stretto = W < 640;
-    const eu = M.zona === "eur";
+    const eu = M.misto;
     const rowH = stretto ? 13 : 16, gap = stretto ? 5 : 6, lab = eu ? (stretto ? 74 : 104) : (stretto ? 44 : 56), asse = 24;
-    const intestazioni = [];            // in Europa: una riga di titolo prima dei settori e prima degli indici
+    const intestazioni = [];            // fuori dagli USA: una riga di titolo prima dei settori e prima degli indici
     let righeTot = perSettore.length;
     if (eu && M.tipi) { righeTot += M.tipi.filter(([k]) => perSettore.some(x => x.tipo === k)).length; }
     const H = righeTot * (rowH + gap) - gap + asse + 4;
@@ -218,11 +219,11 @@
     let tutti;
     try { await m.pronto(); tutti = await m.tutti(); }
     catch (e) {
-      if (visibile && m === M) $("#alr-kpi").innerHTML = `<p class="empty-note">${m.zona === "eur" ? "I dati dell'ampiezza europea non ci sono ancora: arrivano con il prossimo aggiornamento automatico." : "Dati non disponibili."}</p>`;
+      if (visibile && m === M) $("#alr-kpi").innerHTML = `<p class="empty-note">${m.t.manca}</p>`;
       return;
     }
     if (!visibile || m !== M) return;
-    // in Europa: prima i settori, poi gli indici
+    // fuori dagli USA: prima i settori, poi gli indici
     const ordine = m.tipi ? m.tipi.flatMap(([k]) => m.meta().settori.filter(s => s.tipo === k)) : m.meta().settori;
     const perSettore = ordine.map(s => {
       const d = tutti[s.etf], a = R.analisiSync(s.etf, d);
@@ -240,7 +241,7 @@
     const primo = perSettore[0] ? perSettore[0].d.date[perSettore[0].d.b200.findIndex(v => v != null)] : "2005-01-03";
     const cambiati = Object.keys(R.livelliLocali).some(k => perSettore.some(x => x.etf === k));
     $("#alr-sub").textContent = `Stati ricalcolati per ogni seduta dal ${dataIt(primo)} con i livelli blu in uso${cambiati ? " (alcuni cambiati in questo browser)" : ""}. ${m.t.rendimenti}` +
-      (m.zona === "eur" ? " Le azioni sono quelle di oggi anche per gli anni passati." : "");
+      (m.misto ? " Le azioni sono quelle di oggi anche per gli anni passati." : "");
     const tile = (k, l, v, s) => `<div class="kpi"${k ? ` style="--k:${k}"` : ""}><div class="l">${k ? "<i></i>" : ""}${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
     $("#alr-kpi").innerHTML =
       tile("var(--st-blu)", "Zone blu", episodi.length, settore ? `${esc(R.codice(settore))}, dal ${primo.slice(0, 4)}` : `${m.t.tuttiI}, dal ${primo.slice(0, 4)}`) +
@@ -261,7 +262,7 @@
     const pill = s => s ? `<span class="st-pill st-${s}">${S.STATI[s]}</span>` : "";
     $("#alr-conta").textContent = `${tutte.length} ${tutte.length === 1 ? "evento" : "eventi"}`;
     $("#alr-tabella").innerHTML = `<thead><tr>
-        <th class="l">Data</th><th class="l">${m.zona === "eur" ? "Gruppo" : "Settore"}</th><th class="l">Cambio</th><th>Ampiezza</th><th>Drawdown</th>
+        <th class="l">Data</th><th class="l">${m.misto ? "Gruppo" : "Settore"}</th><th class="l">Cambio</th><th>Ampiezza</th><th>Drawdown</th>
         <th class="l">Dettagli</th><th>+1M</th><th>+3M</th><th>+6M</th>
       </tr></thead><tbody>` +
       (mostrate.map(e => {
@@ -291,7 +292,7 @@
     const meta = M.meta();
     const opz = s => `<option value="${s.etf}"${s.etf === settore ? " selected" : ""}>${esc(M.cod(s))} · ${esc(M.sotto(s))}</option>`;
     $("#alr-settore").setAttribute("aria-label", M.t.Gruppo);
-    $("#alr-settore").innerHTML = `<option value="">${M.zona === "eur" ? "Tutti i settori e gli indici" : "Tutti i settori"}</option>` + (!meta ? "" : M.tipi
+    $("#alr-settore").innerHTML = `<option value="">${M.misto ? "Tutti i settori e gli indici" : "Tutti i settori"}</option>` + (!meta ? "" : M.tipi
       ? M.tipi.map(([k, nome]) => `<optgroup label="${esc(nome)}">${meta.settori.filter(s => s.tipo === k).map(opz).join("")}</optgroup>`).join("")
       : meta.settori.map(opz).join(""));
     $("#alr-legenda").innerHTML = ["attenzione", "blu", "trigger", "fallito", "cooldown"]
@@ -314,7 +315,7 @@
     });
     $("#alr-settore").addEventListener("change", e => {
       settore = scelte[M.zona] = e.target.value;
-      R.store.set(M.zona === "eur" ? "alr.settoreEu" : "alr.settore", settore);
+      R.store.set(chiave(M), settore);
       limite = 300;
       disegna();
     });
@@ -337,9 +338,9 @@
     if (!ultimo) return "## Pagina aperta: Alert\nI dati non sono ancora caricati.";
     const u = ultimo;
     const out = [];
-    const eu = M.zona === "eur";
-    out.push(`## Pagina aperta: ${eu ? "Europa" : "USA"} · Alert (storico dei cambi di stato)`);
-    out.push(`La pagina mostra le statistiche dei trigger, la striscia degli stati di ogni ${eu ? "settore e indice europeo" : "settore"} dal 2005 (una riga per ${eu ? "gruppo" : "settore"}, colorata per stato), il registro dei cambi di stato e le regole.` +
+    const eu = M.misto;
+    out.push(`## Pagina aperta: ${M.nome} · Alert (storico dei cambi di stato)`);
+    out.push(`La pagina mostra le statistiche dei trigger, la striscia degli stati di ogni ${eu ? `settore e indice ${M.t.aggS}` : "settore"} dal 2005 (una riga per ${eu ? "gruppo" : "settore"}, colorata per stato), il registro dei cambi di stato e le regole.` +
       (eu ? " Prezzo: livello dell'indice o paniere a pesi uguali del settore; ampiezza calcolata con le azioni di oggi anche per gli anni passati." : ""));
     out.push(`Filtri: tipi di evento ${Array.from(tipi).map(t => S.STATI[t]).join(", ") || "nessuno"}; ${eu ? "gruppo" : "settore"} ${settore ? R.codice(settore) : "tutti"}.`);
     out.push(`Statistiche${settore ? ` di ${R.codice(settore)}` : ` di ${M.t.tuttiI}`} dal ${dataIt(u.primo)}: ${u.episodi} zone blu; ${u.confermati} trigger confermati e ${u.nFalliti} falliti` +

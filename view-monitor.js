@@ -1,5 +1,5 @@
 /*
- * Radar Settori — Monitor degli stati: i settori USA, oppure i settori e gli indici europei (stessa pagina,
+ * Radar Settori — Monitor degli stati: i settori USA, oppure i settori e gli indici di Europa, Asia o Emergenti (stessa pagina,
  * dati del mercato della zona aperta: R.mercati in core.js).
  */
 (function () {
@@ -120,7 +120,7 @@
         const extra = s1 === "blu" ? `: ${conta(oggi)} sopra la media 200, livello ${num(r.lv, 0)}%`
           : s1 === "trigger" ? `: ${(a.episodi[a.episodi.length - 1] || { motivi: [] }).motivi.map(m => R.MOTIVI_BREVI[m] || m).join(" + ")}`
           : s1 === "attenzione" ? `: a ${oggi ? R.titoli(oggi.mancano) : "—"} dal livello blu, drawdown ${R.art("al", num(r.pctDD, 0) + "°")} percentile` : "";
-        cambi.push({ stato: s1, html: `<b>${esc(r.cod)}</b> ${esc(m.zona === "eur" ? "" : r.nome)}: da ${pill(s0)} a ${pill(s1)}${extra}`.replace("</b> :", "</b>:") });
+        cambi.push({ stato: s1, html: `<b>${esc(r.cod)}</b> ${esc(m.misto ? "" : r.nome)}: da ${pill(s0)} a ${pill(s1)}${extra}`.replace("</b> :", "</b>:") });
       }
       // cambi di stato nelle quattro sedute precedenti
       for (let i = Math.max(1, t - 4); i < t; i++) {
@@ -167,7 +167,7 @@
     let dati;
     try { dati = await calcola(m); }
     catch (e) {
-      if (visibile && m === M) $("#mon-sub").textContent = m.zona === "eur" ? "I dati dell'ampiezza europea non ci sono ancora: arrivano con il prossimo aggiornamento automatico." : "Dati non disponibili.";
+      if (visibile && m === M) $("#mon-sub").textContent = m.t.manca;
       throw e;
     }
     if (!visibile || m !== M) return;
@@ -176,7 +176,7 @@
     $("#mon-novita").innerHTML = novita(righe, indice, m);
 
     const dataDati = righe[0] ? righe[0].d.date[righe[0].d.date.length - 1] : m.meta().aggiornato;
-    $("#mon-sub").textContent = m.zona === "eur"
+    $("#mon-sub").textContent = m.misto
       ? `Chiusura del ${dataIt(dataDati)}. ${contaEu(righe)}, con le loro azioni di oggi. Il livello blu di ognuno si cambia nella pagina Settori e indici.`
       : `Chiusura del ${dataIt(dataDati)}. Il livello blu di ogni settore si cambia nella pagina Settori.`;
 
@@ -200,7 +200,7 @@
       : nTrig ? `${nTrig}<small> con trigger in verifica</small>`
       : nBlu ? `${nBlu}<small> in zona blu, in attesa di trigger</small>`
       : `0<small> in zona blu</small></div><div class="s">nessun segnale in corso`;
-    const tileStati = `<div class="kpi"><div class="l">Stato ${m.zona === "eur" ? `dei ${righe.length} settori e indici` : `degli ${righe.length} settori`}</div>
+    const tileStati = `<div class="kpi"><div class="l">Stato ${m.misto ? `dei ${righe.length} settori e indici` : `degli ${righe.length} settori`}</div>
       <div class="v">${valoreStati}</div>
       <div class="stack">${presenti.map(x => `<i class="st-${x.k}" style="flex:${x.n}" title="${S.STATI[x.k]}: ${x.n}"></i>`).join("")}</div>
       <div class="stack-legend">${presenti.map(x => `<span class="st-${x.k}">${S.STATI[x.k]} ${x.n}</span>`).join("")}</div></div>`;
@@ -235,13 +235,13 @@
           <td class="l">${quad(r.rot)}</td>
         </tr>`;
     };
-    // in Europa: prima i settori, poi gli indici, ognuno con il suo ordine
+    // nelle zone con settori e indici: prima i settori, poi gli indici, ognuno con il suo ordine
     const corpi = m.tipi
       ? m.tipi.map(([k, nome]) => { const rr = righe.filter(r => r.tipo === k); return rr.length ? `<tbody><tr class="grp"><th colspan="7" class="l">${nome} <span class="muted">· ${rr.length}</span></th></tr>${rr.map(riga).join("")}</tbody>` : ""; }).join("")
       : `<tbody>${righe.map(riga).join("")}</tbody>`;
     $("#mon-tabella").innerHTML = `<thead><tr>
         <th>${m.t.Gruppo}</th><th class="l">Stato</th><th class="l">Sopra la media 200 · 6 mesi</th><th>Oggi</th>
-        <th>Dal livello blu</th><th>Drawdown</th><th class="l"${m.zona === "eur" ? ` title="${m.t.rotazioneTesto}, barre settimanali"` : ""}>${m.t.rotazione}</th>
+        <th>Dal livello blu</th><th>Drawdown</th><th class="l"${m.misto ? ` title="${m.t.rotazioneTesto}, barre settimanali"` : ""}>${m.t.rotazione}</th>
       </tr></thead>` + corpi;
 
     // da osservare
@@ -250,21 +250,21 @@
       <li class="st-${r.stato}">
         <button type="button" class="watch-head" data-etf="${r.etf}"><b>${esc(r.cod)}</b> <span class="muted">${esc(r.sotto)}</span> <span class="st-pill st-${r.stato}">${S.STATI[r.stato]}</span></button>
         ${testi.map(x => `<p>${x}</p>`).join("")}
-      </li>`).join("") : `<li class="vuoto">Nessun ${m.zona === "eur" ? "gruppo" : "settore"} vicino a un cambio di stato.</li>`;
+      </li>`).join("") : `<li class="vuoto">Nessun ${m.misto ? "gruppo" : "settore"} vicino a un cambio di stato.</li>`;
   }
 
   // ---------- testo per la chat: panoramica di tutti i gruppi (per la Home e gli USA: i settori USA) ----------
   async function panoramica(aperta, m) {
     m = m || R.mercati.usa;
-    const eu = m.zona === "eur";
+    const eu = m.misto;
     const { righe, indice } = await calcola(m);
     const P = R.parametri();
     const out = [];
     out.push(aperta
-      ? `## Pagina aperta: ${eu ? "Europa · " : "USA · "}Monitor\nLa pagina mostra tre riquadri (ampiezza ${eu ? "di tutte le azioni europee del sito" : "dell'intero S&P 500"} negli ultimi 12 mesi, stato ${eu ? `di ${contaEu(righe)}` : "degli 11 settori"}, ${eu ? "gruppo" : "settore"} più vicino alla zona blu), la tabella ${eu ? "dei settori e degli indici, ognuno ordinato" : "di tutti i settori ordinata"} dal più vicino a un segnale (con il mini grafico degli ultimi 6 mesi della quota di titoli sopra la media 200) e la sezione «Da tenere d'occhio».`
-      : eu ? "## Panoramica di settori e indici europei (sempre disponibile, anche se la pagina aperta è un'altra)"
+      ? `## Pagina aperta: ${m.nome} · Monitor\nLa pagina mostra tre riquadri (ampiezza ${eu ? `di tutte le azioni ${m.t.agg} del sito` : "dell'intero S&P 500"} negli ultimi 12 mesi, stato ${eu ? `di ${contaEu(righe)}` : "degli 11 settori"}, ${eu ? "gruppo" : "settore"} più vicino alla zona blu), la tabella ${eu ? "dei settori e degli indici, ognuno ordinato" : "di tutti i settori ordinata"} dal più vicino a un segnale (con il mini grafico degli ultimi 6 mesi della quota di titoli sopra la media 200) e la sezione «Da tenere d'occhio».`
+      : eu ? `## Panoramica di settori e indici ${m.t.aggM} (sempre disponibile, anche se la pagina aperta è un'altra)`
         : "## Panoramica di tutti gli 11 settori USA (sempre disponibile, anche se la pagina aperta è un'altra)");
-    if (eu) out.push("Europa: per ogni settore (tutte le azioni europee del sito di quel settore) e per ogni indice (le sue azioni di oggi) la quota di titoli sopra la media 200 dal 2005, con gli stessi stati e regole degli USA. Il prezzo è il livello dell'indice o, per un settore, un paniere a pesi uguali delle sue azioni in euro. Livelli blu predefiniti: 5° percentile dell'ampiezza di ogni gruppo dal 2005. Per gli anni passati si usano i titoli di oggi (survivorship bias: l'ampiezza dei primi anni è un po' più alta del vero).");
+    if (eu) out.push(`${m.nome}: per ogni settore (tutte le azioni ${m.t.agg} del sito di quel settore) e per ogni indice (le sue azioni di oggi) la quota di titoli sopra la media 200 dal 2005, con gli stessi stati e regole degli USA. Il prezzo è il livello dell'indice o, per un settore, un paniere a pesi uguali delle sue azioni in euro. Livelli blu predefiniti: 5° percentile dell'ampiezza di ogni gruppo dal 2005. Per gli anni passati si usano i titoli di oggi (survivorship bias: l'ampiezza dei primi anni è un po' più alta del vero).`);
     if (indice && indice.b200 && indice.b200.length) {
       const N = indice.b200.length;
       out.push(`${m.t.indiceIntero}: ${num(indice.b200[N - 1], 1)}% dei titoli sopra la media 200 (un mese fa ${num(indice.b200[Math.max(0, N - 22)], 1)}%, un anno fa ${num(indice.b200[Math.max(0, N - 253)], 1)}%).`);
@@ -274,7 +274,7 @@
       .replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
     out.push("Novità (riquadro in cima al Monitor): " + nov);
     out.push(`${m.t.Gruppi}, dal più vicino a un segnale:`);
-    out.push(`${eu ? "gruppo | tipo" : "ETF | settore"} | stato | titoli sopra la media 200 oggi (un mese fa) | livello blu | punti dal livello blu | drawdown dal massimo a 52 settimane (percentile della storia) | ${eu ? "rotazione settimanale (settori contro la media europea, indici contro lo STOXX 600, in euro)" : "rotazione settimanale contro SPY"}`);
+    out.push(`${eu ? "gruppo | tipo" : "ETF | settore"} | stato | titoli sopra la media 200 oggi (un mese fa) | livello blu | punti dal livello blu | drawdown dal massimo a 52 settimane (percentile della storia) | ${eu ? m.t.rotazioneTesto.toLowerCase() + ", barre settimanali" : "rotazione settimanale contro SPY"}`);
     for (const r of righe) {
       const sopra = r.b == null ? "—" : Math.round((r.b / 100) * r.n);
       const rot = r.rot ? `${NOMI_Q[r.rot.quadrante]}, direzione ${num(r.rot.direzione, 0)}° ${r.rot.bussola || ""}, da ${r.rot.durata} ${r.rot.durata === 1 ? "settimana" : "settimane"}` : "—";

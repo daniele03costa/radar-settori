@@ -1,5 +1,6 @@
 """
-Radar Settori — ampiezza storica dell'Europa, come per i settori degli USA.
+Radar Settori — ampiezza storica dell'Europa (e, con le stesse funzioni, di Asia e paesi emergenti: build_mondo.py),
+come per i settori degli USA.
 
 Per ognuno degli 11 settori (tutte le azioni europee del sito di quel settore) e per ognuno dei 15 indici calcola,
 seduta per seduta dal 2005:
@@ -37,7 +38,13 @@ from europa_settori import SETTORI
 
 # nome corto (per tabelle, mappe ed elenchi) dei settori con il nome lungo
 CODICI_SETTORI = {"Consumi discrezionali": "Discrezionali", "Beni di prima necessità": "Beni primari"}
-CODICI_INDICI = {"OMX Copenhagen 25": "OMXC25", "OMX Stockholm 30": "OMXS30", "OMX Helsinki 25": "OMXH25"}
+CODICI_INDICI = {"OMX Copenhagen 25": "OMXC25", "OMX Stockholm 30": "OMXS30", "OMX Helsinki 25": "OMXH25",
+                 "FTSE TWSE Taiwan 50": "Taiwan 50", "FTSE Bursa Malaysia KLCI": "KLCI", "FTSE/JSE Top 40": "JSE Top 40",
+                 "S&P/BMV IPC": "IPC", "S&P Merval": "Merval", "S&P IPSA": "IPSA"}
+# valute quotate in centesimi su Yahoo: pence di Londra, cent di Johannesburg
+CENTESIMI = {"GBp": "GBP", "ZAc": "ZAR"}
+# i cambi dell'Europa (unità di valuta per un euro); gli altri mercati li scrivono nel loro file (asia.json…)
+CAMBI_EUROPA = {"GBP": "EURGBP=X", "CHF": "EURCHF=X", "DKK": "EURDKK=X", "SEK": "EURSEK=X", "NOK": "EURNOK=X"}
 PERCENTILE_LIVELLO = 5
 COPERTURA_INDICE = 0.9      # quota minima di sedute con il livello dell'indice per usarlo al posto del paniere
 SEDUTE_RECENTI = 5          # …e le ultime sedute devono esserci tutte (un indice fermo su Yahoo bloccherebbe gli stati)
@@ -82,15 +89,17 @@ def to_list(s: pd.Series, nd: int) -> List[Optional[float]]:
     return [rnd(v, nd) for v in s.to_numpy()]
 
 
-def gruppi(lista: dict) -> List[dict]:
-    """Gli 11 settori e poi gli indici, con i loro titoli."""
+def gruppi(lista: dict, regione: str = "Europa") -> List[dict]:
+    """Gli 11 settori e poi gli indici, con i loro titoli. I settori di Asia ed Emergenti hanno un prefisso
+    («ASIA-ENERGIA»), perché il sito li distingua da quelli europei (livelli blu, indirizzi)."""
     titoli = lista["titoli"]
+    prefisso = lista.get("prefisso", "")
     out = []
     for nome in SETTORI:
         membri = [x["t"] for x in titoli if x.get("settore") == nome]
         if membri:
-            out.append({"etf": slug(nome), "codice": CODICI_SETTORI.get(nome, nome), "nome": nome, "tipo": "settore",
-                        "paese": "Europa", "membri": membri})
+            out.append({"etf": prefisso + slug(nome), "codice": CODICI_SETTORI.get(nome, nome), "nome": nome, "tipo": "settore",
+                        "paese": regione, "membri": membri})
     for ind in lista["indici"]:
         membri = [x["t"] for x in titoli if ind["nome"] in x.get("indici", [])]
         if membri:
@@ -100,23 +109,24 @@ def gruppi(lista: dict) -> List[dict]:
     return out
 
 
-def allinea(px: pd.DataFrame, cols: List[str], cal: pd.DatetimeIndex) -> pd.DataFrame:
-    """Prezzi sul calendario comune; nei buchi brevi (festività di una sola borsa) si ripete l'ultimo prezzo."""
+def allinea(px: pd.DataFrame, cols: List[str], cal: pd.DatetimeIndex, riempi: int = 3) -> pd.DataFrame:
+    """Prezzi sul calendario comune; nei buchi brevi (festività di una sola borsa) si ripete l'ultimo prezzo
+    (fino a `riempi` sedute: in Asia il capodanno cinese e la Golden Week chiudono una borsa per una settimana)."""
     cols = [c for c in cols if c in px.columns]
     if not cols:
         return pd.DataFrame(index=cal)
-    return px[cols].reindex(px.index.union(cal)).ffill(limit=3).reindex(cal)
+    return px[cols].reindex(px.index.union(cal)).ffill(limit=riempi).reindex(cal)
 
 
 def in_euro(prezzi: pd.DataFrame, valute: Dict[str, str], cambi: Dict[str, pd.Series]) -> pd.DataFrame:
-    """Prezzi in euro: i cambi sono unità di valuta per un euro; i pence di Londra diventano sterline."""
+    """Prezzi in euro: i cambi sono unità di valuta per un euro; pence e cent diventano sterline e rand."""
     out = {}
     mancanti = set()
     for t in prezzi.columns:
         v = valute.get(t, "EUR")
         s = prezzi[t]
-        if v == "GBp":
-            s, v = s / 100.0, "GBP"
+        if v in CENTESIMI:
+            s, v = s / 100.0, CENTESIMI[v]
         if v != "EUR":
             c = cambi.get(v)
             if c is None:
@@ -125,7 +135,7 @@ def in_euro(prezzi: pd.DataFrame, valute: Dict[str, str], cambi: Dict[str, pd.Se
             s = s / c.reindex(s.index).ffill()
         out[t] = s
     if mancanti:
-        log(f"Europa: mancano i cambi {', '.join(sorted(mancanti))}: le azioni in quelle valute restano fuori dai panieri")
+        log(f"Mancano i cambi {', '.join(sorted(mancanti))}: le azioni in quelle valute restano fuori dai panieri")
     return pd.DataFrame(out, index=prezzi.index)
 
 
@@ -183,23 +193,32 @@ def fotografia(prezzi: pd.DataFrame, info: Dict[str, dict]) -> List[dict]:
     return righe
 
 
+def variazione(serie: Optional[pd.Series], sedute: int) -> Optional[float]:
+    """Variazione percentuale delle ultime `sedute` sedute (None se mancano i dati)."""
+    if serie is None or len(serie) <= sedute:
+        return None
+    a, b = serie.iloc[-1 - sedute], serie.iloc[-1]
+    return rnd((b / a - 1) * 100, 1) if pd.notna(a) and pd.notna(b) and a > 0 else None
+
+
 def livello_default(b200: pd.Series, percentile: float = PERCENTILE_LIVELLO) -> int:
     v = b200.dropna()
     return max(1, int(round(float(np.nanpercentile(v, percentile))))) if len(v) else 10
 
 
 def scrivi(px: pd.DataFrame, cal: pd.DatetimeIndex, lista: dict, out_dir: Path, inizio_storico: str = "2005-01-03",
-           parametri: Optional[dict] = None, confronto: Optional[dict] = None) -> Optional[dict]:
-    """Calcola tutto e scrive i file in out_dir (data/europa). px: chiusure di titoli, indici e cambi."""
+           parametri: Optional[dict] = None, confronto: Optional[dict] = None, cambi_tickers: Optional[Dict[str, str]] = None,
+           calendario: str = "milano", riempi: int = 3, regione: str = "Europa") -> Optional[dict]:
+    """Calcola tutto e scrive i file in out_dir (data/europa, data/asia…). px: chiusure di titoli, indici e cambi.
+    cambi_tickers: valuta → ticker Yahoo del cambio (unità per un euro); calendario: quello di calendario.js per il sito."""
     if len(cal) < 260:
         return None
     titoli = lista["titoli"]
     info = {x["t"]: x for x in titoli}
     valute = {x["t"]: x.get("valuta", "EUR") for x in titoli}
-    cambi = {v: px[t].where(px[t] > 0) for v, t in (("GBP", "EURGBP=X"), ("CHF", "EURCHF=X"), ("DKK", "EURDKK=X"),
-                                                     ("SEK", "EURSEK=X"), ("NOK", "EURNOK=X")) if t in px.columns}
+    cambi = {v: px[t].where(px[t] > 0) for v, t in (cambi_tickers or CAMBI_EUROPA).items() if t in px.columns}
     cambi = {v: s.reindex(s.index.union(cal)).ffill().reindex(cal) for v, s in cambi.items()}
-    tutti = allinea(px, [x["t"] for x in titoli], cal)
+    tutti = allinea(px, [x["t"] for x in titoli], cal, riempi)
     tutti = tutti.loc[:, tutti.notna().sum() >= 50]
     eur = in_euro(tutti, valute, cambi)
     singole = set(uniche([x["t"] for x in titoli if x["t"] in tutti.columns], info))
@@ -210,27 +229,27 @@ def scrivi(px: pd.DataFrame, cal: pd.DatetimeIndex, lista: dict, out_dir: Path, 
     riepilogo = []
     file: Dict[str, dict] = {}                # nome del file → contenuto (si scrivono alla fine)
 
-    for g in gruppi(lista):
+    for g in gruppi(lista, regione):
         membri = [t for t in g["membri"] if t in tutti.columns]
         if g["tipo"] == "settore":
             membri = [t for t in membri if t in singole]
         if len(membri) < MIN_TITOLI:
-            log(f"Europa: {g['nome']} ha solo {len(membri)} azioni con i prezzi, niente ampiezza")
+            log(f"{regione}: {g['nome']} ha solo {len(membri)} azioni con i prezzi, niente ampiezza")
             continue
         b200, b50, b20, n = ampiezza(tutti[membri])
         prezzo_tipo, valuta = "paniere", "EUR"
         close = paniere(eur[[t for t in membri if t in eur.columns]])
         close_eur = None
         if g["tipo"] == "indice" and g.get("yahoo") in px.columns:
-            liv = allinea(px, [g["yahoo"]], cal)[g["yahoo"]]
+            liv = allinea(px, [g["yahoo"]], cal, riempi)[g["yahoo"]]
             if liv[keep].notna().mean() >= COPERTURA_INDICE and liv.iloc[-SEDUTE_RECENTI:].notna().all():
                 close, prezzo_tipo = liv, "indice"
-                valuta = "GBP" if g.get("valuta") == "GBp" else g.get("valuta", "EUR")
+                valuta = CENTESIMI.get(g.get("valuta", "EUR"), g.get("valuta", "EUR"))
                 if valuta != "EUR":
                     c = cambi.get(valuta)
                     close_eur = liv / c if c is not None else None
             elif liv.notna().any():
-                log(f"Europa: {g['nome']}: il livello dell'indice su Yahoo ha buchi o è fermo, uso il paniere delle sue azioni")
+                log(f"{regione}: {g['nome']}: il livello dell'indice su Yahoo ha buchi o è fermo, uso il paniere delle sue azioni")
         dd = drawdown_52w(close)
         ma200 = close.rolling(200, min_periods=200).mean()          # sulla storia dal 2003, come per gli USA
         livello = int(soglie.get(g["etf"], livello_default(b200[keep])))
@@ -261,6 +280,9 @@ def scrivi(px: pd.DataFrame, cal: pd.DatetimeIndex, lista: dict, out_dir: Path, 
             "n": nn, "sopra": None if pd.isna(b_oggi) else int(round(b_oggi / 100 * nn)),
             "soglia_default": livello, "dd": rnd(dd.iloc[-1], 1), "ultimo": rnd(close.iloc[-1], 2),
             "prezzo_tipo": prezzo_tipo, "titoli": len(membri),
+            # variazioni in euro (per la Home): a 1 e a 3 mesi
+            "m1_eur": variazione(close_eur if close_eur is not None else close if valuta == "EUR" else None, 21),
+            "m3_eur": variazione(close_eur if close_eur is not None else close if valuta == "EUR" else None, 63),
         })
 
     if not riepilogo:
@@ -269,11 +291,14 @@ def scrivi(px: pd.DataFrame, cal: pd.DatetimeIndex, lista: dict, out_dir: Path, 
     cols = [t for t in tutti.columns if t in singole]
     i200, i50, i20, i_n = ampiezza(tutti[cols])
     media = paniere(eur[[t for t in cols if t in eur.columns]])
-    stoxx = None
+    stoxx = stoxx_eur = None
     if confronto and confronto.get("yahoo") in px.columns:
-        stoxx = allinea(px, [confronto["yahoo"]], cal)[confronto["yahoo"]]
+        stoxx = allinea(px, [confronto["yahoo"]], cal, riempi)[confronto["yahoo"]]
+        vc = confronto.get("valuta", "EUR")
+        if vc != "EUR" and cambi.get(vc) is not None:
+            stoxx_eur = stoxx / cambi[vc]                      # per la rotazione degli indici, tutto in euro
     file["indice.json"] = {
-        "nome": "Europa", "descrizione": f"tutte le {len(cols)} società europee del sito",
+        "nome": regione, "descrizione": f"tutte le {len(cols)} società del sito",
         "confronto": (confronto or {}).get("nome"),
         "aggiornato": aggiornato,
         "date": date,
@@ -282,16 +307,19 @@ def scrivi(px: pd.DataFrame, cal: pd.DatetimeIndex, lista: dict, out_dir: Path, 
         "close": to_list(stoxx[keep], 2) if stoxx is not None else None,
         "paniere": to_list(media[keep], 4),
     }
+    if stoxx_eur is not None:
+        file["indice.json"]["close_eur"] = to_list(stoxx_eur[keep], 4)
     file["meta.json"] = {
         "aggiornato": aggiornato,
         "generato": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "inizio": date[0] if date else None,
-        "calendario": "milano",
+        "calendario": calendario,
+        "regione": regione,
         "settori": riepilogo,
         "conta": {"settore": sum(1 for r in riepilogo if r["tipo"] == "settore"), "indice": sum(1 for r in riepilogo if r["tipo"] == "indice")},
         "indice": {"b200": rnd(i200.iloc[-1], 1), "b50": rnd(i50.iloc[-1], 1), "n": int(i_n.iloc[-1])},
         "parametri": parametri or {},
-        "fonti": {"prezzi": "Yahoo Finance (yfinance), chiusure rettificate", "composizione": "titoli di oggi degli indici (europa.json)"},
+        "fonti": {"prezzi": "Yahoo Finance (yfinance), chiusure rettificate", "composizione": "titoli di oggi degli indici"},
         "punto_nel_tempo": False,
     }
     # prima tutti i file temporanei, poi i nomi veri (meta.json per ultimo): mai file nuovi mescolati a quelli vecchi

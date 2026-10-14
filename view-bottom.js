@@ -1,5 +1,5 @@
 /*
- * Radar Settori — Bottom Map dei settori USA o dei settori e indici europei.
+ * Radar Settori — Bottom Map dei settori USA o dei settori e indici di Europa, Asia o Emergenti.
  * Orizzontale: profondità del drawdown (percentile della storia del gruppo, a sinistra il più profondo).
  * Verticale: distanza dell'ampiezza dal livello blu. In basso a sinistra c'è la zona blu.
  */
@@ -13,7 +13,7 @@
   let evidenza = null;
   let voci = [];
   let M = R.mercati.usa;
-  // in Europa i punti sono 26: si sceglie se vedere i settori, gli indici o tutti
+  // fuori dagli USA i punti sono tanti (26 in Europa): si sceglie se vedere i settori, gli indici o tutti
   let tipoEu = R.store.get("btm.tipoEu", "settore");
 
   function punti(d, a, lv, k) {
@@ -33,7 +33,7 @@
     let tutti;
     try { await m.pronto(); tutti = await m.tutti(); }
     catch (e) {
-      if (visibile && m === M) $("#btm-grafico").innerHTML = `<p class="empty-note">${m.zona === "eur" ? "I dati dell'ampiezza europea non ci sono ancora: arrivano con il prossimo aggiornamento automatico." : "Dati non disponibili."}</p>`;
+      if (visibile && m === M) $("#btm-grafico").innerHTML = `<p class="empty-note">${m.t.manca}</p>`;
       return;
     }
     if (!visibile || m !== M) return;
@@ -42,7 +42,7 @@
     voci = scelti.map(s => {
       const d = tutti[s.etf], a = R.analisiSync(s.etf, d), lv = R.livello(s.etf);
       const N = d.date.length;
-      return { etf: s.etf, nome: s.nome, cod: m.cod(s), sotto: m.sotto(s), breve: m.zona === "eur" ? (s.tipo === "indice" ? s.paese : "settore") : s.nome, d, a, lv, stato: a.statoOggi || "normale", pts: punti(d, a, lv, settimane), n: d.n[N - 1] };
+      return { etf: s.etf, nome: s.nome, cod: m.cod(s), sotto: m.sotto(s), breve: m.misto ? (s.tipo === "indice" ? s.paese : "settore") : s.nome, d, a, lv, stato: a.statoOggi || "normale", pts: punti(d, a, lv, settimane), n: d.n[N - 1] };
     });
 
     // --- grafico ---
@@ -58,7 +58,7 @@
     const X = p => mg.l + ((100 - p) / 100) * pw;
     const Y = v => mg.t + ((ymax - Math.max(ymin, Math.min(ymax, v))) / (ymax - ymin)) * ph;
 
-    const root = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": `Mappa ${m.zona === "eur" ? "dei settori e degli indici europei" : "dei settori"}: profondità del drawdown e distanza dal livello blu` });
+    const root = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": `Mappa ${m.misto ? `dei settori e degli indici ${m.t.aggM}` : "dei settori"}: profondità del drawdown e distanza dal livello blu` });
     const g = svg("g");
     root.append(g);
 
@@ -83,7 +83,7 @@
     g.append(svg("text", { x: X(100) + 12, y: Y(ymin) - 12, class: "bm-zlabel" }, "Zona blu"));
     g.append(svg("text", { x: X(100) + 12, y: mg.t + 20, class: "bm-alabel" }, "Attenzione"));
     g.append(svg("text", { x: mg.l, y: H - 10, class: "bm-axis", "text-anchor": "start" }, "← più profondo"));
-    if (!stretto) g.append(svg("text", { x: mg.l + pw / 2, y: H - 10, class: "bm-axis", "text-anchor": "middle" }, `Profondità del drawdown · percentile della storia ${m.zona === "eur" ? "del gruppo" : "del settore"}`));
+    if (!stretto) g.append(svg("text", { x: mg.l + pw / 2, y: H - 10, class: "bm-axis", "text-anchor": "middle" }, `Profondità del drawdown · percentile della storia ${m.misto ? "del gruppo" : "del settore"}`));
     g.append(svg("text", { x: mg.l + pw, y: H - 10, class: "bm-axis", "text-anchor": "end" }, "meno profondo →"));
     g.append(svg("text", { x: 13, y: mg.t + ph / 2, class: "bm-axis", "text-anchor": "middle", transform: `rotate(-90 13 ${mg.t + ph / 2})` }, "Punti sopra il livello blu"));
 
@@ -147,7 +147,7 @@
       const tl = h.b == null ? null : R.titoliLivello(h.b, v.n, v.lv);
       return { v, h, tl, ddOk: h.x != null && h.x > P.ddIngresso };
     }).sort((a, b) => ((a.tl ? a.tl.mancano : 999) - (b.tl ? b.tl.mancano : 999)) || ((a.h.y ?? 999) - (b.h.y ?? 999)));
-    $("#btm-tabella").innerHTML = `<thead><tr><th>${m.zona === "eur" ? "Gruppo" : "Settore"} · drawdown</th><th>Mancano</th></tr></thead><tbody>` +
+    $("#btm-tabella").innerHTML = `<thead><tr><th>${m.misto ? "Gruppo" : "Settore"} · drawdown</th><th>Mancano</th></tr></thead><tbody>` +
       righe.map(r => {
         const stato = r.v.stato !== "normale" ? `${S.STATI[r.v.stato]} · ` : "";
         const dd = `${stato}drawdown ${pct(r.h.dd, 1)} (${num(r.h.x, 0)}°)${r.ddOk ? ` <span class="ok-mark" title="oltre ${R.art("il", P.ddIngresso + "°")} percentile">✓</span>` : ""}`;
@@ -228,9 +228,9 @@
     if (!voci.length) return "## Pagina aperta: Bottom Map\nI dati non sono ancora caricati.";
     const P = R.parametri();
     const out = [];
-    const eu = M.zona === "eur";
-    out.push(`## Pagina aperta: ${eu ? "Europa" : "USA"} · Bottom Map`);
-    if (eu) out.push(`Gruppi mostrati: ${{ settore: "i settori europei", indice: "gli indici europei", tutti: "settori e indici europei" }[tipoEu]}. Prezzo: livello dell'indice o paniere a pesi uguali del settore; ampiezza calcolata con le azioni di oggi.`);
+    const eu = M.misto;
+    out.push(`## Pagina aperta: ${M.nome} · Bottom Map`);
+    if (eu) out.push(`Gruppi mostrati: ${{ settore: `i settori ${M.t.aggM}`, indice: `gli indici ${M.t.aggM}`, tutti: `settori e indici ${M.t.aggM}` }[tipoEu]}. Prezzo: livello dell'indice o paniere a pesi uguali del settore; ampiezza calcolata con le azioni di oggi.`);
     out.push(`La pagina mostra ogni ${eu ? "gruppo" : "settore"} come un punto: in orizzontale la profondità del drawdown rispetto alla sua storia (percentile: più a sinistra, più profondo), ` +
       `in verticale i punti di ampiezza sopra il livello blu. L'angolo in basso a sinistra è l'area della zona blu (ampiezza al livello o sotto e drawdown oltre ${R.art("il", P.ddIngresso + "°")} percentile); ` +
       `le fasce arancioni sono quelle di attenzione. Ogni punto ha la scia delle ultime ${settimane} settimane. A fianco, la tabella «Quanto manca».`);
