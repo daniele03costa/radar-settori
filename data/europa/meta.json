@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-13",
- "generato": "2026-10-13T23:04:52Z",
+ "generato": "2026-10-14T01:37:36Z",
  "inizio": "2005-01-03",
  "calendario": "milano",
  "settori": [
@@ -34,7 +34,7 @@
    "sopra": 8,
    "soglia_default": 12,
    "dd": -6.1,
-   "ultimo": 597.37,
+   "ultimo": 597.51,
    "prezzo_tipo": "paniere",
    "titoli": 22
   },
@@ -51,7 +51,7 @@
    "sopra": 20,
    "soglia_default": 13,
    "dd": -5.7,
-   "ultimo": 2102.17,
+   "ultimo": 2102.18,
    "prezzo_tipo": "paniere",
    "titoli": 41
   },
@@ -85,7 +85,7 @@
    "sopra": 18,
    "soglia_default": 6,
    "dd": 0.0,
-   "ultimo": 2154.43,
+   "ultimo": 2154.58,
    "prezzo_tipo": "paniere",
    "titoli": 19
   },
@@ -95,16 +95,16 @@
    "nome": "Finanziari",
    "tipo": "settore",
    "paese": "Europa",
-   "b200": 78.7,
-   "b50": 21.3,
-   "b20": 19.1,
-   "n": 94,
-   "sopra": 74,
+   "b200": 78.9,
+   "b50": 23.2,
+   "b20": 20.0,
+   "n": 95,
+   "sopra": 75,
    "soglia_default": 8,
-   "dd": -5.1,
-   "ultimo": 1158.15,
+   "dd": -5.0,
+   "ultimo": 1177.44,
    "prezzo_tipo": "paniere",
-   "titoli": 94
+   "titoli": 95
   },
   {
    "etf": "SANITA",
@@ -119,7 +119,7 @@
    "sopra": 18,
    "soglia_default": 24,
    "dd": -3.0,
-   "ultimo": 3839.11,
+   "ultimo": 3839.03,
    "prezzo_tipo": "paniere",
    "titoli": 34
   },
@@ -129,16 +129,16 @@
    "nome": "Industriali",
    "tipo": "settore",
    "paese": "Europa",
-   "b200": 52.0,
-   "b50": 41.8,
-   "b20": 40.8,
-   "n": 98,
-   "sopra": 51,
+   "b200": 50.5,
+   "b50": 40.2,
+   "b20": 39.2,
+   "n": 97,
+   "sopra": 49,
    "soglia_default": 13,
-   "dd": -3.2,
-   "ultimo": 3475.84,
+   "dd": -3.4,
+   "ultimo": 3517.62,
    "prezzo_tipo": "paniere",
-   "titoli": 98
+   "titoli": 97
   },
   {
    "etf": "MATERIALI",
@@ -204,7 +204,7 @@
    "sopra": 24,
    "soglia_default": 8,
    "dd": -6.8,
-   "ultimo": 50038.3,
+   "ultimo": 50057.0,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -220,8 +220,8 @@
    "n": 40,
    "sopra": 23,
    "soglia_default": 12,
-   "dd": -5.0,
-   "ultimo": 25249.21,
+   "dd": -4.9,
+   "ultimo": 25259.9,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -231,14 +231,14 @@
    "nome": "CAC 40",
    "tipo": "indice",
    "paese": "Francia",
-   "b200": 40.0,
-   "b50": 30.0,
-   "b20": 40.0,
+   "b200": 37.5,
+   "b50": 27.5,
+   "b20": 37.5,
    "n": 40,
-   "sopra": 16,
+   "sopra": 15,
    "soglia_default": 11,
    "dd": -10.3,
-   "ultimo": 7825.04,
+   "ultimo": 7827.63,
    "prezzo_tipo": "indice",
    "titoli": 40
   },
@@ -254,8 +254,8 @@
    "n": 35,
    "sopra": 21,
    "soglia_default": 12,
-   "dd": -4.9,
-   "ultimo": 19214.5,
+   "dd": -5.0,
+   "ultimo": 19210.7,
    "prezzo_tipo": "indice",
    "titoli": 35
   },
@@ -272,7 +272,7 @@
    "sopra": 18,
    "soglia_default": 10,
    "dd": -0.5,
-   "ultimo": 1129.37,
+   "ultimo": 1129.32,
    "prezzo_tipo": "indice",
    "titoli": 25
   },
@@ -283,13 +283,13 @@
    "tipo": "indice",
    "paese": "Svizzera",
    "b200": 57.9,
-   "b50": 26.3,
+   "b50": 31.6,
    "b20": 42.1,
    "n": 19,
    "sopra": 11,
    "soglia_default": 6,
    "dd": -4.8,
-   "ultimo": 13926.04,
+   "ultimo": 13927.52,
    "prezzo_tipo": "indice",
    "titoli": 19
   },
@@ -306,7 +306,7 @@
    "sopra": 57,
    "soglia_default": 19,
    "dd": -2.4,
-   "ultimo": 10649.12,
+   "ultimo": 10650.3,
    "prezzo_tipo": "indice",
    "titoli": 100
   },
@@ -408,7 +408,7 @@
    "sopra": 13,
    "soglia_default": 6,
    "dd": -5.5,
-   "ultimo": 6627.77,
+   "ultimo": 6627.9,
    "prezzo_tipo": "indice",
    "titoli": 19
   },
@@ -441,8 +441,8 @@
    "n": 14,
    "sopra": 11,
    "soglia_default": 10,
-   "dd": -2.3,
-   "ultimo": 14203.15,
+   "dd": -2.2,
+   "ultimo": 14212.69,
    "prezzo_tipo": "indice",
    "titoli": 14
   }
@@ -452,7 +452,7 @@
   "indice": 15
  },
  "indice": {
-  "b200": 58.5,
+  "b200": 58.2,
   "b50": 39.8,
   "n": 455
  },
