@@ -494,7 +494,7 @@
       date: x.date, i0, etichetta: `Prezzo di ${z.nome} con le medie a 50 e 200 sedute`, formato: cifre,
       sopra: [
         { v: a.m200, colore: c.ma, spessore: 2, nome: "Media 200" },
-        { v: a.m50, colore: c.b50, spessore: 1.4, tratteggio: "5 4", nome: "Media 50" },
+        ...(R.media50() ? [{ v: a.m50, colore: c.b50, spessore: 1.4, tratteggio: "5 4", nome: "Media 50" }] : []),
         { v: a.p, colore: c.price, spessore: 1.6, nome: "Prezzo" },
       ],
       sotto: rs ? {
@@ -505,9 +505,10 @@
     });
     $("#eur-legenda").innerHTML = [
       `<span><i class="sw" style="background:${c.price}"></i>Prezzo</span>`,
-      `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>`,
+      R.media50() ? `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>` : "",
       `<span><i class="sw" style="background:${c.ma}"></i>Media 200</span>`,
       rs ? `<span><i class="sw" style="background:${c.soglia}"></i>Forza relativa ${esc(prep("sul", z.idx.nome))}</span>` : "",
+      `<div class="leg-50">${R.interruttore50()}</div>`,
     ].join("");
   }
 
@@ -636,6 +637,7 @@
       if (b) { st.periodo = Number(b.dataset.v); R.store.set(pre(st.zona) + "periodo", st.periodo); disegnaDettaglio(); }
     });
     R.on("tema", () => { if (st.visibile && st.x) disegnaPagina(); });
+    R.on("media50", () => { if (st.visibile && st.x) disegnaPagina(); });
     R.on("portafoglio", async () => {
       if (!st.visibile || !st.x) return;
       await aggiornaMiei();

@@ -376,6 +376,18 @@
     segnale: R.css("--segnale"), fallito: R.css("--fallito"), muted: R.css("--muted"), line: R.css("--line"),
     ink: R.css("--ink"), surface: R.css("--surface"),
   });
+  // la media 50 nei grafici (prezzo con le medie, % di titoli sopra la media 50): una sola scelta per tutto il sito,
+  // salvata in questo browser; ogni grafico ha il suo interruttore «Media 50» e tutti si aggiornano insieme
+  R.media50 = () => R.store.get("media50", true) !== false;
+  R.impostaMedia50 = v => {
+    R.store.set("media50", !!v);
+    document.querySelectorAll("input[data-media50]").forEach(el => { el.checked = !!v; });
+    R.emit("media50", !!v);
+  };
+  R.interruttore50 = () => `<label class="switch" title="Mostra o nascondi la media 50 in tutti i grafici"><input type="checkbox" data-media50${R.media50() ? " checked" : ""}><span class="track"><i></i></span>Media 50</label>`;
+  document.addEventListener("change", e => { if (e.target && e.target.matches && e.target.matches("input[data-media50]")) R.impostaMedia50(e.target.checked); });
+  document.querySelectorAll("input[data-media50]").forEach(el => { el.checked = R.media50(); });
+
   R.coloreQuadrante = q => R.css("--q-" + (q || "none")) || R.css("--muted");
 
   // nomi brevi delle conferme del trigger, per le tabelle

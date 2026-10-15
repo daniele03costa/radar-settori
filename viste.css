@@ -568,6 +568,9 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
 .storico-stato { display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; font-size: 12.5px; font-weight: 500; color: var(--muted); vertical-align: 1px; }
 .legend .fascia { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
 
+.legend .leg-50 { margin-left: auto; }
+.legend .leg-50 .switch { font-size: 12.5px; }
+
 /* ============ Home · Macro ============ */
 .mac-griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .mac-tile {

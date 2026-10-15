@@ -191,7 +191,8 @@
     const pw = W - m.l - m.r;
     const X = k => m.l + ((k - i0) / Math.max(1, n)) * pw;
     let lo = Infinity, hi = -Infinity;
-    for (let i = i0; i < N; i++) for (const v of [p[i], m50[i], m200[i]]) if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    const con50 = R.media50();
+    for (let i = i0; i < N; i++) for (const v of [p[i], con50 ? m50[i] : null, m200[i]]) if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
     const pad = (hi - lo) * 0.06 || 1;
     lo -= pad; hi += pad;
     const Y = v => m.t + ((hi - v) / (hi - lo)) * h1;
@@ -216,7 +217,7 @@
       if (d) root.append(svg("path", Object.assign({ d, fill: "none" }, stile)));
     };
     linea(m200, Y, { stroke: c.ma, "stroke-width": 2 });
-    linea(m50, Y, { stroke: c.b50, "stroke-width": 1.4, "stroke-dasharray": "5 4" });
+    if (con50) linea(m50, Y, { stroke: c.b50, "stroke-width": 1.4, "stroke-dasharray": "5 4" });
     linea(p, Y, { stroke: c.price, "stroke-width": 1.6, "stroke-linejoin": "round" });
     if (rsSerie && base && isFinite(rlo)) {
       root.append(svg("line", { x1: m.l, x2: m.l + pw, y1: Y2(100), y2: Y2(100), class: "rg-axis" }));
@@ -241,7 +242,7 @@
       const rsv = rsSerie && base && rsSerie[k] != null ? (rsSerie[k] / base) * 100 : null;
       tip.innerHTML = `<div class="d">${dataIt(date[k])}</div>
         <div class="r"><span><i class="sw dot" style="background:${c.price}"></i>Prezzo</span><span>${num(p[k], 2)}</span></div>
-        <div class="r"><span><i class="sw dot" style="background:${c.b50}"></i>Media 50</span><span>${num(m50[k], 2)}</span></div>
+        ${con50 ? `<div class="r"><span><i class="sw dot" style="background:${c.b50}"></i>Media 50</span><span>${num(m50[k], 2)}</span></div>` : ""}
         <div class="r"><span><i class="sw dot" style="background:${c.ma}"></i>Media 200</span><span>${num(m200[k], 2)}</span></div>
         ${rsv != null ? `<div class="r"><span><i class="sw dot" style="background:${c.soglia}"></i>Forza relativa</span><span>${num(rsv, 1)}</span></div>` : ""}`;
       tip.hidden = false;
@@ -251,9 +252,10 @@
     root.addEventListener("mouseleave", () => { cursore.setAttribute("visibility", "hidden"); tip.hidden = true; });
     $("#tit-legenda").innerHTML = [
       `<span><i class="sw" style="background:${c.price}"></i>Prezzo</span>`,
-      `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>`,
+      con50 ? `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>` : "",
       `<span><i class="sw" style="background:${c.ma}"></i>Media 200</span>`,
       rsSerie ? `<span><i class="sw" style="background:${c.soglia}"></i>Forza relativa sull'${esc(r.confronto)}</span>` : "",
+      `<div class="leg-50">${R.interruttore50()}</div>`,
     ].join("");
   }
 
@@ -344,6 +346,7 @@
       }
     });
     R.on("tema", () => { if (st.visibile && st.dati) { disegnaTabella(); disegnaDettaglio(); } });
+    R.on("media50", () => { if (st.visibile && st.dati) disegnaDettaglio(); });
     R.on("livelli", () => { if (st.visibile && st.dati) disegna(); });
     window.addEventListener("resize", R.debounce(() => { if (st.visibile && st.aperto) grafico(st.righe.find(z => z.t === st.aperto)); }, 200));
   }

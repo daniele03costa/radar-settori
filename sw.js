@@ -11,7 +11,7 @@
  */
 "use strict";
 
-const VERSIONE = "2026-10-15-zone-ampiezza";
+const VERSIONE = "2026-10-15-media50";
 const GUSCIO = `radar-guscio-${VERSIONE}`;
 const DATI = "radar-dati";
 const ATTESA_RETE = 6000;

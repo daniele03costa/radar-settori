@@ -175,7 +175,6 @@
   const PERIODI_STORICO = [["1", "1 anno"], ["3", "3 anni"], ["10", "10 anni"], ["0", "Dal 2005"]];
   let periodoStorico = String(R.store.get("mon.storico", "10"));
   let ultimoStorico = null;
-  let conMedia50 = !!R.store.get("mon.storico50", false);
 
   // nome della linea di prezzo sopra l'ampiezza: l'indice di confronto o, se manca, la media delle azioni della zona
   function prezzoStorico(indice, m) {
@@ -232,7 +231,7 @@
           </div>
           <div class="controls"><div class="seg" id="mon-storico-periodo" role="group" aria-label="Periodo">
             ${PERIODI_STORICO.map(([k, n]) => `<button type="button" data-p="${k}" aria-pressed="false">${n}</button>`).join("")}
-          </div>${indice.b50 ? `<label class="switch"><input type="checkbox" id="mon-storico-50"><span class="track"><i></i></span>Media 50</label>` : ""}</div>
+          </div>${indice.b50 ? R.interruttore50() : ""}</div>
         </div>
         <div class="legend" id="mon-storico-legenda"></div>
         <div class="charts" id="mon-storico-grafico"></div>
@@ -257,8 +256,7 @@
     }
     $("#mon-storico-stato").innerHTML = sA.oggi ? `<span class="st-pill st-amp-${sA.oggi}">${S.STATI_AMPIEZZA[sA.oggi]}</span>${sA.oggi !== "normale" ? `dal ${dataIt(indice.date[sA.dal])}` : ""}` : "";
     $$("#mon-storico-periodo button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === periodoStorico)));
-    const usa50 = conMedia50 && !!indice.b50;
-    if ($("#mon-storico-50")) $("#mon-storico-50").checked = usa50;
+    const usa50 = R.media50() && !!indice.b50;
     $("#mon-storico-legenda").innerHTML = (prezzo ? `<span><i class="sw" style="background:${c.price}"></i>${esc(prezzo.nome)}</span>` : "") +
       `<span><i class="sw" style="background:${c.b200}"></i>% sopra la media 200</span>${usa50 ? `<span><i class="sw" style="background:${c.b50}"></i>% sopra la media 50</span>` : ""}` +
       `<span><i class="sw" style="background:${c.muted}"></i>Mediana dal ${a.dal.slice(0, 4)}</span>` +
@@ -458,12 +456,7 @@
     };
     $("#mon-kpi").addEventListener("click", vaiStorico);
     $("#mon-kpi").addEventListener("keydown", vaiStorico);
-    $("#mon-storico").addEventListener("change", e => {
-      if (e.target.id !== "mon-storico-50" || !ultimoStorico) return;
-      conMedia50 = e.target.checked;
-      R.store.set("mon.storico50", conMedia50);
-      disegnaStorico(ultimoStorico.indice, ultimoStorico.m);
-    });
+    R.on("media50", () => { if (visibile && ultimoStorico) disegnaStorico(ultimoStorico.indice, ultimoStorico.m); });
     $("#mon-storico").addEventListener("click", e => {
       const b = e.target.closest("#mon-storico-periodo button[data-p]");
       if (!b || !ultimoStorico) return;

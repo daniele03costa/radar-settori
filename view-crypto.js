@@ -365,7 +365,8 @@
     const h1 = stretto ? 230 : 300, h2 = pannello ? (stretto ? 100 : 120) : 0, gap = pannello ? 28 : 0;
     const H = m.t + h1 + gap + h2 + m.b, pw = W - m.l - m.r;
     const X = k => m.l + ((k - i0) / n) * pw;
-    const serieP = [p, a.m50, a.m200, a.m1400];
+    const con50 = R.media50();
+    const serieP = con50 ? [p, a.m50, a.m200, a.m1400] : [p, a.m200, a.m1400];
     let lo = Infinity, hi = -Infinity;
     for (let i = i0; i < N; i++) for (const s of serieP) { const v = s[i]; if (v != null && v > 0) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
     lo /= 1.06; hi *= 1.06;
@@ -394,7 +395,7 @@
     };
     linea(a.m1400, Y, { stroke: c.muted, "stroke-width": 1.4, "stroke-dasharray": "2 3" });
     linea(a.m200, Y, { stroke: c.ma, "stroke-width": 2 });
-    linea(a.m50, Y, { stroke: c.b50, "stroke-width": 1.4, "stroke-dasharray": "5 4" });
+    if (con50) linea(a.m50, Y, { stroke: c.b50, "stroke-width": 1.4, "stroke-dasharray": "5 4" });
     linea(p, Y, { stroke: c.price, "stroke-width": 1.6, "stroke-linejoin": "round" });
     // secondo pannello
     const y2 = m.t + h1 + gap;
@@ -439,17 +440,18 @@
     cursore(box, root, { W, alto: m.t, basso: H - m.b, da: i0, a: N - 1, X, inverso: px => i0 + ((px - m.l) / pw) * n }, k => {
       if (p[k] == null) return "";
       const r = (col, nome, val) => `<div class="r"><span><i class="sw dot" style="background:${col}"></i>${nome}</span><span>${val}</span></div>`;
-      return `<div class="d">${dataIt(date[k])}</div>` + r(c.price, "Prezzo", cifre(p[k]) + " $") + r(c.b50, "Media 50", cifre(a.m50[k]) + " $") + r(c.ma, "Media 200", cifre(a.m200[k]) + " $") +
+      return `<div class="d">${dataIt(date[k])}</div>` + r(c.price, "Prezzo", cifre(p[k]) + " $") + (con50 ? r(c.b50, "Media 50", cifre(a.m50[k]) + " $") : "") + r(c.ma, "Media 200", cifre(a.m200[k]) + " $") +
         (a.m1400[k] ? r(c.muted, "Media 200 sett.", cifre(a.m1400[k]) + " $") : "") +
         (pan && pan[k] != null ? r(c.soglia, eBtc ? "Mayer" : "Rapporto con BTC", num(pan[k], eBtc ? 2 : 1)) : "");
     });
     $("#cry-legenda").innerHTML = [
       `<span><i class="sw" style="background:${c.price}"></i>Prezzo (scala logaritmica)</span>`,
-      `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>`,
+      con50 ? `<span><i class="sw dash" style="color:${c.b50}"></i>Media 50</span>` : "",
       `<span><i class="sw" style="background:${c.ma}"></i>Media 200</span>`,
       a.m1400.some(v => v != null) ? `<span><i class="sw dash" style="color:${c.muted}"></i>Media 200 settimane</span>` : "",
       `<span><i class="sw box" style="background:var(--pos);opacity:.35"></i>sopra la media 200</span>`,
       `<span><i class="sw box" style="background:var(--neg);opacity:.35"></i>sotto</span>`,
+      `<div class="leg-50">${R.interruttore50()}</div>`,
     ].join("");
   }
 
@@ -860,6 +862,7 @@
     $("#cry-mappa-tabella").addEventListener("click", e => { const tr = e.target.closest("tr[data-k]"); if (tr) R.vai("#cry/monitor/" + tr.dataset.k); });
     $("#cry-mappa-tabella").addEventListener("keydown", e => { if (e.key !== "Enter") return; const tr = e.target.closest("tr[data-k]"); if (tr) R.vai("#cry/monitor/" + tr.dataset.k); });
     R.on("tema", () => { if (st.visibile && st.x) disegnaPagina(); });
+    R.on("media50", () => { if (st.visibile && st.x) disegnaPagina(); });
     window.addEventListener("resize", R.debounce(() => {
       if (!st.visibile || !st.x) return;
       if (st.pagina === "monitor" && st.aperta) disegnaDettaglio();

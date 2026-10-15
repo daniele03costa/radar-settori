@@ -94,7 +94,7 @@
       etichette: {
         prezzo: `${nomePrezzo(d)} e media a 200 sedute`,
         dd: "Drawdown dal massimo a 52 settimane",
-        ampiezza: `% titoli sopra la media 200 e 50 · livello blu ${num(lv, 0)}%`,
+        ampiezza: `% titoli sopra la media 200${R.media50() ? " e 50" : ""} · livello blu ${num(lv, 0)}%`,
       },
       pannelli: {
         prezzo: {
@@ -113,7 +113,7 @@
         ampiezza: {
           range: [0, 100],
           serie: [
-            { valori: d.b50, colore: c.b50, spessore: 1.3, tratteggio: [5, 4] },
+            ...(R.media50() ? [{ valori: d.b50, colore: c.b50, spessore: 1.3, tratteggio: [5, 4] }] : []),
             { valori: d.b200, colore: c.b200, spessore: 2, area: c.b200Area, base: "fondo", pill: true },
           ],
           linee: [{ y: lv, colore: c.soglia, tratteggio: [7, 5], spessore: 1.8, etichetta: num(lv, 0) + "%" }],
@@ -126,7 +126,7 @@
       `<span><i class="sw" style="background:${c.ma}"></i>Media 200</span>`,
       `<span><i class="sw" style="background:${c.dd}"></i>Drawdown</span>`,
       `<span><i class="sw" style="background:${c.b200}"></i>% sopra M200</span>`,
-      `<span><i class="sw dash" style="color:${c.b50}"></i>% sopra M50</span>`,
+      R.media50() ? `<span><i class="sw dash" style="color:${c.b50}"></i>% sopra M50</span>` : "",
       `<span><i class="sw dash" style="color:${c.soglia}"></i>Livello blu</span>`,
       `<span><i class="sw box" style="background:var(--zona);border:1px solid var(--zona-bordo)"></i>Zona blu</span>`,
       `<span><i class="sw tri"></i>Trigger</span>`,
@@ -438,6 +438,7 @@
 
     R.on("livelli", etf => { if (st.visibile && st.dati && etf === st.dati.etf) ricalcola(); });
     R.on("tema", () => { if (st.visibile && st.dati) { disegnaGrafici(); disegnaKpi(); disegnaTitoli(); } });
+    R.on("media50", () => { if (st.visibile && st.dati) disegnaGrafici(); });
     const taglia = () => window.matchMedia("(max-width: 720px)").matches ? "s" :
       window.matchMedia("(min-height: 900px) and (min-width: 1280px)").matches ? "l" : "m";
     let ultima = taglia();
