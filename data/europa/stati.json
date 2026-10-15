@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-13",
- "generato": "2026-10-14T23:04:09Z",
+ "generato": "2026-10-15T01:38:00Z",
  "ritardo": {
   "attesa": "2026-10-14",
   "sedute": 1
@@ -455,16 +455,16 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 12,
+   "livello": 13,
    "ampiezza": 50.5,
    "ampiezza_un_mese_fa": 52.6,
    "titoli_sopra": 49,
    "titoli_totali": 97,
-   "titoli_al_livello": 11,
-   "titoli_che_mancano": 38,
-   "punti_dal_livello": 38.5,
+   "titoli_al_livello": 12,
+   "titoli_che_mancano": 37,
+   "punti_dal_livello": 37.5,
    "drawdown": -3.4,
-   "percentile_drawdown": 55
+   "percentile_drawdown": 56
   },
   {
    "etf": "FTSE-100",
@@ -474,14 +474,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 18,
+   "livello": 19,
    "ampiezza": 56,
    "ampiezza_un_mese_fa": 56,
    "titoli_sopra": 56,
    "titoli_totali": 100,
-   "titoli_al_livello": 18,
-   "titoli_che_mancano": 38,
-   "punti_dal_livello": 38,
+   "titoli_al_livello": 19,
+   "titoli_che_mancano": 37,
+   "punti_dal_livello": 37,
    "drawdown": -2.4,
    "percentile_drawdown": 40
   },
