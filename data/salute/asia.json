@@ -1,0 +1,37 @@
+{
+ "passo": "asia",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-10-15T09:38:06Z",
+ "ultimo_successo": "2026-10-15T09:38:06Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
+ "aggiornato": "2026-10-14",
+ "titoli": 1045,
+ "totale": 1045,
+ "indici": 6,
+ "mancanti": [],
+ "fermi": [
+  {
+   "t": "BANPU.BK",
+   "nome": "Banpu",
+   "dal": "2026-08-11"
+  }
+ ],
+ "indici_mancanti": [
+  {
+   "nome": "CSI 300",
+   "yahoo": "000300.SS"
+  },
+  {
+   "nome": "KOSPI 200",
+   "yahoo": "^KS200"
+  },
+  {
+   "nome": "SET50",
+   "yahoo": "^SET50.BK"
+  }
+ ],
+ "indici_fermi": [],
+ "cambi_mancanti": []
+}

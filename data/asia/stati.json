@@ -1,12 +1,12 @@
 {
  "aggiornato": "2026-10-14",
- "generato": "2026-10-15T05:55:11Z",
+ "generato": "2026-10-15T09:38:06Z",
  "ritardo": {
   "attesa": "2026-10-14",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-15",
- "ampiezza_indice": 39.6,
+ "ampiezza_indice": 39.5,
  "cambi_ultima_seduta": [
   {
    "data": "2026-10-14",
@@ -245,14 +245,14 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-13",
    "livello": 21,
-   "ampiezza": 22,
+   "ampiezza": 20,
    "ampiezza_un_mese_fa": 32,
-   "titoli_sopra": 11,
+   "titoli_sopra": 10,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 1,
-   "punti_dal_livello": 1,
-   "drawdown": -10.5,
+   "titoli_che_mancano": 0,
+   "punti_dal_livello": -1,
+   "drawdown": -10.6,
    "percentile_drawdown": 72,
    "trigger": {
     "data": "2026-10-13",
@@ -362,7 +362,7 @@
    "titoli_che_mancano": 8,
    "punti_dal_livello": 8.6,
    "drawdown": -1.6,
-   "percentile_drawdown": 37
+   "percentile_drawdown": 36
   },
   {
    "etf": "ASIA-MATERIALI",
@@ -601,15 +601,15 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 12,
-   "ampiezza": 50.7,
+   "ampiezza": 50,
    "ampiezza_un_mese_fa": 61.6,
-   "titoli_sopra": 74,
+   "titoli_sopra": 73,
    "titoli_totali": 146,
    "titoli_al_livello": 17,
-   "titoli_che_mancano": 57,
-   "punti_dal_livello": 38.7,
+   "titoli_che_mancano": 56,
+   "punti_dal_livello": 38,
    "drawdown": -1.4,
-   "percentile_drawdown": 33
+   "percentile_drawdown": 34
   },
   {
    "etf": "NIKKEI-225",
