@@ -1,12 +1,24 @@
 {
  "aggiornato": "2026-10-14",
- "generato": "2026-10-14T23:02:28Z",
+ "generato": "2026-10-15T09:49:32Z",
  "ritardo": {
   "attesa": "2026-10-14",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-15",
  "ampiezza_sp500": 48,
+ "ampiezza_stato": {
+  "stato": "normale",
+  "stato_nome": "Normale",
+  "dal": "2025-04-09",
+  "ampiezza": 48,
+  "soglie": {
+   "attenzione": 20,
+   "zona_rossa": 15
+  },
+  "cambi_ultima_seduta": [],
+  "cambi_recenti": []
+ },
  "cambi_ultima_seduta": [
   {
    "data": "2026-10-14",
