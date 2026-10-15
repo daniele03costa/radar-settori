@@ -67,6 +67,7 @@ def synthetic_market(seed: int = 7):
         if sec["etf"] == "XLC":
             etf[dates < "2018-06-19"] = np.nan
         closes[sec["etf"]] = etf
+    closes["SPY"] = 100 * np.exp(np.cumsum(mkt))               # il prezzo dell'S&P 500 per lo storico dell'ampiezza
     close_df = pd.DataFrame(closes, index=dates)
     adj_df = close_df * np.linspace(0.55, 1.0, T)[:, None]
     # un ticker "delistato" senza dati
@@ -116,6 +117,12 @@ def test_build_outputs():
         xlre = json.loads((out / "settori" / "XLRE.json").read_text())
         i = xlre["date"].index("2010-01-04")
         assert xlre["close"][i] is None and xlre["b200"][i] is not None
+        # l'ampiezza dell'intero indice con il prezzo di SPY, sulle stesse date
+        ind = json.loads((out / "indice.json").read_text())
+        assert len(ind["close"]) == len(ind["date"]) == len(ind["b200"]) and ind["close"][-1] is not None
+        assert ind["prezzo"] == "S&P 500 (ETF SPY)"
+        # SPY non è un settore
+        assert "SPY" not in [x["etf"] for x in meta["settori"]]
         # la cache dei settori degli ex membri viene scritta
         assert (out / "cache" / "settori_ex_membri.json").exists()
         # l'elenco per la ricerca contiene ogni azione attuale una volta sola, con il suo settore

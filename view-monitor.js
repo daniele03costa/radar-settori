@@ -6,7 +6,7 @@
   "use strict";
 
   const R = window.Radar, S = window.Signals;
-  const { $, num, pct, dataIt, esc } = R;
+  const { $, $$, num, pct, dataIt, esc } = R;
   let visibile = false;
   let M = R.mercati.usa;      // il mercato della pagina aperta
   // «11 settori e 15 indici», contati davvero (un gruppo senza abbastanza prezzi non c'è)
@@ -162,6 +162,126 @@
       <p class="novita-piede">${sp}${prima.length ? ` Nei giorni prima: ${prima.join(", ")}.` : ""}</p>`;
   }
 
+  // ---------- storico dell'ampiezza dell'intero indice (dal 2005) ----------
+  let grafico = null, graficoChiave = "";
+  const PERIODI_STORICO = [["1", "1 anno"], ["3", "3 anni"], ["10", "10 anni"], ["0", "Dal 2005"]];
+  let periodoStorico = String(R.store.get("mon.storico", "10"));
+  let ultimoStorico = null;
+  let conMedia50 = !!R.store.get("mon.storico50", false);
+
+  // nome della linea di prezzo sopra l'ampiezza: l'indice di confronto o, se manca, la media delle azioni della zona
+  function prezzoStorico(indice, m) {
+    if (indice.close && indice.close.some(v => v != null)) return { valori: indice.close, nome: m.misto ? (indice.confronto || m.nome) : (indice.prezzo || "S&P 500 (ETF SPY)") };
+    if (indice.paniere && indice.paniere.some(v => v != null)) return { valori: indice.paniere, nome: `Media a pesi uguali delle azioni ${m.t.agg}, in euro` };
+    return null;
+  }
+
+  // statistiche descrittive dell'ampiezza: oggi, qualche momento fa, percentile, minimo e massimo dal 2005
+  function statisticheStorico(indice) {
+    const b = indice.b200, date = indice.date;
+    let t = b.length - 1;
+    while (t > 0 && b[t] == null) t--;
+    const x = b[t];
+    const fa = n => (t - n >= 0 ? b[t - n] : null);
+    let sotto = 0, uguali = 0, tot = 0, somma = 0, lo = Infinity, hi = -Infinity, iLo = t, iHi = t;
+    const valori = [];
+    for (let i = 0; i <= t; i++) {
+      const v = b[i];
+      if (v == null) continue;
+      tot++; somma += v; valori.push(v);
+      if (v < x) sotto++; else if (v === x) uguali++;
+      if (v < lo) { lo = v; iLo = i; }
+      if (v > hi) { hi = v; iHi = i; }
+    }
+    valori.sort((p, q) => p - q);
+    const mediana = valori.length ? valori[Math.floor(valori.length / 2)] : null;
+    return { t, x, data: date[t], dal: date[b.findIndex(v => v != null)], mese: fa(21), trimestre: fa(63), anno: fa(252),
+      percentile: tot ? ((sotto + uguali / 2) / tot) * 100 : null, media: tot ? somma / tot : null, mediana,
+      min: lo, dataMin: date[iLo], max: hi, dataMax: date[iHi], n: indice.n ? indice.n[t] : null };
+  }
+
+  function disegnaStorico(indice, m) {
+    const box = $("#mon-storico");
+    if (!indice || !indice.b200 || indice.b200.length < 30) { box.hidden = true; box.innerHTML = ""; grafico = null; return; }
+    box.hidden = false;
+    ultimoStorico = { indice, m };
+    const prezzo = prezzoStorico(indice, m);
+    const a = statisticheStorico(indice);
+    const c = R.colori();
+    const chiave = `${m.zona}|${prezzo ? 1 : 0}`;
+    if (!grafico || graficoChiave !== chiave || !box.querySelector("#mon-storico-grafico")) {
+      const small = window.matchMedia("(max-width: 720px)").matches;
+      box.innerHTML = `
+        <div class="card-head">
+          <div>
+            <h2>${esc(m.misto ? `${m.nome}: azioni sopra la media 200` : "S&P 500: titoli sopra la media 200")}, dal ${a.dal.slice(0, 4)}</h2>
+            <p class="sub storico-sub">&nbsp;</p>
+          </div>
+          <div class="controls"><div class="seg" id="mon-storico-periodo" role="group" aria-label="Periodo">
+            ${PERIODI_STORICO.map(([k, n]) => `<button type="button" data-p="${k}" aria-pressed="false">${n}</button>`).join("")}
+          </div>${indice.b50 ? `<label class="switch"><input type="checkbox" id="mon-storico-50"><span class="track"><i></i></span>Media 50</label>` : ""}</div>
+        </div>
+        <div class="legend" id="mon-storico-legenda"></div>
+        <div class="charts" id="mon-storico-grafico"></div>
+        <div class="hc-numeri storico-cifre" id="mon-storico-cifre"></div>`;
+      const pannelli = [];
+      if (prezzo) pannelli.push({ id: "prezzo", altezza: small ? 150 : 190, formato: v => num(v, Math.abs(v) >= 1000 ? 0 : 1), formatoPill: v => num(v, 2) });
+      pannelli.push({ id: "ampiezza", altezza: small ? 190 : 250, formato: v => num(v, 0) + "%", formatoPill: v => num(v, 1) + "%" });
+      grafico = new window.Pannelli($("#mon-storico-grafico"), {
+        pannelli,
+        tooltip: i => {
+          const x = ultimoStorico && ultimoStorico.indice;
+          if (!x) return "";
+          const p = prezzoStorico(x, ultimoStorico.m), cc = R.colori();
+          const row = (sw, lab, val) => `<div class="r"><span><i class="sw dot" style="background:${sw}"></i>${lab}</span><span>${val}</span></div>`;
+          return `<div class="d">${dataIt(x.date[i])}</div>` +
+            (p ? row(cc.price, esc(p.nome), num(p.valori[i], 2)) : "") +
+            row(cc.b200, "Sopra la media 200", x.b200[i] == null ? "—" : `${num(x.b200[i], 1)}%${x.n && x.n[i] ? ` <small class="muted">su ${x.n[i]}</small>` : ""}`) +
+            (x.b50 ? row(cc.b50, "Sopra la media 50", x.b50[i] == null ? "—" : num(x.b50[i], 1) + "%") : "");
+        },
+      });
+      graficoChiave = chiave;
+    }
+    $$("#mon-storico-periodo button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === periodoStorico)));
+    const usa50 = conMedia50 && !!indice.b50;
+    if ($("#mon-storico-50")) $("#mon-storico-50").checked = usa50;
+    $("#mon-storico-legenda").innerHTML = (prezzo ? `<span><i class="sw" style="background:${c.price}"></i>${esc(prezzo.nome)}</span>` : "") +
+      `<span><i class="sw" style="background:${c.b200}"></i>% sopra la media 200</span>${usa50 ? `<span><i class="sw" style="background:${c.b50}"></i>% sopra la media 50</span>` : ""}` +
+      `<span><i class="sw" style="background:${c.muted}"></i>Mediana dal ${a.dal.slice(0, 4)}</span>`;
+    $("#mon-storico .storico-sub").textContent = `Quota delle azioni ${m.misto ? `${m.t.agg} del sito` : "dell'S&P 500 (i membri di ogni giorno)"} sopra la propria media a 200 sedute, seduta per seduta. Dati al ${dataIt(a.data)}.`;
+    const N = indice.date.length, anni = Number(periodoStorico);
+    const primo = indice.b200.findIndex(v => v != null);
+    const i0 = anni ? Math.max(primo, N - anni * 252) : primo;
+    const stato = {
+      date: indice.date, i0, i1: N - 1,
+      etichette: { prezzo: prezzo ? prezzo.nome : "", ampiezza: `% delle azioni sopra la media 200${usa50 ? " e 50" : ""}` },
+      pannelli: {
+        ampiezza: {
+          range: [0, 100],
+          serie: [
+            ...(usa50 ? [{ valori: indice.b50, colore: c.b50, spessore: 1.2, tratteggio: [5, 4] }] : []),
+            { valori: indice.b200, colore: c.b200, spessore: 2, area: c.b200Area, base: "fondo", pill: true },
+          ],
+          linee: a.mediana == null ? [] : [{ y: a.mediana, colore: c.muted, tratteggio: [3, 4], spessore: 1.2, etichetta: `med ${num(a.mediana, 0)}%` }],
+        },
+      },
+    };
+    if (prezzo) stato.pannelli.prezzo = { log: anni === 0 || anni === 10, serie: [{ valori: prezzo.valori, colore: c.price, spessore: 1.6, area: c.priceArea, base: "fondo", pill: true }] };
+    grafico.setData(stato);
+    const cella = (l, v, t) => `<div${t ? ` title="${esc(t)}"` : ""}><span>${l}</span><b>${v}</b></div>`;
+    const conData = (v, d) => `${num(v, 1)}% <small>${dataIt(d)}</small>`;
+    $("#mon-storico-cifre").innerHTML = [
+      cella("Oggi", `${num(a.x, 1)}%${a.n ? ` <small>su ${a.n}</small>` : ""}`),
+      cella("1 mese fa", a.mese == null ? "—" : `${num(a.mese, 1)}%`),
+      cella("3 mesi fa", a.trimestre == null ? "—" : `${num(a.trimestre, 1)}%`),
+      cella("1 anno fa", a.anno == null ? "—" : `${num(a.anno, 1)}%`),
+      cella("Percentile", a.percentile == null ? "—" : `${num(Math.round(a.percentile), 0)}°`, `Il valore di oggi è più alto di circa il ${num(a.percentile, 0)}% delle sedute dal ${dataIt(a.dal)}`),
+      cella(`Media dal ${a.dal.slice(0, 4)}`, `${num(a.media, 1)}%`),
+      cella(`Minimo dal ${a.dal.slice(0, 4)}`, conData(a.min, a.dataMin)),
+      cella(`Massimo dal ${a.dal.slice(0, 4)}`, conData(a.max, a.dataMax)),
+    ].join("");
+  }
+
   async function disegna() {
     const m = M;
     let dati;
@@ -187,9 +307,9 @@
     if (indice && indice.b200 && indice.b200.length) {
       const N = indice.b200.length;
       const ora = indice.b200[N - 1], prima = indice.b200[Math.max(0, N - 22)];
-      tileIndice = `<div class="kpi" style="--k:var(--b200)"><div class="l"><i></i>${esc(m.t.indiceKpi)}</div>
+      tileIndice = `<div class="kpi clic" data-vai="storico" role="button" tabindex="0" title="Lo storico dal 2005 è nel grafico qui sotto" style="--k:var(--b200)"><div class="l"><i></i>${esc(m.t.indiceKpi)}</div>
         <div class="v">${num(ora, 1)}<small>%</small></div>
-        <div class="s">un mese fa ${num(prima, 1)}% · ultimi 12 mesi</div>
+        <div class="s">un mese fa ${num(prima, 1)}% · ultimi 12 mesi · <u>storico ↓</u></div>
         ${R.sparkline(indice.b200.slice(-252), { colore: c.b200, min: 0, max: 100, area: true })}</div>`;
     }
     const ordineStati = ["fallito", "trigger", "blu", "attenzione", "cooldown", "normale"];
@@ -213,6 +333,7 @@
       <div class="s">${esc(primo.sotto)} · ${R.segnato(primo.dist, 1)} punti dal livello ${num(primo.lv, 0)}% (${primo.tl.soglia}/${primo.tl.n})</div>
       ${R.sparkline(primo.d.b200.slice(-126), { colore: c.b200, livello: primo.lv, min: 0 })}</div>` : "";
     $("#mon-kpi").innerHTML = tileIndice + tileStati + tileVicino;
+    disegnaStorico(indice, m);
 
     // tabella
     const quad = m => {
@@ -307,7 +428,26 @@
     $("#mon-tabella").addEventListener("keydown", e => { if (e.key === "Enter") apri(e); });
     $("#mon-osservare").addEventListener("click", apri);
     R.on("livelli", () => { if (visibile) disegna(); });
-    R.on("tema", () => { if (visibile) disegna(); });
+    R.on("tema", () => { grafico = null; if (visibile) disegna(); });
+    const vaiStorico = e => {
+      if (!e.target.closest("[data-vai=storico]") || (e.type === "keydown" && e.key !== "Enter")) return;
+      $("#mon-storico").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    $("#mon-kpi").addEventListener("click", vaiStorico);
+    $("#mon-kpi").addEventListener("keydown", vaiStorico);
+    $("#mon-storico").addEventListener("change", e => {
+      if (e.target.id !== "mon-storico-50" || !ultimoStorico) return;
+      conMedia50 = e.target.checked;
+      R.store.set("mon.storico50", conMedia50);
+      disegnaStorico(ultimoStorico.indice, ultimoStorico.m);
+    });
+    $("#mon-storico").addEventListener("click", e => {
+      const b = e.target.closest("#mon-storico-periodo button[data-p]");
+      if (!b || !ultimoStorico) return;
+      periodoStorico = b.dataset.p;
+      R.store.set("mon.storico", periodoStorico);
+      disegnaStorico(ultimoStorico.indice, ultimoStorico.m);
+    });
   }
 
   function mostra(param, ctx) {
@@ -316,7 +456,8 @@
     if (m !== M) {
       M = m;
       // niente numeri dell'altro mercato mentre arrivano quelli nuovi
-      ["#mon-kpi", "#mon-novita", "#mon-tabella", "#mon-osservare"].forEach(k => { $(k).innerHTML = ""; });
+      ["#mon-kpi", "#mon-novita", "#mon-tabella", "#mon-osservare", "#mon-storico"].forEach(k => { $(k).innerHTML = ""; });
+      grafico = null; ultimoStorico = null;
       $("#mon-sub").innerHTML = "&nbsp;";
     }
     R.testiZona($("#view-mon"), M.zona);
@@ -325,5 +466,12 @@
   }
   function nascondi() { visibile = false; }
 
-  R.viste.mon = { init, mostra, nascondi, daOsservare, panoramica, calcola, contesto: () => panoramica(true, M), mercato: () => M };
+  // lo storico dell'ampiezza in una riga, per «Copia per Claude»
+  function testoStorico() {
+    if (!ultimoStorico || ultimoStorico.m !== M) return "";
+    const a = statisticheStorico(ultimoStorico.indice);
+    return `Storico dell'ampiezza (${M.misto ? `azioni ${M.t.agg} del sito` : "S&P 500"} sopra la media 200, dal ${dataIt(a.dal)}): oggi ${num(a.x, 1)}%, un mese fa ${num(a.mese, 1)}%, 3 mesi fa ${num(a.trimestre, 1)}%, un anno fa ${num(a.anno, 1)}%; percentile ${num(a.percentile, 0)}°; media ${num(a.media, 1)}%, mediana ${num(a.mediana, 1)}%; minimo ${num(a.min, 1)}% il ${dataIt(a.dataMin)}, massimo ${num(a.max, 1)}% il ${dataIt(a.dataMax)}.`;
+  }
+
+  R.viste.mon = { init, mostra, nascondi, daOsservare, panoramica, calcola, contesto: async () => [await panoramica(true, M), testoStorico()].filter(Boolean).join("\n"), mercato: () => M };
 })();

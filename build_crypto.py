@@ -432,11 +432,15 @@ def build_crypto(out_path: Path, cfg: dict, scarica: Callable[[List[str], str], 
 
 
 def main() -> int:
-    try:
-        r = build_crypto(OUT_PATH, carica_config())
-    except Exception as e:  # noqa: BLE001
-        log(f"Crypto: errore ({e}), resta il file già pubblicato")
-        return 1
+    import salute
+    with salute.ascolta(sys.modules[__name__]) as reg:
+        try:
+            r = build_crypto(OUT_PATH, carica_config())
+        except Exception as e:  # noqa: BLE001
+            log(f"Crypto: errore ({e}), resta il file già pubblicato")
+            r = None
+    salute.registra("crypto", bool(r), "" if r else reg.ultimo, avvisi=reg.avvisi,
+                    **({"aggiornato": r.get("aggiornato"), "titoli": len(r.get("monete") or []), "fonte": r.get("fonte")} if r else {}))
     return 0 if r else 1
 
 

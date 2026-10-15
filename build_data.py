@@ -57,6 +57,9 @@ YAHOO_TO_GICS = {
 Interval = Tuple[pd.Timestamp, Optional[pd.Timestamp]]
 
 
+ETF_INDICE = "SPY"
+
+
 def log(msg: str) -> None:
     print(f"[{dt.datetime.now():%H:%M:%S}] {msg}", flush=True)
 
@@ -327,8 +330,9 @@ def build(cfg: dict,
                         if t not in cur_set and any(e is None or e >= start_hist for _, e in ivs))
 
     # 1) ETF
-    log(f"Scarico {len(etfs)} ETF…")
-    etf_px = downloader(etfs, start_dl, fields=("Close", "Adj Close"))
+    log(f"Scarico {len(etfs)} ETF e SPY…")
+    # SPY: il prezzo dell'S&P 500 sopra lo storico dell'ampiezza (Monitor); se manca, il grafico mostra solo l'ampiezza
+    etf_px = downloader(etfs + [ETF_INDICE], start_dl, fields=("Close", "Adj Close"))
     etf_close, etf_adj = etf_px["Close"], etf_px["Adj Close"]
     missing = [e for e in etfs if e not in etf_close.columns or etf_close[e].dropna().empty]
     if missing:
@@ -477,6 +481,9 @@ def build(cfg: dict,
         "b20": to_list(i20[keep], 1),
         "n": [int(x) for x in in200[keep].to_numpy()],
     }
+    if ETF_INDICE in etf_close.columns and etf_close[ETF_INDICE].notna().sum() > 200:
+        indice["close"] = to_list(etf_close[ETF_INDICE].reindex(calendar)[keep], 2)
+        indice["prezzo"] = f"S&P 500 (ETF {ETF_INDICE})"
     with open(out_dir / "indice.json", "w", encoding="utf-8") as f:
         json.dump(indice, f, ensure_ascii=False, separators=(",", ":"))
 
@@ -518,6 +525,23 @@ def aggiorna_stati(out_dir: Path = DATA_DIR) -> bool:
 
 
 def main() -> int:
+    import salute
+    with salute.ascolta(sys.modules[__name__]) as reg:
+        try:
+            meta = _main()
+        except Exception as e:  # noqa: BLE001
+            log(f"ERRORE: {e}")
+            meta = None
+    if meta:
+        salute.registra("usa-ampiezza", True, avvisi=reg.avvisi, aggiornato=meta.get("aggiornato"),
+                        settori=len(meta.get("settori") or []),
+                        titoli=sum(int(s.get("n") or 0) for s in meta.get("settori") or []) or None)
+    else:
+        salute.registra("usa-ampiezza", False, reg.ultimo, avvisi=reg.avvisi)
+    return 0 if meta else 1
+
+
+def _main() -> Optional[dict]:
     cfg = load_config()
     current = fetch_current_constituents()
     try:
@@ -529,10 +553,10 @@ def main() -> int:
         meta = build(cfg, current, intervals, yahoo_downloader, yahoo_sector_lookup)
     except RuntimeError as e:
         log(f"ERRORE: {e}")
-        return 1
+        return None
     log(f"Fatto. Dati al {meta['aggiornato']}.")
     aggiorna_stati()
-    return 0
+    return meta
 
 
 if __name__ == "__main__":

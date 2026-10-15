@@ -29,9 +29,11 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+import build_europa  # noqa: E402
 import europa_ampiezza  # noqa: E402
+import salute  # noqa: E402
 from build_europa import (INIZIO_DOWNLOAD, MIN_RISPOSTE, aggiorna_stati, calendario_maggioranza, cifre,  # noqa: E402
-                          inizio_storia, log, yahoo_prezzi)
+                          diagnosi, inizio_storia, log, yahoo_prezzi)
 
 DATA_DIR = ROOT / "data"
 ZONE = {
@@ -150,7 +152,7 @@ def build_zona(nome: str, scarica: Callable[[List[str], str], pd.DataFrame] = ya
             aggiorna_stati(cartella)
     except Exception as e:  # noqa: BLE001
         log(f"{regione}: ampiezza non aggiornata ({e})")
-    return {"titoli": len(uscita), "indici": len(usc_indici), "aggiornato": ultimo}
+    return diagnosi(px, cal, titoli, indici, usc_indici, payload, cambi_t, cambi)
 
 
 def main(argv: List[str]) -> int:
@@ -161,11 +163,15 @@ def main(argv: List[str]) -> int:
             log(f"Zona sconosciuta: {nome} (sono {', '.join(ZONE)})")
             ok = False
             continue
-        try:
-            ok = bool(build_zona(nome)) and ok
-        except Exception as e:  # noqa: BLE001
-            log(f"{nome}: errore ({e}), resta il file già pubblicato")
-            ok = False
+        modulo = sys.modules[__name__]
+        with salute.ascolta(modulo, build_europa) as reg:
+            try:
+                r = build_zona(nome)
+            except Exception as e:  # noqa: BLE001
+                modulo.log(f"{nome}: errore ({e}), resta il file già pubblicato")
+                r = None
+        salute.registra(nome, bool(r), "" if r else reg.ultimo, avvisi=reg.avvisi, **(r or {}))
+        ok = bool(r) and ok
     return 0 if ok else 1
 
 

@@ -90,7 +90,7 @@
     </div>
     <div class="bar-sotto" id="bar-sotto" hidden>
       <nav class="sotto" id="sotto" aria-label="Pagine della zona"></nav>
-      <div class="data-badge" id="stato-dati" hidden></div>
+      <div class="data-badge" id="stato-dati" role="link" tabindex="0" hidden></div>
     </div>
   </header>
 
@@ -111,8 +111,76 @@
           <article class="card home-card" id="home-asi" data-zona="asi"></article>
           <article class="card home-card" id="home-emg" data-zona="emg"></article>
           <article class="card home-card" id="home-cry" data-zona="cry"></article>
+          <article class="card home-card home-macro" id="home-macro" hidden></article>
         </div>
         <article class="card home-pf" id="home-pf"></article>
+      </section>
+
+      <!-- ======================= MACRO ======================= -->
+      <section class="view" id="view-mac" data-view="mac" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Home · Macro</div>
+            <h1>Quadro macro</h1>
+            <p class="view-sub" id="mac-sub">Tassi, dollaro, materie prime e volatilità: dove sono oggi rispetto all'ultimo anno e alla storia dal 2005. Solo numeri del passato, nessuna previsione.</p>
+          </div>
+        </header>
+        <div id="mac-gruppi" class="mac-gruppi" aria-live="polite"></div>
+        <article class="card chart-card mac-dettaglio" id="mac-dettaglio" hidden>
+          <div class="card-head">
+            <div>
+              <h2 id="mac-titolo">&nbsp;</h2>
+              <p class="sub mac-nota" id="mac-nota">&nbsp;</p>
+            </div>
+            <div class="controls">
+              <div class="seg" id="mac-periodo" role="group" aria-label="Periodo">
+                <button type="button" data-p="1" aria-pressed="false">1 anno</button>
+                <button type="button" data-p="3" aria-pressed="true">3 anni</button>
+                <button type="button" data-p="10" aria-pressed="false">10 anni</button>
+                <button type="button" data-p="0" aria-pressed="false">Dal 2005</button>
+              </div>
+            </div>
+          </div>
+          <div class="legend" id="mac-legenda"></div>
+          <div class="charts" id="mac-grafico"></div>
+          <div class="mac-numeri" id="mac-numeri"></div>
+        </article>
+        <article class="card">
+          <div class="card-title"><h2>Tutte le serie</h2><span class="muted small-inline">clic su una riga per il grafico</span></div>
+          <div class="table-wrap"><table class="tbl mac-tbl" id="mac-tabella"></table></div>
+          <p class="small" id="mac-fonti">&nbsp;</p>
+        </article>
+      </section>
+
+      <!-- ======================= SALUTE DEI DATI ======================= -->
+      <section class="view" id="view-sal" data-view="sal" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Home · Salute dei dati</div>
+            <h1>Salute dei dati</h1>
+            <p class="view-sub">Per ogni zona: a che seduta sono arrivati i dati, com'è andato l'ultimo aggiornamento automatico, quali titoli o indici non hanno prezzi. Si ricontrolla ogni volta che apri la pagina.</p>
+          </div>
+          <button type="button" class="btn-link" id="sal-ricarica">Ricontrolla</button>
+        </header>
+        <section class="kpis" id="sal-kpi" aria-label="Riepilogo"></section>
+        <article class="card">
+          <div class="card-title"><h2>Zona per zona</h2><span class="muted small-inline">clic su una riga per i dettagli</span></div>
+          <div class="sal-righe" id="sal-righe"></div>
+        </article>
+        <article class="card">
+          <div class="card-title"><h2>Aggiornamenti automatici su GitHub</h2><a class="btn-link" id="sal-actions" href="#" target="_blank" rel="noopener">Apri Actions ↗</a></div>
+          <p class="sub">Le ultime esecuzioni di ogni aggiornamento. La spunta verde vuol dire che l'aggiornamento è partito e ha salvato i file: se un singolo passo non è riuscito lo dice la tabella sopra.</p>
+          <div class="sal-flussi" id="sal-flussi"></div>
+          <details class="sal-aiuto">
+            <summary>Che cosa fare se qualcosa è indietro o rosso</summary>
+            <ol>
+              <li>Apri il repository su GitHub, scheda <b>Actions</b>.</li>
+              <li>Scegli l'aggiornamento della zona (<b>Aggiorna dati</b> per USA, Europa, macro e portafoglio; <b>Aggiorna Asia ed emergenti</b>; <b>Aggiorna crypto</b>) e premi <b>Run workflow</b>.</li>
+              <li>Se l'esecuzione diventa rossa, aprila: l'ultima riga del passo che non è riuscito dice il motivo. Spesso è Yahoo Finance che non risponde per qualche ora: il passaggio successivo di solito sistema tutto da solo.</li>
+              <li>Un titolo «senza prezzi» da settimane di solito ha cambiato ticker o non è più quotato: va corretto nell'elenco della zona (<code>europa.json</code>, <code>asia.json</code>, <code>emergenti.json</code>).</li>
+            </ol>
+          </details>
+        </article>
       </section>
 
       <!-- ======================= 1 MONITOR ======================= -->
@@ -126,6 +194,7 @@
         </header>
         <section class="kpis" id="mon-kpi" aria-label="Riepilogo"></section>
         <article class="card novita" id="mon-novita" aria-live="polite"></article>
+        <article class="card chart-card mon-storico" id="mon-storico" hidden></article>
         <div class="mon-grid">
           <article class="card">
             <div class="card-title"><h2 data-eur="Settori e indici, prima i più vicini a un segnale">Settori, prima i più vicini a un segnale</h2><span class="muted small-inline" data-eur="clic per aprirlo">clic per aprire il settore</span></div>
@@ -617,7 +686,7 @@
 
       <footer>
         Fonti: prezzi Yahoo Finance; composizione dell'S&amp;P 500 da Wikipedia e dai dataset <i>s-and-p-500-companies</i> e <i>fja05680/sp500</i>; livelli blu predefiniti dalla tabella quant-rea «200 LEVEL SETTORI»; composizione degli indici europei da Wikipedia (ampiezza europea dal 2005 calcolata con le azioni di oggi; livelli blu europei = 5° percentile della storia di ogni gruppo); Asia ed emergenti: composizioni di ottobre 2026 da fonti ufficiali e pubbliche, stesse regole dell'Europa; crypto: classifica CoinGecko, Fear &amp; Greed alternative.me.
-        Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
+        Quadro macro: Yahoo Finance, Bundesbank (o BCE), FRED. Solo per studio personale, nessun consiglio di investimento. Tasto <kbd>?</kbd> per la guida.
       </footer>
   </main>
 
@@ -632,8 +701,8 @@
         <section>
           <h3>Home e zone</h3>
           <ul>
-            <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave) e il riepilogo del portafoglio.</li>
-            <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
+            <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave), il quadro macro in breve e il riepilogo del portafoglio. Nella riga sotto: <b>Macro</b> (tassi a 10 anni di USA e Bund, dollaro, Brent, oro, rame, VIX: variazioni, anno, percentile dal 2005, media 200) e <b>Salute dei dati</b> (a che seduta è arrivata ogni zona, esito degli aggiornamenti, titoli e indici senza prezzi). Un clic sulla data in alto a destra porta lì.</li>
+            <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati, cosa manca al prossimo passaggio e lo storico dal 2005 dei titoli sopra la media 200), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
             <li><b>Europa</b>, le stesse pagine degli USA per gli 11 settori europei e i 15 indici principali (circa 470 azioni): <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori e indici</b> (grafici dal 2005, azioni, episodi e livello blu di ognuno), <b>Alert</b> (storico degli stati), più <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
             <li><b>Asia</b>: Nikkei 225, Hang Seng, CSI 300, KOSPI 200, Taiwan 50, Nifty 50, LQ45, SET50 e KLCI (circa 1.040 azioni), con le stesse pagine dell'Europa e gli 11 settori asiatici. <b>Emergenti</b>: Ibovespa, IPC (Messico), Merval, IPSA (Cile), JSE Top 40, BIST 30 e WIG20 (circa 250 azioni), con i settori dei paesi emergenti; termine di confronto l'MSCI Emerging Markets (ETF EEM).</li>
             <li><b>Crypto</b>, bitcoin e le prime 10: <b>Monitor</b>, <b>Rotazione</b> (monete contro bitcoin), <b>Bottom Map</b> (distanza dal massimo di un anno contro distanza dalla media 200), <b>Analisi</b> (cosa è successo dopo, regola della media 200, stagionalità, halving), <b>Correlazioni</b>.</li>
@@ -656,7 +725,7 @@
             <li>Le azioni europee si trovano per nome (<code>ferrari</code>, <code>novo nordisk</code>, <code>nestle</code>) o per ticker (<code>ENEL.MI</code>); un indice (<code>DAX</code>, <code>FTSE MIB</code>) o un settore europeo (<code>Finanziari</code>) apre la sua pagina con stato, ampiezza dal 2005, zone blu e azioni.</li>
             <li>Le crypto (<code>BTC</code>, <code>ETH</code>, <code>solana</code>) aprono il loro grafico nella zona Crypto; i ticker della tua lista (<code>ENEL.MI</code> o solo <code>ENEL</code>) il loro grafico nel Portafoglio.</li>
             <li>Gli ETF della rotazione (<code>EIMI</code>, <code>GIAPPONE</code>) e le MAG7 vengono evidenziati nel grafico di rotazione; un termine di confronto (<code>QQQ</code>, <code>SPY</code>, <code>ACWI</code>, <code>PTF</code>) apre la rotazione contro di lui.</li>
-            <li>Pagine: <code>HOME</code>, <code>USA</code>, <code>EUROPA</code>, <code>CRYPTO</code>, <code>PORTAFOGLIO</code>; <code>MON</code>, <code>ROT</code>, <code>BTM</code> e <code>SEC</code> aprono quella pagina nella zona in cui sei; <code>ALRT</code>, <code>AZIONI</code>, <code>ANALISI</code>, <code>CORR</code>. Guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code>.</li>
+            <li>Pagine: <code>HOME</code>, <code>USA</code>, <code>EUROPA</code>, <code>ASIA</code>, <code>EMERGENTI</code>, <code>CRYPTO</code>, <code>PORTAFOGLIO</code>, <code>MACRO</code> (o <code>VIX</code>, <code>BUND</code>, <code>ORO</code>…), <code>SALUTE</code>; <code>MON</code>, <code>ROT</code>, <code>BTM</code> e <code>SEC</code> aprono quella pagina nella zona in cui sei; <code>ALRT</code>, <code>AZIONI</code>, <code>ANALISI</code>, <code>CORR</code>. Guida: <code>HELP</code>. Tema: <code>CHIARO</code>, <code>SCURO</code>, <code>TEMA</code>.</li>
             <li>Se un titolo non c'è, la casella propone di cercarlo su Yahoo Finance per trovarne il ticker.</li>
           </ul>
           <p class="small">Si può anche scrivere nell'indirizzo: <code>#usa/monitor</code>, <code>#eur/mappa</code>, <code>#cry/analisi</code> per una pagina; <code>#usa/settori/XLK/AAPL</code> (o solo <code>#AAPL</code>) per un'azione americana, <code>#eur/settori/DAX</code> o <code>#eur/settori/ENERGIA</code> per un indice o un settore europeo, <code>#eur/azioni/ENEL.MI</code> per un'azione europea, <code>#cry/monitor/ETH</code> per una crypto, <code>#tit/ENEL.MI</code> per un titolo della tua lista. Il pulsante Indietro del browser funziona.</p>
@@ -665,7 +734,7 @@
           <h3>Tastiera</h3>
           <ul class="keys">
             <li><kbd>1</kbd> Home, <kbd>2</kbd> USA, <kbd>3</kbd> Europa, <kbd>4</kbd> Asia, <kbd>5</kbd> Emergenti, <kbd>6</kbd> Crypto, <kbd>7</kbd> Portafoglio</li>
-            <li><kbd>←</kbd> <kbd>→</kbd> periodo nella pagina di un settore USA, data nella Rotazione</li>
+            <li><kbd>←</kbd> <kbd>→</kbd> periodo nella pagina di un settore USA, data nella Rotazione, serie nel quadro macro</li>
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato, chiude il grafico del titolo o la finestra aperta</li>
             <li><kbd>?</kbd> apre questa guida</li>
@@ -698,6 +767,9 @@
   <script src="view-crypto.js"></script>
   <script src="europa-calcoli.js"></script>
   <script src="view-europa.js"></script>
+  <script src="macro-calcoli.js"></script>
+  <script src="view-macro.js"></script>
+  <script src="view-salute.js"></script>
   <script src="view-home.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>

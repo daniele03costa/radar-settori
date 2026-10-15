@@ -10,7 +10,7 @@
 
   // le zone e le loro pagine: [indirizzo, nome, modulo che la disegna]
   const ZONE = {
-    home: { nome: "Home" },
+    home: { nome: "Home", pagine: [["oggi", "Oggi", "home"], ["macro", "Macro", "mac"], ["salute", "Salute dei dati", "sal"]] },
     usa: { nome: "USA", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori", "sec"], ["alert", "Alert", "alr"]] },
     eur: { nome: "Europa", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
     asi: { nome: "Asia", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
@@ -21,12 +21,13 @@
   const ORDINE_ZONE = ["home", "usa", "eur", "asi", "emg", "cry", "tit"];
   // le zone con settori, indici e azioni (stesse pagine): Europa, Asia, Emergenti
   const MISTE = ["eur", "asi", "emg"];
-  const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur"];      // i moduli, per l'avvio
+  const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur", "mac", "sal"];      // i moduli, per l'avvio
   // vecchi indirizzi (#mon, #rot, …) e parole comode
   const VECCHI = {
     mon: ["usa", "monitor"], rot: ["usa", "rotazione"], rrg: ["usa", "rotazione"], btm: ["usa", "mappa"], sec: ["usa", "settori"],
     alr: ["usa", "alert"], alert: ["usa", "alert"], alrt: ["usa", "alert"], miei: ["tit"], titoli: ["tit"], portafoglio: ["tit"],
     crypto: ["cry"], cripto: ["cry"], europa: ["eur"], eu: ["eur"], us: ["usa"], asia: ["asi"], emergenti: ["emg"], em: ["emg"],
+    macro: ["home", "macro"], mac: ["home", "macro"], salute: ["home", "salute"], dati: ["home", "salute"],
   };
   let vistaCorrente = null, rottaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
@@ -93,7 +94,6 @@
     const parti = h.split("/");
     const primo = parti[0].toLowerCase();
     const resto = (k) => parti.slice(k).join("/") || undefined;
-    if (primo === "home") return rotta("home");
     if (primo === "tit") return rotta("tit", null, resto(1) && resto(1).toUpperCase());
     if (ZONE[primo]) {
       const pag = (parti[1] || "").toLowerCase();
@@ -146,7 +146,7 @@
     // in cima a ogni pagina: la zona e la pagina
     const sezione = $(`#view-${r.vista}`);
     const kicker = sezione && sezione.querySelector(".view-head .kicker");
-    if (kicker && z.pagine && r.vista !== "sec") kicker.textContent = `${z.nome} · ${(z.pagine.find(p => p[0] === r.pagina) || [])[1] || ""}`;
+    if (kicker && z.pagine && r.vista !== "sec" && r.vista !== "home") kicker.textContent = `${z.nome} · ${(z.pagine.find(p => p[0] === r.pagina) || [])[1] || ""}`;
     aggiornaBadge();
   }
 
@@ -188,7 +188,7 @@
   // ---------------- barra dei comandi ----------------
 
   let indice = [];
-  const TIPI_VOCE = { vista: "Pagina", comando: "Comando", settore: "Settore USA", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo", settoreEu: "Settore europeo", web: "Sito esterno" };
+  const TIPI_VOCE = { vista: "Pagina", comando: "Comando", settore: "Settore USA", azione: "Azione S&P 500", titolo: "Rotazione", bench: "Confronto", mio: "I miei titoli", macro: "Macro", crypto: "Crypto", europa: "Azione europea", indiceEu: "Indice europeo", settoreEu: "Settore europeo", web: "Sito esterno" };
   const TIPI_ZONA = {
     asi: { europa: "Azione asiatica", indiceEu: "Indice asiatico", settoreEu: "Settore asiatico" },
     emg: { europa: "Azione dei paesi emergenti", indiceEu: "Indice dei paesi emergenti", settoreEu: "Settore dei paesi emergenti" },
@@ -222,6 +222,14 @@
     add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Tutte le azioni della zona aperta (Europa, Asia o Emergenti), cercabili", tipo: "vista", fai: () => R.vai(`#${MISTE.includes(zonaMercato()) ? zonaMercato() : "eur"}/azioni`) });
     add(["ANALISI", "HALVING", "STAGIONALITA", "CICLI"], { etichetta: "ANALISI", descr: "Crypto · halving, stagionalità, cosa è successo dopo", tipo: "vista", fai: () => R.vai("#cry/analisi") });
     add(["CORRELAZIONI", "CORR"], { etichetta: "CORR", descr: "Crypto · correlazioni fra monete e con i mercati", tipo: "vista", fai: () => R.vai("#cry/correlazioni") });
+    add(["MACRO", "QUADRO MACRO", "TASSI", "MATERIE PRIME"], { etichetta: "MACRO", descr: "Tassi a 10 anni di USA e Bund, dollaro, petrolio, oro, rame e VIX", tipo: "vista", fai: () => R.vai("#home/macro") });
+    for (const [chiavi, id, descr] of [
+      [["VIX", "VOLATILITA"], "vix", "VIX, la volatilità attesa dell'S&P 500"], [["BUND", "TASSO TEDESCO", "BTP BUND"], "bund10", "Rendimento del Bund a 10 anni"],
+      [["TNX", "TREASURY", "TASSO USA", "US10Y", "DECENNALE"], "us10", "Rendimento del Treasury USA a 10 anni"], [["SPREAD USA BUND", "DIFFERENZIALE"], "spread", "Differenziale fra tasso USA e Bund a 10 anni"],
+      [["DXY", "DOLLARO", "INDICE DEL DOLLARO"], "dxy", "Indice del dollaro (DXY)"], [["EURUSD", "EUR/USD", "EURO DOLLARO", "CAMBIO"], "eurusd", "Cambio euro/dollaro"],
+      [["PETROLIO", "BRENT", "OIL"], "brent", "Petrolio Brent"], [["ORO", "GOLD"], "oro", "Oro"], [["RAME", "COPPER"], "rame", "Rame"],
+    ]) add(chiavi, { etichetta: chiavi[0], descr: `${descr} · quadro macro`, tipo: "macro", ordine: 2, fai: () => R.vai(`#home/macro/${id}`) });
+    add(["SALUTE", "SALUTE DEI DATI", "STATO DEI DATI", "AGGIORNAMENTI", "DATI"], { etichetta: "SALUTE", descr: "Salute dei dati: date di ogni zona, aggiornamenti falliti, titoli senza prezzi", tipo: "vista", fai: () => R.vai("#home/salute") });
     add(["HELP", "AIUTO", "GUIDA"], { etichetta: "HELP", descr: "Guida", tipo: "comando", fai: apriGuida });
     add(["CHIARO"], { etichetta: "CHIARO", descr: "Tema chiaro", tipo: "comando", fai: () => impostaTema("light") });
     add(["SCURO"], { etichetta: "SCURO", descr: "Tema scuro", tipo: "comando", fai: () => impostaTema("dark") });
@@ -463,6 +471,9 @@
     emg: [["prezzi-emg", "Azioni dei paesi emergenti", "feriale"], ["ampiezza-emg", "Ampiezza dei paesi emergenti", "feriale"]],
     cry: [["crypto", "Crypto", "crypto"]],
   };
+  // nella Home: tutte le zone insieme (e il quadro macro)
+  FONTI_ZONA.home = [["meta", "USA", "nyse"], ["europa", "Europa", "milano"], ["ampiezza-asi", "Asia", "feriale"], ["ampiezza-emg", "Emergenti", "feriale"],
+    ["crypto", "Crypto", "crypto"], ["macro", "Macro", "feriale"]];
   R.dateDati = () => Object.assign({}, date);
   function aggiornaBadge() {
     const box = $("#stato-dati");
@@ -471,15 +482,20 @@
       .map(([k, nome, mercato]) => ({ nome, data: date[k], r: Cal.ritardo(date[k], now, mercato) }));
     if (!voci.length) { box.hidden = true; return; }
     const indietro = voci.filter(v => v.r.sedute > 0);
+    // nella Home «in pari» si dice solo quando sono arrivate le date di tutte le zone
+    if (R.zonaCorrente() === "home" && !indietro.length && voci.length < FONTI_ZONA.home.length) { box.hidden = true; return; }
     box.hidden = false;
     box.className = "data-badge" + (indietro.length ? " late" : "");
     const giorni = k => `${k} ${k === 1 ? "giorno" : "giorni"}`;
+    const home = R.zonaCorrente() === "home";
+    const nomeV = v => (home ? v.nome : v.nome.toLowerCase());
     box.innerHTML = indietro.length
-      ? `<i></i>Dati indietro: ${indietro.map(v => `${v.nome.toLowerCase()} al ${dataIt(v.data)} (${R.zonaCorrente() === "cry" ? giorni(v.r.sedute) : R.sedute(v.r.sedute)})`).join(", ")}`
-      : `<i></i>Dati alla chiusura del ${dataIt(voci[0].data)}`;
+      ? `<i></i>Dati indietro: ${indietro.map(v => `${nomeV(v)} al ${dataIt(v.data)} (${v.nome === "Crypto" ? giorni(v.r.sedute) : R.sedute(v.r.sedute)})`).join(", ")}`
+      : home ? "<i></i>Dati in pari in tutte le zone" : `<i></i>Dati alla chiusura del ${dataIt(voci[0].data)}`;
     const scaricati = R.meta && R.meta.generato ? new Date(R.meta.generato) : null;
     box.title = voci.map(v => `${v.nome}: chiusura del ${dataIt(v.data)}${v.r.sedute ? `, attesa quella del ${dataIt(v.r.attesa)}` : ""}`).join("\n") +
-      (scaricati && !isNaN(scaricati) ? `\nUltimo aggiornamento: ${scaricati.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}` : "");
+      (scaricati && !isNaN(scaricati) ? `\nUltimo aggiornamento: ${scaricati.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}` : "") +
+      "\nClic per la salute dei dati di tutte le zone";
   }
 
   // ---------------- app sul telefono ----------------
@@ -550,6 +566,10 @@
     R.on("livelli", disegnaSettori);
     R.on("settore", () => disegnaSettori());
     R.on("prezzi", x => { if (x && x.mercato && x.aggiornato) { date[x.mercato] = x.aggiornato; aggiornaBadge(); } });
+    // la data dei dati porta alla pagina «Salute dei dati»
+    const badge = $("#stato-dati");
+    badge.addEventListener("click", () => R.vai("#home/salute"));
+    badge.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); R.vai("#home/salute"); } });
 
     // barra dei comandi
     const input = $("#comando");

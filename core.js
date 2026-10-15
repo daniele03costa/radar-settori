@@ -94,6 +94,8 @@
     // prezzi degli ultimi anni delle azioni di Asia ed Emergenti, e i loro elenchi
     prezziZona: zona => (zona === "eur" ? R.dati.europa() : carica(`data/prezzi_${zona === "asi" ? "asia" : "emergenti"}.json`, { cache: "no-cache" })),
     listaZona: zona => (zona === "eur" ? R.dati.europaLista() : carica(zona === "asi" ? "asia.json" : "emergenti.json", { cache: "no-cache" })),
+    // tassi, dollaro, materie prime e VIX (build_macro.py)
+    macro: () => carica("data/macro.json", { cache: "no-cache" }),
     // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi
     listaMiei: () => fetch("miei-titoli.txt", { cache: "no-cache" }).then(r => (r.ok ? r.text() : "")).then(R.leggiListaMiei).catch(() => []),
   };

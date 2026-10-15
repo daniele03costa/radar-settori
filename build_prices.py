@@ -120,10 +120,16 @@ def yahoo_prices(symbols: List[str], start: str, batch: int = 40) -> pd.DataFram
                 log(f"  errore download ({e}); riprovo tra {wait}s")
                 time.sleep(wait)
         if df is not None and not df.empty:
-            field = "Adj Close" if "Adj Close" in set(df.columns.get_level_values(0)) else "Close"
+            campi = set(df.columns.get_level_values(0))
+            field = "Adj Close" if "Adj Close" in campi else "Close"
             sub = df[field]
             if isinstance(sub, pd.Series):
                 sub = sub.to_frame(chunk[0])
+            if field == "Adj Close" and "Close" in campi:
+                chiusa = df["Close"]
+                if isinstance(chiusa, pd.Series):
+                    chiusa = chiusa.to_frame(chunk[0])
+                sub = coda_rettificata(sub, chiusa)
             frames.append(sub)
         time.sleep(1.0)
     if not frames:
@@ -132,6 +138,22 @@ def yahoo_prices(symbols: List[str], start: str, batch: int = 40) -> pd.DataFram
     out = out.loc[:, ~out.columns.duplicated()]
     out.index = pd.to_datetime(out.index).tz_localize(None).normalize()
     return out.sort_index()
+
+
+def coda_rettificata(adj: pd.DataFrame, chiusa: pd.DataFrame) -> pd.DataFrame:
+    """Yahoo a volte dà la chiusura dell'ultima seduta ma non ancora quella rettificata. Per le sedute dopo l'ultima
+    chiusura rettificata si usa la chiusura semplice: per l'ultima seduta le due coincidono sempre (la rettifica
+    tocca solo le sedute prima di un dividendo o di uno split)."""
+    adj = adj.copy()
+    for c in adj.columns:
+        if c not in chiusa.columns:
+            continue
+        ultimo = adj[c].last_valid_index()
+        dopo = chiusa.index > ultimo if ultimo is not None else slice(None)
+        coda = chiusa.loc[dopo, c]
+        if len(coda) and coda.notna().any():
+            adj.loc[dopo, c] = coda
+    return adj
 
 
 def yahoo_last_quotes(symbols: List[str], tz: str = "Europe/Rome") -> Dict[str, Tuple[pd.Timestamp, float]]:
@@ -365,7 +387,9 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
     for f in fixes:
         log(f"  corretto {f['titolo']} il {f['data']}: {f['originale']} → {f['corretto']}")
     log(f"{name}: pubblicato fino al {last} ({len(filled.index)} sedute, {len(filled.columns)} titoli)")
-    return {"aggiornato": last, "correzioni": len(fixes)}
+    nome = lambda c: (info.get(c) or {}).get("nome") or (info.get(c) or {}).get("breve") or c  # noqa: E731
+    return {"aggiornato": last, "correzioni": len(fixes), "titoli": len(active), "totale": len(symbols) - len(crypto),
+            "fermi": [{"t": c, "nome": nome(c)} for c in excluded]}
 
 
 # ---------------------------------------------------------------------------
@@ -573,23 +597,35 @@ def build_miei(lista: Path, out_path: Path, downloader: Callable[[List[str], str
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
     log(f"I miei titoli: {len(voci)} pubblicati" + (f", non trovati: {', '.join(mancanti)}" if mancanti else ""))
-    return {"titoli": len(voci), "mancanti": mancanti}
+    return {"titoli": len(voci), "mancanti": mancanti, "aggiornato": payload["aggiornato"]}
 
 
 def main() -> int:
     u = load_universe()
     start = u.get("inizio", "2019-01-01")
-    ok = True
+    import salute
+    modulo = sys.modules[__name__]
+
+    def passo(nome, fn):
+        with salute.ascolta(modulo) as reg:
+            try:
+                r = fn()
+            except Exception as e:  # noqa: BLE001
+                log(f"{nome}: errore ({e}), resta il file già pubblicato")
+                r = None
+        salute.registra(nome, r is not None, "" if r is not None else reg.ultimo, avvisi=reg.avvisi, **(r or {}))
+        return r
+
     syms, info = usa_symbols(u)
-    r1 = build_market("USA", syms, info, start, yahoo_prices, DATA_DIR / "prezzi_usa.json", calendar_name="NYSE")
-    syms, info = global_symbols(u)
-    r2 = build_market("Globali", syms, info, start, yahoo_prices, DATA_DIR / "prezzi_globali.json",
-                      fx_downloader=yahoo_prices, last_quotes=yahoo_last_quotes, calendar_name="Borsa Italiana")
+    r1 = passo("usa-prezzi", lambda: build_market("USA", syms, info, start, yahoo_prices, DATA_DIR / "prezzi_usa.json",
+                                                   calendar_name="NYSE"))
+    syms2, info2 = global_symbols(u)
+    r2 = passo("globali", lambda: build_market("Globali", syms2, info2, start, yahoo_prices, DATA_DIR / "prezzi_globali.json",
+                                                fx_downloader=yahoo_prices, last_quotes=yahoo_last_quotes,
+                                                calendar_name="Borsa Italiana"))
     ok = r1 is not None or r2 is not None
-    try:
-        build_miei(LISTA_MIEI, DATA_DIR / "prezzi_miei.json", yahoo_prices)
-    except Exception as e:  # noqa: BLE001
-        log(f"I miei titoli: errore ({e}), resta il file già pubblicato")
+    if LISTA_MIEI.exists():
+        passo("miei", lambda: build_miei(LISTA_MIEI, DATA_DIR / "prezzi_miei.json", yahoo_prices))
     # azioni europee della vista Europa
     try:
         import build_europa

@@ -402,6 +402,24 @@
 
   // ---------------- disegno ----------------
 
+  // ---------------- macro: una riga con tassi, dollaro, materie prime e VIX ----------------
+
+  const ICONA_MACRO = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 19.5h17"/><path d="M5 15.5l4-4.5 3.5 2.5L19 6"/><circle cx="19" cy="6" r="1.4"/></svg>`;
+
+  function disegnaMacro(x) {
+    const box = $("#home-macro");
+    if (!x || !x.tutte.length) { box.hidden = true; return; }
+    const F = R.macro;
+    box.hidden = false;
+    box.innerHTML = `<a class="hc-testa" href="#home/macro"><span class="hc-zona">${ICONA_MACRO}<b>Macro</b></span><span class="hc-apri">Apri <span aria-hidden="true">→</span></span></a>
+      <div class="hm-lista" role="table" aria-label="Quadro macro">
+        <div class="hm hm-th" role="row"><span role="columnheader">Serie</span><span role="columnheader">Valore</span><span role="columnheader">1 mese</span><span role="columnheader">1 anno</span></div>
+        ${x.tutte.map(({ s, a }) => `<a class="hm" role="row" href="#home/macro/${esc(s.id)}" title="${esc(`${s.nome}: ${F.conUnita(s, a.ultimo)} il ${dataIt(a.data)}`)}">
+          <span role="cell">${esc(s.breve || s.nome)}</span><b role="cell">${F.valore(s, a.ultimo)}${s.unita === "%" ? "%" : ""}</b><em role="cell">${F.varTesto(s, a.variazioni.m1)}</em><em role="cell">${F.varTesto(s, a.variazioni.a1)}</em></a>`).join("")}
+      </div>
+      ${piede(`Dati del ${dataIt(x.m.aggiornato)} · tassi in punti base`, "#home/macro", "Quadro macro")}`;
+  }
+
   function intestazione() {
     const d = R.dateDati ? R.dateDati() : {};
     const oggi = new Date().toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -424,19 +442,21 @@
     emg: [() => riepilogoZona("emg"), disegnaZona, "I dati dei paesi emergenti non ci sono ancora: arrivano con l'aggiornamento automatico (Aggiorna Asia ed emergenti)."],
     cry: [() => R.viste.cry.riepilogo(), disegnaCry, "I dati crypto non ci sono ancora: arrivano con l'aggiornamento automatico."],
     pf: [() => R.portafoglio.riepilogo(), disegnaPf, ""],
+    mac: [() => (R.macro ? R.macro.carica() : null), disegnaMacro, ""],
   };
+  const SENZA_ERRORE = ["pf", "mac"];      // schede che, senza dati, semplicemente non compaiono
 
   async function carica(k, giro) {
     const [fn, disegnaK, msg] = PASSI[k];
     try {
       if (!st.pronti[k]) st.pronti[k] = await fn();
       if (!st.visibile || giro !== st.giro) return;
-      if (!st.pronti[k] && k !== "pf") { errore(k, msg); return; }
+      if (!st.pronti[k] && !SENZA_ERRORE.includes(k)) { errore(k, msg); return; }
       disegnaK(st.pronti[k]);
     } catch (e) {
       console.error(e);
       st.pronti[k] = null;
-      if (st.visibile && giro === st.giro && k !== "pf") errore(k, msg);
+      if (st.visibile && giro === st.giro && !SENZA_ERRORE.includes(k)) errore(k, msg);
     }
     intestazione();
   }
@@ -516,6 +536,11 @@
       const o = c.btc.a.oggi;
       out.push(`### Crypto: bitcoin ${cifre(o.prezzo)} $ il ${dataIt(c.data)}; 1 giorno ${p100(o.g1)}, 30 giorni ${p100(o.g30)}, da inizio anno ${p100(o.ytd)}; sulla media 200 ${p100(o.vs200)}, ${o.stato ? E.STATI[o.stato].toLowerCase() : "tendenza non disponibile"}, multiplo di Mayer ${num(o.mayer, 2)}, dal massimo storico ${p100(o.dd)}.`,
         `Sopra la media 200: ${c.sopra} delle prime ${c.totale}.${c.paura != null ? ` Fear & Greed ${c.paura} (${c.pauraEtichetta}).` : ""}${c.halving ? ` Giorno ${c.halving.giorni} dall'halving del ${dataIt(c.halving.data)}.` : ""}`);
+    }
+    const mc = st.pronti.mac;
+    if (mc && mc.tutte.length) {
+      const F = R.macro;
+      out.push("### Macro (variazione a 1 mese; tassi in punti base): " + mc.tutte.map(({ s, a }) => `${s.nome} ${F.conUnita(s, a.ultimo)} (${F.varTesto(s, a.variazioni.m1)})`).join(", ") + ".");
     }
     const p = st.pronti.pf;
     if (p && p.stato === "aperto") {

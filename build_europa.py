@@ -34,6 +34,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import europa_ampiezza  # noqa: E402
+import salute  # noqa: E402
 from europa_settori import settore_it  # noqa: E402
 from orari import seduta_in_corso  # noqa: E402
 
@@ -213,6 +214,35 @@ def yahoo_prezzi(simboli: List[str], inizio: str) -> pd.DataFrame:
     return build_prices.yahoo_prices(simboli, inizio, batch=40)
 
 
+def ultimi_yahoo(simboli: List[str]) -> Dict[str, Tuple[pd.Timestamp, float]]:
+    """Ultimo prezzo scambiato (barre da 15 minuti) con la sua data, a gruppi di 150 titoli."""
+    import build_prices
+    out: Dict[str, Tuple[pd.Timestamp, float]] = {}
+    for i in range(0, len(simboli), 150):
+        out.update(build_prices.yahoo_last_quotes(simboli[i:i + 150]))
+    return out
+
+
+def aggiungi_ultimi(px: pd.DataFrame, quotazioni: Dict[str, Tuple[pd.Timestamp, float]]) -> Tuple[pd.DataFrame, int]:
+    """A volte Yahoo mette la seduta nella serie giornaliera solo uno o due giorni dopo: per i titoli fermi a una
+    seduta precedente si usa l'ultimo prezzo scambiato di quel giorno (il giorno dopo arriva la chiusura vera).
+    Restituisce i prezzi e quanti titoli sono stati completati così."""
+    n = 0
+    px = px.copy()
+    for sym, (giorno, prezzo) in quotazioni.items():
+        if sym not in px.columns or prezzo is None or not np.isfinite(prezzo) or prezzo <= 0:
+            continue
+        s = px[sym].dropna()
+        if s.empty or giorno <= s.index[-1]:
+            continue
+        if giorno not in px.index:
+            px.loc[giorno] = np.nan
+            px = px.sort_index()
+        px.at[giorno, sym] = prezzo
+        n += 1
+    return px, n
+
+
 def calendario_maggioranza(px: pd.DataFrame, quota: float = 0.5) -> pd.DatetimeIndex:
     """I giorni in cui ha quotato almeno metà (quota) dei titoli già in borsa quel giorno (negli anni passati molti
     titoli di oggi non c'erano ancora). Nelle zone con tante borse e feste diverse (Asia, Emergenti) la quota è più
@@ -225,7 +255,8 @@ def calendario_maggioranza(px: pd.DataFrame, quota: float = 0.5) -> pd.DatetimeI
 def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], pd.DataFrame] = yahoo_prezzi,
                  prendi_html: Optional[Callable[[str], Optional[str]]] = html_wikipedia,
                  adesso: Optional[pd.Timestamp] = None, lista: Optional[dict] = None,
-                 ampiezza_dir: Optional[Path] = None) -> Optional[dict]:
+                 ampiezza_dir: Optional[Path] = None,
+                 ultimi: Optional[Callable[[List[str]], Dict[str, Tuple[pd.Timestamp, float]]]] = None) -> Optional[dict]:
     lista = lista or carica_lista()
     oggi = (adesso or pd.Timestamp.now(tz="UTC")).date()
     try:
@@ -247,6 +278,13 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
     if px is None or px.empty:
         log("Europa: nessun prezzo, resta il file già pubblicato")
         return None
+    if ultimi is not None:
+        try:
+            px, n_ultimi = aggiungi_ultimi(px, ultimi(simboli + [i["yahoo"] for i in indici]))
+            if n_ultimi:
+                log(f"Europa: {n_ultimi} titoli completati con l'ultimo prezzo scambiato (la chiusura non era ancora nella serie)")
+        except Exception as e:  # noqa: BLE001
+            log(f"Europa: ultimi prezzi non disponibili ({e})")
     in_corso = seduta_in_corso("Borsa Italiana", adesso)
     if in_corso is not None:
         px = px[px.index < in_corso]
@@ -327,7 +365,28 @@ def build_europa(out_path: Path = OUT_PATH, scarica: Callable[[List[str], str], 
             aggiorna_stati(cartella)
     except Exception as e:  # noqa: BLE001
         log(f"Europa: ampiezza non aggiornata ({e})")
-    return {"titoli": len(uscita), "indici": len(usc_indici), "aggiornato": ultimo}
+    return diagnosi(px, cal, titoli, indici, usc_indici, payload, CAMBI, cambi)
+
+
+def diagnosi(px: pd.DataFrame, cal: pd.DatetimeIndex, titoli: List[dict], indici: List[dict], usc_indici: List[dict],
+             payload: dict, cambi_attesi: Dict[str, str], cambi: dict) -> dict:
+    """Il riepilogo per la pagina «Salute dei dati»: quanti titoli hanno i prezzi, quali mancano o sono fermi,
+    quali indici Yahoo non dà (il sito usa allora la media delle loro azioni) e quali cambi mancano."""
+    nomi = {x["t"]: x.get("nome", x["t"]) for x in titoli}
+    pubblicati = {i["yahoo"] for i in usc_indici}
+    fermi = salute.fermi(px, [x["t"] for x in titoli if x["t"] not in payload["mancanti"]], cal)
+    fermi_i = salute.fermi(px, [i["yahoo"] for i in indici if i["yahoo"] in pubblicati], cal)
+    return {
+        "aggiornato": payload["aggiornato"],
+        "titoli": len(payload["titoli"]),
+        "totale": len(titoli),
+        "indici": len(usc_indici),
+        "mancanti": [{"t": t, "nome": nomi.get(t, t)} for t in payload["mancanti"]],
+        "fermi": [{"t": t, "nome": nomi.get(t, t), "dal": d} for t, d in sorted(fermi.items(), key=lambda x: x[1])],
+        "indici_mancanti": [{"nome": i["nome"], "yahoo": i["yahoo"]} for i in indici if i["yahoo"] not in pubblicati],
+        "indici_fermi": [{"nome": i["nome"], "yahoo": i["yahoo"], "dal": fermi_i[i["yahoo"]]} for i in indici if i["yahoo"] in fermi_i],
+        "cambi_mancanti": [v for v in cambi_attesi if v not in cambi],
+    }
 
 
 def aggiorna_stati(cartella: Path) -> bool:
@@ -348,11 +407,16 @@ def aggiorna_stati(cartella: Path) -> bool:
 
 
 def main() -> int:
-    try:
-        return 0 if build_europa() else 1
-    except Exception as e:  # noqa: BLE001
-        log(f"Europa: errore ({e}), resta il file già pubblicato")
-        return 1
+    import sys as _sys
+    modulo = _sys.modules[__name__]
+    with salute.ascolta(modulo) as reg:
+        try:
+            r = build_europa(ultimi=ultimi_yahoo)
+        except Exception as e:  # noqa: BLE001
+            log(f"Europa: errore ({e}), resta il file già pubblicato")
+            r = None
+    salute.registra("europa", bool(r), "" if r else reg.ultimo, avvisi=reg.avvisi, **(r or {}))
+    return 0 if r else 1
 
 
 if __name__ == "__main__":

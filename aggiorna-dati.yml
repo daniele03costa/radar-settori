@@ -41,6 +41,10 @@ jobs:
         continue-on-error: true
         run: python build_prices.py
 
+      - name: Quadro macro (tassi, dollaro, petrolio, oro, VIX, rame)
+        continue-on-error: true
+        run: python build_macro.py
+
       - name: Salva i dati nel repository
         if: always()
         # se nel frattempo il repository è cambiato, rimette i file nuovi sopra la versione aggiornata (niente conflitti)

@@ -64,7 +64,9 @@
     const v = document.body.dataset.view || "home";
     const vista = R.viste[v];
     if (vista && vista.contesto) parti.push(await vista.contesto());
-    if (zona === "usa" || zona === "home" || zona === "tit") {
+    if (v === "mac") parti.push("Percentile: quota delle sedute dal 2005 con un valore più basso di oggi. Sono statistiche del passato per studio personale, non previsioni né consulenza finanziaria.");
+    else if (v === "sal") { /* solo lo stato dei dati */ }
+    else if (zona === "usa" || zona === "home" || zona === "tit") {
       if (v !== "mon") {
         try { parti.push(await R.viste.mon.panoramica()); } catch (e) { /* la panoramica è un di più */ }
       }
