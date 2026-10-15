@@ -1,0 +1,48 @@
+{
+ "passo": "europa",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-10-15T09:39:11Z",
+ "ultimo_successo": "2026-10-15T09:39:11Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
+ "aggiornato": "2026-10-14",
+ "titoli": 467,
+ "totale": 472,
+ "indici": 14,
+ "mancanti": [
+  {
+   "t": "IIA.VI",
+   "nome": "Immofinanz"
+  },
+  {
+   "t": "GOGL.OL",
+   "nome": "Golden Ocean Group"
+  },
+  {
+   "t": "SYDB.CO",
+   "nome": "Sydbank"
+  },
+  {
+   "t": "KOJAMO.HE",
+   "nome": "Kojamo"
+  },
+  {
+   "t": "ROG.SW",
+   "nome": "Roche"
+  }
+ ],
+ "fermi": [],
+ "indici_mancanti": [
+  {
+   "nome": "OMX Stockholm 30",
+   "yahoo": "^OMXS30"
+  },
+  {
+   "nome": "OBX",
+   "yahoo": "OBXP.OL"
+  }
+ ],
+ "indici_fermi": [],
+ "cambi_mancanti": []
+}
