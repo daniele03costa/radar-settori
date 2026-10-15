@@ -107,6 +107,26 @@ function calcola(adesso, cartella = DATA) {
   }
 
   cambi.sort((x, y) => y.data.localeCompare(x.data) || x.etf.localeCompare(y.etf));
+
+  // ampiezza dell'intero indice (S&P 500 o tutte le azioni della zona): attenzione sotto il 20%, zona rossa sotto il 15%
+  let ampiezzaStato = null;
+  const fileIndice = path.join(cartella, "indice.json");
+  if (fs.existsSync(fileIndice)) {
+    const ind = leggi(fileIndice);
+    if (ind.b200 && ind.b200.length) {
+      const P = Object.assign({}, Signals.PARAMETRI, parametri);
+      const sA = Signals.statiAmpiezza(ind.b200, parametri, SEDUTE_CAMBI);
+      const nomi = Signals.STATI_AMPIEZZA;
+      const cambiA = sA.cambi.map(c => ({ data: ind.date[c.i], da: c.da, a: c.a, da_nome: nomi[c.da], a_nome: nomi[c.a], ampiezza: r1(ind.b200[c.i]) }))
+        .sort((x, y) => y.data.localeCompare(x.data));
+      ampiezzaStato = {
+        stato: sA.oggi, stato_nome: nomi[sA.oggi], dal: ind.date[sA.dal], ampiezza: r1(ind.b200[sA.t]),
+        soglie: { attenzione: P.ampiezzaAttenzione, zona_rossa: P.ampiezzaRossa },
+        cambi_ultima_seduta: cambiA.filter(c => c.data === meta.aggiornato),
+        cambi_recenti: cambiA,
+      };
+    }
+  }
   const ultima = meta.aggiornato;
   const ordine = { fallito: 0, trigger: 1, blu: 2, attenzione: 3, cooldown: 4, normale: 5 };
   settori.sort((x, y) => (ordine[x.stato] - ordine[y.stato]) || ((x.titoli_che_mancano ?? 999) - (y.titoli_che_mancano ?? 999)));
@@ -117,6 +137,8 @@ function calcola(adesso, cartella = DATA) {
     // la seduta che deve arrivare con il prossimo aggiornamento: se è già passata da un giorno, i dati sono indietro
     prossima_seduta: Cal.successiva(ultima, mercato),
     [mercato === "nyse" ? "ampiezza_sp500" : "ampiezza_indice"]: meta.indice ? r1(meta.indice.b200) : null,
+    // stato dell'ampiezza dell'intero indice (attenzione sotto il 20%, zona rossa sotto il 15%)
+    ampiezza_stato: ampiezzaStato,
     cambi_ultima_seduta: cambi.filter(c => c.data === ultima),
     cambi_recenti: cambi,
     settori,

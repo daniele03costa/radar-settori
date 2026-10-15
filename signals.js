@@ -23,7 +23,30 @@
     spinta20: { da: 15, a: 70, sedute: 15 },   // spinta sulla quota sopra la media 20
     spinta50: { da: 10, a: 50, sedute: 20 },   // spinta sulla quota sopra la media 50
     memoriaSpinta: 20,     // per quante sedute una spinta vale come conferma
+    ampiezzaAttenzione: 20, // ampiezza dell'intero indice (% sopra la media 200) a cui scatta "Attenzione"…
+    ampiezzaRossa: 15,      // …e "Zona rossa"
   };
+
+  // stati dell'ampiezza dell'intero indice (S&P 500, tutte le azioni di una zona): solo la chiusura del giorno
+  const STATI_AMPIEZZA = { normale: "Normale", attenzione: "Attenzione", rossa: "Zona rossa" };
+  function statoAmpiezza(v, parametri) {
+    if (v == null || !isFinite(v)) return null;
+    const P = Object.assign({}, PARAMETRI, parametri || {});
+    return v <= P.ampiezzaRossa ? "rossa" : v <= P.ampiezzaAttenzione ? "attenzione" : "normale";
+  }
+  // gli stati giorno per giorno, da quando lo stato di oggi è iniziato e i cambi delle ultime sedute
+  function statiAmpiezza(b200, parametri, sedute = 10) {
+    const stati = (b200 || []).map(v => statoAmpiezza(v, parametri));
+    let t = stati.length - 1;
+    while (t > 0 && stati[t] == null) t--;
+    let k = t;
+    while (k > 0 && stati[k - 1] === stati[t]) k--;
+    const cambi = [];
+    for (let i = Math.max(1, t - sedute + 1); i <= t; i++) {
+      if (stati[i] && stati[i - 1] && stati[i] !== stati[i - 1]) cambi.push({ i, da: stati[i - 1], a: stati[i] });
+    }
+    return { stati, oggi: stati[t] || null, t, dal: k, cambi };
+  }
 
   const MOTIVI = {
     spinta20: "spinta di ampiezza a 20 sedute",
@@ -325,7 +348,7 @@
     };
   }
 
-  const api = { PARAMETRI, MOTIVI, STATI, analizza, completa, sma, median, percentileRank, percentiliStorici, spinte };
+  const api = { PARAMETRI, MOTIVI, STATI, STATI_AMPIEZZA, statoAmpiezza, statiAmpiezza, analizza, completa, sma, median, percentileRank, percentiliStorici, spinte };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Signals = api;
 })(typeof window !== "undefined" ? window : globalThis);

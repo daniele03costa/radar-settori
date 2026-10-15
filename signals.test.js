@@ -108,3 +108,17 @@ test("dati europei senza prezzo rettificato e media 200: si ricavano dal prezzo 
   assert.equal(eu.ma200[198], null);
   assert.ok(Math.abs(eu.ma200[650] - 85) < 1e-6);
 });
+
+test("stati dell'ampiezza dell'intero indice: attenzione sotto il 20%, zona rossa sotto il 15%", () => {
+  assert.equal(S.statoAmpiezza(48), "normale");
+  assert.equal(S.statoAmpiezza(20), "attenzione");
+  assert.equal(S.statoAmpiezza(15.1), "attenzione");
+  assert.equal(S.statoAmpiezza(15), "rossa");
+  assert.equal(S.statoAmpiezza(null), null);
+  assert.equal(S.statoAmpiezza(25, { ampiezzaAttenzione: 30 }), "attenzione");
+  const r = S.statiAmpiezza([40, 30, 19, 18, 14, 16, 22]);
+  assert.deepEqual(r.stati, ["normale", "normale", "attenzione", "attenzione", "rossa", "attenzione", "normale"]);
+  assert.equal(r.oggi, "normale");
+  assert.equal(r.dal, 6);
+  assert.deepEqual(r.cambi.map(c => `${c.da}>${c.a}`), ["normale>attenzione", "attenzione>rossa", "rossa>attenzione", "attenzione>normale"]);
+});

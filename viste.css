@@ -560,6 +560,14 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
 .kpi.clic:focus-visible { outline: none; box-shadow: var(--ring); }
 .kpi.clic u { text-decoration: none; color: var(--ink-2); }
 
+.st-amp-attenzione { --c: var(--st-attenzione); }
+.st-amp-rossa { --c: var(--neg); }
+.kpi.amp-attenzione { border-color: color-mix(in srgb, var(--st-attenzione) 55%, var(--line)); }
+.kpi.amp-rossa { border-color: color-mix(in srgb, var(--neg) 55%, var(--line)); }
+.kpi .st-pill { margin-left: 8px; vertical-align: 3px; }
+.storico-stato { display: inline-flex; align-items: center; gap: 8px; margin-left: 10px; font-size: 12.5px; font-weight: 500; color: var(--muted); vertical-align: 1px; }
+.legend .fascia { width: 14px; height: 10px; border-radius: 3px; display: inline-block; }
+
 /* ============ Home · Macro ============ */
 .mac-griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; margin-bottom: 16px; }
 .mac-tile {

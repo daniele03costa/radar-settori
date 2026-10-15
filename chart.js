@@ -50,6 +50,14 @@
     return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? "#0b0f16" : "#ffffff";
   }
 
+  // un colore CSS con la trasparenza scelta (per le fasce colorate)
+  function conAlfa(color, alfa) {
+    const c = document.createElement("canvas").getContext("2d");
+    c.fillStyle = color; const hex = c.fillStyle;
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) return color;
+    return `rgba(${parseInt(hex.slice(1, 3), 16)},${parseInt(hex.slice(3, 5), 16)},${parseInt(hex.slice(5, 7), 16)},${alfa})`;
+  }
+
   class Pannelli {
     /**
      * rootEl: contenitore
@@ -226,6 +234,23 @@
           ctx.font = `600 10.5px ${css("--font")}`;
           ctx.fillStyle = css("--soglia"); ctx.textAlign = "left"; ctx.textBaseline = "top";
           ctx.fillText(this.opts.etichettaZona || "zona", xa + 6, g.top - 4);
+        }
+      }
+
+      // fasce orizzontali trasparenti (per esempio attenzione e zona rossa dell'ampiezza): sotto le linee, che si vedono attraverso
+      for (const f of data.fasce || []) {
+        const ya = Math.max(g.top - 8, Math.min(plotB, y(Math.min(range[1], f.a)))), yb = Math.max(g.top - 8, Math.min(plotB, y(Math.max(range[0], f.da))));
+        if (yb - ya < 1) continue;
+        ctx.fillStyle = conAlfa(f.colore, f.alfa != null ? f.alfa : 0.16);
+        ctx.fillRect(g.left, ya, plotR - g.left, yb - ya);
+        ctx.fillStyle = conAlfa(f.colore, 0.75);
+        ctx.fillRect(g.left, Math.round(ya), plotR - g.left, 1);
+        if (f.etichetta) {
+          // dentro la fascia se c'è posto, altrimenti appena sopra il suo bordo
+          const dentro = yb - ya >= 14;
+          ctx.font = `600 10.5px ${css("--font")}`;
+          ctx.fillStyle = f.colore; ctx.textAlign = "left"; ctx.textBaseline = dentro ? "top" : "bottom";
+          ctx.fillText(f.etichetta, g.left + 6, dentro ? ya + 2 : ya - 2);
         }
       }
 

@@ -146,6 +146,7 @@
     if (cambi.length && !localiDi(R.meta.settori)) {
       punti.push({ c: "var(--faint)", html: `Ultimi cambi: ${cambi.map(c => `<a href="#usa/settori/${c.etf}">${c.etf}</a> ${c.da_nome.toLowerCase()} → ${c.a_nome.toLowerCase()} (${dataIt(c.data).slice(0, 5)})`).join(", ")}.` });
     }
+    if (x.indice && x.indice.b200 && x.indice.b200.length) puntoAmpiezza(punti, x.indice.b200[x.indice.b200.length - 1], "S&amp;P 500 intero", "#usa/monitor");
     // ampiezza dell'S&P 500
     let amp = "";
     if (x.indice && x.indice.b200 && x.indice.b200.length) {
@@ -189,6 +190,15 @@
         <div class="meter"><i style="width:${Math.max(0, Math.min(100, (q || 0) * 100))}%"></i></div>
         <small>${sotto}</small>
       </div>`;
+  }
+
+  // ampiezza dell'intero indice in attenzione (sotto il 20%) o in zona rossa (sotto il 15%): un punto in cima alla scheda
+  function puntoAmpiezza(punti, valore, chi, href) {
+    const stato = S.statoAmpiezza(valore, R.parametri());
+    if (!stato || stato === "normale") return;
+    const P = R.parametri();
+    punti.unshift({ c: stato === "rossa" ? "var(--neg)" : "var(--st-attenzione)",
+      html: `<span class="st-pill st-amp-${stato}">${S.STATI_AMPIEZZA[stato]}</span> <a href="${href}">${chi}</a>: ${num(valore, 1)}% sopra la media 200 (${stato === "rossa" ? `sotto il ${P.ampiezzaRossa}%` : `sotto il ${P.ampiezzaAttenzione}%`}).` });
   }
 
   const puntiHtml = punti => (punti.length ? `<ul class="hc-punti">${punti.map(p => `<li><i style="--c:${p.c}"></i><span>${p.html}</span></li>`).join("")}</ul>` : "");
@@ -265,6 +275,8 @@
       punti.push({ c: "var(--q-leader)", html: `Settori sulla media europea: ${[lead.length ? `leader ${elenco(lead.slice(0, 3).map(linkS))}` : "", migl.length ? `in miglioramento ${elenco(migl.slice(0, 2).map(linkS))}` : ""].filter(Boolean).join("; ")}.` });
     }
     punti.push({ c: "var(--q-miglioramento)", html: `Nell'ultima settimana <b>${x.nMax}</b> ${x.nMax === 1 ? "azione" : "azioni"} a un nuovo massimo di 52 settimane e <b>${x.nMin}</b> a un nuovo minimo.` });
+    const metaEu = R.mercati.eur.meta();
+    if (metaEu && metaEu.indice && metaEu.indice.b200 != null) puntoAmpiezza(punti, metaEu.indice.b200, "Tutte le azioni europee", "#eur/monitor");
     box.innerHTML = testa("eur", "Europa", "#eur/monitor") + (a ? indiceHtml({
       nome: "STOXX Europe 600", sotto: `${x.n} azioni di ${x.nIndici} indici`, valore: cifre(a.ultimo), a,
     }) : `<p class="hc-vuoto">Manca lo STOXX Europe 600: qui sotto il paniere di tutte le azioni.</p>`) +
@@ -320,6 +332,7 @@
     }
     const a = x.a;
     const nIndici = x.meta.settori.filter(g => g.tipo === "indice").length;
+    puntoAmpiezza(punti, x.amp.ora, `Tutte le azioni ${M.t.agg}`, `#${zona}/monitor`);
     box.innerHTML = testa(zona, M.nome, `#${zona}/monitor`) + indiceHtml({
       nome: x.conConfronto ? esc(x.nomeConfronto || "Confronto") : `Media ${zona === "asi" ? "asiatica" : "dei paesi emergenti"}`,
       sotto: x.conConfronto ? `in dollari · ${nIndici} indici seguiti` : `${x.amp.n} azioni di ${nIndici} indici, pesi uguali, in euro`,
