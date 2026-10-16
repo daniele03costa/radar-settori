@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-15",
- "generato": "2026-10-15T23:02:12Z",
+ "generato": "2026-10-16T01:35:38Z",
  "ritardo": {
   "attesa": "2026-10-15",
   "sedute": 0
@@ -171,7 +171,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 29,
-   "drawdown": -9.2,
+   "drawdown": -9.1,
    "percentile_drawdown": 68
   },
   {
@@ -209,7 +209,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 62.4,
-   "drawdown": -6.9,
+   "drawdown": -7.2,
    "percentile_drawdown": 49
   },
   {
@@ -228,7 +228,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 50.3,
-   "drawdown": -5.6,
+   "drawdown": -5.7,
    "percentile_drawdown": 60
   },
   {
@@ -304,8 +304,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 72.9,
-   "drawdown": -2.1,
-   "percentile_drawdown": 35
+   "drawdown": -1.9,
+   "percentile_drawdown": 34
   },
   {
    "etf": "ENERGIA",
@@ -467,14 +467,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 13,
+   "livello": 12,
    "ampiezza": 58.8,
    "ampiezza_un_mese_fa": 59.8,
    "titoli_sopra": 57,
    "titoli_totali": 97,
-   "titoli_al_livello": 12,
-   "titoli_che_mancano": 45,
-   "punti_dal_livello": 45.8,
+   "titoli_al_livello": 11,
+   "titoli_che_mancano": 46,
+   "punti_dal_livello": 46.8,
    "drawdown": -3.3,
    "percentile_drawdown": 55
   },
@@ -486,14 +486,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 65,
    "ampiezza_un_mese_fa": 60,
    "titoli_sopra": 65,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 46,
-   "punti_dal_livello": 46,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 47,
+   "punti_dal_livello": 47,
    "drawdown": -0.6,
    "percentile_drawdown": 16
   },
