@@ -1,8 +1,8 @@
 {
  "passo": "miei",
  "esito": "ok",
- "ultimo_tentativo": "2026-10-16T05:02:24Z",
- "ultimo_successo": "2026-10-16T05:02:24Z",
+ "ultimo_tentativo": "2026-10-16T23:01:29Z",
+ "ultimo_successo": "2026-10-16T23:01:29Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
@@ -10,5 +10,5 @@
  "mancanti": [
   "ISGR"
  ],
- "aggiornato": "2026-10-15"
+ "aggiornato": "2026-10-16"
 }

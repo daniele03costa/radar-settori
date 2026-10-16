@@ -1,11 +1,11 @@
 {
- "aggiornato": "2026-10-15",
- "generato": "2026-10-15T23:00:12Z",
+ "aggiornato": "2026-10-16",
+ "generato": "2026-10-16T23:01:13Z",
  "ritardo": {
-  "attesa": "2026-10-15",
+  "attesa": "2026-10-16",
   "sedute": 0
  },
- "prossima_seduta": "2026-10-16",
+ "prossima_seduta": "2026-10-19",
  "ampiezza_sp500": 51.8,
  "ampiezza_stato": {
   "stato": "normale",
@@ -111,19 +111,6 @@
    "titoli_sopra": 4,
    "titoli_totali": 30,
    "drawdown": -11.6
-  },
-  {
-   "data": "2026-10-02",
-   "etf": "XLRE",
-   "nome": "Immobiliare",
-   "da": "attenzione",
-   "a": "normale",
-   "da_nome": "Attenzione",
-   "a_nome": "Normale",
-   "ampiezza": 20,
-   "titoli_sopra": 6,
-   "titoli_totali": 30,
-   "drawdown": -11.3
   }
  ],
  "settori": [
@@ -135,14 +122,14 @@
    "dal": "2026-10-12",
    "livello": 5,
    "ampiezza": 16.1,
-   "ampiezza_un_mese_fa": 6.5,
+   "ampiezza_un_mese_fa": 12.9,
    "titoli_sopra": 5,
    "titoli_totali": 31,
    "titoli_al_livello": 1,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 11.1,
-   "drawdown": -12.7,
-   "percentile_drawdown": 84,
+   "drawdown": -11.6,
+   "percentile_drawdown": 80,
    "trigger": {
     "data": "2026-10-12",
     "conferme": [
@@ -158,15 +145,15 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-14",
    "livello": 8,
-   "ampiezza": 13.3,
+   "ampiezza": 16.7,
    "ampiezza_un_mese_fa": 40,
-   "titoli_sopra": 4,
+   "titoli_sopra": 5,
    "titoli_totali": 30,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 5.3,
-   "drawdown": -8.7,
-   "percentile_drawdown": 63
+   "titoli_che_mancano": 3,
+   "punti_dal_livello": 8.7,
+   "drawdown": -8.4,
+   "percentile_drawdown": 61
   },
   {
    "etf": "XLC",
@@ -175,15 +162,15 @@
    "stato_nome": "Normale",
    "dal": "2023-03-14",
    "livello": 5,
-   "ampiezza": 45.5,
-   "ampiezza_un_mese_fa": 59.1,
-   "titoli_sopra": 10,
+   "ampiezza": 36.4,
+   "ampiezza_un_mese_fa": 54.5,
+   "titoli_sopra": 8,
    "titoli_totali": 22,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 9,
-   "punti_dal_livello": 40.5,
-   "drawdown": -6.4,
-   "percentile_drawdown": 62
+   "titoli_che_mancano": 7,
+   "punti_dal_livello": 31.4,
+   "drawdown": -8.1,
+   "percentile_drawdown": 70
   },
   {
    "etf": "XLB",
@@ -192,15 +179,15 @@
    "stato_nome": "Normale",
    "dal": "2025-07-31",
    "livello": 10,
-   "ampiezza": 58.3,
-   "ampiezza_un_mese_fa": 54.2,
-   "titoli_sopra": 14,
+   "ampiezza": 62.5,
+   "ampiezza_un_mese_fa": 50,
+   "titoli_sopra": 15,
    "titoli_totali": 24,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 12,
-   "punti_dal_livello": 48.3,
-   "drawdown": -5.8,
-   "percentile_drawdown": 52
+   "titoli_che_mancano": 13,
+   "punti_dal_livello": 52.5,
+   "drawdown": -5.1,
+   "percentile_drawdown": 48
   },
   {
    "etf": "XLY",
@@ -210,14 +197,14 @@
    "dal": "2025-05-07",
    "livello": 8,
    "ampiezza": 36.2,
-   "ampiezza_un_mese_fa": 25.5,
+   "ampiezza_un_mese_fa": 27.7,
    "titoli_sopra": 17,
    "titoli_totali": 47,
    "titoli_al_livello": 3,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 28.2,
-   "drawdown": -8.9,
-   "percentile_drawdown": 75
+   "drawdown": -9.7,
+   "percentile_drawdown": 76
   },
   {
    "etf": "XLE",
@@ -227,14 +214,14 @@
    "dal": "2023-09-07",
    "livello": 1,
    "ampiezza": 66.7,
-   "ampiezza_un_mese_fa": 71.4,
+   "ampiezza_un_mese_fa": 76.2,
    "titoli_sopra": 14,
    "titoli_totali": 21,
    "titoli_al_livello": 0,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 65.7,
-   "drawdown": -1.6,
-   "percentile_drawdown": 15
+   "drawdown": 0,
+   "percentile_drawdown": 0
   },
   {
    "etf": "XLP",
@@ -243,15 +230,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-08",
    "livello": 11,
-   "ampiezza": 60.6,
+   "ampiezza": 66.7,
    "ampiezza_un_mese_fa": 39.4,
-   "titoli_sopra": 20,
+   "titoli_sopra": 22,
    "titoli_totali": 33,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 17,
-   "punti_dal_livello": 49.6,
-   "drawdown": -3.7,
-   "percentile_drawdown": 59
+   "titoli_che_mancano": 19,
+   "punti_dal_livello": 55.7,
+   "drawdown": -2.7,
+   "percentile_drawdown": 49
   },
   {
    "etf": "XLI",
@@ -260,15 +247,32 @@
    "stato_nome": "Normale",
    "dal": "2026-03-31",
    "livello": 5,
-   "ampiezza": 39.5,
-   "ampiezza_un_mese_fa": 40,
-   "titoli_sopra": 32,
+   "ampiezza": 40.7,
+   "ampiezza_un_mese_fa": 38.8,
+   "titoli_sopra": 33,
    "titoli_totali": 81,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 28,
-   "punti_dal_livello": 34.5,
+   "titoli_che_mancano": 29,
+   "punti_dal_livello": 35.7,
    "drawdown": -10,
    "percentile_drawdown": 81
+  },
+  {
+   "etf": "XLK",
+   "nome": "Tecnologia",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-07-30",
+   "livello": 6,
+   "ampiezza": 60,
+   "ampiezza_un_mese_fa": 64.4,
+   "titoli_sopra": 45,
+   "titoli_totali": 75,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 41,
+   "punti_dal_livello": 54,
+   "drawdown": -9.2,
+   "percentile_drawdown": 77
   },
   {
    "etf": "XLF",
@@ -278,31 +282,14 @@
    "dal": "2022-10-21",
    "livello": 6,
    "ampiezza": 59.2,
-   "ampiezza_un_mese_fa": 57.9,
+   "ampiezza_un_mese_fa": 59.2,
    "titoli_sopra": 45,
    "titoli_totali": 76,
    "titoli_al_livello": 4,
    "titoli_che_mancano": 41,
    "punti_dal_livello": 53.2,
-   "drawdown": -5.6,
-   "percentile_drawdown": 51
-  },
-  {
-   "etf": "XLK",
-   "nome": "Tecnologia",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-07-30",
-   "livello": 6,
-   "ampiezza": 64,
-   "ampiezza_un_mese_fa": 64.4,
-   "titoli_sopra": 48,
-   "titoli_totali": 75,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 44,
-   "punti_dal_livello": 58,
-   "drawdown": -6.3,
-   "percentile_drawdown": 66
+   "drawdown": -5.2,
+   "percentile_drawdown": 49
   },
   {
    "etf": "XLV",
@@ -312,14 +299,14 @@
    "dal": "2025-09-30",
    "livello": 11,
    "ampiezza": 83.3,
-   "ampiezza_un_mese_fa": 76.3,
+   "ampiezza_un_mese_fa": 74.6,
    "titoli_sopra": 50,
    "titoli_totali": 60,
    "titoli_al_livello": 6,
    "titoli_che_mancano": 44,
    "punti_dal_livello": 72.3,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "drawdown": -0.3,
+   "percentile_drawdown": 12
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js."
