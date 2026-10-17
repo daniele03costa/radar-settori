@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-10-16",
- "generato": "2026-10-16T23:12:26Z",
+ "generato": "2026-10-17T05:50:57Z",
  "ritardo": {
-  "attesa": "2026-10-15",
+  "attesa": "2026-10-16",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-19",
- "ampiezza_indice": 37.9,
+ "ampiezza_indice": 38.2,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 37.9,
+  "ampiezza": 38.2,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -201,15 +201,15 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-13",
    "livello": 21,
-   "ampiezza": 24,
+   "ampiezza": 30,
    "ampiezza_un_mese_fa": 38,
-   "titoli_sopra": 12,
+   "titoli_sopra": 15,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 3,
-   "drawdown": -9.8,
-   "percentile_drawdown": 69,
+   "titoli_che_mancano": 5,
+   "punti_dal_livello": 9,
+   "drawdown": -9.3,
+   "percentile_drawdown": 67,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
@@ -234,8 +234,8 @@
    "titoli_al_livello": 8,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1.3,
-   "drawdown": -8.3,
-   "percentile_drawdown": 75,
+   "drawdown": -9.2,
+   "percentile_drawdown": 79,
    "per_il_trigger": {
     "punti_che_mancano": 8,
     "ampiezza_obiettivo": 34.7,
@@ -291,13 +291,13 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-15",
    "livello": 29,
-   "ampiezza": 37.7,
+   "ampiezza": 39.6,
    "ampiezza_un_mese_fa": 39.6,
-   "titoli_sopra": 20,
+   "titoli_sopra": 21,
    "titoli_totali": 53,
    "titoli_al_livello": 15,
-   "titoli_che_mancano": 5,
-   "punti_dal_livello": 8.7,
+   "titoli_che_mancano": 6,
+   "punti_dal_livello": 10.6,
    "drawdown": -9.3,
    "percentile_drawdown": 86
   },
@@ -317,8 +317,8 @@
    "titoli_al_livello": 19,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 8.2,
-   "drawdown": -4.1,
-   "percentile_drawdown": 52
+   "drawdown": -4.2,
+   "percentile_drawdown": 53
   },
   {
    "etf": "ASIA-MATERIALI",
@@ -355,8 +355,8 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -7.3,
-   "drawdown": -33.9,
-   "percentile_drawdown": 96
+   "drawdown": -43.1,
+   "percentile_drawdown": 98
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -375,7 +375,7 @@
    "titoli_che_mancano": 11,
    "punti_dal_livello": 12,
    "drawdown": -1.7,
-   "percentile_drawdown": 38
+   "percentile_drawdown": 39
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -393,7 +393,7 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 36.1,
-   "drawdown": -8,
+   "drawdown": -8.1,
    "percentile_drawdown": 55
   },
   {
@@ -412,8 +412,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 35,
-   "drawdown": -2,
-   "percentile_drawdown": 37
+   "drawdown": -2.1,
+   "percentile_drawdown": 38
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -450,8 +450,8 @@
    "titoli_al_livello": 14,
    "titoli_che_mancano": 21,
    "punti_dal_livello": 21.8,
-   "drawdown": -14,
-   "percentile_drawdown": 67
+   "drawdown": -13.5,
+   "percentile_drawdown": 66
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -500,13 +500,13 @@
    "stato_nome": "Normale",
    "dal": "2026-07-31",
    "livello": 18,
-   "ampiezza": 42.3,
+   "ampiezza": 43,
    "ampiezza_un_mese_fa": 57.7,
-   "titoli_sopra": 63,
+   "titoli_sopra": 64,
    "titoli_totali": 149,
    "titoli_al_livello": 26,
-   "titoli_che_mancano": 37,
-   "punti_dal_livello": 24.3,
+   "titoli_che_mancano": 38,
+   "punti_dal_livello": 25,
    "drawdown": -12.4,
    "percentile_drawdown": 79
   },
@@ -545,8 +545,8 @@
    "titoli_al_livello": 36,
    "titoli_che_mancano": 41,
    "punti_dal_livello": 13.7,
-   "drawdown": -5.4,
-   "percentile_drawdown": 46
+   "drawdown": -5.6,
+   "percentile_drawdown": 47
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -557,15 +557,15 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 12,
-   "ampiezza": 53.4,
+   "ampiezza": 54.1,
    "ampiezza_un_mese_fa": 59.6,
-   "titoli_sopra": 78,
+   "titoli_sopra": 79,
    "titoli_totali": 146,
    "titoli_al_livello": 17,
-   "titoli_che_mancano": 61,
-   "punti_dal_livello": 41.4,
-   "drawdown": -2,
-   "percentile_drawdown": 41
+   "titoli_che_mancano": 62,
+   "punti_dal_livello": 42.1,
+   "drawdown": -2.1,
+   "percentile_drawdown": 42
   },
   {
    "etf": "NIKKEI-225",
@@ -583,8 +583,8 @@
    "titoli_al_livello": 33,
    "titoli_che_mancano": 103,
    "punti_dal_livello": 45.4,
-   "drawdown": -11,
-   "percentile_drawdown": 67
+   "drawdown": -9.7,
+   "percentile_drawdown": 63
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
