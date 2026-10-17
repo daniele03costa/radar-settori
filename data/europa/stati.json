@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-16",
- "generato": "2026-10-16T23:02:37Z",
+ "generato": "2026-10-17T01:33:09Z",
  "ritardo": {
   "attesa": "2026-10-16",
   "sedute": 0
@@ -133,7 +133,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 38.3,
-   "drawdown": -3.9,
+   "drawdown": -3.8,
    "percentile_drawdown": 51
   },
   {
@@ -171,7 +171,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 62.4,
-   "drawdown": -6.6,
+   "drawdown": -6.5,
    "percentile_drawdown": 47
   },
   {
@@ -190,8 +190,8 @@
    "titoli_al_livello": 8,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 37.8,
-   "drawdown": -0.5,
-   "percentile_drawdown": 22
+   "drawdown": -0.4,
+   "percentile_drawdown": 21
   },
   {
    "etf": "CAC-40",
@@ -467,16 +467,16 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 13,
+   "livello": 12,
    "ampiezza": 59.8,
    "ampiezza_un_mese_fa": 62.9,
    "titoli_sopra": 58,
    "titoli_totali": 97,
-   "titoli_al_livello": 12,
-   "titoli_che_mancano": 46,
-   "punti_dal_livello": 46.8,
+   "titoli_al_livello": 11,
+   "titoli_che_mancano": 47,
+   "punti_dal_livello": 47.8,
    "drawdown": -2.1,
-   "percentile_drawdown": 46
+   "percentile_drawdown": 45
   },
   {
    "etf": "FTSE-100",
@@ -486,14 +486,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 68,
    "ampiezza_un_mese_fa": 64,
    "titoli_sopra": 68,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 49,
-   "punti_dal_livello": 49,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 50,
+   "punti_dal_livello": 50,
    "drawdown": -0.3,
    "percentile_drawdown": 10
   },

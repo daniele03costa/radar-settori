@@ -1,14 +1,13 @@
 {
  "passo": "usa-prezzi",
- "esito": "ok",
- "ultimo_tentativo": "2026-10-16T23:01:18Z",
+ "esito": "errore",
+ "ultimo_tentativo": "2026-10-17T01:31:41Z",
  "ultimo_successo": "2026-10-16T23:01:18Z",
- "errori_di_fila": 0,
- "messaggio": "",
- "avvisi": [],
+ "errori_di_fila": 1,
+ "messaggio": "USA: i dati scaricati (2026-10-15) sono più vecchi di quelli pubblicati (2026-10-16), non sovrascrivo",
  "aggiornato": "2026-10-16",
- "correzioni": 1,
  "titoli": 22,
  "totale": 22,
- "fermi": []
+ "fermi": [],
+ "avvisi": []
 }
