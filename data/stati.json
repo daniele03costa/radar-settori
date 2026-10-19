@@ -1,17 +1,17 @@
 {
- "aggiornato": "2026-10-16",
- "generato": "2026-10-16T23:01:13Z",
+ "aggiornato": "2026-10-19",
+ "generato": "2026-10-19T23:03:28Z",
  "ritardo": {
-  "attesa": "2026-10-16",
+  "attesa": "2026-10-19",
   "sedute": 0
  },
- "prossima_seduta": "2026-10-19",
- "ampiezza_sp500": 51.8,
+ "prossima_seduta": "2026-10-20",
+ "ampiezza_sp500": 50.6,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2025-04-09",
-  "ampiezza": 51.8,
+  "ampiezza": 50.6,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -98,19 +98,6 @@
    "titoli_sopra": 7,
    "titoli_totali": 30,
    "drawdown": -10.7
-  },
-  {
-   "data": "2026-10-05",
-   "etf": "XLRE",
-   "nome": "Immobiliare",
-   "da": "normale",
-   "a": "attenzione",
-   "da_nome": "Normale",
-   "a_nome": "Attenzione",
-   "ampiezza": 13.3,
-   "titoli_sopra": 4,
-   "titoli_totali": 30,
-   "drawdown": -11.6
   }
  ],
  "settori": [
@@ -122,14 +109,14 @@
    "dal": "2026-10-12",
    "livello": 5,
    "ampiezza": 16.1,
-   "ampiezza_un_mese_fa": 12.9,
+   "ampiezza_un_mese_fa": 6.5,
    "titoli_sopra": 5,
    "titoli_totali": 31,
    "titoli_al_livello": 1,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 11.1,
-   "drawdown": -11.6,
-   "percentile_drawdown": 80,
+   "drawdown": -13.3,
+   "percentile_drawdown": 86,
    "trigger": {
     "data": "2026-10-12",
     "conferme": [
@@ -145,15 +132,15 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-14",
    "livello": 8,
-   "ampiezza": 16.7,
-   "ampiezza_un_mese_fa": 40,
-   "titoli_sopra": 5,
+   "ampiezza": 10,
+   "ampiezza_un_mese_fa": 33.3,
+   "titoli_sopra": 3,
    "titoli_totali": 30,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 3,
-   "punti_dal_livello": 8.7,
-   "drawdown": -8.4,
-   "percentile_drawdown": 61
+   "titoli_che_mancano": 1,
+   "punti_dal_livello": 2,
+   "drawdown": -9.4,
+   "percentile_drawdown": 66
   },
   {
    "etf": "XLC",
@@ -162,15 +149,15 @@
    "stato_nome": "Normale",
    "dal": "2023-03-14",
    "livello": 5,
-   "ampiezza": 36.4,
-   "ampiezza_un_mese_fa": 54.5,
-   "titoli_sopra": 8,
+   "ampiezza": 45.5,
+   "ampiezza_un_mese_fa": 45.5,
+   "titoli_sopra": 10,
    "titoli_totali": 22,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 7,
-   "punti_dal_livello": 31.4,
-   "drawdown": -8.1,
-   "percentile_drawdown": 70
+   "titoli_che_mancano": 9,
+   "punti_dal_livello": 40.5,
+   "drawdown": -8.3,
+   "percentile_drawdown": 71
   },
   {
    "etf": "XLB",
@@ -179,15 +166,15 @@
    "stato_nome": "Normale",
    "dal": "2025-07-31",
    "livello": 10,
-   "ampiezza": 62.5,
-   "ampiezza_un_mese_fa": 50,
-   "titoli_sopra": 15,
+   "ampiezza": 58.3,
+   "ampiezza_un_mese_fa": 45.8,
+   "titoli_sopra": 14,
    "titoli_totali": 24,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 52.5,
+   "titoli_che_mancano": 12,
+   "punti_dal_livello": 48.3,
    "drawdown": -5.1,
-   "percentile_drawdown": 48
+   "percentile_drawdown": 47
   },
   {
    "etf": "XLY",
@@ -197,14 +184,14 @@
    "dal": "2025-05-07",
    "livello": 8,
    "ampiezza": 36.2,
-   "ampiezza_un_mese_fa": 27.7,
+   "ampiezza_un_mese_fa": 25.5,
    "titoli_sopra": 17,
    "titoli_totali": 47,
    "titoli_al_livello": 3,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 28.2,
-   "drawdown": -9.7,
-   "percentile_drawdown": 76
+   "drawdown": -8.1,
+   "percentile_drawdown": 72
   },
   {
    "etf": "XLE",
@@ -220,8 +207,8 @@
    "titoli_al_livello": 0,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 65.7,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "drawdown": -0.6,
+   "percentile_drawdown": 10
   },
   {
    "etf": "XLP",
@@ -230,15 +217,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-08",
    "livello": 11,
-   "ampiezza": 66.7,
-   "ampiezza_un_mese_fa": 39.4,
-   "titoli_sopra": 22,
+   "ampiezza": 63.6,
+   "ampiezza_un_mese_fa": 36.4,
+   "titoli_sopra": 21,
    "titoli_totali": 33,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 19,
-   "punti_dal_livello": 55.7,
-   "drawdown": -2.7,
-   "percentile_drawdown": 49
+   "titoli_che_mancano": 18,
+   "punti_dal_livello": 52.6,
+   "drawdown": -3.1,
+   "percentile_drawdown": 53
   },
   {
    "etf": "XLI",
@@ -247,15 +234,32 @@
    "stato_nome": "Normale",
    "dal": "2026-03-31",
    "livello": 5,
-   "ampiezza": 40.7,
-   "ampiezza_un_mese_fa": 38.8,
-   "titoli_sopra": 33,
+   "ampiezza": 38.3,
+   "ampiezza_un_mese_fa": 40,
+   "titoli_sopra": 31,
    "titoli_totali": 81,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 29,
-   "punti_dal_livello": 35.7,
-   "drawdown": -10,
-   "percentile_drawdown": 81
+   "titoli_che_mancano": 27,
+   "punti_dal_livello": 33.3,
+   "drawdown": -10.6,
+   "percentile_drawdown": 83
+  },
+  {
+   "etf": "XLF",
+   "nome": "Finanziari",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2022-10-21",
+   "livello": 6,
+   "ampiezza": 57.9,
+   "ampiezza_un_mese_fa": 64.5,
+   "titoli_sopra": 44,
+   "titoli_totali": 76,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 40,
+   "punti_dal_livello": 51.9,
+   "drawdown": -6,
+   "percentile_drawdown": 53
   },
   {
    "etf": "XLK",
@@ -265,31 +269,14 @@
    "dal": "2026-07-30",
    "livello": 6,
    "ampiezza": 60,
-   "ampiezza_un_mese_fa": 64.4,
+   "ampiezza_un_mese_fa": 65.8,
    "titoli_sopra": 45,
    "titoli_totali": 75,
    "titoli_al_livello": 4,
    "titoli_che_mancano": 41,
    "punti_dal_livello": 54,
-   "drawdown": -9.2,
-   "percentile_drawdown": 77
-  },
-  {
-   "etf": "XLF",
-   "nome": "Finanziari",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2022-10-21",
-   "livello": 6,
-   "ampiezza": 59.2,
-   "ampiezza_un_mese_fa": 59.2,
-   "titoli_sopra": 45,
-   "titoli_totali": 76,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 41,
-   "punti_dal_livello": 53.2,
-   "drawdown": -5.2,
-   "percentile_drawdown": 49
+   "drawdown": -7.9,
+   "percentile_drawdown": 73
   },
   {
    "etf": "XLV",
@@ -298,15 +285,15 @@
    "stato_nome": "Normale",
    "dal": "2025-09-30",
    "livello": 11,
-   "ampiezza": 83.3,
-   "ampiezza_un_mese_fa": 74.6,
-   "titoli_sopra": 50,
+   "ampiezza": 81.7,
+   "ampiezza_un_mese_fa": 72.9,
+   "titoli_sopra": 49,
    "titoli_totali": 60,
    "titoli_al_livello": 6,
-   "titoli_che_mancano": 44,
-   "punti_dal_livello": 72.3,
-   "drawdown": -0.3,
-   "percentile_drawdown": 12
+   "titoli_che_mancano": 43,
+   "punti_dal_livello": 70.7,
+   "drawdown": -0.9,
+   "percentile_drawdown": 21
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js."
