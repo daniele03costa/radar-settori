@@ -1,10 +1,12 @@
 {
  "passo": "crypto",
- "esito": "errore",
- "ultimo_tentativo": "2026-10-21T01:41:28Z",
- "ultimo_successo": "2026-10-21T01:06:02Z",
- "errori_di_fila": 1,
- "messaggio": "Crypto: i dati nuovi sono più vecchi di quelli pubblicati, resta il file già pubblicato",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-10-21T04:17:31Z",
+ "ultimo_successo": "2026-10-21T04:17:31Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
  "aggiornato": "2026-10-20",
- "titoli": 10
+ "titoli": 10,
+ "fonte": "CoinGecko"
 }
