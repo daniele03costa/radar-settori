@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-20",
- "generato": "2026-10-20T23:14:48Z",
+ "generato": "2026-10-21T05:56:06Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Asia",
@@ -37,7 +37,7 @@
    "sopra": 22,
    "soglia_default": 29,
    "dd": -8.0,
-   "ultimo": 12496.01,
+   "ultimo": 12496.0,
    "prezzo_tipo": "paniere",
    "titoli": 53,
    "m1_eur": -0.5,
@@ -226,12 +226,12 @@
    "n": 225,
    "sopra": 131,
    "soglia_default": 15,
-   "dd": -10.3,
-   "ultimo": 64916.7,
+   "dd": -11.5,
+   "ultimo": 64075.42,
    "prezzo_tipo": "indice",
    "titoli": 225,
-   "m1_eur": 1.3,
-   "m3_eur": 2.3
+   "m1_eur": -0.1,
+   "m3_eur": 1.0
   },
   {
    "etf": "HANG-SENG",
@@ -245,12 +245,12 @@
    "n": 95,
    "sopra": 34,
    "soglia_default": 15,
-   "dd": -13.5,
-   "ultimo": 24186.83,
+   "dd": -14.7,
+   "ultimo": 23867.74,
    "prezzo_tipo": "indice",
    "titoli": 95,
-   "m1_eur": -1.2,
-   "m3_eur": -2.5
+   "m1_eur": -2.5,
+   "m3_eur": -3.8
   },
   {
    "etf": "CSI-300",
@@ -340,12 +340,12 @@
    "n": 45,
    "sopra": 3,
    "soglia_default": 14,
-   "dd": -45.3,
-   "ultimo": 488.46,
+   "dd": -40.6,
+   "ultimo": 530.35,
    "prezzo_tipo": "indice",
    "titoli": 45,
-   "m1_eur": -22.2,
-   "m3_eur": -21.2
+   "m1_eur": -15.5,
+   "m3_eur": -14.5
   },
   {
    "etf": "SET50",
@@ -378,12 +378,12 @@
    "n": 30,
    "sopra": 6,
    "soglia_default": 28,
-   "dd": -9.9,
-   "ultimo": 1595.75,
+   "dd": -9.7,
+   "ultimo": 1599.58,
    "prezzo_tipo": "indice",
    "titoli": 30,
-   "m1_eur": -2.0,
-   "m3_eur": -5.2
+   "m1_eur": -1.7,
+   "m3_eur": -4.9
   }
  ],
  "conta": {

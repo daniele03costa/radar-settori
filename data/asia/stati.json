@@ -1,8 +1,8 @@
 {
  "aggiornato": "2026-10-20",
- "generato": "2026-10-20T23:14:49Z",
+ "generato": "2026-10-21T05:56:07Z",
  "ritardo": {
-  "attesa": "2026-10-19",
+  "attesa": "2026-10-20",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-21",
@@ -74,7 +74,7 @@
    "ampiezza": 6.7,
    "titoli_sopra": 3,
    "titoli_totali": 45,
-   "drawdown": -45.3
+   "drawdown": -40.6
   }
  ],
  "cambi_recenti": [
@@ -132,7 +132,7 @@
    "ampiezza": 6.7,
    "titoli_sopra": 3,
    "titoli_totali": 45,
-   "drawdown": -45.3
+   "drawdown": -40.6
   },
   {
    "data": "2026-10-19",
@@ -360,8 +360,8 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -7.3,
-   "drawdown": -45.3,
-   "percentile_drawdown": 98,
+   "drawdown": -40.6,
+   "percentile_drawdown": 97,
    "per_il_trigger": {
     "punti_che_mancano": 12.3,
     "ampiezza_obiettivo": 19,
@@ -386,8 +386,8 @@
    "titoli_al_livello": 8,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -8,
-   "drawdown": -9.9,
-   "percentile_drawdown": 83,
+   "drawdown": -9.7,
+   "percentile_drawdown": 82,
    "per_il_trigger": {
     "punti_che_mancano": 14.7,
     "ampiezza_obiettivo": 34.7,
@@ -583,8 +583,8 @@
    "titoli_al_livello": 14,
    "titoli_che_mancano": 20,
    "punti_dal_livello": 20.8,
-   "drawdown": -13.5,
-   "percentile_drawdown": 66
+   "drawdown": -14.7,
+   "percentile_drawdown": 69
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -716,8 +716,8 @@
    "titoli_al_livello": 33,
    "titoli_che_mancano": 98,
    "punti_dal_livello": 43.2,
-   "drawdown": -10.3,
-   "percentile_drawdown": 65
+   "drawdown": -11.5,
+   "percentile_drawdown": 70
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
