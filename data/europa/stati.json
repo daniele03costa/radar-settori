@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-21",
- "generato": "2026-10-21T23:06:18Z",
+ "generato": "2026-10-22T01:39:47Z",
  "ritardo": {
   "attesa": "2026-10-21",
   "sedute": 0
@@ -152,8 +152,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 68.6,
-   "drawdown": -1.8,
-   "percentile_drawdown": 25
+   "drawdown": -1.7,
+   "percentile_drawdown": 24
   },
   {
    "etf": "OMX-HELSINKI-25",
@@ -209,7 +209,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 62.4,
-   "drawdown": -6.3,
+   "drawdown": -6.4,
    "percentile_drawdown": 46
   },
   {
@@ -229,7 +229,7 @@
    "titoli_che_mancano": 13,
    "punti_dal_livello": 67.7,
    "drawdown": -0.6,
-   "percentile_drawdown": 18
+   "percentile_drawdown": 17
   },
   {
    "etf": "OBX",
@@ -304,7 +304,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 33.2,
-   "drawdown": -7.3,
+   "drawdown": -7.2,
    "percentile_drawdown": 66
   },
   {
@@ -324,7 +324,7 @@
    "titoli_che_mancano": 15,
    "punti_dal_livello": 58,
    "drawdown": 0,
-   "percentile_drawdown": 9
+   "percentile_drawdown": 10
   },
   {
    "etf": "ENERGIA",
@@ -361,8 +361,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 50.9,
-   "drawdown": -4.5,
-   "percentile_drawdown": 43
+   "drawdown": -4.4,
+   "percentile_drawdown": 42
   },
   {
    "etf": "OMX-STOCKHOLM-30",
