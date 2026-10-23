@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-10-22",
- "generato": "2026-10-22T23:17:26Z",
+ "generato": "2026-10-23T05:56:48Z",
  "ritardo": {
-  "attesa": "2026-10-21",
+  "attesa": "2026-10-22",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-23",
- "ampiezza_indice": 34.2,
+ "ampiezza_indice": 34.1,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 34.2,
+  "ampiezza": 34.1,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -57,10 +57,10 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 34.8,
-   "titoli_sopra": 24,
+   "ampiezza": 33.3,
+   "titoli_sopra": 23,
    "titoli_totali": 69,
-   "drawdown": -4.1
+   "drawdown": -4
   },
   {
    "data": "2026-10-22",
@@ -115,10 +115,10 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 34.8,
-   "titoli_sopra": 24,
+   "ampiezza": 33.3,
+   "titoli_sopra": 23,
    "titoli_totali": 69,
-   "drawdown": -4.1
+   "drawdown": -4
   },
   {
    "data": "2026-10-22",
@@ -355,21 +355,21 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-13",
    "livello": 21,
-   "ampiezza": 20,
+   "ampiezza": 18,
    "ampiezza_un_mese_fa": 40,
-   "titoli_sopra": 10,
+   "titoli_sopra": 9,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
    "titoli_che_mancano": 0,
-   "punti_dal_livello": -1,
-   "drawdown": -10.2,
-   "percentile_drawdown": 71,
+   "punti_dal_livello": -3,
+   "drawdown": -10.6,
+   "percentile_drawdown": 72,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
      "prezzo sopra la media 20 in salita"
     ],
-    "annullato_se_chiude_sotto": 8761.68
+    "annullato_se_chiude_sotto": 8761.67
    }
   },
   {
@@ -414,8 +414,8 @@
    "titoli_al_livello": 8,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -8,
-   "drawdown": -9.5,
-   "percentile_drawdown": 81,
+   "drawdown": -9.2,
+   "percentile_drawdown": 79,
    "per_il_trigger": {
     "punti_che_mancano": 14.7,
     "ampiezza_obiettivo": 34.7,
@@ -440,7 +440,7 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 6,
-   "drawdown": -40,
+   "drawdown": -39,
    "percentile_drawdown": 97,
    "per_il_trigger": {
     "punti_che_mancano": 0,
@@ -489,6 +489,25 @@
    "percentile_drawdown": 72
   },
   {
+   "etf": "ASIA-SANITA",
+   "nome": "Sanità",
+   "codice": "Sanità",
+   "tipo": "settore",
+   "stato": "attenzione",
+   "stato_nome": "Attenzione",
+   "dal": "2026-10-22",
+   "livello": 28,
+   "ampiezza": 33.3,
+   "ampiezza_un_mese_fa": 39.1,
+   "titoli_sopra": 23,
+   "titoli_totali": 69,
+   "titoli_al_livello": 19,
+   "titoli_che_mancano": 4,
+   "punti_dal_livello": 5.3,
+   "drawdown": -4,
+   "percentile_drawdown": 52
+  },
+  {
    "etf": "ASIA-COMUNICAZIONI",
    "nome": "Comunicazioni",
    "codice": "Comunicazioni",
@@ -506,25 +525,6 @@
    "punti_dal_livello": 8.7,
    "drawdown": -9.8,
    "percentile_drawdown": 87
-  },
-  {
-   "etf": "ASIA-SANITA",
-   "nome": "Sanità",
-   "codice": "Sanità",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-10-22",
-   "livello": 28,
-   "ampiezza": 34.8,
-   "ampiezza_un_mese_fa": 39.1,
-   "titoli_sopra": 24,
-   "titoli_totali": 69,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 5,
-   "punti_dal_livello": 6.8,
-   "drawdown": -4.1,
-   "percentile_drawdown": 52
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -562,7 +562,7 @@
    "titoli_che_mancano": 9,
    "punti_dal_livello": 9.8,
    "drawdown": -2.2,
-   "percentile_drawdown": 44
+   "percentile_drawdown": 45
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -599,8 +599,8 @@
    "titoli_al_livello": 14,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 12.4,
-   "drawdown": -15.4,
-   "percentile_drawdown": 71
+   "drawdown": -18,
+   "percentile_drawdown": 75
   },
   {
    "etf": "ASIA-UTILITY",
@@ -637,7 +637,7 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 47.8,
-   "drawdown": -7.3,
+   "drawdown": -7.4,
    "percentile_drawdown": 52
   },
   {
@@ -732,7 +732,7 @@
    "titoli_al_livello": 17,
    "titoli_che_mancano": 52,
    "punti_dal_livello": 35.3,
-   "drawdown": -3.2,
+   "drawdown": -3.1,
    "percentile_drawdown": 52
   },
   {
@@ -751,8 +751,8 @@
    "titoli_al_livello": 33,
    "titoli_che_mancano": 93,
    "punti_dal_livello": 41,
-   "drawdown": -10.7,
-   "percentile_drawdown": 66
+   "drawdown": -13.1,
+   "percentile_drawdown": 75
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
