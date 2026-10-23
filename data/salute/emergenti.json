@@ -1,12 +1,12 @@
 {
  "passo": "emergenti",
  "esito": "ok",
- "ultimo_tentativo": "2026-10-23T05:57:22Z",
- "ultimo_successo": "2026-10-23T05:57:22Z",
+ "ultimo_tentativo": "2026-10-23T23:14:49Z",
+ "ultimo_successo": "2026-10-23T23:14:49Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
- "aggiornato": "2026-10-22",
+ "aggiornato": "2026-10-23",
  "titoli": 252,
  "totale": 253,
  "indici": 6,
@@ -27,6 +27,12 @@
    "yahoo": "WIG20.WA"
   }
  ],
- "indici_fermi": [],
+ "indici_fermi": [
+  {
+   "nome": "S&P Merval",
+   "yahoo": "^MERV",
+   "dal": "2026-10-16"
+  }
+ ],
  "cambi_mancanti": []
 }
