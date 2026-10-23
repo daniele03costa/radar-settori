@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-22",
- "generato": "2026-10-22T23:07:10Z",
+ "generato": "2026-10-23T01:43:44Z",
  "ritardo": {
   "attesa": "2026-10-22",
   "sedute": 0
@@ -152,8 +152,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 46.6,
-   "drawdown": -10.4,
-   "percentile_drawdown": 60
+   "drawdown": -10.7,
+   "percentile_drawdown": 61
   },
   {
    "etf": "ISEQ",
@@ -171,8 +171,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 68.6,
-   "drawdown": -3.4,
-   "percentile_drawdown": 37
+   "drawdown": -3.5,
+   "percentile_drawdown": 38
   },
   {
    "etf": "MATERIALI",
@@ -286,7 +286,7 @@
    "titoli_che_mancano": 14,
    "punti_dal_livello": 54,
    "drawdown": -1.1,
-   "percentile_drawdown": 25
+   "percentile_drawdown": 26
   },
   {
    "etf": "SMI",
@@ -304,8 +304,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 72.9,
-   "drawdown": -0.5,
-   "percentile_drawdown": 17
+   "drawdown": -0.6,
+   "percentile_drawdown": 18
   },
   {
    "etf": "IBEX-35",
@@ -323,8 +323,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 45.1,
-   "drawdown": -6.3,
-   "percentile_drawdown": 50
+   "drawdown": -6.4,
+   "percentile_drawdown": 51
   },
   {
    "etf": "ENERGIA",
