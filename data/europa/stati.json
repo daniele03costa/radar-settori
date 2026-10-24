@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-23",
- "generato": "2026-10-24T01:44:39Z",
+ "generato": "2026-10-24T05:01:59Z",
  "ritardo": {
   "attesa": "2026-10-23",
   "sedute": 0
@@ -95,7 +95,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 33.5,
-   "drawdown": -2.8,
+   "drawdown": -2.7,
    "percentile_drawdown": 41
   },
   {
@@ -228,8 +228,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 43.5,
-   "drawdown": 0,
-   "percentile_drawdown": 11
+   "drawdown": -0.2,
+   "percentile_drawdown": 13
   },
   {
    "etf": "OMX-COPENHAGEN-25",
@@ -323,7 +323,7 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 44.7,
-   "drawdown": -3.9,
+   "drawdown": -3.8,
    "percentile_drawdown": 55
   },
   {
@@ -467,14 +467,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 12,
+   "livello": 13,
    "ampiezza": 45.4,
-   "ampiezza_un_mese_fa": 58.8,
+   "ampiezza_un_mese_fa": 59.8,
    "titoli_sopra": 44,
    "titoli_totali": 97,
-   "titoli_al_livello": 11,
-   "titoli_che_mancano": 33,
-   "punti_dal_livello": 33.4,
+   "titoli_al_livello": 12,
+   "titoli_che_mancano": 32,
+   "punti_dal_livello": 32.4,
    "drawdown": -4.9,
    "percentile_drawdown": 64
   },
@@ -486,14 +486,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 18,
+   "livello": 19,
    "ampiezza": 58,
-   "ampiezza_un_mese_fa": 55,
+   "ampiezza_un_mese_fa": 56,
    "titoli_sopra": 58,
    "titoli_totali": 100,
-   "titoli_al_livello": 18,
-   "titoli_che_mancano": 40,
-   "punti_dal_livello": 40,
+   "titoli_al_livello": 19,
+   "titoli_che_mancano": 39,
+   "punti_dal_livello": 39,
    "drawdown": -2,
    "percentile_drawdown": 35
   },
@@ -513,7 +513,7 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 49,
    "punti_dal_livello": 50.9,
-   "drawdown": -6.9,
+   "drawdown": -6.8,
    "percentile_drawdown": 60
   }
  ],
