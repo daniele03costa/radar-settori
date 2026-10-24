@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-23",
- "generato": "2026-10-23T23:05:37Z",
+ "generato": "2026-10-24T01:44:39Z",
  "ritardo": {
   "attesa": "2026-10-23",
   "sedute": 0
@@ -114,7 +114,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 19,
-   "drawdown": -10.9,
+   "drawdown": -10.8,
    "percentile_drawdown": 73
   },
   {
@@ -152,7 +152,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 46.6,
-   "drawdown": -10.8,
+   "drawdown": -10.6,
    "percentile_drawdown": 61
   },
   {
@@ -304,8 +304,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 54,
-   "drawdown": -1.1,
-   "percentile_drawdown": 25
+   "drawdown": -1,
+   "percentile_drawdown": 24
   },
   {
    "etf": "OMX-STOCKHOLM-30",
@@ -342,8 +342,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 42.3,
-   "drawdown": -6.2,
-   "percentile_drawdown": 50
+   "drawdown": -6,
+   "percentile_drawdown": 49
   },
   {
    "etf": "ENERGIA",
@@ -380,7 +380,7 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 42,
-   "drawdown": -9.8,
+   "drawdown": -9.6,
    "percentile_drawdown": 59
   },
   {
@@ -437,8 +437,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 19,
    "punti_dal_livello": 45.5,
-   "drawdown": -5.3,
-   "percentile_drawdown": 59
+   "drawdown": -5.2,
+   "percentile_drawdown": 58
   },
   {
    "etf": "BENI-DI-PRIMA-NECESSITA",
@@ -494,8 +494,8 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 40,
    "punti_dal_livello": 40,
-   "drawdown": -2.2,
-   "percentile_drawdown": 37
+   "drawdown": -2,
+   "percentile_drawdown": 35
   },
   {
    "etf": "FINANZIARI",
