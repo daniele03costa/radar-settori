@@ -1,8 +1,8 @@
 {
  "aggiornato": "2026-10-23",
- "generato": "2026-10-23T23:14:49Z",
+ "generato": "2026-10-24T05:55:20Z",
  "ritardo": {
-  "attesa": "2026-10-22",
+  "attesa": "2026-10-23",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-26",
@@ -136,8 +136,8 @@
    "titoli_al_livello": 5,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -10.3,
-   "drawdown": -18.9,
-   "percentile_drawdown": 80,
+   "drawdown": -19.7,
+   "percentile_drawdown": 81,
    "per_il_trigger": {
     "punti_che_mancano": 17,
     "ampiezza_obiettivo": 23.7,
@@ -162,7 +162,7 @@
    "titoli_al_livello": 10,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 14,
-   "drawdown": -16.4,
+   "drawdown": -16.9,
    "percentile_drawdown": 94
   },
   {
@@ -181,8 +181,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 27.5,
-   "drawdown": -7.2,
-   "percentile_drawdown": 63
+   "drawdown": -6.8,
+   "percentile_drawdown": 61
   },
   {
    "etf": "EM-IMMOBILIARE",
@@ -238,8 +238,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 66.3,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "drawdown": -0.4,
+   "percentile_drawdown": 7
   },
   {
    "etf": "EM-BENI-DI-PRIMA-NECESSITA",
@@ -250,15 +250,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-06",
    "livello": 29,
-   "ampiezza": 51.6,
+   "ampiezza": 54.8,
    "ampiezza_un_mese_fa": 38.7,
-   "titoli_sopra": 16,
+   "titoli_sopra": 17,
    "titoli_totali": 31,
    "titoli_al_livello": 9,
-   "titoli_che_mancano": 7,
-   "punti_dal_livello": 22.6,
-   "drawdown": -3.7,
-   "percentile_drawdown": 47
+   "titoli_che_mancano": 8,
+   "punti_dal_livello": 25.8,
+   "drawdown": -3.5,
+   "percentile_drawdown": 46
   },
   {
    "etf": "EM-ENERGIA",
@@ -276,8 +276,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 66.6,
-   "drawdown": -0.2,
-   "percentile_drawdown": 10
+   "drawdown": -0.7,
+   "percentile_drawdown": 13
   },
   {
    "etf": "EM-INDUSTRIALI",
@@ -295,27 +295,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 30.1,
-   "drawdown": -6.5,
-   "percentile_drawdown": 60
-  },
-  {
-   "etf": "S-P-IPSA",
-   "nome": "S&P IPSA",
-   "codice": "IPSA",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2022-03-04",
-   "livello": 14,
-   "ampiezza": 56.7,
-   "ampiezza_un_mese_fa": 66.7,
-   "titoli_sopra": 17,
-   "titoli_totali": 30,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 42.7,
-   "drawdown": -15.2,
-   "percentile_drawdown": 71
+   "drawdown": -6.2,
+   "percentile_drawdown": 58
   },
   {
    "etf": "EM-UTILITY",
@@ -333,8 +314,8 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 50.1,
-   "drawdown": -2.9,
-   "percentile_drawdown": 27
+   "drawdown": -3.5,
+   "percentile_drawdown": 30
   },
   {
    "etf": "S-P-BMV-IPC",
@@ -356,6 +337,25 @@
    "percentile_drawdown": 31
   },
   {
+   "etf": "S-P-IPSA",
+   "nome": "S&P IPSA",
+   "codice": "IPSA",
+   "tipo": "indice",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2022-03-04",
+   "livello": 14,
+   "ampiezza": 60,
+   "ampiezza_un_mese_fa": 66.7,
+   "titoli_sopra": 18,
+   "titoli_totali": 30,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 14,
+   "punti_dal_livello": 46,
+   "drawdown": -13.4,
+   "percentile_drawdown": 67
+  },
+  {
    "etf": "EM-CONSUMI-DISCREZIONALI",
    "nome": "Consumi discrezionali",
    "codice": "Discrezionali",
@@ -364,15 +364,15 @@
    "stato_nome": "Normale",
    "dal": "2026-09-18",
    "livello": 15,
-   "ampiezza": 75,
+   "ampiezza": 71.4,
    "ampiezza_un_mese_fa": 28.6,
-   "titoli_sopra": 21,
+   "titoli_sopra": 20,
    "titoli_totali": 28,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 17,
-   "punti_dal_livello": 60,
-   "drawdown": -1.8,
-   "percentile_drawdown": 26
+   "titoli_che_mancano": 16,
+   "punti_dal_livello": 56.4,
+   "drawdown": -2.1,
+   "percentile_drawdown": 28
   },
   {
    "etf": "WIG20",
@@ -409,8 +409,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 26,
    "punti_dal_livello": 47,
-   "drawdown": -1,
-   "percentile_drawdown": 22
+   "drawdown": -0.8,
+   "percentile_drawdown": 21
   },
   {
    "etf": "IBOVESPA",
@@ -421,13 +421,13 @@
    "stato_nome": "Normale",
    "dal": "2026-08-27",
    "livello": 19,
-   "ampiezza": 76.3,
+   "ampiezza": 75,
    "ampiezza_un_mese_fa": 47.4,
-   "titoli_sopra": 58,
+   "titoli_sopra": 57,
    "titoli_totali": 76,
    "titoli_al_livello": 14,
-   "titoli_che_mancano": 44,
-   "punti_dal_livello": 57.3,
+   "titoli_che_mancano": 43,
+   "punti_dal_livello": 56,
    "drawdown": -1.9,
    "percentile_drawdown": 20
   }
