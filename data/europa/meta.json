@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-26",
- "generato": "2026-10-26T23:11:24Z",
+ "generato": "2026-10-27T01:46:45Z",
  "inizio": "2005-01-03",
  "calendario": "milano",
  "regione": "Europa",
@@ -17,12 +17,12 @@
    "n": 24,
    "sopra": 15,
    "soglia_default": 8,
-   "dd": -5.5,
-   "ultimo": 3450.25,
+   "dd": -5.6,
+   "ultimo": 3446.75,
    "prezzo_tipo": "paniere",
    "titoli": 24,
-   "m1_eur": -0.3,
-   "m3_eur": 8.2
+   "m1_eur": -0.4,
+   "m3_eur": 8.1
   },
   {
    "etf": "COMUNICAZIONI",
@@ -37,7 +37,7 @@
    "sopra": 10,
    "soglia_default": 12,
    "dd": -3.9,
-   "ultimo": 611.6,
+   "ultimo": 611.36,
    "prezzo_tipo": "paniere",
    "titoli": 22,
    "m1_eur": 1.5,
@@ -55,12 +55,12 @@
    "n": 41,
    "sopra": 25,
    "soglia_default": 13,
-   "dd": -3.7,
-   "ultimo": 2145.73,
+   "dd": -3.8,
+   "ultimo": 2144.82,
    "prezzo_tipo": "paniere",
    "titoli": 41,
    "m1_eur": 2.5,
-   "m3_eur": -3.1
+   "m3_eur": -3.2
   },
   {
    "etf": "BENI-DI-PRIMA-NECESSITA",
@@ -74,12 +74,12 @@
    "n": 36,
    "sopra": 29,
    "soglia_default": 20,
-   "dd": 0.0,
-   "ultimo": 1362.67,
+   "dd": -0.0,
+   "ultimo": 1361.06,
    "prezzo_tipo": "paniere",
    "titoli": 36,
-   "m1_eur": 8.8,
-   "m3_eur": 2.8
+   "m1_eur": 8.7,
+   "m3_eur": 2.7
   },
   {
    "etf": "ENERGIA",
@@ -94,11 +94,11 @@
    "sopra": 18,
    "soglia_default": 6,
    "dd": 0.0,
-   "ultimo": 2198.97,
+   "ultimo": 2195.67,
    "prezzo_tipo": "paniere",
    "titoli": 19,
-   "m1_eur": 7.1,
-   "m3_eur": 18.8
+   "m1_eur": 7.0,
+   "m3_eur": 18.6
   },
   {
    "etf": "FINANZIARI",
@@ -107,17 +107,17 @@
    "tipo": "settore",
    "paese": "Europa",
    "b200": 65.3,
-   "b50": 24.2,
+   "b50": 23.2,
    "b20": 37.9,
    "n": 95,
    "sopra": 62,
    "soglia_default": 8,
    "dd": -5.7,
-   "ultimo": 1169.5,
+   "ultimo": 1168.94,
    "prezzo_tipo": "paniere",
    "titoli": 95,
    "m1_eur": -3.8,
-   "m3_eur": -1.3
+   "m3_eur": -1.4
   },
   {
    "etf": "SANITA",
@@ -132,7 +132,7 @@
    "sopra": 25,
    "soglia_default": 24,
    "dd": 0.0,
-   "ultimo": 4151.09,
+   "ultimo": 4151.2,
    "prezzo_tipo": "paniere",
    "titoli": 34,
    "m1_eur": 9.1,
@@ -146,15 +146,15 @@
    "paese": "Europa",
    "b200": 48.5,
    "b50": 42.3,
-   "b20": 51.5,
+   "b20": 50.5,
    "n": 97,
    "sopra": 47,
-   "soglia_default": 12,
-   "dd": -3.3,
-   "ultimo": 3501.37,
+   "soglia_default": 13,
+   "dd": -3.4,
+   "ultimo": 3519.07,
    "prezzo_tipo": "paniere",
    "titoli": 97,
-   "m1_eur": -0.4,
+   "m1_eur": -0.5,
    "m3_eur": 0.7
   },
   {
@@ -170,10 +170,10 @@
    "sopra": 16,
    "soglia_default": 11,
    "dd": -9.0,
-   "ultimo": 2014.68,
+   "ultimo": 2013.86,
    "prezzo_tipo": "paniere",
    "titoli": 43,
-   "m1_eur": -4.2,
+   "m1_eur": -4.3,
    "m3_eur": -3.1
   },
   {
@@ -189,10 +189,10 @@
    "sopra": 4,
    "soglia_default": 1,
    "dd": -9.8,
-   "ultimo": 415.67,
+   "ultimo": 415.55,
    "prezzo_tipo": "paniere",
    "titoli": 14,
-   "m1_eur": 1.7,
+   "m1_eur": 1.6,
    "m3_eur": -8.9
   },
   {
@@ -208,7 +208,7 @@
    "sopra": 15,
    "soglia_default": 15,
    "dd": -3.6,
-   "ultimo": 1102.28,
+   "ultimo": 1102.49,
    "prezzo_tipo": "paniere",
    "titoli": 30,
    "m1_eur": 2.9,
@@ -227,11 +227,11 @@
    "sopra": 21,
    "soglia_default": 8,
    "dd": -8.4,
-   "ultimo": 49215.58,
+   "ultimo": 49187.0,
    "prezzo_tipo": "indice",
    "titoli": 40,
-   "m1_eur": -5.1,
-   "m3_eur": -4.3
+   "m1_eur": -5.2,
+   "m3_eur": -4.4
   },
   {
    "etf": "DAX",
@@ -245,12 +245,12 @@
    "n": 40,
    "sopra": 27,
    "soglia_default": 12,
-   "dd": -4.3,
-   "ultimo": 25439.99,
+   "dd": -4.4,
+   "ultimo": 25410.84,
    "prezzo_tipo": "indice",
    "titoli": 40,
-   "m1_eur": 0.1,
-   "m3_eur": -0.1
+   "m1_eur": 0.0,
+   "m3_eur": -0.2
   },
   {
    "etf": "CAC-40",
@@ -265,10 +265,10 @@
    "sopra": 12,
    "soglia_default": 11,
    "dd": -10.1,
-   "ultimo": 7848.71,
+   "ultimo": 7847.32,
    "prezzo_tipo": "indice",
    "titoli": 40,
-   "m1_eur": -2.8,
+   "m1_eur": -2.9,
    "m3_eur": -6.7
   },
   {
@@ -284,11 +284,11 @@
    "sopra": 19,
    "soglia_default": 12,
    "dd": -5.8,
-   "ultimo": 19039.4,
+   "ultimo": 19033.3,
    "prezzo_tipo": "indice",
    "titoli": 35,
    "m1_eur": -3.4,
-   "m3_eur": -1.9
+   "m3_eur": -2.0
   },
   {
    "etf": "AEX",
@@ -303,10 +303,10 @@
    "sopra": 16,
    "soglia_default": 10,
    "dd": -0.8,
-   "ultimo": 1133.82,
+   "ultimo": 1133.19,
    "prezzo_tipo": "indice",
    "titoli": 25,
-   "m1_eur": 2.0,
+   "m1_eur": 1.9,
    "m3_eur": 3.7
   },
   {
@@ -322,10 +322,10 @@
    "sopra": 15,
    "soglia_default": 6,
    "dd": -0.6,
-   "ultimo": 14540.59,
+   "ultimo": 14538.95,
    "prezzo_tipo": "indice",
    "titoli": 19,
-   "m1_eur": 6.2,
+   "m1_eur": 6.3,
    "m3_eur": 1.3
   },
   {
@@ -335,17 +335,17 @@
    "tipo": "indice",
    "paese": "Regno Unito",
    "b200": 62.0,
-   "b50": 58.0,
-   "b20": 63.0,
+   "b50": 57.0,
+   "b20": 62.0,
    "n": 100,
    "sopra": 62,
-   "soglia_default": 18,
+   "soglia_default": 19,
    "dd": -1.3,
-   "ultimo": 10767.33,
+   "ultimo": 10767.3,
    "prezzo_tipo": "indice",
    "titoli": 100,
-   "m1_eur": 3.5,
-   "m3_eur": 1.0
+   "m1_eur": 3.4,
+   "m3_eur": 0.9
   },
   {
    "etf": "OMX-COPENHAGEN-25",
@@ -360,7 +360,7 @@
    "sopra": 15,
    "soglia_default": 13,
    "dd": 0.0,
-   "ultimo": 6044.82,
+   "ultimo": 6044.67,
    "prezzo_tipo": "paniere",
    "titoli": 23,
    "m1_eur": 4.0,
@@ -379,11 +379,11 @@
    "sopra": 20,
    "soglia_default": 12,
    "dd": -2.8,
-   "ultimo": 3418.89,
+   "ultimo": 3416.21,
    "prezzo_tipo": "paniere",
    "titoli": 30,
    "m1_eur": 0.1,
-   "m3_eur": 1.3
+   "m3_eur": 1.2
   },
   {
    "etf": "OMX-HELSINKI-25",
@@ -417,11 +417,11 @@
    "sopra": 16,
    "soglia_default": 19,
    "dd": 0.0,
-   "ultimo": 7454.54,
+   "ultimo": 7428.1,
    "prezzo_tipo": "paniere",
    "titoli": 24,
-   "m1_eur": 5.8,
-   "m3_eur": 14.6
+   "m1_eur": 5.4,
+   "m3_eur": 14.2
   },
   {
    "etf": "BEL-20",
@@ -506,7 +506,7 @@
  },
  "indice": {
   "b200": 58.5,
-  "b50": 49.9,
+  "b50": 49.7,
   "n": 455
  },
  "parametri": {},
