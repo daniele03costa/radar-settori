@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-26",
- "generato": "2026-10-27T01:46:46Z",
+ "generato": "2026-10-27T05:06:44Z",
  "ritardo": {
   "attesa": "2026-10-26",
   "sedute": 0
@@ -469,7 +469,7 @@
    "dal": "2025-04-10",
    "livello": 13,
    "ampiezza": 48.5,
-   "ampiezza_un_mese_fa": 60.8,
+   "ampiezza_un_mese_fa": 59.8,
    "titoli_sopra": 47,
    "titoli_totali": 97,
    "titoli_al_livello": 12,
@@ -488,7 +488,7 @@
    "dal": "2025-04-10",
    "livello": 19,
    "ampiezza": 62,
-   "ampiezza_un_mese_fa": 56,
+   "ampiezza_un_mese_fa": 55,
    "titoli_sopra": 62,
    "titoli_totali": 100,
    "titoli_al_livello": 19,
