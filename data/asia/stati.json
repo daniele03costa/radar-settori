@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-10-26",
- "generato": "2026-10-26T23:18:30Z",
+ "generato": "2026-10-27T05:57:59Z",
  "ritardo": {
-  "attesa": "2026-10-23",
+  "attesa": "2026-10-26",
   "sedute": 0
  },
  "prossima_seduta": "2026-10-27",
- "ampiezza_indice": 33.7,
+ "ampiezza_indice": 34,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 33.7,
+  "ampiezza": 34,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -19,8 +19,37 @@
   "cambi_ultima_seduta": [],
   "cambi_recenti": []
  },
- "cambi_ultima_seduta": [],
+ "cambi_ultima_seduta": [
+  {
+   "data": "2026-10-26",
+   "etf": "ASIA-SANITA",
+   "nome": "Sanità",
+   "codice": "Sanità",
+   "da": "attenzione",
+   "a": "normale",
+   "da_nome": "Attenzione",
+   "a_nome": "Normale",
+   "ampiezza": 40.6,
+   "titoli_sopra": 28,
+   "titoli_totali": 69,
+   "drawdown": -2.4
+  }
+ ],
  "cambi_recenti": [
+  {
+   "data": "2026-10-26",
+   "etf": "ASIA-SANITA",
+   "nome": "Sanità",
+   "codice": "Sanità",
+   "da": "attenzione",
+   "a": "normale",
+   "da_nome": "Attenzione",
+   "a_nome": "Normale",
+   "ampiezza": 40.6,
+   "titoli_sopra": 28,
+   "titoli_totali": 69,
+   "drawdown": -2.4
+  },
   {
    "data": "2026-10-23",
    "etf": "ASIA-IMMOBILIARE",
@@ -298,15 +327,15 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-13",
    "livello": 21,
-   "ampiezza": 16,
+   "ampiezza": 22,
    "ampiezza_un_mese_fa": 34,
-   "titoli_sopra": 8,
+   "titoli_sopra": 11,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 0,
-   "punti_dal_livello": -5,
-   "drawdown": -11.5,
-   "percentile_drawdown": 75,
+   "titoli_che_mancano": 1,
+   "punti_dal_livello": 1,
+   "drawdown": -10.5,
+   "percentile_drawdown": 72,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
@@ -331,8 +360,8 @@
    "titoli_al_livello": 44,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -10,
-   "drawdown": -14.8,
-   "percentile_drawdown": 86,
+   "drawdown": -14.6,
+   "percentile_drawdown": 85,
    "per_il_trigger": {
     "punti_che_mancano": 15,
     "ampiezza_obiettivo": 27,
@@ -357,8 +386,8 @@
    "titoli_al_livello": 8,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -4.7,
-   "drawdown": -9,
-   "percentile_drawdown": 78,
+   "drawdown": -9.4,
+   "percentile_drawdown": 80,
    "per_il_trigger": {
     "punti_che_mancano": 11.4,
     "ampiezza_obiettivo": 34.7,
@@ -383,7 +412,7 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 2,
    "punti_dal_livello": 3.8,
-   "drawdown": -38.7,
+   "drawdown": -39.3,
    "percentile_drawdown": 97,
    "per_il_trigger": {
     "punti_che_mancano": 1.2,
@@ -409,8 +438,8 @@
    "titoli_al_livello": 15,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 6.8,
-   "drawdown": -10,
-   "percentile_drawdown": 88
+   "drawdown": -9.4,
+   "percentile_drawdown": 86
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -428,27 +457,8 @@
    "titoli_al_livello": 22,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 3.8,
-   "drawdown": -6.2,
-   "percentile_drawdown": 71
-  },
-  {
-   "etf": "ASIA-MATERIALI",
-   "nome": "Materiali",
-   "codice": "Materiali",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-10-13",
-   "livello": 15,
-   "ampiezza": 17.9,
-   "ampiezza_un_mese_fa": 30.9,
-   "titoli_sopra": 22,
-   "titoli_totali": 123,
-   "titoli_al_livello": 18,
-   "titoli_che_mancano": 4,
-   "punti_dal_livello": 2.9,
-   "drawdown": -14,
-   "percentile_drawdown": 85
+   "drawdown": -6.1,
+   "percentile_drawdown": 70
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -466,27 +476,27 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 5,
    "punti_dal_livello": 5.2,
-   "drawdown": -1.9,
-   "percentile_drawdown": 41
+   "drawdown": -1.6,
+   "percentile_drawdown": 37
   },
   {
-   "etf": "ASIA-SANITA",
-   "nome": "Sanità",
-   "codice": "Sanità",
+   "etf": "ASIA-MATERIALI",
+   "nome": "Materiali",
+   "codice": "Materiali",
    "tipo": "settore",
    "stato": "attenzione",
    "stato_nome": "Attenzione",
-   "dal": "2026-10-22",
-   "livello": 28,
-   "ampiezza": 37.7,
-   "ampiezza_un_mese_fa": 36.2,
-   "titoli_sopra": 26,
-   "titoli_totali": 69,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 7,
-   "punti_dal_livello": 9.7,
-   "drawdown": -2.5,
-   "percentile_drawdown": 40
+   "dal": "2026-10-13",
+   "livello": 15,
+   "ampiezza": 18.7,
+   "ampiezza_un_mese_fa": 30.9,
+   "titoli_sopra": 23,
+   "titoli_totali": 123,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 5,
+   "punti_dal_livello": 3.7,
+   "drawdown": -13.7,
+   "percentile_drawdown": 84
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -504,7 +514,7 @@
    "titoli_al_livello": 32,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 9.2,
-   "drawdown": -9.6,
+   "drawdown": -9.5,
    "percentile_drawdown": 76
   },
   {
@@ -523,8 +533,27 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 21.3,
-   "drawdown": -8.9,
+   "drawdown": -9,
    "percentile_drawdown": 60
+  },
+  {
+   "etf": "ASIA-SANITA",
+   "nome": "Sanità",
+   "codice": "Sanità",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-10-26",
+   "livello": 28,
+   "ampiezza": 40.6,
+   "ampiezza_un_mese_fa": 36.2,
+   "titoli_sopra": 28,
+   "titoli_totali": 69,
+   "titoli_al_livello": 19,
+   "titoli_che_mancano": 9,
+   "punti_dal_livello": 12.6,
+   "drawdown": -2.4,
+   "percentile_drawdown": 39
   },
   {
    "etf": "HANG-SENG",
@@ -542,7 +571,7 @@
    "titoli_al_livello": 14,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 12.4,
-   "drawdown": -17.4,
+   "drawdown": -17,
    "percentile_drawdown": 74
   },
   {
@@ -561,8 +590,8 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 44.9,
-   "drawdown": -7.4,
-   "percentile_drawdown": 52
+   "drawdown": -6.7,
+   "percentile_drawdown": 48
   },
   {
    "etf": "ASIA-UTILITY",
@@ -580,8 +609,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 40.1,
-   "drawdown": -0.8,
-   "percentile_drawdown": 21
+   "drawdown": -0.5,
+   "percentile_drawdown": 17
   },
   {
    "etf": "ASIA-TECNOLOGIA",
@@ -599,8 +628,8 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 26,
    "punti_dal_livello": 16.9,
-   "drawdown": -13.7,
-   "percentile_drawdown": 81
+   "drawdown": -13.3,
+   "percentile_drawdown": 80
   },
   {
    "etf": "SET50",
@@ -618,8 +647,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 32,
    "punti_dal_livello": 63.6,
-   "drawdown": -1.8,
-   "percentile_drawdown": 28
+   "drawdown": -1.7,
+   "percentile_drawdown": 27
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -637,8 +666,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 35,
    "punti_dal_livello": 70,
-   "drawdown": -7.6,
-   "percentile_drawdown": 72
+   "drawdown": -4.9,
+   "percentile_drawdown": 62
   },
   {
    "etf": "CSI-300",
@@ -656,8 +685,8 @@
    "titoli_al_livello": 36,
    "titoli_che_mancano": 37,
    "punti_dal_livello": 12.3,
-   "drawdown": -4.5,
-   "percentile_drawdown": 40
+   "drawdown": -5,
+   "percentile_drawdown": 42
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -675,8 +704,8 @@
    "titoli_al_livello": 17,
    "titoli_che_mancano": 49,
    "punti_dal_livello": 33.2,
-   "drawdown": -3.2,
-   "percentile_drawdown": 52
+   "drawdown": -2.8,
+   "percentile_drawdown": 50
   },
   {
    "etf": "NIKKEI-225",
@@ -694,8 +723,8 @@
    "titoli_al_livello": 33,
    "titoli_che_mancano": 94,
    "punti_dal_livello": 41.4,
-   "drawdown": -13.4,
-   "percentile_drawdown": 76
+   "drawdown": -14.1,
+   "percentile_drawdown": 78
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
