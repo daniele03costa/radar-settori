@@ -1,17 +1,17 @@
 {
- "aggiornato": "2026-10-27",
- "generato": "2026-10-27T23:10:07Z",
+ "aggiornato": "2026-10-28",
+ "generato": "2026-10-28T23:13:20Z",
  "ritardo": {
-  "attesa": "2026-10-27",
+  "attesa": "2026-10-28",
   "sedute": 0
  },
- "prossima_seduta": "2026-10-28",
- "ampiezza_sp500": 59,
+ "prossima_seduta": "2026-10-29",
+ "ampiezza_sp500": 58,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2025-04-09",
-  "ampiezza": 59,
+  "ampiezza": 58,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -33,19 +33,6 @@
    "titoli_sopra": 7,
    "titoli_totali": 30,
    "drawdown": -7.9
-  },
-  {
-   "data": "2026-10-14",
-   "etf": "XLRE",
-   "nome": "Immobiliare",
-   "da": "normale",
-   "a": "attenzione",
-   "da_nome": "Normale",
-   "a_nome": "Attenzione",
-   "ampiezza": 13.3,
-   "titoli_sopra": 4,
-   "titoli_totali": 30,
-   "drawdown": -9.8
   }
  ],
  "settori": [
@@ -56,15 +43,15 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-12",
    "livello": 5,
-   "ampiezza": 41.9,
+   "ampiezza": 25.8,
    "ampiezza_un_mese_fa": 3.2,
-   "titoli_sopra": 13,
+   "titoli_sopra": 8,
    "titoli_totali": 31,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 12,
-   "punti_dal_livello": 36.9,
-   "drawdown": -10.2,
-   "percentile_drawdown": 76,
+   "titoli_che_mancano": 7,
+   "punti_dal_livello": 20.8,
+   "drawdown": -11,
+   "percentile_drawdown": 78,
    "trigger": {
     "data": "2026-10-12",
     "conferme": [
@@ -80,15 +67,15 @@
    "stato_nome": "Normale",
    "dal": "2023-03-14",
    "livello": 5,
-   "ampiezza": 31.8,
-   "ampiezza_un_mese_fa": 36.4,
-   "titoli_sopra": 7,
+   "ampiezza": 27.3,
+   "ampiezza_un_mese_fa": 31.8,
+   "titoli_sopra": 6,
    "titoli_totali": 22,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 6,
-   "punti_dal_livello": 26.8,
-   "drawdown": -13.7,
-   "percentile_drawdown": 81
+   "titoli_che_mancano": 5,
+   "punti_dal_livello": 22.3,
+   "drawdown": -14.1,
+   "percentile_drawdown": 82
   },
   {
    "etf": "XLRE",
@@ -97,15 +84,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-20",
    "livello": 8,
-   "ampiezza": 33.3,
+   "ampiezza": 26.7,
    "ampiezza_un_mese_fa": 23.3,
-   "titoli_sopra": 10,
+   "titoli_sopra": 8,
    "titoli_totali": 30,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 8,
-   "punti_dal_livello": 25.3,
-   "drawdown": -7.8,
-   "percentile_drawdown": 57
+   "titoli_che_mancano": 6,
+   "punti_dal_livello": 18.7,
+   "drawdown": -8.4,
+   "percentile_drawdown": 61
   },
   {
    "etf": "XLB",
@@ -121,8 +108,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 56.7,
-   "drawdown": -3.5,
-   "percentile_drawdown": 38
+   "drawdown": -3.4,
+   "percentile_drawdown": 37
   },
   {
    "etf": "XLY",
@@ -138,8 +125,8 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 34.6,
-   "drawdown": -7.3,
-   "percentile_drawdown": 70
+   "drawdown": -7.4,
+   "percentile_drawdown": 71
   },
   {
    "etf": "XLE",
@@ -149,14 +136,14 @@
    "dal": "2023-09-07",
    "livello": 1,
    "ampiezza": 81,
-   "ampiezza_un_mese_fa": 66.7,
+   "ampiezza_un_mese_fa": 57.1,
    "titoli_sopra": 17,
    "titoli_totali": 21,
    "titoli_al_livello": 0,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 80,
-   "drawdown": -2,
-   "percentile_drawdown": 18
+   "drawdown": -1.7,
+   "percentile_drawdown": 16
   },
   {
    "etf": "XLP",
@@ -165,15 +152,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-08",
    "livello": 11,
-   "ampiezza": 69.7,
-   "ampiezza_un_mese_fa": 30.3,
-   "titoli_sopra": 23,
+   "ampiezza": 66.7,
+   "ampiezza_un_mese_fa": 27.3,
+   "titoli_sopra": 22,
    "titoli_totali": 33,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 58.7,
-   "drawdown": -3.2,
-   "percentile_drawdown": 54
+   "titoli_che_mancano": 19,
+   "punti_dal_livello": 55.7,
+   "drawdown": -3.5,
+   "percentile_drawdown": 57
   },
   {
    "etf": "XLI",
@@ -182,15 +169,15 @@
    "stato_nome": "Normale",
    "dal": "2026-03-31",
    "livello": 5,
-   "ampiezza": 44.4,
+   "ampiezza": 46.9,
    "ampiezza_un_mese_fa": 40.7,
-   "titoli_sopra": 36,
+   "titoli_sopra": 38,
    "titoli_totali": 81,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 32,
-   "punti_dal_livello": 39.4,
-   "drawdown": -10,
-   "percentile_drawdown": 81
+   "titoli_che_mancano": 34,
+   "punti_dal_livello": 41.9,
+   "drawdown": -9.7,
+   "percentile_drawdown": 80
   },
   {
    "etf": "XLF",
@@ -199,15 +186,15 @@
    "stato_nome": "Normale",
    "dal": "2022-10-21",
    "livello": 6,
-   "ampiezza": 63.2,
-   "ampiezza_un_mese_fa": 43.4,
-   "titoli_sopra": 48,
+   "ampiezza": 64.5,
+   "ampiezza_un_mese_fa": 44.7,
+   "titoli_sopra": 49,
    "titoli_totali": 76,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 44,
-   "punti_dal_livello": 57.2,
-   "drawdown": -4.6,
-   "percentile_drawdown": 46
+   "titoli_che_mancano": 45,
+   "punti_dal_livello": 58.5,
+   "drawdown": -4.1,
+   "percentile_drawdown": 44
   },
   {
    "etf": "XLV",
@@ -217,14 +204,14 @@
    "dal": "2025-09-30",
    "livello": 11,
    "ampiezza": 86.7,
-   "ampiezza_un_mese_fa": 73.3,
+   "ampiezza_un_mese_fa": 68.3,
    "titoli_sopra": 52,
    "titoli_totali": 60,
    "titoli_al_livello": 6,
    "titoli_che_mancano": 46,
    "punti_dal_livello": 75.7,
-   "drawdown": -1.2,
-   "percentile_drawdown": 25
+   "drawdown": -0.9,
+   "percentile_drawdown": 21
   },
   {
    "etf": "XLK",
@@ -233,15 +220,15 @@
    "stato_nome": "Normale",
    "dal": "2026-07-30",
    "livello": 6,
-   "ampiezza": 70.7,
-   "ampiezza_un_mese_fa": 64.9,
-   "titoli_sopra": 53,
+   "ampiezza": 72,
+   "ampiezza_un_mese_fa": 67.6,
+   "titoli_sopra": 54,
    "titoli_totali": 75,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 49,
-   "punti_dal_livello": 64.7,
-   "drawdown": -6.2,
-   "percentile_drawdown": 65
+   "titoli_che_mancano": 50,
+   "punti_dal_livello": 66,
+   "drawdown": -5.4,
+   "percentile_drawdown": 62
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js."
