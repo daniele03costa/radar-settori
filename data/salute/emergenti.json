@@ -1,19 +1,22 @@
 {
  "passo": "emergenti",
- "esito": "errore",
- "ultimo_tentativo": "2026-10-28T06:03:53Z",
- "ultimo_successo": "2026-10-27T23:18:55Z",
- "errori_di_fila": 1,
- "messaggio": "Emergenti: i dati nuovi sono più vecchi di quelli pubblicati, resta il file già pubblicato",
- "aggiornato": "2026-10-27",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-10-28T23:23:47Z",
+ "ultimo_successo": "2026-10-28T23:23:47Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
+ "aggiornato": "2026-10-28",
  "titoli": 252,
  "totale": 253,
+ "indici": 6,
  "mancanti": [
   {
    "t": "OROBLANCO.SN",
    "nome": "Pampa Investments (ex Oro Blanco)"
   }
  ],
+ "fermi": [],
  "indici_mancanti": [
   {
    "nome": "S&P IPSA",
@@ -24,12 +27,12 @@
    "yahoo": "WIG20.WA"
   }
  ],
- "fermi": [],
  "indici_fermi": [
   {
    "nome": "S&P Merval",
    "yahoo": "^MERV",
    "dal": "2026-10-16"
   }
- ]
+ ],
+ "cambi_mancanti": []
 }
