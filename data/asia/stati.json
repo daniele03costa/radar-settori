@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-10-30",
- "generato": "2026-10-31T01:56:02Z",
+ "generato": "2026-10-31T11:01:27Z",
  "ritardo": {
   "attesa": "2026-10-30",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-02",
- "ampiezza_indice": 35.1,
+ "ampiezza_indice": 35.2,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 35.1,
+  "ampiezza": 35.2,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -43,10 +43,10 @@
    "a": "normale",
    "da_nome": "Attenzione",
    "a_nome": "Normale",
-   "ampiezza": 40.6,
-   "titoli_sopra": 28,
+   "ampiezza": 42,
+   "titoli_sopra": 29,
    "titoli_totali": 69,
-   "drawdown": -2.9
+   "drawdown": -2.8
   },
   {
    "data": "2026-10-30",
@@ -87,10 +87,10 @@
    "a": "normale",
    "da_nome": "Attenzione",
    "a_nome": "Normale",
-   "ampiezza": 40.6,
-   "titoli_sopra": 28,
+   "ampiezza": 42,
+   "titoli_sopra": 29,
    "titoli_totali": 69,
-   "drawdown": -2.9
+   "drawdown": -2.8
   },
   {
    "data": "2026-10-30",
@@ -157,8 +157,8 @@
    "a": "normale",
    "da_nome": "Attenzione",
    "a_nome": "Normale",
-   "ampiezza": 40.6,
-   "titoli_sopra": 28,
+   "ampiezza": 42,
+   "titoli_sopra": 29,
    "titoli_totali": 69,
    "drawdown": -2.4
   },
@@ -244,7 +244,7 @@
    "ampiezza": 40.6,
    "titoli_sopra": 28,
    "titoli_totali": 69,
-   "drawdown": -2.7
+   "drawdown": -2.6
   },
   {
    "data": "2026-10-20",
@@ -363,13 +363,13 @@
    "titoli_che_mancano": 8,
    "punti_dal_livello": 15,
    "drawdown": -9.1,
-   "percentile_drawdown": 66,
+   "percentile_drawdown": 67,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
      "prezzo sopra la media 20 in salita"
     ],
-    "annullato_se_chiude_sotto": 8761.68
+    "annullato_se_chiude_sotto": 8761.67
    }
   },
   {
@@ -575,15 +575,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-30",
    "livello": 28,
-   "ampiezza": 40.6,
+   "ampiezza": 42,
    "ampiezza_un_mese_fa": 34.8,
-   "titoli_sopra": 28,
+   "titoli_sopra": 29,
    "titoli_totali": 69,
    "titoli_al_livello": 19,
-   "titoli_che_mancano": 9,
-   "punti_dal_livello": 12.6,
-   "drawdown": -2.9,
-   "percentile_drawdown": 43
+   "titoli_che_mancano": 10,
+   "punti_dal_livello": 14,
+   "drawdown": -2.8,
+   "percentile_drawdown": 42
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -746,13 +746,13 @@
    "stato_nome": "Normale",
    "dal": "2025-04-23",
    "livello": 15,
-   "ampiezza": 55.1,
+   "ampiezza": 55.6,
    "ampiezza_un_mese_fa": 66.2,
-   "titoli_sopra": 124,
+   "titoli_sopra": 125,
    "titoli_totali": 225,
    "titoli_al_livello": 33,
-   "titoli_che_mancano": 91,
-   "punti_dal_livello": 40.1,
+   "titoli_che_mancano": 92,
+   "punti_dal_livello": 40.6,
    "drawdown": -12.5,
    "percentile_drawdown": 73
   }
