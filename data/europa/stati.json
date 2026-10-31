@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-30",
- "generato": "2026-10-31T06:57:52Z",
+ "generato": "2026-10-31T10:33:25Z",
  "ritardo": {
   "attesa": "2026-10-30",
   "sedute": 0
@@ -38,7 +38,7 @@
    "titoli_al_livello": 0,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 27.6,
-   "drawdown": -9.6,
+   "drawdown": -9.5,
    "percentile_drawdown": 69
   },
   {
@@ -210,45 +210,7 @@
    "titoli_che_mancano": 12,
    "punti_dal_livello": 48,
    "drawdown": -7,
-   "percentile_drawdown": 67
-  },
-  {
-   "etf": "UTILITY",
-   "nome": "Utility",
-   "codice": "Utility",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2025-01-15",
-   "livello": 15,
-   "ampiezza": 58.6,
-   "ampiezza_un_mese_fa": 48.3,
-   "titoli_sopra": 17,
-   "titoli_totali": 29,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 43.6,
-   "drawdown": -2.9,
-   "percentile_drawdown": 42
-  },
-  {
-   "etf": "IBEX-35",
-   "nome": "IBEX 35",
-   "codice": "IBEX 35",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2022-10-13",
-   "livello": 12,
-   "ampiezza": 50,
-   "ampiezza_un_mese_fa": 55.9,
-   "titoli_sopra": 17,
-   "titoli_totali": 34,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 38,
-   "drawdown": -7.7,
-   "percentile_drawdown": 56
+   "percentile_drawdown": 66
   },
   {
    "etf": "SMI",
@@ -306,6 +268,44 @@
    "punti_dal_livello": 51.8,
    "drawdown": -0.6,
    "percentile_drawdown": 18
+  },
+  {
+   "etf": "UTILITY",
+   "nome": "Utility",
+   "codice": "Utility",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2025-01-15",
+   "livello": 15,
+   "ampiezza": 60,
+   "ampiezza_un_mese_fa": 50,
+   "titoli_sopra": 18,
+   "titoli_totali": 30,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 14,
+   "punti_dal_livello": 45,
+   "drawdown": -2.3,
+   "percentile_drawdown": 37
+  },
+  {
+   "etf": "IBEX-35",
+   "nome": "IBEX 35",
+   "codice": "IBEX 35",
+   "tipo": "indice",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2022-10-13",
+   "livello": 12,
+   "ampiezza": 51.4,
+   "ampiezza_un_mese_fa": 57.1,
+   "titoli_sopra": 18,
+   "titoli_totali": 35,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 14,
+   "punti_dal_livello": 39.4,
+   "drawdown": -7.7,
+   "percentile_drawdown": 56
   },
   {
    "etf": "AEX",
@@ -400,7 +400,7 @@
    "titoli_che_mancano": 19,
    "punti_dal_livello": 45.5,
    "drawdown": -3,
-   "percentile_drawdown": 45
+   "percentile_drawdown": 44
   },
   {
    "etf": "SANITA",
@@ -430,15 +430,15 @@
    "stato_nome": "Normale",
    "dal": "2026-06-09",
    "livello": 20,
-   "ampiezza": 75,
+   "ampiezza": 77.8,
    "ampiezza_un_mese_fa": 33.3,
-   "titoli_sopra": 27,
+   "titoli_sopra": 28,
    "titoli_totali": 36,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 55,
-   "drawdown": -0.4,
-   "percentile_drawdown": 20
+   "titoli_che_mancano": 21,
+   "punti_dal_livello": 57.8,
+   "drawdown": -0.3,
+   "percentile_drawdown": 19
   },
   {
    "etf": "DAX",
@@ -476,7 +476,7 @@
    "titoli_che_mancano": 37,
    "punti_dal_livello": 37.5,
    "drawdown": -2.1,
-   "percentile_drawdown": 45
+   "percentile_drawdown": 44
   },
   {
    "etf": "FTSE-100",
@@ -506,13 +506,13 @@
    "stato_nome": "Normale",
    "dal": "2022-10-13",
    "livello": 8,
-   "ampiezza": 67.4,
+   "ampiezza": 66.3,
    "ampiezza_un_mese_fa": 74.7,
-   "titoli_sopra": 64,
+   "titoli_sopra": 63,
    "titoli_totali": 95,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 57,
-   "punti_dal_livello": 59.4,
+   "titoli_che_mancano": 56,
+   "punti_dal_livello": 58.3,
    "drawdown": -5.3,
    "percentile_drawdown": 54
   }
