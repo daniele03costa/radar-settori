@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-30",
- "generato": "2026-10-30T11:31:38Z",
+ "generato": "2026-10-31T01:56:01Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Asia",
@@ -18,10 +18,10 @@
    "sopra": 47,
    "soglia_default": 18,
    "dd": -18.3,
-   "ultimo": 13903.33,
+   "ultimo": 13899.85,
    "prezzo_tipo": "paniere",
    "titoli": 149,
-   "m1_eur": -13.7,
+   "m1_eur": -13.8,
    "m3_eur": -6.9
   },
   {
@@ -36,12 +36,12 @@
    "n": 53,
    "sopra": 20,
    "soglia_default": 29,
-   "dd": -12.2,
-   "ultimo": 11932.75,
+   "dd": -11.7,
+   "ultimo": 12003.41,
    "prezzo_tipo": "paniere",
    "titoli": 53,
-   "m1_eur": -3.9,
-   "m3_eur": -5.3
+   "m1_eur": -3.4,
+   "m3_eur": -4.8
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -51,16 +51,16 @@
    "paese": "Asia",
    "b200": 26.7,
    "b50": 26.7,
-   "b20": 44.8,
+   "b20": 45.7,
    "n": 105,
    "sopra": 28,
    "soglia_default": 21,
    "dd": -6.8,
-   "ultimo": 4692.45,
+   "ultimo": 4690.89,
    "prezzo_tipo": "paniere",
    "titoli": 105,
    "m1_eur": -1.7,
-   "m3_eur": -3.7
+   "m3_eur": -3.8
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -74,12 +74,12 @@
    "n": 88,
    "sopra": 33,
    "soglia_default": 30,
-   "dd": -1.5,
-   "ultimo": 9927.74,
+   "dd": -1.1,
+   "ultimo": 9964.7,
    "prezzo_tipo": "paniere",
    "titoli": 88,
-   "m1_eur": 1.8,
-   "m3_eur": 2.5
+   "m1_eur": 2.1,
+   "m3_eur": 2.9
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -93,12 +93,12 @@
    "n": 34,
    "sopra": 18,
    "soglia_default": 11,
-   "dd": -10.1,
-   "ultimo": 29375.4,
+   "dd": -9.2,
+   "ultimo": 29657.24,
    "prezzo_tipo": "paniere",
    "titoli": 35,
-   "m1_eur": -3.7,
-   "m3_eur": 5.8
+   "m1_eur": -2.8,
+   "m3_eur": 6.8
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -112,12 +112,12 @@
    "n": 145,
    "sopra": 73,
    "soglia_default": 12,
-   "dd": -2.5,
-   "ultimo": 6710.48,
+   "dd": -2.4,
+   "ultimo": 6723.75,
    "prezzo_tipo": "paniere",
    "titoli": 146,
-   "m1_eur": -0.9,
-   "m3_eur": 2.0
+   "m1_eur": -0.7,
+   "m3_eur": 2.2
   },
   {
    "etf": "ASIA-SANITA",
@@ -126,13 +126,13 @@
    "tipo": "settore",
    "paese": "Asia",
    "b200": 40.6,
-   "b50": 49.3,
+   "b50": 47.8,
    "b20": 56.5,
    "n": 69,
    "sopra": 28,
    "soglia_default": 28,
-   "dd": -2.8,
-   "ultimo": 11868.67,
+   "dd": -2.9,
+   "ultimo": 11863.3,
    "prezzo_tipo": "paniere",
    "titoli": 69,
    "m1_eur": 0.7,
@@ -144,14 +144,14 @@
    "nome": "Industriali",
    "tipo": "settore",
    "paese": "Asia",
-   "b200": 28.3,
+   "b200": 28.8,
    "b50": 28.8,
    "b20": 33.5,
    "n": 191,
-   "sopra": 54,
+   "sopra": 55,
    "soglia_default": 17,
    "dd": -10.8,
-   "ultimo": 5021.18,
+   "ultimo": 5020.84,
    "prezzo_tipo": "paniere",
    "titoli": 191,
    "m1_eur": -6.3,
@@ -169,12 +169,12 @@
    "n": 123,
    "sopra": 25,
    "soglia_default": 15,
-   "dd": -15.4,
-   "ultimo": 11489.73,
+   "dd": -15.2,
+   "ultimo": 11516.0,
    "prezzo_tipo": "paniere",
    "titoli": 123,
-   "m1_eur": -8.5,
-   "m3_eur": -3.3
+   "m1_eur": -8.3,
+   "m3_eur": -3.0
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -188,12 +188,12 @@
    "n": 24,
    "sopra": 6,
    "soglia_default": 12,
-   "dd": -10.5,
-   "ultimo": 2778.94,
+   "dd": -10.4,
+   "ultimo": 2781.32,
    "prezzo_tipo": "paniere",
    "titoli": 24,
-   "m1_eur": 0.9,
-   "m3_eur": 1.6
+   "m1_eur": 1.0,
+   "m3_eur": 1.7
   },
   {
    "etf": "ASIA-UTILITY",
@@ -207,12 +207,12 @@
    "n": 39,
    "sopra": 25,
    "soglia_default": 24,
-   "dd": -0.6,
-   "ultimo": 2226.02,
+   "dd": -0.2,
+   "ultimo": 2236.6,
    "prezzo_tipo": "paniere",
    "titoli": 39,
-   "m1_eur": 3.0,
-   "m3_eur": 7.3
+   "m1_eur": 3.5,
+   "m3_eur": 7.9
   },
   {
    "etf": "NIKKEI-225",
@@ -230,8 +230,8 @@
    "ultimo": 63290.11,
    "prezzo_tipo": "indice",
    "titoli": 225,
-   "m1_eur": -6.9,
-   "m3_eur": 2.0
+   "m1_eur": -7.2,
+   "m3_eur": 1.7
   },
   {
    "etf": "HANG-SENG",
@@ -249,8 +249,8 @@
    "ultimo": 23294.42,
    "prezzo_tipo": "indice",
    "titoli": 95,
-   "m1_eur": -4.2,
-   "m3_eur": -7.4
+   "m1_eur": -4.1,
+   "m3_eur": -7.3
   },
   {
    "etf": "CSI-300",
@@ -258,17 +258,17 @@
    "nome": "CSI 300",
    "tipo": "indice",
    "paese": "Cina",
-   "b200": 24.7,
+   "b200": 25.1,
    "b50": 33.0,
    "b20": 39.3,
    "n": 299,
-   "sopra": 74,
+   "sopra": 75,
    "soglia_default": 12,
-   "dd": -7.4,
-   "ultimo": 8982.85,
+   "dd": -7.3,
+   "ultimo": 8988.26,
    "prezzo_tipo": "paniere",
    "titoli": 300,
-   "m1_eur": -3.3,
+   "m1_eur": -3.2,
    "m3_eur": -3.7
   },
   {
@@ -283,12 +283,12 @@
    "n": 200,
    "sopra": 30,
    "soglia_default": 22,
-   "dd": -15.0,
-   "ultimo": 5490.09,
+   "dd": -15.2,
+   "ultimo": 5476.88,
    "prezzo_tipo": "paniere",
    "titoli": 200,
-   "m1_eur": -10.9,
-   "m3_eur": 0.2
+   "m1_eur": -11.1,
+   "m3_eur": -0.0
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -302,12 +302,12 @@
    "n": 50,
    "sopra": 42,
    "soglia_default": 18,
-   "dd": -9.9,
-   "ultimo": 6667.78,
+   "dd": -9.7,
+   "ultimo": 6686.76,
    "prezzo_tipo": "paniere",
    "titoli": 50,
-   "m1_eur": -5.4,
-   "m3_eur": 14.8
+   "m1_eur": -5.1,
+   "m3_eur": 15.2
   },
   {
    "etf": "NIFTY-50",
@@ -316,16 +316,16 @@
    "tipo": "indice",
    "paese": "India",
    "b200": 36.0,
-   "b50": 38.0,
-   "b20": 64.0,
+   "b50": 36.0,
+   "b20": 66.0,
    "n": 50,
    "sopra": 18,
    "soglia_default": 21,
    "dd": -9.1,
-   "ultimo": 9347.59,
+   "ultimo": 9341.29,
    "prezzo_tipo": "paniere",
    "titoli": 50,
-   "m1_eur": 4.4,
+   "m1_eur": 4.3,
    "m3_eur": -4.4
   },
   {
@@ -344,8 +344,8 @@
    "ultimo": 515.17,
    "prezzo_tipo": "indice",
    "titoli": 45,
-   "m1_eur": -15.5,
-   "m3_eur": -19.6
+   "m1_eur": -12.6,
+   "m3_eur": -16.8
   },
   {
    "etf": "SET50",
@@ -360,7 +360,7 @@
    "sopra": 37,
    "soglia_default": 16,
    "dd": -4.4,
-   "ultimo": 2545.31,
+   "ultimo": 2545.65,
    "prezzo_tipo": "paniere",
    "titoli": 50,
    "m1_eur": 1.9,
@@ -382,8 +382,8 @@
    "ultimo": 1615.6,
    "prezzo_tipo": "indice",
    "titoli": 30,
-   "m1_eur": -1.9,
-   "m3_eur": -5.9
+   "m1_eur": 1.4,
+   "m3_eur": -2.7
   }
  ],
  "conta": {
@@ -391,8 +391,8 @@
   "indice": 9
  },
  "indice": {
-  "b200": 35.0,
-  "b50": 30.6,
+  "b200": 35.1,
+  "b50": 30.5,
   "n": 1020
  },
  "parametri": {},

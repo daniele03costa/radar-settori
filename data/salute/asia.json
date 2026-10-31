@@ -1,8 +1,8 @@
 {
  "passo": "asia",
  "esito": "ok",
- "ultimo_tentativo": "2026-10-30T11:31:39Z",
- "ultimo_successo": "2026-10-30T11:31:39Z",
+ "ultimo_tentativo": "2026-10-31T01:56:03Z",
+ "ultimo_successo": "2026-10-31T01:56:03Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
@@ -12,6 +12,11 @@
  "indici": 6,
  "mancanti": [],
  "fermi": [
+  {
+   "t": "BANPU.BK",
+   "nome": "Banpu",
+   "dal": "2026-08-11"
+  },
   {
    "t": "601059.SS",
    "nome": "Cinda Securities",
