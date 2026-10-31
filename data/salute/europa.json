@@ -1,19 +1,23 @@
 {
  "passo": "europa",
  "esito": "ok",
- "ultimo_tentativo": "2026-10-31T01:49:55Z",
- "ultimo_successo": "2026-10-31T01:49:55Z",
+ "ultimo_tentativo": "2026-10-31T06:57:52Z",
+ "ultimo_successo": "2026-10-31T06:57:52Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
  "aggiornato": "2026-10-30",
- "titoli": 467,
+ "titoli": 466,
  "totale": 472,
  "indici": 14,
  "mancanti": [
   {
    "t": "IIA.VI",
    "nome": "Immofinanz"
+  },
+  {
+   "t": "ELE.MC",
+   "nome": "Endesa"
   },
   {
    "t": "GOGL.OL",
