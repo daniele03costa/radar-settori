@@ -1,12 +1,12 @@
 {
  "passo": "crypto",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-01T10:49:37Z",
- "ultimo_successo": "2026-11-01T10:49:37Z",
+ "ultimo_tentativo": "2026-11-02T06:25:39Z",
+ "ultimo_successo": "2026-11-02T06:25:39Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
- "aggiornato": "2026-10-31",
+ "aggiornato": "2026-11-01",
  "titoli": 10,
  "fonte": "CoinGecko"
 }
