@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-10-30",
- "generato": "2026-10-31T11:02:01Z",
+ "generato": "2026-11-03T03:48:44Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Emergenti",
@@ -322,7 +322,7 @@
    "sopra": 17,
    "soglia_default": 5,
    "dd": -2.2,
-   "ultimo": 4995.91,
+   "ultimo": 4995.9,
    "prezzo_tipo": "paniere",
    "titoli": 20,
    "m1_eur": 2.9,
