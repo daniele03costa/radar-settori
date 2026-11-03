@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-02",
- "generato": "2026-11-03T03:42:47Z",
+ "generato": "2026-11-03T12:13:07Z",
  "settori": [
   {
    "etf": "XLK",
@@ -44,11 +44,11 @@
   {
    "etf": "XLP",
    "nome": "Beni di prima necessità",
-   "b200": 66.7,
-   "b50": 84.8,
-   "b20": 91.2,
-   "n": 33,
-   "sopra": 22,
+   "b200": 65.6,
+   "b50": 84.4,
+   "b20": 90.9,
+   "n": 32,
+   "sopra": 21,
    "soglia_default": 11,
    "simbolo_breadth": null,
    "dd": 0.0,
@@ -152,9 +152,9 @@
  },
  "punto_nel_tempo": true,
  "indice": {
-  "b200": 63.2,
+  "b200": 63.1,
   "b50": 66.7,
-  "n": 500
+  "n": 499
  },
  "parametri": {}
 }

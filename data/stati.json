@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-02",
- "generato": "2026-11-03T03:42:48Z",
+ "generato": "2026-11-03T12:13:08Z",
  "ritardo": {
   "attesa": "2026-11-02",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-03",
- "ampiezza_sp500": 63.2,
+ "ampiezza_sp500": 63.1,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2025-04-09",
-  "ampiezza": 63.2,
+  "ampiezza": 63.1,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -179,13 +179,13 @@
    "stato_nome": "Normale",
    "dal": "2026-10-08",
    "livello": 11,
-   "ampiezza": 66.7,
-   "ampiezza_un_mese_fa": 21.2,
-   "titoli_sopra": 22,
-   "titoli_totali": 33,
+   "ampiezza": 65.6,
+   "ampiezza_un_mese_fa": 21.9,
+   "titoli_sopra": 21,
+   "titoli_totali": 32,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 19,
-   "punti_dal_livello": 55.7,
+   "titoli_che_mancano": 18,
+   "punti_dal_livello": 54.6,
    "drawdown": 0,
    "percentile_drawdown": 0
   },

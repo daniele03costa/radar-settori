@@ -1,10 +1,12 @@
 {
  "passo": "usa-ampiezza",
- "esito": "errore",
- "ultimo_tentativo": "2026-11-03T07:48:30Z",
- "ultimo_successo": "2026-11-03T03:42:49Z",
- "errori_di_fila": 1,
- "messaggio": "ERRORE: ETF senza dati: ['XLC']",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-11-03T12:13:08Z",
+ "ultimo_successo": "2026-11-03T12:13:08Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
  "aggiornato": "2026-11-02",
- "titoli": 500
+ "settori": 11,
+ "titoli": 499
 }
