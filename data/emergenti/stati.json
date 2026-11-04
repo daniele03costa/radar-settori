@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-03",
- "generato": "2026-11-04T02:49:02Z",
+ "generato": "2026-11-04T13:09:15Z",
  "ritardo": {
   "attesa": "2026-11-03",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-04",
- "ampiezza_indice": 34.5,
+ "ampiezza_indice": 34.9,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-27",
-  "ampiezza": 34.5,
+  "ampiezza": 34.9,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -19,8 +19,37 @@
   "cambi_ultima_seduta": [],
   "cambi_recenti": []
  },
- "cambi_ultima_seduta": [],
+ "cambi_ultima_seduta": [
+  {
+   "data": "2026-11-03",
+   "etf": "EM-BENI-DI-PRIMA-NECESSITA",
+   "nome": "Beni di prima necessità",
+   "codice": "Beni primari",
+   "da": "attenzione",
+   "a": "normale",
+   "da_nome": "Attenzione",
+   "a_nome": "Normale",
+   "ampiezza": 41.9,
+   "titoli_sopra": 13,
+   "titoli_totali": 31,
+   "drawdown": -11.2
+  }
+ ],
  "cambi_recenti": [
+  {
+   "data": "2026-11-03",
+   "etf": "EM-BENI-DI-PRIMA-NECESSITA",
+   "nome": "Beni di prima necessità",
+   "codice": "Beni primari",
+   "da": "attenzione",
+   "a": "normale",
+   "da_nome": "Attenzione",
+   "a_nome": "Normale",
+   "ampiezza": 41.9,
+   "titoli_sopra": 13,
+   "titoli_totali": 31,
+   "drawdown": -11.2
+  },
   {
    "data": "2026-10-29",
    "etf": "IBOVESPA",
@@ -152,7 +181,7 @@
    "titoli_che_mancano": 0,
    "punti_dal_livello": -0.7,
    "drawdown": -18.6,
-   "percentile_drawdown": 86,
+   "percentile_drawdown": 85,
    "per_il_trigger": {
     "punti_che_mancano": 5.7,
     "ampiezza_obiettivo": 29,
@@ -224,14 +253,14 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-27",
    "livello": 24,
-   "ampiezza": 18.5,
+   "ampiezza": 22.2,
    "ampiezza_un_mese_fa": 74.1,
-   "titoli_sopra": 5,
+   "titoli_sopra": 6,
    "titoli_totali": 27,
    "titoli_al_livello": 6,
    "titoli_che_mancano": 0,
-   "punti_dal_livello": -5.5,
-   "drawdown": -19.7,
+   "punti_dal_livello": -1.8,
+   "drawdown": -19.8,
    "percentile_drawdown": 85
   },
   {
@@ -250,7 +279,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 1,
    "punti_dal_livello": 6,
-   "drawdown": -18.1,
+   "drawdown": -18,
    "percentile_drawdown": 81
   },
   {
@@ -273,25 +302,6 @@
    "percentile_drawdown": 68
   },
   {
-   "etf": "EM-BENI-DI-PRIMA-NECESSITA",
-   "nome": "Beni di prima necessità",
-   "codice": "Beni primari",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-10-27",
-   "livello": 29,
-   "ampiezza": 38.7,
-   "ampiezza_un_mese_fa": 38.7,
-   "titoli_sopra": 12,
-   "titoli_totali": 31,
-   "titoli_al_livello": 9,
-   "titoli_che_mancano": 3,
-   "punti_dal_livello": 9.7,
-   "drawdown": -11.2,
-   "percentile_drawdown": 81
-  },
-  {
    "etf": "EM-CONSUMI-DISCREZIONALI",
    "nome": "Consumi discrezionali",
    "codice": "Discrezionali",
@@ -300,14 +310,14 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-28",
    "livello": 15,
-   "ampiezza": 28.6,
+   "ampiezza": 25,
    "ampiezza_un_mese_fa": 53.6,
-   "titoli_sopra": 8,
+   "titoli_sopra": 7,
    "titoli_totali": 28,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 4,
-   "punti_dal_livello": 13.6,
-   "drawdown": -24.9,
+   "titoli_che_mancano": 3,
+   "punti_dal_livello": 10,
+   "drawdown": -25.1,
    "percentile_drawdown": 89
   },
   {
@@ -345,8 +355,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 5,
    "punti_dal_livello": 36.5,
-   "drawdown": -9.3,
-   "percentile_drawdown": 69
+   "drawdown": -9.4,
+   "percentile_drawdown": 70
   },
   {
    "etf": "EM-SANITA",
@@ -357,15 +367,34 @@
    "stato_nome": "Normale",
    "dal": "2026-07-09",
    "livello": 17,
-   "ampiezza": 33.3,
+   "ampiezza": 50,
    "ampiezza_un_mese_fa": 66.7,
-   "titoli_sopra": 2,
+   "titoli_sopra": 3,
    "titoli_totali": 6,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 1,
-   "punti_dal_livello": 16.3,
+   "titoli_che_mancano": 2,
+   "punti_dal_livello": 33,
    "drawdown": -25.4,
    "percentile_drawdown": 83
+  },
+  {
+   "etf": "EM-BENI-DI-PRIMA-NECESSITA",
+   "nome": "Beni di prima necessità",
+   "codice": "Beni primari",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-11-03",
+   "livello": 29,
+   "ampiezza": 41.9,
+   "ampiezza_un_mese_fa": 38.7,
+   "titoli_sopra": 13,
+   "titoli_totali": 31,
+   "titoli_al_livello": 9,
+   "titoli_che_mancano": 4,
+   "punti_dal_livello": 12.9,
+   "drawdown": -11.2,
+   "percentile_drawdown": 81
   },
   {
    "etf": "EM-ENERGIA",
@@ -376,14 +405,14 @@
    "stato_nome": "Normale",
    "dal": "2025-08-07",
    "livello": 18,
-   "ampiezza": 61.5,
+   "ampiezza": 53.8,
    "ampiezza_un_mese_fa": 76.9,
-   "titoli_sopra": 8,
+   "titoli_sopra": 7,
    "titoli_totali": 13,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 6,
-   "punti_dal_livello": 43.5,
-   "drawdown": -18.9,
+   "titoli_che_mancano": 5,
+   "punti_dal_livello": 35.8,
+   "drawdown": -19,
    "percentile_drawdown": 81
   },
   {
@@ -402,8 +431,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 19,
-   "drawdown": -13.6,
-   "percentile_drawdown": 78
+   "drawdown": -13.1,
+   "percentile_drawdown": 77
   },
   {
    "etf": "S-P-IPSA",
@@ -433,13 +462,13 @@
    "stato_nome": "Normale",
    "dal": "2026-10-09",
    "livello": 23,
-   "ampiezza": 60,
+   "ampiezza": 65.7,
    "ampiezza_un_mese_fa": 31.4,
-   "titoli_sopra": 21,
+   "titoli_sopra": 23,
    "titoli_totali": 35,
    "titoli_al_livello": 8,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 37,
+   "titoli_che_mancano": 15,
+   "punti_dal_livello": 42.7,
    "drawdown": -2,
    "percentile_drawdown": 27
   },
@@ -452,15 +481,15 @@
    "stato_nome": "Normale",
    "dal": "2022-12-20",
    "livello": 5,
-   "ampiezza": 85,
+   "ampiezza": 80,
    "ampiezza_un_mese_fa": 75,
-   "titoli_sopra": 17,
+   "titoli_sopra": 16,
    "titoli_totali": 20,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 16,
-   "punti_dal_livello": 80,
-   "drawdown": -3.3,
-   "percentile_drawdown": 40
+   "titoli_che_mancano": 15,
+   "punti_dal_livello": 75,
+   "drawdown": -3.6,
+   "percentile_drawdown": 42
   },
   {
    "etf": "EM-FINANZIARI",
