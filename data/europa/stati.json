@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-04",
- "generato": "2026-11-05T02:47:43Z",
+ "generato": "2026-11-05T07:56:55Z",
  "ritardo": {
   "attesa": "2026-11-04",
   "sedute": 0
@@ -513,7 +513,7 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 70,
    "punti_dal_livello": 73.1,
-   "drawdown": -1.6,
+   "drawdown": -1.7,
    "percentile_drawdown": 33
   }
  ],
