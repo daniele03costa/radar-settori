@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-05",
- "generato": "2026-11-05T13:21:57Z",
+ "generato": "2026-11-06T02:55:50Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Asia",
@@ -17,12 +17,12 @@
    "n": 149,
    "sopra": 37,
    "soglia_default": 18,
-   "dd": -20.6,
-   "ultimo": 13509.47,
+   "dd": -20.8,
+   "ultimo": 13481.72,
    "prezzo_tipo": "paniere",
    "titoli": 149,
-   "m1_eur": -17.8,
-   "m3_eur": -13.1
+   "m1_eur": -17.9,
+   "m3_eur": -13.3
   },
   {
    "etf": "ASIA-COMUNICAZIONI",
@@ -36,12 +36,12 @@
    "n": 53,
    "sopra": 26,
    "soglia_default": 29,
-   "dd": -8.0,
-   "ultimo": 12499.49,
+   "dd": -7.7,
+   "ultimo": 12545.49,
    "prezzo_tipo": "paniere",
    "titoli": 53,
-   "m1_eur": -0.2,
-   "m3_eur": -1.4
+   "m1_eur": 0.1,
+   "m3_eur": -1.1
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -55,12 +55,12 @@
    "n": 105,
    "sopra": 46,
    "soglia_default": 21,
-   "dd": -1.8,
-   "ultimo": 4943.23,
+   "dd": -1.9,
+   "ultimo": 4939.38,
    "prezzo_tipo": "paniere",
    "titoli": 105,
-   "m1_eur": 2.7,
-   "m3_eur": -1.8
+   "m1_eur": 2.6,
+   "m3_eur": -1.9
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -75,11 +75,11 @@
    "sopra": 47,
    "soglia_default": 30,
    "dd": 0.0,
-   "ultimo": 10345.56,
+   "ultimo": 10363.44,
    "prezzo_tipo": "paniere",
    "titoli": 88,
-   "m1_eur": 4.6,
-   "m3_eur": 3.0
+   "m1_eur": 4.8,
+   "m3_eur": 3.2
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -93,12 +93,12 @@
    "n": 34,
    "sopra": 10,
    "soglia_default": 11,
-   "dd": -14.8,
-   "ultimo": 27802.55,
+   "dd": -14.5,
+   "ultimo": 27927.06,
    "prezzo_tipo": "paniere",
    "titoli": 35,
-   "m1_eur": -12.8,
-   "m3_eur": -3.3
+   "m1_eur": -12.5,
+   "m3_eur": -2.8
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -107,16 +107,16 @@
    "tipo": "settore",
    "paese": "Asia",
    "b200": 54.5,
-   "b50": 47.6,
-   "b20": 61.4,
+   "b50": 46.9,
+   "b20": 60.7,
    "n": 145,
    "sopra": 79,
    "soglia_default": 12,
    "dd": -1.5,
-   "ultimo": 6785.47,
+   "ultimo": 6781.34,
    "prezzo_tipo": "paniere",
    "titoli": 146,
-   "m1_eur": -0.5,
+   "m1_eur": -0.6,
    "m3_eur": 2.8
   },
   {
@@ -132,11 +132,11 @@
    "sopra": 41,
    "soglia_default": 28,
    "dd": 0.0,
-   "ultimo": 12610.75,
+   "ultimo": 12592.49,
    "prezzo_tipo": "paniere",
    "titoli": 69,
-   "m1_eur": 6.3,
-   "m3_eur": 6.9
+   "m1_eur": 6.1,
+   "m3_eur": 6.8
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -144,18 +144,18 @@
    "nome": "Industriali",
    "tipo": "settore",
    "paese": "Asia",
-   "b200": 31.4,
+   "b200": 31.9,
    "b50": 45.5,
    "b20": 49.2,
    "n": 191,
-   "sopra": 60,
+   "sopra": 61,
    "soglia_default": 17,
-   "dd": -9.7,
-   "ultimo": 5084.79,
+   "dd": -9.8,
+   "ultimo": 5078.2,
    "prezzo_tipo": "paniere",
    "titoli": 191,
-   "m1_eur": -5.9,
-   "m3_eur": -4.2
+   "m1_eur": -6.0,
+   "m3_eur": -4.4
   },
   {
    "etf": "ASIA-MATERIALI",
@@ -169,12 +169,12 @@
    "n": 123,
    "sopra": 23,
    "soglia_default": 15,
-   "dd": -14.0,
-   "ultimo": 11689.6,
+   "dd": -13.9,
+   "ultimo": 11695.52,
    "prezzo_tipo": "paniere",
    "titoli": 123,
-   "m1_eur": -9.0,
-   "m3_eur": -8.0
+   "m1_eur": -8.9,
+   "m3_eur": -7.9
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -188,12 +188,12 @@
    "n": 24,
    "sopra": 16,
    "soglia_default": 12,
-   "dd": -5.7,
-   "ultimo": 2925.31,
+   "dd": -5.9,
+   "ultimo": 2920.85,
    "prezzo_tipo": "paniere",
    "titoli": 24,
-   "m1_eur": 7.1,
-   "m3_eur": 6.3
+   "m1_eur": 7.0,
+   "m3_eur": 6.1
   },
   {
    "etf": "ASIA-UTILITY",
@@ -207,12 +207,12 @@
    "n": 39,
    "sopra": 26,
    "soglia_default": 24,
-   "dd": -0.2,
-   "ultimo": 2238.46,
+   "dd": -0.1,
+   "ultimo": 2240.01,
    "prezzo_tipo": "paniere",
    "titoli": 39,
-   "m1_eur": 2.6,
-   "m3_eur": 7.6
+   "m1_eur": 2.7,
+   "m3_eur": 7.7
   },
   {
    "etf": "NIKKEI-225",
@@ -230,8 +230,8 @@
    "ultimo": 61077.9,
    "prezzo_tipo": "indice",
    "titoli": 225,
-   "m1_eur": -12.6,
-   "m3_eur": -6.4
+   "m1_eur": -12.7,
+   "m3_eur": -6.5
   },
   {
    "etf": "HANG-SENG",
@@ -249,8 +249,8 @@
    "ultimo": 24796.98,
    "prezzo_tipo": "indice",
    "titoli": 95,
-   "m1_eur": 3.1,
-   "m3_eur": -1.5
+   "m1_eur": 3.0,
+   "m3_eur": -1.7
   },
   {
    "etf": "CSI-300",
@@ -258,18 +258,18 @@
    "nome": "CSI 300",
    "tipo": "indice",
    "paese": "Cina",
-   "b200": 31.1,
+   "b200": 31.4,
    "b50": 57.2,
    "b20": 67.6,
    "n": 299,
-   "sopra": 93,
+   "sopra": 94,
    "soglia_default": 12,
-   "dd": -3.1,
-   "ultimo": 9397.37,
+   "dd": -3.6,
+   "ultimo": 9346.44,
    "prezzo_tipo": "paniere",
    "titoli": 300,
-   "m1_eur": 0.5,
-   "m3_eur": -1.0
+   "m1_eur": 0.0,
+   "m3_eur": -1.6
   },
   {
    "etf": "KOSPI-200",
@@ -283,12 +283,12 @@
    "n": 200,
    "sopra": 38,
    "soglia_default": 22,
-   "dd": -13.9,
-   "ultimo": 5559.79,
+   "dd": -13.8,
+   "ultimo": 5568.06,
    "prezzo_tipo": "paniere",
    "titoli": 200,
-   "m1_eur": -11.7,
-   "m3_eur": -6.1
+   "m1_eur": -11.6,
+   "m3_eur": -5.9
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -302,12 +302,12 @@
    "n": 50,
    "sopra": 32,
    "soglia_default": 18,
-   "dd": -19.9,
-   "ultimo": 5931.22,
+   "dd": -19.6,
+   "ultimo": 5948.33,
    "prezzo_tipo": "paniere",
    "titoli": 50,
-   "m1_eur": -19.6,
-   "m3_eur": -1.6
+   "m1_eur": -19.4,
+   "m3_eur": -1.3
   },
   {
    "etf": "NIFTY-50",
@@ -316,17 +316,17 @@
    "tipo": "indice",
    "paese": "India",
    "b200": 54.0,
-   "b50": 84.0,
-   "b20": 98.0,
+   "b50": 82.0,
+   "b20": 96.0,
    "n": 50,
    "sopra": 27,
    "soglia_default": 21,
-   "dd": -3.4,
-   "ultimo": 9932.3,
+   "dd": -3.8,
+   "ultimo": 9886.43,
    "prezzo_tipo": "paniere",
    "titoli": 50,
-   "m1_eur": 10.1,
-   "m3_eur": 1.6
+   "m1_eur": 9.6,
+   "m3_eur": 1.2
   },
   {
    "etf": "LQ45",
@@ -344,8 +344,8 @@
    "ultimo": 513.65,
    "prezzo_tipo": "indice",
    "titoli": 45,
-   "m1_eur": -18.3,
-   "m3_eur": -20.2
+   "m1_eur": -16.6,
+   "m3_eur": -18.5
   },
   {
    "etf": "SET50",
@@ -359,12 +359,12 @@
    "n": 49,
    "sopra": 39,
    "soglia_default": 16,
-   "dd": -4.0,
-   "ultimo": 2556.61,
+   "dd": -4.6,
+   "ultimo": 2540.07,
    "prezzo_tipo": "paniere",
    "titoli": 50,
-   "m1_eur": -0.3,
-   "m3_eur": 0.3
+   "m1_eur": -0.9,
+   "m3_eur": -0.4
   },
   {
    "etf": "FTSE-BURSA-MALAYSIA-KLCI",
@@ -382,8 +382,8 @@
    "ultimo": 1635.86,
    "prezzo_tipo": "indice",
    "titoli": 30,
-   "m1_eur": -0.3,
-   "m3_eur": -5.0
+   "m1_eur": 2.0,
+   "m3_eur": -2.7
   }
  ],
  "conta": {
@@ -391,8 +391,8 @@
   "indice": 9
  },
  "indice": {
-  "b200": 40.3,
-  "b50": 47.7,
+  "b200": 40.4,
+  "b50": 47.6,
   "n": 1020
  },
  "parametri": {},

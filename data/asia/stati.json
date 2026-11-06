@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-05",
- "generato": "2026-11-05T13:21:58Z",
+ "generato": "2026-11-06T02:55:51Z",
  "ritardo": {
-  "attesa": "2026-11-04",
+  "attesa": "2026-11-05",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-06",
- "ampiezza_indice": 40.3,
+ "ampiezza_indice": 40.4,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 40.3,
+  "ampiezza": 40.4,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -32,7 +32,7 @@
    "ampiezza": 49.1,
    "titoli_sopra": 26,
    "titoli_totali": 53,
-   "drawdown": -8
+   "drawdown": -7.7
   },
   {
    "data": "2026-11-05",
@@ -62,7 +62,7 @@
    "ampiezza": 49.1,
    "titoli_sopra": 26,
    "titoli_totali": 53,
-   "drawdown": -8
+   "drawdown": -7.7
   },
   {
    "data": "2026-11-05",
@@ -276,8 +276,8 @@
    "titoli_al_livello": 10,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 33,
-   "drawdown": -3.4,
-   "percentile_drawdown": 41,
+   "drawdown": -3.8,
+   "percentile_drawdown": 44,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
@@ -302,7 +302,7 @@
    "titoli_al_livello": 44,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -3,
-   "drawdown": -13.9,
+   "drawdown": -13.8,
    "percentile_drawdown": 83,
    "per_il_trigger": {
     "punti_che_mancano": 8,
@@ -356,8 +356,8 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 5,
    "punti_dal_livello": 3.7,
-   "drawdown": -14,
-   "percentile_drawdown": 85
+   "drawdown": -13.9,
+   "percentile_drawdown": 84
   },
   {
    "etf": "ASIA-TECNOLOGIA",
@@ -375,7 +375,7 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 6.8,
-   "drawdown": -20.6,
+   "drawdown": -20.8,
    "percentile_drawdown": 90
   },
   {
@@ -394,7 +394,7 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 23,
    "punti_dal_livello": 46,
-   "drawdown": -19.9,
+   "drawdown": -19.6,
    "percentile_drawdown": 91
   },
   {
@@ -413,8 +413,8 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 7,
    "punti_dal_livello": 18.4,
-   "drawdown": -14.8,
-   "percentile_drawdown": 82
+   "drawdown": -14.5,
+   "percentile_drawdown": 81
   },
   {
    "etf": "ASIA-COMUNICAZIONI",
@@ -432,8 +432,8 @@
    "titoli_al_livello": 15,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 20.1,
-   "drawdown": -8,
-   "percentile_drawdown": 82
+   "drawdown": -7.7,
+   "percentile_drawdown": 80
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -451,8 +451,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 54.7,
-   "drawdown": -5.7,
-   "percentile_drawdown": 47
+   "drawdown": -5.9,
+   "percentile_drawdown": 48
   },
   {
    "etf": "ASIA-UTILITY",
@@ -471,7 +471,7 @@
    "titoli_che_mancano": 17,
    "punti_dal_livello": 42.7,
    "drawdown": -0.1,
-   "percentile_drawdown": 12
+   "percentile_drawdown": 11
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -528,7 +528,7 @@
    "titoli_che_mancano": 24,
    "punti_dal_livello": 22.8,
    "drawdown": -1.8,
-   "percentile_drawdown": 37
+   "percentile_drawdown": 38
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -539,15 +539,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-30",
    "livello": 17,
-   "ampiezza": 31.4,
+   "ampiezza": 31.9,
    "ampiezza_un_mese_fa": 37.7,
-   "titoli_sopra": 60,
+   "titoli_sopra": 61,
    "titoli_totali": 191,
    "titoli_al_livello": 32,
-   "titoli_che_mancano": 28,
-   "punti_dal_livello": 14.4,
-   "drawdown": -9.7,
-   "percentile_drawdown": 76
+   "titoli_che_mancano": 29,
+   "punti_dal_livello": 14.9,
+   "drawdown": -9.8,
+   "percentile_drawdown": 77
   },
   {
    "etf": "SET50",
@@ -565,8 +565,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 32,
    "punti_dal_livello": 63.6,
-   "drawdown": -4,
-   "percentile_drawdown": 44
+   "drawdown": -4.6,
+   "percentile_drawdown": 48
   },
   {
    "etf": "HANG-SENG",
@@ -596,15 +596,15 @@
    "stato_nome": "Normale",
    "dal": "2024-01-24",
    "livello": 12,
-   "ampiezza": 31.1,
+   "ampiezza": 31.4,
    "ampiezza_un_mese_fa": 30.4,
-   "titoli_sopra": 93,
+   "titoli_sopra": 94,
    "titoli_totali": 299,
    "titoli_al_livello": 36,
-   "titoli_che_mancano": 57,
-   "punti_dal_livello": 19.1,
-   "drawdown": -3.1,
-   "percentile_drawdown": 30
+   "titoli_che_mancano": 58,
+   "punti_dal_livello": 19.4,
+   "drawdown": -3.6,
+   "percentile_drawdown": 33
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -623,7 +623,7 @@
    "titoli_che_mancano": 62,
    "punti_dal_livello": 42.5,
    "drawdown": -1.5,
-   "percentile_drawdown": 34
+   "percentile_drawdown": 35
   },
   {
    "etf": "NIKKEI-225",
