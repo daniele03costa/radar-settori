@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-05",
- "generato": "2026-11-06T07:55:23Z",
+ "generato": "2026-11-06T12:24:30Z",
  "ritardo": {
   "attesa": "2026-11-05",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-06",
- "ampiezza_indice": 66.6,
+ "ampiezza_indice": 66.8,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2022-10-17",
-  "ampiezza": 66.6,
+  "ampiezza": 66.8,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -114,7 +114,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 44,
-   "drawdown": -10.8,
+   "drawdown": -10.7,
    "percentile_drawdown": 78
   },
   {
@@ -190,8 +190,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 47.7,
-   "drawdown": -4.3,
-   "percentile_drawdown": 49
+   "drawdown": -4.5,
+   "percentile_drawdown": 51
   },
   {
    "etf": "MATERIALI",
@@ -209,7 +209,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 28.5,
-   "drawdown": -6.3,
+   "drawdown": -6.2,
    "percentile_drawdown": 62
   },
   {
@@ -247,8 +247,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 72.9,
-   "drawdown": -7.9,
-   "percentile_drawdown": 55
+   "drawdown": -8.1,
+   "percentile_drawdown": 56
   },
   {
    "etf": "SMI",
@@ -476,7 +476,7 @@
    "titoli_che_mancano": 40,
    "punti_dal_livello": 40.6,
    "drawdown": -1.8,
-   "percentile_drawdown": 42
+   "percentile_drawdown": 41
   },
   {
    "etf": "FTSE-100",
@@ -487,13 +487,13 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 18,
-   "ampiezza": 65,
+   "ampiezza": 66,
    "ampiezza_un_mese_fa": 52,
-   "titoli_sopra": 65,
+   "titoli_sopra": 66,
    "titoli_totali": 100,
    "titoli_al_livello": 18,
-   "titoli_che_mancano": 47,
-   "punti_dal_livello": 47,
+   "titoli_che_mancano": 48,
+   "punti_dal_livello": 48,
    "drawdown": -1.2,
    "percentile_drawdown": 24
   },
@@ -506,14 +506,14 @@
    "stato_nome": "Normale",
    "dal": "2022-10-13",
    "livello": 8,
-   "ampiezza": 77.9,
+   "ampiezza": 78.9,
    "ampiezza_un_mese_fa": 76.8,
-   "titoli_sopra": 74,
+   "titoli_sopra": 75,
    "titoli_totali": 95,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 67,
-   "punti_dal_livello": 69.9,
-   "drawdown": -2,
+   "titoli_che_mancano": 68,
+   "punti_dal_livello": 70.9,
+   "drawdown": -1.9,
    "percentile_drawdown": 35
   }
  ],
