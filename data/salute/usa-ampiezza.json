@@ -1,10 +1,12 @@
 {
  "passo": "usa-ampiezza",
- "esito": "errore",
- "ultimo_tentativo": "2026-11-07T07:00:36Z",
- "ultimo_successo": "2026-11-07T02:21:30Z",
- "errori_di_fila": 1,
- "messaggio": "ERRORE: ETF senza dati: ['XLE']",
- "aggiornato": "2026-11-05",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-11-07T11:16:45Z",
+ "ultimo_successo": "2026-11-07T11:16:45Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
+ "aggiornato": "2026-11-06",
+ "settori": 11,
  "titoli": 500
 }
