@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-06",
- "generato": "2026-11-06T13:06:05Z",
+ "generato": "2026-11-07T02:27:34Z",
  "ritardo": {
-  "attesa": "2026-11-05",
+  "attesa": "2026-11-06",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-09",
- "ampiezza_indice": 36.6,
+ "ampiezza_indice": 36.2,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 36.6,
+  "ampiezza": 36.2,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -22,17 +22,17 @@
  "cambi_ultima_seduta": [
   {
    "data": "2026-11-06",
-   "etf": "ASIA-COMUNICAZIONI",
-   "nome": "Comunicazioni",
-   "codice": "Comunicazioni",
+   "etf": "ASIA-INDUSTRIALI",
+   "nome": "Industriali",
+   "codice": "Industriali",
    "da": "normale",
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 43.4,
-   "titoli_sopra": 23,
-   "titoli_totali": 53,
-   "drawdown": -9.1
+   "ampiezza": 29.8,
+   "titoli_sopra": 57,
+   "titoli_totali": 191,
+   "drawdown": -13.2
   },
   {
    "data": "2026-11-06",
@@ -52,17 +52,17 @@
  "cambi_recenti": [
   {
    "data": "2026-11-06",
-   "etf": "ASIA-COMUNICAZIONI",
-   "nome": "Comunicazioni",
-   "codice": "Comunicazioni",
+   "etf": "ASIA-INDUSTRIALI",
+   "nome": "Industriali",
+   "codice": "Industriali",
    "da": "normale",
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 43.4,
-   "titoli_sopra": 23,
-   "titoli_totali": 53,
-   "drawdown": -9.1
+   "ampiezza": 29.8,
+   "titoli_sopra": 57,
+   "titoli_totali": 191,
+   "drawdown": -13.2
   },
   {
    "data": "2026-11-06",
@@ -283,15 +283,15 @@
    "stato_nome": "Trigger",
    "dal": "2026-10-13",
    "livello": 21,
-   "ampiezza": 64,
+   "ampiezza": 54,
    "ampiezza_un_mese_fa": 16,
-   "titoli_sopra": 32,
+   "titoli_sopra": 27,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 22,
-   "punti_dal_livello": 43,
-   "drawdown": -1,
-   "percentile_drawdown": 22,
+   "titoli_che_mancano": 17,
+   "punti_dal_livello": 33,
+   "drawdown": -3.4,
+   "percentile_drawdown": 41,
    "trigger": {
     "data": "2026-10-13",
     "conferme": [
@@ -316,7 +316,7 @@
    "titoli_al_livello": 44,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -3.5,
-   "drawdown": -17.5,
+   "drawdown": -17.9,
    "percentile_drawdown": 90,
    "per_il_trigger": {
     "punti_che_mancano": 8.5,
@@ -344,7 +344,7 @@
    "titoli_al_livello": 6,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -2.9,
-   "drawdown": -42,
+   "drawdown": -42.5,
    "percentile_drawdown": 97,
    "per_il_trigger": {
     "punti_che_mancano": 7.9,
@@ -370,8 +370,8 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 2,
    "punti_dal_livello": 0.8,
-   "drawdown": -23.9,
-   "percentile_drawdown": 93
+   "drawdown": -24.4,
+   "percentile_drawdown": 94
   },
   {
    "etf": "ASIA-MATERIALI",
@@ -389,27 +389,8 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 2,
    "punti_dal_livello": 1.3,
-   "drawdown": -16.9,
+   "drawdown": -17.1,
    "percentile_drawdown": 89
-  },
-  {
-   "etf": "ASIA-COMUNICAZIONI",
-   "nome": "Comunicazioni",
-   "codice": "Comunicazioni",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-11-06",
-   "livello": 29,
-   "ampiezza": 43.4,
-   "ampiezza_un_mese_fa": 32.1,
-   "titoli_sopra": 23,
-   "titoli_totali": 53,
-   "titoli_al_livello": 15,
-   "titoli_che_mancano": 8,
-   "punti_dal_livello": 14.4,
-   "drawdown": -9.1,
-   "percentile_drawdown": 85
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -427,8 +408,27 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 19,
    "punti_dal_livello": 38,
-   "drawdown": -22.9,
-   "percentile_drawdown": 93
+   "drawdown": -24,
+   "percentile_drawdown": 94
+  },
+  {
+   "etf": "ASIA-INDUSTRIALI",
+   "nome": "Industriali",
+   "codice": "Industriali",
+   "tipo": "settore",
+   "stato": "attenzione",
+   "stato_nome": "Attenzione",
+   "dal": "2026-11-06",
+   "livello": 17,
+   "ampiezza": 29.8,
+   "ampiezza_un_mese_fa": 35.1,
+   "titoli_sopra": 57,
+   "titoli_totali": 191,
+   "titoli_al_livello": 32,
+   "titoli_che_mancano": 25,
+   "punti_dal_livello": 12.8,
+   "drawdown": -13.2,
+   "percentile_drawdown": 86
   },
   {
    "etf": "NIKKEI-225",
@@ -450,6 +450,25 @@
    "percentile_drawdown": 90
   },
   {
+   "etf": "ASIA-COMUNICAZIONI",
+   "nome": "Comunicazioni",
+   "codice": "Comunicazioni",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-11-05",
+   "livello": 29,
+   "ampiezza": 43.4,
+   "ampiezza_un_mese_fa": 32.1,
+   "titoli_sopra": 23,
+   "titoli_totali": 53,
+   "titoli_al_livello": 15,
+   "titoli_che_mancano": 8,
+   "punti_dal_livello": 14.4,
+   "drawdown": -8.9,
+   "percentile_drawdown": 85
+  },
+  {
    "etf": "ASIA-IMMOBILIARE",
    "nome": "Immobiliare",
    "codice": "Immobiliare",
@@ -465,7 +484,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 33.8,
-   "drawdown": -8.1,
+   "drawdown": -8.3,
    "percentile_drawdown": 57
   },
   {
@@ -477,15 +496,15 @@
    "stato_nome": "Normale",
    "dal": "2026-07-06",
    "livello": 11,
-   "ampiezza": 41.2,
+   "ampiezza": 38.2,
    "ampiezza_un_mese_fa": 58.8,
-   "titoli_sopra": 14,
+   "titoli_sopra": 13,
    "titoli_totali": 34,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 11,
-   "punti_dal_livello": 30.2,
-   "drawdown": -15.5,
-   "percentile_drawdown": 84
+   "titoli_che_mancano": 10,
+   "punti_dal_livello": 27.2,
+   "drawdown": -15.1,
+   "percentile_drawdown": 83
   },
   {
    "etf": "ASIA-UTILITY",
@@ -503,8 +522,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 40.1,
-   "drawdown": -0.5,
-   "percentile_drawdown": 17
+   "drawdown": -0.6,
+   "percentile_drawdown": 19
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -515,15 +534,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-02",
    "livello": 21,
-   "ampiezza": 38.1,
+   "ampiezza": 37.1,
    "ampiezza_un_mese_fa": 33.3,
-   "titoli_sopra": 40,
+   "titoli_sopra": 39,
    "titoli_totali": 105,
    "titoli_al_livello": 22,
-   "titoli_che_mancano": 18,
-   "punti_dal_livello": 17.1,
-   "drawdown": -4,
-   "percentile_drawdown": 55
+   "titoli_che_mancano": 17,
+   "punti_dal_livello": 16.1,
+   "drawdown": -4.4,
+   "percentile_drawdown": 58
   },
   {
    "etf": "ASIA-SANITA",
@@ -541,8 +560,8 @@
    "titoli_al_livello": 19,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 25.6,
-   "drawdown": -1.8,
-   "percentile_drawdown": 34
+   "drawdown": -2.2,
+   "percentile_drawdown": 37
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -553,34 +572,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-02",
    "livello": 30,
-   "ampiezza": 52.3,
+   "ampiezza": 51.1,
    "ampiezza_un_mese_fa": 34.1,
-   "titoli_sopra": 46,
+   "titoli_sopra": 45,
    "titoli_totali": 88,
    "titoli_al_livello": 26,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 22.3,
+   "titoli_che_mancano": 19,
+   "punti_dal_livello": 21.1,
    "drawdown": -2.1,
    "percentile_drawdown": 43
-  },
-  {
-   "etf": "ASIA-INDUSTRIALI",
-   "nome": "Industriali",
-   "codice": "Industriali",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-10-30",
-   "livello": 17,
-   "ampiezza": 29.3,
-   "ampiezza_un_mese_fa": 35.1,
-   "titoli_sopra": 56,
-   "titoli_totali": 191,
-   "titoli_al_livello": 32,
-   "titoli_che_mancano": 24,
-   "punti_dal_livello": 12.3,
-   "drawdown": -12.9,
-   "percentile_drawdown": 85
   },
   {
    "etf": "SET50",
@@ -598,8 +598,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 28,
    "punti_dal_livello": 55.4,
-   "drawdown": -5.5,
-   "percentile_drawdown": 53
+   "drawdown": -5.8,
+   "percentile_drawdown": 54
   },
   {
    "etf": "HANG-SENG",
@@ -629,15 +629,15 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 12,
-   "ampiezza": 50.3,
+   "ampiezza": 49,
    "ampiezza_un_mese_fa": 54.5,
-   "titoli_sopra": 73,
+   "titoli_sopra": 71,
    "titoli_totali": 145,
    "titoli_al_livello": 17,
-   "titoli_che_mancano": 56,
-   "punti_dal_livello": 38.3,
-   "drawdown": -2.9,
-   "percentile_drawdown": 50
+   "titoli_che_mancano": 54,
+   "punti_dal_livello": 37,
+   "drawdown": -3.4,
+   "percentile_drawdown": 54
   },
   {
    "etf": "CSI-300",
@@ -648,15 +648,15 @@
    "stato_nome": "Normale",
    "dal": "2024-01-24",
    "livello": 12,
-   "ampiezza": 31.1,
+   "ampiezza": 31.4,
    "ampiezza_un_mese_fa": 29.4,
-   "titoli_sopra": 93,
+   "titoli_sopra": 94,
    "titoli_totali": 299,
    "titoli_al_livello": 36,
-   "titoli_che_mancano": 57,
-   "punti_dal_livello": 19.1,
-   "drawdown": -4.1,
-   "percentile_drawdown": 37
+   "titoli_che_mancano": 58,
+   "punti_dal_livello": 19.4,
+   "drawdown": -4.8,
+   "percentile_drawdown": 41
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
