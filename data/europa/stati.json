@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-09",
- "generato": "2026-11-10T04:20:28Z",
+ "generato": "2026-11-10T12:56:09Z",
  "ritardo": {
   "attesa": "2026-11-09",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-10",
- "ampiezza_indice": 67.7,
+ "ampiezza_indice": 67.5,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2022-10-17",
-  "ampiezza": 67.7,
+  "ampiezza": 67.5,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -95,7 +95,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 40,
-   "drawdown": -9.5,
+   "drawdown": -9.6,
    "percentile_drawdown": 75
   },
   {
@@ -133,8 +133,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 47.1,
-   "drawdown": -1.8,
-   "percentile_drawdown": 31
+   "drawdown": -1.7,
+   "percentile_drawdown": 30
   },
   {
    "etf": "BEL-20",
@@ -209,7 +209,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 51.8,
-   "drawdown": -5.1,
+   "drawdown": -5,
    "percentile_drawdown": 55
   },
   {
@@ -327,6 +327,25 @@
    "percentile_drawdown": 22
   },
   {
+   "etf": "UTILITY",
+   "nome": "Utility",
+   "codice": "Utility",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2025-01-15",
+   "livello": 15,
+   "ampiezza": 80,
+   "ampiezza_un_mese_fa": 40,
+   "titoli_sopra": 24,
+   "titoli_totali": 30,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 20,
+   "punti_dal_livello": 65,
+   "drawdown": 0,
+   "percentile_drawdown": 0
+  },
+  {
    "etf": "BENI-DI-PRIMA-NECESSITA",
    "nome": "Beni di prima necessità",
    "codice": "Beni primari",
@@ -343,26 +362,7 @@
    "titoli_che_mancano": 21,
    "punti_dal_livello": 57.8,
    "drawdown": -1.4,
-   "percentile_drawdown": 38
-  },
-  {
-   "etf": "UTILITY",
-   "nome": "Utility",
-   "codice": "Utility",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2025-01-15",
-   "livello": 15,
-   "ampiezza": 83.3,
-   "ampiezza_un_mese_fa": 40,
-   "titoli_sopra": 25,
-   "titoli_totali": 30,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 21,
-   "punti_dal_livello": 68.3,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "percentile_drawdown": 37
   },
   {
    "etf": "IBEX-35",
@@ -400,7 +400,7 @@
    "titoli_che_mancano": 22,
    "punti_dal_livello": 64.9,
    "drawdown": -0.3,
-   "percentile_drawdown": 19
+   "percentile_drawdown": 20
   },
   {
    "etf": "CONSUMI-DISCREZIONALI",
@@ -418,7 +418,7 @@
    "titoli_al_livello": 5,
    "titoli_che_mancano": 25,
    "punti_dal_livello": 60.2,
-   "drawdown": -0.7,
+   "drawdown": -0.6,
    "percentile_drawdown": 22
   },
   {
@@ -449,13 +449,13 @@
    "stato_nome": "Normale",
    "dal": "2023-01-02",
    "livello": 7,
-   "ampiezza": 75,
+   "ampiezza": 72.5,
    "ampiezza_un_mese_fa": 60,
-   "titoli_sopra": 30,
+   "titoli_sopra": 29,
    "titoli_totali": 40,
    "titoli_al_livello": 2,
-   "titoli_che_mancano": 28,
-   "punti_dal_livello": 68,
+   "titoli_che_mancano": 27,
+   "punti_dal_livello": 65.5,
    "drawdown": -4.3,
    "percentile_drawdown": 41
   },
@@ -476,7 +476,7 @@
    "titoli_che_mancano": 41,
    "punti_dal_livello": 41.6,
    "drawdown": -0.9,
-   "percentile_drawdown": 30
+   "percentile_drawdown": 31
   },
   {
    "etf": "FTSE-100",

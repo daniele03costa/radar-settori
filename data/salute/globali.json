@@ -1,13 +1,14 @@
 {
  "passo": "globali",
- "esito": "errore",
- "ultimo_tentativo": "2026-11-10T08:19:40Z",
- "ultimo_successo": "2026-11-10T04:19:28Z",
- "errori_di_fila": 1,
- "messaggio": "Globali: i dati scaricati (2026-11-06) sono più vecchi di quelli pubblicati (2026-11-09), non sovrascrivo",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-11-10T12:54:47Z",
+ "ultimo_successo": "2026-11-10T12:54:47Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
  "aggiornato": "2026-11-09",
+ "correzioni": 2,
  "titoli": 35,
  "totale": 35,
- "fermi": [],
- "avvisi": []
+ "fermi": []
 }
