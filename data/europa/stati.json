@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-10",
- "generato": "2026-11-11T02:16:03Z",
+ "generato": "2026-11-11T07:45:33Z",
  "ritardo": {
   "attesa": "2026-11-10",
   "sedute": 0
@@ -476,7 +476,7 @@
    "titoli_che_mancano": 46,
    "punti_dal_livello": 46.8,
    "drawdown": -0.4,
-   "percentile_drawdown": 22
+   "percentile_drawdown": 23
   },
   {
    "etf": "FTSE-100",
@@ -486,14 +486,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 66,
    "ampiezza_un_mese_fa": 58,
    "titoli_sopra": 66,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 47,
-   "punti_dal_livello": 47,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 48,
+   "punti_dal_livello": 48,
    "drawdown": -1.5,
    "percentile_drawdown": 28
   },
