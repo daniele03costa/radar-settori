@@ -11,7 +11,7 @@
  */
 "use strict";
 
-const VERSIONE = "2026-10-15-media50";
+const VERSIONE = "2026-11-11-azioni-usa-confronto";
 const GUSCIO = `radar-guscio-${VERSIONE}`;
 const DATI = "radar-dati";
 const ATTESA_RETE = 6000;
@@ -21,7 +21,7 @@ const FILE_GUSCIO = [
   "signals.js", "rrg.js", "portafoglio.js", "calendario.js", "chart.js", "core.js", "mappa.js",
   "view-settore.js", "view-monitor.js", "view-rotazione.js", "view-bottom.js", "view-alert.js", "view-titoli.js",
   "portafoglio-calcoli.js", "view-portafoglio.js", "crypto-calcoli.js", "view-crypto.js", "europa-calcoli.js", "view-europa.js",
-  "macro-calcoli.js", "view-macro.js", "view-salute.js", "view-home.js",
+  "macro-calcoli.js", "view-macro.js", "view-salute.js", "view-confronto.js", "view-home.js",
   "app.js", "copia-dati.js",
   "favicon.svg", "manifest.webmanifest", "icona-192.png", "icona-512.png", "icona-maskable.png", "apple-touch-icon.png",
 ];

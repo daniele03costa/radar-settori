@@ -123,6 +123,14 @@ def test_build_outputs():
         assert ind["prezzo"] == "S&P 500 (ETF SPY)"
         # SPY non è un settore
         assert "SPY" not in [x["etf"] for x in meta["settori"]]
+        # le chiusure delle azioni per la pagina Azioni, nella forma di prezzi_europa.json
+        pz = json.loads((out / "prezzi_sp500.json").read_text())
+        assert pz["aggiornato"] == meta["aggiornato"] and pz["date"][-1] == meta["aggiornato"] and pz["date"][0] >= "2024-01-01"
+        assert pz["indici"][0]["yahoo"] == "SPY" and len(pz["indici"][0]["prezzi"]) + pz["indici"][0]["i0"] == len(pz["date"])
+        assert len(pz["titoli"]) > 300 and "NUOVO" not in [x["t"] for x in pz["titoli"]]
+        x0 = pz["titoli"][0]
+        assert set(x0) >= {"t", "nome", "indici", "paese", "settore", "valuta", "i0", "prezzi"} and x0["valuta"] == "USD"
+        assert len(x0["prezzi"]) + x0["i0"] == len(pz["date"]) and x0["settore"] in [z["nome"] for z in meta["settori"]]
         # la cache dei settori degli ex membri viene scritta
         assert (out / "cache" / "settori_ex_membri.json").exists()
         # l'elenco per la ricerca contiene ogni azione attuale una volta sola, con il suo settore
@@ -145,6 +153,44 @@ def test_build_outputs():
             assert all(s["titoli_che_mancano"] >= 0 for s in st["settori"])
             assert all(c["data"] == st["aggiornato"] for c in st["cambi_ultima_seduta"])
             assert st["prossima_seduta"] > st["aggiornato"]
+
+
+def test_prezzi_azioni_e_ultimi_prezzi():
+    """La pagina Azioni degli USA (prezzi_sp500.json) e la seduta che Yahoo non ha ancora nella serie giornaliera."""
+    cfg, current, intervals, downloader, lookup = synthetic_market()
+    ultima = None
+
+    def senza_ultima(tickers, start, fields=("Close", "Adj Close")):
+        # Yahoo in ritardo: nella serie giornaliera manca l'ultima seduta
+        nonlocal ultima
+        out = downloader(tickers, start, fields)
+        ultima = max(ultima or pd.Timestamp("2000-01-01"), max(f.index[-1] for f in out.values()))
+        return {k: f.iloc[:-1] for k, f in out.items()}
+
+    pieno = downloader(list(current["ticker"]) + [s["etf"] for s in cfg["settori"]] + ["SPY"], cfg["inizio_download"], ("Close",))["Close"]
+
+    def ultimi(simboli):
+        return {t: (pieno.index[-1], float(pieno[t].iloc[-1])) for t in simboli if t in pieno.columns and pd.notna(pieno[t].iloc[-1])}
+
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d)
+        adesso = pd.Timestamp("2026-09-26 03:00", tz="UTC")
+        m0 = bd.build(cfg, current, intervals, senza_ultima, lookup, out_dir=out, adesso=adesso)
+        m1 = bd.build(cfg, current, intervals, senza_ultima, lookup, out_dir=out, adesso=adesso, ultimi=ultimi)
+        # senza ripiego ci si ferma alla seduta prima; con gli ultimi prezzi si arriva a quella giusta
+        assert m0["aggiornato"] < m1["aggiornato"] == ultima.strftime("%Y-%m-%d")
+        p = json.loads((out / "prezzi_sp500.json").read_text())
+        assert p["aggiornato"] == m1["aggiornato"] and p["date"][0][:4] == str(ultima.year - 2)
+        assert [i["yahoo"] for i in p["indici"]] == ["SPY"]
+        t = p["titoli"][0]
+        assert set(t) >= {"t", "nome", "indici", "paese", "settore", "valuta", "i0", "prezzi"} and t["valuta"] == "USD"
+        assert all(len(x["prezzi"]) + x["i0"] == len(p["date"]) for x in p["titoli"])
+        nomi = {s["nome"] for s in cfg["settori"]}
+        assert all(x["settore"] in nomi for x in p["titoli"]) and len(p["titoli"]) >= 0.95 * (len(current) - 1)
+        assert "NUOVO" not in [x["t"] for x in p["titoli"]]
+        # un prezzo di una seduta diversa non si aggiunge
+        px, n = bd.aggiungi_ultimi(pieno.iloc[:-1], {pieno.columns[0]: (pieno.index[-1], 5.0)}, solo_il=pieno.index[-2])
+        assert n == 0 and len(px) == len(pieno) - 1
 
 
 def test_incomplete_last_session_is_dropped():
@@ -215,3 +261,41 @@ if __name__ == "__main__":
     meta = run(target)
     print(json.dumps(meta["settori"], indent=1)[:1500])
     print("dati simulati in", target)
+
+
+def test_ultima_seduta_dagli_ultimi_prezzi():
+    """Yahoo non ha ancora la seduta nella serie giornaliera: si completa con gli ultimi prezzi scambiati."""
+    cfg, current, intervals, downloader, lookup = synthetic_market()
+    pieno = downloader(["XLK"], "2003-09-01", fields=("Close",))["Close"]
+    ultimo, prima = pieno.index[-1], pieno.index[-2]
+
+    def senza_ultima(tickers, start, fields=("Close", "Adj Close")):
+        return {f: df[df.index < ultimo] for f, df in downloader(tickers, start, fields=fields).items()}
+
+    def ultimi(simboli):
+        px = downloader(simboli, "2003-09-01", fields=("Close",))["Close"]
+        return {t: (ultimo, float(px[t].iloc[-1])) for t in px.columns if pd.notna(px[t].iloc[-1])}
+
+    adesso = pd.Timestamp(ultimo) + pd.Timedelta(hours=30)       # la notte dopo la chiusura
+    with tempfile.TemporaryDirectory() as d:
+        meta = bd.build(cfg, current, intervals, senza_ultima, lookup, out_dir=Path(d), adesso=adesso)
+        assert meta["aggiornato"] == prima.strftime("%Y-%m-%d")
+    with tempfile.TemporaryDirectory() as d:
+        meta = bd.build(cfg, current, intervals, senza_ultima, lookup, out_dir=Path(d), adesso=adesso, ultimi=ultimi)
+        assert meta["aggiornato"] == ultimo.strftime("%Y-%m-%d")
+        xlk = json.loads((Path(d) / "settori" / "XLK.json").read_text())
+        assert xlk["date"][-1] == meta["aggiornato"] and xlk["close"][-1] is not None and xlk["adj"][-1] is not None
+        assert xlk["b200"][-1] is not None
+    # gli ultimi prezzi arrivano per tutti tranne un ETF: quella seduta non si pubblica (niente settori con il prezzo vuoto)
+    with tempfile.TemporaryDirectory() as d:
+        senza_xlk = lambda simboli: {t: v for t, v in ultimi(simboli).items() if t != "XLK"}  # noqa: E731
+        meta = bd.build(cfg, current, intervals, senza_ultima, lookup, out_dir=Path(d), adesso=adesso, ultimi=senza_xlk)
+        assert meta["aggiornato"] == prima.strftime("%Y-%m-%d")
+        xlk = json.loads((Path(d) / "settori" / "XLK.json").read_text())
+        assert xlk["close"][-1] is not None
+    # un prezzo della seduta sbagliata o non valido non entra
+    px = pd.DataFrame({"A": [1.0, 2.0]}, index=pd.to_datetime(["2026-10-12", "2026-10-13"]))
+    px2, n = bd.aggiungi_ultimi(px, {"A": (pd.Timestamp("2026-10-13"), 9.0), "B": (pd.Timestamp("2026-10-14"), 5.0)})
+    assert n == 0 and px2.equals(px)
+    px3, n = bd.aggiungi_ultimi(px, {"A": (pd.Timestamp("2026-10-14"), 3.0)}, solo_il=pd.Timestamp("2026-10-15"))
+    assert n == 0

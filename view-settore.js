@@ -90,7 +90,7 @@
       if (e.segnale != null) { mP.push({ i: e.segnale, y: d.close[e.segnale], colore: c.segnale }); mA.push({ i: e.segnale, colore: c.segnale }); }
     }
     grafici.setData({
-      date: d.date, i0, i1, zone: zone(),
+      date: d.date, i0, i1, zone: zone(), chiave: d.etf,
       etichette: {
         prezzo: `${nomePrezzo(d)} e media a 200 sedute`,
         dd: "Drawdown dal massimo a 52 settimane",
@@ -315,7 +315,7 @@
     const posto = sel ? classifica.findIndex(t => t.t === sel.t) + 1 : 0;
     const scheda = sel ? `<div class="stock-detail">
         <div><b>${esc(sel.t)}</b> <span class="sd-name">${esc(sel.nome)}</span></div>
-        <div class="controls"><a class="btn-link" href="${tv(sel.t)}"${fuori}>${eu() ? "Scheda dell'azione →" : "Grafico su TradingView ↗"}</a><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi la scheda">×</button></div>
+        <div class="controls">${eu() ? "" : `<a class="btn-link" href="#usa/azioni/${encodeURIComponent(sel.t)}">Scheda dell'azione →</a>`}<a class="btn-link" href="${tv(sel.t)}"${fuori}>${eu() ? "Scheda dell'azione →" : "Grafico su TradingView ↗"}</a><button class="icon-btn" type="button" id="chiudi-titolo" aria-label="Chiudi la scheda">×</button></div>
         <div class="sd-vals"><span>Ultimo <b>${prezzo(sel)}</b></span><span>vs media 200 <b class="${cls(sel.v200)}">${pct(sel.v200, 1)}</b></span>
           <span>vs media 50 <b class="${cls(sel.v50)}">${pct(sel.v50, 1)}</b></span><span>dal massimo a 52 settimane <b>${pct(sel.dd52, 1)}</b></span>
           ${posto ? `<span>${posto}° su ${classifica.length} ${eu() && d.tipo === "indice" ? "nell'indice" : "nel settore"}</span>` : ""}${eu() && sel.paese ? `<span>${esc(sel.paese)}</span>` : ""}</div>
@@ -439,6 +439,12 @@
     R.on("livelli", etf => { if (st.visibile && st.dati && etf === st.dati.etf) ricalcola(); });
     R.on("tema", () => { if (st.visibile && st.dati) { disegnaGrafici(); disegnaKpi(); disegnaTitoli(); } });
     R.on("media50", () => { if (st.visibile && st.dati) disegnaGrafici(); });
+    // sul telefono la pagina è lunga: i pulsanti in cima portano alle sue parti
+    $("#sec-salti").addEventListener("click", e => {
+      const b = e.target.closest("button[data-a]");
+      const el = b && document.querySelector(b.dataset.a);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     const taglia = () => window.matchMedia("(max-width: 720px)").matches ? "s" :
       window.matchMedia("(min-height: 900px) and (min-width: 1280px)").matches ? "l" : "m";
     let ultima = taglia();

@@ -136,7 +136,7 @@
     const N = st.m.date.length, anni = Number(st.periodo);
     const i0 = anni ? Math.max(a.v.findIndex(v => v != null), N - anni * 261) : a.v.findIndex(v => v != null);
     st.grafico.setData({
-      date: st.m.date, i0, i1: N - 1,
+      date: st.m.date, i0, i1: N - 1, chiave: s.id,
       etichette: { valore: `${s.nome}${s.unita === "%" ? " (%)" : s.unita !== "punti" ? ` (${s.unita})` : ""} e media a 200 sedute` },
       pannelli: {
         valore: {

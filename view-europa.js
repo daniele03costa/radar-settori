@@ -1,5 +1,7 @@
 /*
- * Radar Settori — pagina Azioni delle zone Europa, Asia ed Emergenti (una sola pagina, i dati della zona aperta).
+ * Radar Settori — pagina Azioni delle zone USA, Europa, Asia ed Emergenti (una sola pagina, i dati della zona aperta).
+ * Negli USA sono le azioni dell'S&P 500 (data/prezzi_sp500.json, scritto da build_data.py): tutto in dollari, forza relativa
+ * contro l'S&P 500 (ETF SPY), senza conversioni in euro.
  * Le azioni degli indici principali delle borse europee (FTSE MIB, DAX, CAC 40, IBEX 35, AEX, SMI, FTSE 100, OMX Copenhagen 25,
  * OMX Stockholm 30, OMX Helsinki 25, OBX, BEL 20, ATX, PSI, ISEQ): tutte, cercabili per nome, con filtri e ordinamento,
  * e la scheda di ciascuna con il grafico, da cui si aggiunge alla lista dei titoli seguiti o al portafoglio.
@@ -18,6 +20,8 @@
   const SIMBOLI = R.SIMBOLI_VALUTA;
   // le tre zone: da dove arrivano i dati e come si chiama il termine di confronto
   const ZONE = {
+    usa: { nome: "USA", cal: "nyse", confronto: null, locale: true, media: "Media S&P 500", mediaTitolo: "la media a pesi uguali dell'S&P 500", agg: "dell'S&P 500",
+      h1: "Le azioni dell'S&P 500", aggiornamento: "Aggiorna dati" },
     eur: { nome: "Europa", cal: "milano", confronto: "^STOXX", nomeConfronto: "STOXX Europe 600", breveConfronto: "STOXX 600", titoloConfronto: "lo STOXX Europe 600",
       media: "Media europea", mediaTitolo: "la media europea", agg: "europee", h1: "Le azioni europee", aggiornamento: "Aggiorna dati" },
     asi: { nome: "Asia", cal: "feriale", confronto: null, media: "Media asiatica", mediaTitolo: "la media asiatica", agg: "asiatiche", h1: "Le azioni asiatiche",
@@ -47,8 +51,9 @@
   const BREVI_SETTORI = { "Consumi discrezionali": "Discrezionali", "Beni di prima necessità": "Prima necessità" };
 
   // lo stato della pagina, uno per zona (filtri, ricerca, ordine, azione aperta); le scelte restano nel browser
-  const pre = z => (z === "eur" ? "eur." : z + ".");
+  const pre = z => (z === "eur" ? "eur." : z === "usa" ? "usaz." : z + ".");
   const NOTE_VALUTE = {
+    usa: "dollari",
     eur: "euro; pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo",
     asi: "yen (¥) per Tokyo, dollari di Hong Kong (HK$), yuan (CN¥) per Shanghai e Shenzhen, won (₩) per Seul, dollari taiwanesi (NT$), rupie indiane (₹), rupie indonesiane (Rp), baht (฿), ringgit (RM)",
     emg: "real (R$) per San Paolo, pesos messicani (MX$), argentini (AR$) e cileni (CLP), cent di rand (c) per Johannesburg, lire turche (₺), złoty (zł) per Varsavia",
@@ -65,7 +70,7 @@
     aperto: null,
     lista: new Set(), portafoglio: new Set(),
   });
-  const stati = { eur: nuovoStato("eur"), asi: nuovoStato("asi"), emg: nuovoStato("emg") };
+  const stati = { usa: nuovoStato("usa"), eur: nuovoStato("eur"), asi: nuovoStato("asi"), emg: nuovoStato("emg") };
   let st = stati.eur;
   const C = () => ZONE[st.zona];
   const preparati = {};                                     // per zona: { d, promessa } dei dati preparati
@@ -85,7 +90,8 @@
   // preposizioni davanti al nome di un indice: «sul DAX», «sull'IBEX 35», «sullo SMI»
   const prep = (p, nome) => {
     const forme = { sul: ["sul ", "sull'", "sullo "], del: ["del ", "dell'", "dello "], nel: ["nel ", "nell'", "nello "] }[p];
-    return (/^[AEIOU]/i.test(nome) ? forme[1] : /^(S[^AEIOU]|Z|GN|PS|X)/i.test(nome) ? forme[2] : forme[0]) + nome;
+    // «S&P» si legge «esse e pi»: sull'S&P 500, dell'S&P Merval
+    return (/^[AEIOU]|^S&(amp;)?P/i.test(nome) ? forme[1] : /^(S[^AEIOU]|Z|GN|PS|X)/i.test(nome) ? forme[2] : forme[0]) + nome;
   };
   const breve = (s, n = 22) => (s.length > n ? s.slice(0, n - 1).trim() + "…" : s);
   const sedute = s => (s ? `${s.sopra ? "sopra" : "sotto"} da ${s.almeno ? "almeno " : ""}${R.sedute(s.sedute)}` : "—");
@@ -98,6 +104,8 @@
   async function prepara(d, lista, cambi, zona) {
     const Z = ZONE[zona];
     const N = d.date.length, date = d.date;
+    // negli USA niente conversioni: tutto resta in dollari
+    const inEuro = (p, valuta) => (Z.locale ? p : E.inEuro(p, valuta, date, cambi));
     const barre = Rot.barre(date, "settimanali", g => Cal.successiva(g, Z.cal));
     const info = new Map(((lista && lista.indici) || []).map(i => [i.nome, i]));
     const yahooConfronto = (lista && lista.confronto && lista.confronto.yahoo) || Z.confronto;
@@ -134,7 +142,7 @@
       const idx = perNome.get((x.indici || [])[0]) || null;
       const a = E.analizza(E.piena(N, x.i0, x.prezzi), date, idx ? idx.a.p : null, barre);
       if (!a) continue;
-      let eur = E.inEuro(a.p, x.valuta, date, cambi);
+      let eur = inEuro(a.p, x.valuta);
       if (!eur) { eur = a.p; senzaCambi = true; }
       titoli.push(Object.assign({}, x, {
         a, idx, eur, m3Eur: E.varia(eur, N - 1, 63),
@@ -160,16 +168,16 @@
     await pausa();
     // indici: ampiezza delle loro azioni e forza relativa sul termine di confronto (STOXX Europe 600, EEM) o, se
     // non c'è, sulla media della zona, tutto in euro
-    if (confronto) confronto.eur = E.riempi(E.inEuro(confronto.a.p, valutaConfronto, date, cambi) || confronto.a.p);
+    if (confronto) confronto.eur = E.riempi(inEuro(confronto.a.p, valutaConfronto) || confronto.a.p);
     const qStoxx = confronto ? confronto.eur : europa.paniere;
     for (const i of indici) {
       i.membri = titoli.filter(t => t.indici.includes(i.nome));
       const g = i.membri.map(t => t.a);
       i.b200 = E.ampiezza(g, "m200"); i.b50 = E.ampiezza(g, "m50");
       i.oggi200 = E.conta(g, "m200", N - 1); i.oggi50 = E.conta(g, "m50", N - 1);
-      const inEuro = E.inEuro(i.a.p, i.valuta, date, cambi);
-      if (!inEuro && i.valuta !== "EUR") senzaCambi = true;
-      i.eur = E.riempi(inEuro || i.a.p);
+      const iEur = inEuro(i.a.p, i.valuta);
+      if (!iEur && i.valuta !== "EUR") senzaCambi = true;
+      i.eur = E.riempi(iEur || i.a.p);
       i.m3Eur = E.varia(i.eur, N - 1, 63);
       i.ytdEur = E.daInizioAnno(i.eur, date, N - 1);
       const fr = E.forzaRelativa(i.eur, qStoxx, barre, N - 1);
@@ -398,6 +406,7 @@
   function disegnaFiltri() {
     const x = st.x, f = st.f;
     if (!x) return;
+    $("#eur-indice").hidden = x.indici.length < 2;
     $("#eur-indice").innerHTML = `<option value="">Tutti gli indici</option>` +
       x.indici.map(i => `<option value="${esc(i.nome)}"${st.f.indice === i.nome ? " selected" : ""}>${esc(i.nome)}</option>`).join("");
     $("#eur-settore").innerHTML = `<option value="">Tutti i settori</option>` +
@@ -427,7 +436,7 @@
         const tag = (st.portafoglio.has(z.t) ? '<span class="tag ok">nel portafoglio</span> ' : "") + (st.lista.has(z.t) ? '<span class="tag">nella lista</span> ' : "") +
           (a.vecchio ? `<span class="tag bad">ferma dal ${R.dataBreve(a.data)}</span> ` : "");
         return `<tr class="clic${st.aperto === z.t ? " hl" : ""}" data-t="${esc(z.t)}" tabindex="0">
-          <td class="l"><span class="tit-nome"><b>${esc(z.nome)}</b> <span class="muted">${esc(z.t)}</span></span><small class="sub-line">${tag}${esc(z.indici.join(", "))} · ${esc(z.settore)}</small></td>
+          <td class="l"><span class="tit-nome"><b>${esc(z.nome)}</b> <span class="muted">${esc(z.t)}</span></span><small class="sub-line">${tag}${x.indici.length > 1 ? esc(z.indici.join(", ")) + " · " : ""}${esc(z.settore)}</small></td>
           <td class="l">${spark(a.p, c.price)}</td>
           <td>${prezzo(a.ultimo, z.valuta)}<small class="sub-line"><span class="${cls100(a.g1)}">${p100(a.g1)}</span> in un giorno</small></td>
           <td><span class="${cls100(a.m1)}">${p100(a.m1)}</span><small class="sub-line">3 mesi ${p100(a.m3)}</small></td>
@@ -464,6 +473,7 @@
           <div class="seg" id="eur-periodo" role="group" aria-label="Periodo">${PERIODI.map(([k, l]) => `<button type="button" data-v="${k}" aria-pressed="${k === st.periodo}">${l}</button>`).join("")}</div>
           ${nellaLista ? `<a class="btn-link" href="#tit/${encodeURIComponent(z.t)}">Apri in I miei titoli</a>` : `<button type="button" class="btn-link" id="eur-segui">Segui</button>`}
           <button type="button" class="btn-link" id="eur-aggiungi">Aggiungi al portafoglio</button>
+          ${etfDi(z) ? `<a class="btn-link" href="#usa/settori/${etfDi(z)}/${encodeURIComponent(z.t)}" title="Il settore ${esc(z.settore)} con questo titolo in evidenza">Settore ${etfDi(z)}</a>` : ""}
           <a class="btn-link" href="https://finance.yahoo.com/quote/${encodeURIComponent(z.t)}" target="_blank" rel="noopener">Yahoo Finance ↗</a>
           <button class="icon-btn" type="button" id="eur-chiudi" aria-label="Chiudi la scheda">×</button>
         </div>
@@ -512,6 +522,13 @@
     ].join("");
   }
 
+  // negli USA: l'ETF del settore dell'azione, per il collegamento alla pagina del settore
+  const etfDi = z => {
+    if (st.zona !== "usa" || !R.meta) return null;
+    const s = R.meta.settori.find(y => y.nome === z.settore);
+    return s ? s.etf : null;
+  };
+
   // «Segui»: la riga da aggiungere a miei-titoli.txt
   function apriSegui(z) {
     const riga = `${z.t}  ${z.nome}`;
@@ -546,6 +563,7 @@
       const r = Cal.ritardo(x.d.aggiornato, new Date(), C().cal);
       if (r.sedute > 0) indietro = ` Attenzione: i prezzi sono indietro di ${R.sedute(r.sedute)} (attesa la chiusura del ${dataIt(r.attesa)}); li recupera il prossimo aggiornamento automatico.`;
     } catch (e) { /* niente */ }
+    if (st.zona === "usa") return `Tutte le ${x.titoli.length} azioni dell'S&P 500, cercabili per nome, ticker o settore, con filtri e ordinamento. Forza relativa contro l'S&P 500 (ETF SPY). Chiusure fino al ${data}.` + indietro;
     return `Tutte le ${x.titoli.length} azioni dei ${x.indici.length} indici, cercabili per nome, ticker, paese o settore, con filtri e ordinamento. Chiusure fino al ${data}.` + indietro;
   }
 
@@ -553,6 +571,8 @@
     $("#eur-h1").textContent = C().h1;
     $("#eur-sub").textContent = sottotitolo();
     $("#eur-note-valute").textContent = NOTE_VALUTE[st.zona];
+    $("#eur-nota-usa").hidden = st.zona !== "usa"; $("#eur-nota-zone").hidden = st.zona === "usa";
+    $("#eur-cerca").placeholder = st.zona === "usa" ? "Cerca fra tutte: nome, ticker, settore…" : "Cerca fra tutte: nome, ticker, paese…";
     disegnaDettaglio(); disegnaFiltri(); disegnaTabella();
   }
 
@@ -699,7 +719,8 @@
     const Z = C();
     const out = [`## Pagina aperta: ${Z.nome} · Azioni`,
       `Le ${x.titoli.length} azioni di ${elenco(x.indici.map(i => i.nome))}, chiusure fino al ${dataIt(x.d.aggiornato)} (Yahoo Finance), prezzi nella valuta di ogni borsa (${NOTE_VALUTE[st.zona]}). ` +
-      `Ampiezza = quota di azioni sopra la propria media a 200 (o 50) sedute. Forza relativa = rotazione settimanale (stessa formula della Rotazione): per le azioni contro il loro indice, per gli indici contro ${Z.confronto ? Z.titoloConfronto : Z.mediaTitolo} in euro, per i settori (panieri a pesi uguali in euro) contro il paniere di tutte le azioni.`];
+      (Z.locale ? "Forza relativa = rotazione settimanale (stessa formula della Rotazione) di ogni azione contro l'S&P 500 (ETF SPY), in dollari; prezzi senza dividendi."
+        : `Ampiezza = quota di azioni sopra la propria media a 200 (o 50) sedute. Forza relativa = rotazione settimanale (stessa formula della Rotazione): per le azioni contro il loro indice, per gli indici contro ${Z.confronto ? Z.titoloConfronto : Z.mediaTitolo} in euro, per i settori (panieri a pesi uguali in euro) contro il paniere di tutte le azioni.`)];
     const tabellaAzioni = (righe, titoloTab) => {
       const MAX = 120;
       out.push(`### ${titoloTab}: ${righe.length}${righe.length > MAX ? `, qui le prime ${MAX} nell'ordine della tabella` : ""}`,

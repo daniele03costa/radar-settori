@@ -307,6 +307,84 @@ def to_list(series: pd.Series, nd: int) -> List[Optional[float]]:
     return [rnd(v, nd) for v in series.to_numpy()]
 
 
+def yahoo_ultimi(simboli: List[str]) -> Dict[str, Tuple[pd.Timestamp, float]]:
+    """Ultimo prezzo scambiato (barre da 15 minuti) con la data della seduta a New York, a gruppi di 150 titoli."""
+    import build_prices
+    out: Dict[str, Tuple[pd.Timestamp, float]] = {}
+    for i in range(0, len(simboli), 150):
+        out.update(build_prices.yahoo_last_quotes(simboli[i:i + 150], tz="America/New_York"))
+    return out
+
+
+def aggiungi_ultimi(px: pd.DataFrame, quotazioni: Dict[str, Tuple[pd.Timestamp, float]],
+                    solo_il: Optional[pd.Timestamp] = None) -> Tuple[pd.DataFrame, int]:
+    """Certe notti Yahoo mette la seduta nella serie giornaliera con ore di ritardo: per i titoli fermi alla seduta
+    prima si usa l'ultimo prezzo scambiato di quel giorno (all'aggiornamento dopo arriva la chiusura vera).
+    solo_il: aggiunge solo i prezzi di quella seduta. Restituisce i prezzi e quanti titoli sono stati completati."""
+    px = px.copy()
+    n = 0
+    for sym, (giorno, prezzo) in quotazioni.items():
+        if sym not in px.columns or prezzo is None or not np.isfinite(prezzo) or prezzo <= 0:
+            continue
+        if solo_il is not None and giorno != solo_il:
+            continue
+        s = px[sym].dropna()
+        if s.empty or giorno <= s.index[-1]:
+            continue
+        if giorno not in px.index:
+            px.loc[giorno] = np.nan
+            px = px.sort_index()
+        px.at[giorno, sym] = float(prezzo)
+        n += 1
+    return px, n
+
+
+def scrivi_prezzi_azioni(out_path: Path, stk: pd.DataFrame, calendar: pd.DatetimeIndex, titoli: List[dict],
+                         indice: Optional[pd.Series]) -> int:
+    """Le chiusure degli ultimi 2-3 anni di tutte le azioni dell'indice (pagina Azioni degli USA), nella stessa forma
+    di data/prezzi_europa.json: un calendario comune e, per ogni azione, i prezzi dal suo primo giorno."""
+    inizio = pd.Timestamp(f"{calendar[-1].year - 2}-01-01")
+    cal = calendar[calendar >= inizio]
+
+    def cifre(v) -> Optional[float]:
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            return None
+        return float(f"{x:.5g}") if np.isfinite(x) else None
+
+    def serie(s: pd.Series) -> Optional[dict]:
+        s = s.reindex(cal)
+        if s.notna().sum() < 20:
+            return None
+        i0 = int(np.argmax(s.notna().to_numpy()))
+        return {"i0": i0, "prezzi": [cifre(v) for v in s.iloc[i0:]]}
+
+    uscita, mancanti = [], []
+    for x in titoli:
+        s = serie(stk[x["t"]]) if x["t"] in stk.columns else None
+        if s:
+            uscita.append({**x, **s})
+        else:
+            mancanti.append(x["t"])
+    indici = []
+    if indice is not None:
+        s = serie(indice)
+        if s:
+            indici.append({"nome": "S&P 500", "yahoo": ETF_INDICE, "paese": "USA", **s})
+    payload = {
+        "aggiornato": cal[-1].strftime("%Y-%m-%d"),
+        "generato": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "date": [d.strftime("%Y-%m-%d") for d in cal],
+        "indici": indici, "titoli": uscita, "cambi": {}, "mancanti": mancanti,
+    }
+    tmp = out_path.with_suffix(".json.tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+    tmp.replace(out_path)
+    return len(uscita)
+
+
 # ---------------------------------------------------------------------------
 # Orchestrazione
 # ---------------------------------------------------------------------------
@@ -317,7 +395,8 @@ def build(cfg: dict,
           downloader: Callable[..., Dict[str, pd.DataFrame]],
           sector_lookup: Callable[[List[str]], Dict[str, Optional[str]]],
           out_dir: Path = DATA_DIR,
-          adesso: Optional[pd.Timestamp] = None) -> dict:
+          adesso: Optional[pd.Timestamp] = None,
+          ultimi: Optional[Callable[[List[str]], Dict[str, Tuple[pd.Timestamp, float]]]] = None) -> dict:
     sectors = cfg["settori"]
     etfs = [s["etf"] for s in sectors]
     point_in_time = bool(cfg.get("includi_ex_membri", True))
@@ -334,6 +413,17 @@ def build(cfg: dict,
     # SPY: il prezzo dell'S&P 500 sopra lo storico dell'ampiezza (Monitor); se manca, il grafico mostra solo l'ampiezza
     etf_px = downloader(etfs + [ETF_INDICE], start_dl, fields=("Close", "Adj Close"))
     etf_close, etf_adj = etf_px["Close"], etf_px["Adj Close"]
+    # la seduta appena chiusa che Yahoo non ha ancora nella serie giornaliera: dagli ultimi prezzi scambiati
+    # (per l'ultima seduta la chiusura rettificata è uguale alla chiusura)
+    if ultimi is not None:
+        try:
+            q = ultimi(etfs + [ETF_INDICE])
+            etf_close, n_ult = aggiungi_ultimi(etf_close, q)
+            etf_adj, _ = aggiungi_ultimi(etf_adj, q)
+            if n_ult:
+                log(f"  {n_ult} ETF completati con l'ultimo prezzo scambiato (la chiusura non era ancora nella serie)")
+        except Exception as e:  # noqa: BLE001
+            log(f"  ultimi prezzi degli ETF non disponibili ({e})")
     missing = [e for e in etfs if e not in etf_close.columns or etf_close[e].dropna().empty]
     if missing:
         raise RuntimeError(f"ETF senza dati: {missing}")
@@ -343,12 +433,28 @@ def build(cfg: dict,
     if in_corso is not None and len(calendar) and calendar[-1] >= in_corso:
         log(f"Seduta del {in_corso:%Y-%m-%d} ancora aperta a Wall Street: si pubblicano le chiusure fino al giorno prima")
         calendar = calendar[calendar < in_corso]
+    # una seduta si pubblica solo se ce l'hanno tutti gli ETF dei settori (gli ultimi prezzi possono arrivare solo per alcuni)
+    for _ in range(3):
+        if len(calendar) > 250 and etf_close.loc[calendar[-1], etfs].isna().any():
+            log(f"Seduta {calendar[-1]:%Y-%m-%d} senza il prezzo di tutti gli ETF: non viene pubblicata")
+            calendar = calendar[:-1]
 
     # 2) Titoli
     universe = sorted(cur_set | set(ex_members))
     log(f"Scarico {len(universe)} titoli ({len(cur_set)} attuali, {len(ex_members)} ex membri)…")
     stk = downloader(universe, start_dl, fields=("Close",))["Close"]
     stk = stk.reindex(calendar)
+    # i titoli a cui manca l'ultima seduta: l'ultimo prezzo scambiato di quel giorno
+    if ultimi is not None and len(calendar):
+        try:
+            senza = [t for t in stk.columns if t in cur_set and pd.isna(stk.at[calendar[-1], t]) and stk[t].notna().any()]
+            if senza:
+                stk, n_ult = aggiungi_ultimi(stk, ultimi(senza), solo_il=calendar[-1])
+                stk = stk.reindex(calendar)
+                if n_ult:
+                    log(f"  {n_ult} titoli completati con l'ultimo prezzo scambiato del {calendar[-1]:%Y-%m-%d}")
+        except Exception as e:  # noqa: BLE001
+            log(f"  ultimi prezzi dei titoli non disponibili ({e})")
     # si pubblica una seduta solo se ha il prezzo di almeno il 99% dei membri attuali
     cur_cols = [t for t in stk.columns if t in cur_set]
     min_cov = float(cfg.get("copertura_minima", 0.99))
@@ -463,6 +569,16 @@ def build(cfg: dict,
     with open(out_dir / "titoli.json", "w", encoding="utf-8") as f:
         json.dump({"aggiornato": last_date.strftime("%Y-%m-%d"), "titoli": elenco_titoli},
                   f, ensure_ascii=False, separators=(",", ":"))
+    # le chiusure di tutte le azioni dell'indice per la pagina Azioni (un di più: se non riesce, il resto si pubblica lo stesso)
+    try:
+        nome_settore = {s["etf"]: s["nome"] for s in sectors}
+        voci = [{"t": r["t"], "nome": r["nome"], "indici": ["S&P 500"], "paese": "USA", "settore": nome_settore.get(r["etf"], ""),
+                 "valuta": "USD"} for r in elenco_titoli if not r.get("senza_prezzi")]
+        n_az = scrivi_prezzi_azioni(out_dir / "prezzi_sp500.json", stk, calendar, voci,
+                                    etf_close[ETF_INDICE] if ETF_INDICE in etf_close.columns else None)
+        log(f"Prezzi delle azioni per la pagina Azioni: {n_az}")
+    except Exception as e:  # noqa: BLE001
+        log(f"Prezzi delle azioni non aggiornati ({e})")
     senza = sum(1 for r in elenco_titoli if r.get("senza_prezzi"))
     log(f"Elenco titoli: {len(elenco_titoli)} azioni" + (f", {senza} ancora senza prezzi sufficienti" if senza else ""))
 
@@ -550,7 +666,7 @@ def _main() -> Optional[dict]:
         log(f"Storico composizione non disponibile ({e}): uso solo i titoli attuali")
         intervals = {}
     try:
-        meta = build(cfg, current, intervals, yahoo_downloader, yahoo_sector_lookup)
+        meta = build(cfg, current, intervals, yahoo_downloader, yahoo_sector_lookup, ultimi=yahoo_ultimi)
     except RuntimeError as e:
         log(f"ERRORE: {e}")
         return None

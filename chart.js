@@ -65,6 +65,9 @@
      * opts.tooltip(i) -> html
      */
     constructor(rootEl, opts) {
+      // un grafico nuovo nello stesso contenitore prende il posto di quello di prima
+      if (rootEl._pannelli) rootEl._pannelli.destroy();
+      rootEl._pannelli = this;
       this.root = rootEl;
       this.opts = opts;
       this.hover = null;
@@ -74,6 +77,27 @@
       this.tip.className = "chart-tip";
       this.tip.hidden = true;
       this.root.appendChild(this.tip);
+      // ingrandimento: si trascina col mouse sul periodo che interessa; doppio clic o il pulsante per tornare indietro
+      this._zoom = null;
+      this._drag = null;
+      this.reset = document.createElement("button");
+      this.reset.type = "button";
+      this.reset.className = "chart-reset";
+      this.reset.hidden = true;
+      this.reset.textContent = "Tutto il periodo";
+      this.reset.title = "Torna al periodo intero (anche con un doppio clic sul grafico)";
+      this.reset.addEventListener("click", () => this.resetZoom());
+      this.root.appendChild(this.reset);
+      this._fineTrascinamento = () => {
+        if (!this.root.isConnected) { window.removeEventListener("mouseup", this._fineTrascinamento); return; }
+        const d = this._drag;
+        if (!d) return;
+        this._drag = null;
+        // serve un vero trascinamento: almeno 8 pixel e almeno 5 sedute (un clic con la mano che trema non ingrandisce)
+        if (d.b != null && Math.abs(d.b - d.a) >= 5 && Math.abs(d.px1 - d.px0) >= 8) this._applyZoom(Math.min(d.a, d.b), Math.max(d.a, d.b));
+        else this._drawHover();
+      };
+      window.addEventListener("mouseup", this._fineTrascinamento);
       this._ro = new ResizeObserver(() => this.draw());
       this._ro.observe(this.root);
     }
@@ -92,8 +116,17 @@
       const move = (ev) => {
         const pt = ev.touches ? ev.touches[0] : ev;
         const r = wrap.getBoundingClientRect();
-        this._setHover(this._indexAt(pt.clientX - r.left), pt.clientX - this.root.getBoundingClientRect().left);
+        const i = this._indexAt(pt.clientX - r.left);
+        if (this._drag && !ev.touches) { this._drag.b = i; this._drag.px1 = pt.clientX; }
+        this._setHover(i, pt.clientX - this.root.getBoundingClientRect().left);
       };
+      wrap.addEventListener("mousedown", ev => {
+        if (ev.button !== 0 || !this.state) return;
+        const r = wrap.getBoundingClientRect();
+        const i = this._indexAt(ev.clientX - r.left);
+        if (i != null) { this._drag = { a: i, b: null, px0: ev.clientX, px1: ev.clientX }; ev.preventDefault(); }
+      });
+      wrap.addEventListener("dblclick", () => this.resetZoom());
       wrap.addEventListener("mousemove", move);
       wrap.addEventListener("touchstart", move, { passive: true });
       wrap.addEventListener("touchmove", move, { passive: true });
@@ -101,7 +134,37 @@
       return pane;
     }
 
+    destroy() {
+      try { this._ro.disconnect(); } catch (e) { /* niente */ }
+      window.removeEventListener("mouseup", this._fineTrascinamento);
+      if (this.root._pannelli === this) this.root._pannelli = null;
+    }
+
+    _applyZoom(a, b) {
+      const s = this.state;
+      if (!s || b - a < 5) return;
+      const base = this._zoom ? this._zoom.base : [s.i0, s.i1];
+      this._zoom = { i0: a, i1: b, base, n: s.date.length, chiave: s.chiave };
+      s.i0 = a; s.i1 = b;
+      this.reset.hidden = false;
+      this.hover = null;
+      this.draw();
+    }
+
+    resetZoom() {
+      if (!this._zoom || !this.state) return;
+      this.state.i0 = this._zoom.base[0]; this.state.i1 = this._zoom.base[1];
+      this._zoom = null;
+      this.reset.hidden = true;
+      this.draw();
+    }
+
     setData(state) {
+      // stessi dati e stesso periodo di prima (cambio di tema, di una linea…): l'ingrandimento resta
+      const z = this._zoom;
+      // (state.chiave dice di che cosa è il grafico: un altro settore o un'altra serie fanno ripartire dal periodo intero)
+      if (z && state.chiave === z.chiave && state.date.length === z.n && state.i0 === z.base[0] && state.i1 === z.base[1]) { state.i0 = z.i0; state.i1 = z.i1; }
+      else { this._zoom = null; this.reset.hidden = true; }
       this.state = state;
       this.panes.forEach(p => { p.label.textContent = (state.etichette && state.etichette[p.id]) || ""; });
       this.draw();
@@ -245,8 +308,8 @@
         ctx.fillRect(g.left, ya, plotR - g.left, yb - ya);
         ctx.fillStyle = conAlfa(f.colore, 0.75);
         ctx.fillRect(g.left, Math.round(ya), plotR - g.left, 1);
-        if (f.etichetta) {
-          // dentro la fascia se c'è posto, altrimenti appena sopra il suo bordo
+        if (f.etichetta && pane.altezza >= 220) {
+          // dentro la fascia se c'è posto, altrimenti appena sopra il suo bordo (nei pannelli bassi basta la legenda)
           const dentro = yb - ya >= 14;
           ctx.font = `600 10.5px ${css("--font")}`;
           ctx.fillStyle = f.colore; ctx.textAlign = "left"; ctx.textBaseline = dentro ? "top" : "bottom";
@@ -384,7 +447,7 @@
         if (!s.pill) continue;
         const v = lastVal(s.valori, i0, i1);
         if (v == null) continue;
-        pills.push({ y: y(v), text: pane.formatoPill ? pane.formatoPill(v) : (pane.formato ? pane.formato(v) : String(v)), bg: s.colore });
+        pills.push({ y: y(v), text: s.pillTesto ? s.pillTesto(v) : pane.formatoPill ? pane.formatoPill(v) : (pane.formato ? pane.formato(v) : String(v)), bg: s.colore });
       }
       for (const h of data.linee || []) if (h.etichetta) pills.push({ y: y(h.y), text: h.etichetta, bg: h.colore });
       pills.sort((a, b) => a.y - b.y);
@@ -407,6 +470,15 @@
         const dpr = window.devicePixelRatio || 1;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, g.w, g.h);
+        // il periodo che si sta scegliendo trascinando
+        if (this._drag && this._drag.b != null && this.state) {
+          const xa = this._x(Math.min(this._drag.a, this._drag.b), g), xb = this._x(Math.max(this._drag.a, this._drag.b), g);
+          ctx.fillStyle = css("--zona");
+          ctx.fillRect(xa, g.top - 8, Math.max(1, xb - xa), g.h - g.bottom - g.top + 8);
+          ctx.fillStyle = css("--zona-bordo");
+          ctx.fillRect(xa, g.top - 8, 1, g.h - g.bottom - g.top + 8);
+          ctx.fillRect(xb, g.top - 8, 1, g.h - g.bottom - g.top + 8);
+        }
         if (i == null || !pane._data) continue;
         const xx = Math.round(this._x(i, g)) + 0.5;
         const plotB = g.h - g.bottom;

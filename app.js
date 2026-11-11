@@ -10,8 +10,8 @@
 
   // le zone e le loro pagine: [indirizzo, nome, modulo che la disegna]
   const ZONE = {
-    home: { nome: "Home", pagine: [["oggi", "Oggi", "home"], ["macro", "Macro", "mac"], ["salute", "Salute dei dati", "sal"]] },
-    usa: { nome: "USA", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori", "sec"], ["alert", "Alert", "alr"]] },
+    home: { nome: "Home", pagine: [["oggi", "Oggi", "home"], ["confronto", "Confronto", "cfr"], ["macro", "Macro", "mac"], ["salute", "Salute dei dati", "sal"]] },
+    usa: { nome: "USA", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
     eur: { nome: "Europa", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
     asi: { nome: "Asia", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
     emg: { nome: "Emergenti", pagine: [["monitor", "Monitor", "mon"], ["rotazione", "Rotazione", "rot"], ["mappa", "Bottom Map", "btm"], ["settori", "Settori e indici", "sec"], ["alert", "Alert", "alr"], ["azioni", "Azioni", "eur"]] },
@@ -21,13 +21,13 @@
   const ORDINE_ZONE = ["home", "usa", "eur", "asi", "emg", "cry", "tit"];
   // le zone con settori, indici e azioni (stesse pagine): Europa, Asia, Emergenti
   const MISTE = ["eur", "asi", "emg"];
-  const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur", "mac", "sal"];      // i moduli, per l'avvio
+  const VISTE = ["home", "mon", "rot", "btm", "sec", "alr", "tit", "cry", "eur", "mac", "sal", "cfr"];      // i moduli, per l'avvio
   // vecchi indirizzi (#mon, #rot, …) e parole comode
   const VECCHI = {
     mon: ["usa", "monitor"], rot: ["usa", "rotazione"], rrg: ["usa", "rotazione"], btm: ["usa", "mappa"], sec: ["usa", "settori"],
     alr: ["usa", "alert"], alert: ["usa", "alert"], alrt: ["usa", "alert"], miei: ["tit"], titoli: ["tit"], portafoglio: ["tit"],
     crypto: ["cry"], cripto: ["cry"], europa: ["eur"], eu: ["eur"], us: ["usa"], asia: ["asi"], emergenti: ["emg"], em: ["emg"],
-    macro: ["home", "macro"], mac: ["home", "macro"], salute: ["home", "salute"], dati: ["home", "salute"],
+    confronto: ["home", "confronto"], zone: ["home", "confronto"], macro: ["home", "macro"], mac: ["home", "macro"], salute: ["home", "salute"], dati: ["home", "salute"],
   };
   let vistaCorrente = null, rottaCorrente = null;
   let tastiAttivi = R.store.get("tasti", true);
@@ -148,7 +148,15 @@
     const kicker = sezione && sezione.querySelector(".view-head .kicker");
     if (kicker && z.pagine && r.vista !== "sec" && r.vista !== "home") kicker.textContent = `${z.nome} · ${(z.pagine.find(p => p[0] === r.pagina) || [])[1] || ""}`;
     aggiornaBadge();
+    altezzaBarra();
   }
+
+  // l'altezza della barra in alto (cambia fra Home e zone e fra computer e telefono): serve a ciò che resta attaccato sotto di lei
+  function altezzaBarra() {
+    const bar = $("#app-bar");
+    if (bar) document.documentElement.style.setProperty("--bar-h", bar.offsetHeight + "px");
+  }
+  window.addEventListener("resize", () => altezzaBarra());
 
   async function applicaRotta() {
     if (!R.meta) return;                                   // senza i dati di base resta la pagina «I dati non ci sono ancora»
@@ -219,9 +227,10 @@
     add(["BTM", "BOTTOM", "BOTTOM MAP", "MAPPA"], { etichetta: "BTM", descr: "Bottom Map della zona aperta", tipo: "vista", fai: () => R.vai(`#${zonaMercato()}/mappa`) });
     add(["SEC", "SETTORE", "SETTORI"], { etichetta: "SEC", descr: "Settori della zona aperta", tipo: "vista", fai: () => R.vai(MISTE.includes(zonaMercato()) ? `#${zonaMercato()}/settori` : "#usa/settori") });
     add(["ALRT", "ALR", "ALERT"], { etichetta: "ALRT", descr: "Alert della zona aperta: lo storico degli stati", tipo: "vista", fai: () => R.vai(MISTE.includes(zonaMercato()) ? `#${zonaMercato()}/alert` : "#usa/alert") });
-    add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Tutte le azioni della zona aperta (Europa, Asia o Emergenti), cercabili", tipo: "vista", fai: () => R.vai(`#${MISTE.includes(zonaMercato()) ? zonaMercato() : "eur"}/azioni`) });
+    add(["AZIONI", "AZIONI EUROPEE"], { etichetta: "AZIONI", descr: "Tutte le azioni della zona aperta (Europa, Asia o Emergenti), cercabili", tipo: "vista", fai: () => R.vai(`#${MISTE.includes(zonaMercato()) || zonaMercato() === "usa" ? zonaMercato() : "eur"}/azioni`) });
     add(["ANALISI", "HALVING", "STAGIONALITA", "CICLI"], { etichetta: "ANALISI", descr: "Crypto · halving, stagionalità, cosa è successo dopo", tipo: "vista", fai: () => R.vai("#cry/analisi") });
     add(["CORRELAZIONI", "CORR"], { etichetta: "CORR", descr: "Crypto · correlazioni fra monete e con i mercati", tipo: "vista", fai: () => R.vai("#cry/correlazioni") });
+    add(["CONFRONTO", "CONFRONTO FRA ZONE", "ZONE", "AMPIEZZA"], { etichetta: "CONFRONTO", descr: "USA, Europa, Asia ed Emergenti a confronto: tendenza, ampiezza dal 2005, cambi di stato", tipo: "vista", fai: () => R.vai("#home/confronto") });
     add(["MACRO", "QUADRO MACRO", "TASSI", "MATERIE PRIME"], { etichetta: "MACRO", descr: "Tassi a 10 anni di USA e Bund, dollaro, petrolio, oro, rame e VIX", tipo: "vista", fai: () => R.vai("#home/macro") });
     for (const [chiavi, id, descr] of [
       [["VIX", "VOLATILITA"], "vix", "VIX, la volatilità attesa dell'S&P 500"], [["BUND", "TASSO TEDESCO", "BTP BUND"], "bund10", "Rendimento del Bund a 10 anni"],
@@ -465,7 +474,7 @@
   // le date dei dati di ogni zona (arrivano con i file: evento «prezzi»)
   const date = {};
   const FONTI_ZONA = {
-    usa: [["meta", "Ampiezza", "nyse"], ["usa", "Prezzi USA", "nyse"]],
+    usa: [["meta", "Ampiezza", "nyse"], ["usa", "Prezzi USA", "nyse"], ["prezzi-usa", "Azioni dell'S&P 500", "nyse"]],
     eur: [["europa", "Azioni europee", "milano"], ["ampiezza-eur", "Ampiezza europea", "milano"], ["globale", "ETF in euro", "milano"]],
     asi: [["prezzi-asi", "Azioni asiatiche", "feriale"], ["ampiezza-asi", "Ampiezza asiatica", "feriale"]],
     emg: [["prezzi-emg", "Azioni dei paesi emergenti", "feriale"], ["ampiezza-emg", "Ampiezza dei paesi emergenti", "feriale"]],

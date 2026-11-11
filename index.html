@@ -116,6 +116,42 @@
         <article class="card home-pf" id="home-pf"></article>
       </section>
 
+      <!-- ======================= CONFRONTO FRA ZONE ======================= -->
+      <section class="view" id="view-cfr" data-view="cfr" hidden>
+        <header class="view-head">
+          <div>
+            <div class="kicker">Home · Confronto</div>
+            <h1>Le zone a confronto</h1>
+            <p class="view-sub" id="cfr-sub">Tendenza, ampiezza e stati delle quattro zone azionarie, una accanto all'altra. Solo numeri del passato, nessuna previsione.</p>
+          </div>
+        </header>
+        <article class="card empty" id="cfr-vuoto" hidden>
+          <h2>I dati delle zone non ci sono ancora</h2>
+          <p>Arrivano con il prossimo aggiornamento automatico.</p>
+        </article>
+        <div id="cfr-corpo">
+          <article class="card">
+            <div class="card-title"><h2>A colpo d'occhio</h2><span class="muted small-inline">clic su una riga per aprire il Monitor della zona</span></div>
+            <div class="table-wrap"><table class="tbl cfr-tbl" id="cfr-tabella"></table></div>
+          </article>
+          <article class="card chart-card">
+            <div class="card-head">
+              <div>
+                <h2>Azioni sopra la media 200, zona per zona</h2>
+                <p class="sub storico-sub">La quota di azioni sopra la propria media a 200 sedute in ogni zona, sullo stesso asse. Clic su una zona nella legenda per toglierla o rimetterla; trascina sul grafico per ingrandire un periodo.</p>
+              </div>
+              <div class="controls"><div class="seg" id="cfr-periodo" role="group" aria-label="Periodo"></div></div>
+            </div>
+            <div class="legend cfr-legenda" id="cfr-legenda"></div>
+            <div class="charts" id="cfr-grafico"></div>
+          </article>
+          <article class="card">
+            <div class="card-title"><h2>Cambi di stato nelle ultime sedute</h2><span class="muted small-inline">tutte le zone, livelli blu predefiniti</span></div>
+            <div id="cfr-cambi" class="cfr-cambi"></div>
+          </article>
+        </div>
+      </section>
+
       <!-- ======================= MACRO ======================= -->
       <section class="view" id="view-mac" data-view="mac" hidden>
         <header class="view-head">
@@ -365,6 +401,12 @@
         </header>
 
         <section class="kpis" id="kpi" aria-label="Situazione attuale"></section>
+        <nav class="salti" id="sec-salti" aria-label="Vai a una parte della pagina">
+          <button type="button" data-a="#view-sec .chart-card">Grafico</button>
+          <button type="button" data-a="#titoli-card">Titoli</button>
+          <button type="button" data-a="#view-sec .episodes-card">Episodi</button>
+          <button type="button" data-a="#soglia-card">Livello blu</button>
+        </nav>
 
         <article class="card chart-card">
           <div class="card-head">
@@ -663,14 +705,15 @@
             <p class="eur-spenti" id="eur-filtri-spenti" hidden>La ricerca guarda fra tutte le azioni: indice, settore e «mostra» non contano. <button type="button" class="btn-link">Togli la ricerca</button></p>
             <div class="table-wrap"><table class="tbl tit-tbl eur-tbl" id="eur-tabella"></table></div>
             <div class="eur-altre" id="eur-altre"></div>
-            <p class="small">Prezzi nella valuta di ogni borsa: <span id="eur-note-valute">euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo</span>. Forza relativa contro il proprio indice, nella valuta locale. La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
+            <p class="small" id="eur-nota-usa" hidden>Prezzi in dollari, senza dividendi. Forza relativa contro l'S&amp;P 500 (ETF SPY). La ricerca guarda fra tutte le azioni, anche per settore («banche», «semiconduttori»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla, aggiungerla al portafoglio o aprire il suo settore.</p>
+            <p class="small" id="eur-nota-zone">Prezzi nella valuta di ogni borsa: <span id="eur-note-valute">euro, pence di sterlina (p) per Londra, franchi svizzeri per Zurigo, corone (kr) per Copenaghen, Stoccolma e Oslo</span>. Forza relativa contro il proprio indice, nella valuta locale. La ricerca guarda fra tutte le azioni, anche per paese o settore («svezia», «banche»). Clic su un'azione per la scheda con il grafico e i pulsanti per seguirla o aggiungerla al portafoglio.</p>
           </article>
           <article class="card notes">
             <div class="card-title"><h2>Come leggere questa pagina</h2></div>
             <div class="notes-grid">
               <div>
                 <h3><i class="dot" style="background:var(--b200)"></i>Ampiezza</h3>
-                <p>Per ogni azione: distanza dalla media a 200 e a 50 sedute e dal massimo delle ultime 52 settimane. <b>Nuovi massimi e minimi</b>: le azioni che nell'ultima settimana hanno toccato il prezzo più alto o più basso delle ultime 52 settimane. La quota di azioni sopra la media 200 di ogni settore e indice, con livelli blu e zone, è nelle pagine Monitor, Settori e indici, Bottom Map e Alert.</p>
+                <p>Per ogni azione: distanza dalla media a 200 e a 50 sedute e dal massimo delle ultime 52 settimane. <b>Nuovi massimi e minimi</b>: le azioni che nell'ultima settimana hanno toccato il prezzo più alto o più basso delle ultime 52 settimane. La quota di azioni sopra la media 200 di ogni settore e indice, con livelli blu e zone, è nelle pagine Monitor, Settori, Bottom Map e Alert.</p>
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--q-leader)"></i>Forza relativa</h3>
@@ -678,7 +721,7 @@
               </div>
               <div>
                 <h3><i class="dot" style="background:var(--soglia)"></i>Fonti e limiti</h3>
-                <p>Chiusure di Yahoo Finance. Europa: composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana), per l'Irlanda il livello è quello dell'ISEQ All Share. Asia ed Emergenti: composizioni di ottobre 2026 da fonti ufficiali e pubbliche, ferme finché non si aggiornano <code>asia.json</code> ed <code>emergenti.json</code>. Settori riportati agli 11 del sito. In questa pagina da due a tre anni di storia, prezzi rettificati per split e dividendi. Numeri per capire, non consigli di investimento.</p>
+                <p>Chiusure di Yahoo Finance. USA: le azioni dell'S&amp;P 500 di oggi, prezzi rettificati per gli split ma senza dividendi. Europa: composizione degli indici da Wikipedia (per i sette indici maggiori ricontrollata ogni settimana), per l'Irlanda il livello è quello dell'ISEQ All Share. Asia ed Emergenti: composizioni di ottobre 2026 da fonti ufficiali e pubbliche, ferme finché non si aggiornano <code>asia.json</code> ed <code>emergenti.json</code>. Settori riportati agli 11 del sito. In questa pagina da due a tre anni di storia; fuori dagli USA prezzi rettificati per split e dividendi. Numeri per capire, non consigli di investimento.</p>
               </div>
             </div>
           </article>
@@ -702,8 +745,8 @@
         <section>
           <h3>Home e zone</h3>
           <ul>
-            <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave), il quadro macro in breve e il riepilogo del portafoglio. Nella riga sotto: <b>Macro</b> (tassi a 10 anni di USA e Bund, dollaro, Brent, oro, rame, VIX: variazioni, anno, percentile dal 2005, media 200) e <b>Salute dei dati</b> (a che seduta è arrivata ogni zona, esito degli aggiornamenti, titoli e indici senza prezzi). Un clic sulla data in alto a destra porta lì.</li>
-            <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati, cosa manca al prossimo passaggio e lo storico dal 2005 dei titoli sopra la media 200), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati).</li>
+            <li><b>Home</b>: il quadro di oggi. Una scheda per zona (indice principale con il grafico dell'ultimo anno e la media 200, tendenza, ampiezza, punti chiave), il quadro macro in breve e il riepilogo del portafoglio. Nella riga sotto: <b>Confronto</b> (le quattro zone azionarie una accanto all'altra: tendenza, ampiezza sullo stesso grafico dal 2005, cambi di stato recenti), <b>Macro</b> (tassi a 10 anni di USA e Bund, dollaro, Brent, oro, rame, VIX: variazioni, anno, percentile dal 2005, media 200) e <b>Salute dei dati</b> (a che seduta è arrivata ogni zona, esito degli aggiornamenti, titoli e indici senza prezzi). Un clic sulla data in alto a destra porta lì.</li>
+            <li><b>USA</b>, i settori dell'S&amp;P 500: <b>Monitor</b> (stati, cosa manca al prossimo passaggio e lo storico dal 2005 dei titoli sopra la media 200), <b>Rotazione</b> (settori e MAG7), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori</b> (grafici, titoli, episodi e livello blu di ogni settore), <b>Alert</b> (storico degli stati), <b>Azioni</b> (tutte le azioni dell'S&amp;P 500, cercabili, con filtri e la scheda di ciascuna).</li>
             <li><b>Europa</b>, le stesse pagine degli USA per gli 11 settori europei e i 15 indici principali (circa 470 azioni): <b>Monitor</b> (stati e cosa manca al prossimo passaggio), <b>Rotazione</b> (settori e indici europei, ETF in euro), <b>Bottom Map</b> (drawdown contro distanza dal livello blu), <b>Settori e indici</b> (grafici dal 2005, azioni, episodi e livello blu di ognuno), <b>Alert</b> (storico degli stati), più <b>Azioni</b> (tutte, cercabili, con la scheda da cui si segue un titolo o lo si aggiunge al portafoglio).</li>
             <li><b>Asia</b>: Nikkei 225, Hang Seng, CSI 300, KOSPI 200, Taiwan 50, Nifty 50, LQ45, SET50 e KLCI (circa 1.040 azioni), con le stesse pagine dell'Europa e gli 11 settori asiatici. <b>Emergenti</b>: Ibovespa, IPC (Messico), Merval, IPSA (Cile), JSE Top 40, BIST 30 e WIG20 (circa 250 azioni), con i settori dei paesi emergenti; termine di confronto l'MSCI Emerging Markets (ETF EEM).</li>
             <li><b>Crypto</b>, bitcoin e le prime 10: <b>Monitor</b>, <b>Rotazione</b> (monete contro bitcoin), <b>Bottom Map</b> (distanza dal massimo di un anno contro distanza dalla media 200), <b>Analisi</b> (cosa è successo dopo, regola della media 200, stagionalità, halving), <b>Correlazioni</b>.</li>
@@ -739,6 +782,7 @@
             <li><kbd>Spazio</kbd> fa partire o ferma l'animazione della rotazione</li>
             <li><kbd>Esc</kbd> toglie il titolo evidenziato, chiude il grafico del titolo o la finestra aperta</li>
             <li><kbd>?</kbd> apre questa guida</li>
+            <li>Nei grafici a pannelli si <b>trascina col mouse</b> per ingrandire un periodo; <b>Tutto il periodo</b> o un doppio clic per tornare indietro.</li>
             <li>L'interruttore <b>Media 50</b> nei grafici toglie (o rimette) la media 50 da tutti i grafici insieme.</li>
             <li><kbd>C</kbd> copia i dati della pagina per Claude</li>
             <li>Con il cursore sulla barra delle zone o su quella delle pagine, le frecce passano alla zona o alla pagina vicina.</li>
@@ -772,6 +816,7 @@
   <script src="macro-calcoli.js"></script>
   <script src="view-macro.js"></script>
   <script src="view-salute.js"></script>
+  <script src="view-confronto.js"></script>
   <script src="view-home.js"></script>
   <script src="app.js"></script>
   <script src="copia-dati.js"></script>

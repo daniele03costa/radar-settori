@@ -310,7 +310,9 @@
       // etichetta: la prima posizione libera intorno alla testa (sugli schermi stretti basta il ticker)
       const nomeEt = W < 560 && !c.g.fonte ? t.replace(/\..*$/, "") : info.breve;
       const w = nomeEt.length * 7.4 + 4, h = 14;
-      const prove = [[11, 4, "start"], [-11, 4, "end"], [0, -12, "middle"], [0, 21, "middle"], [10, -9, "start"], [-10, -9, "end"], [10, 17, "start"], [-10, 17, "end"]];
+      // vicino alla testa; se tutto intorno è occupato, un po' più lontano con un trattino che la collega
+      const prove = [[11, 4, "start"], [-11, 4, "end"], [0, -12, "middle"], [0, 21, "middle"], [10, -9, "start"], [-10, -9, "end"], [10, 17, "start"], [-10, 17, "end"],
+        [20, -18, "start", 1], [-20, -18, "end", 1], [20, 28, "start", 1], [-20, 28, "end", 1], [0, -27, "middle", 1], [0, 36, "middle", 1], [30, 4, "start", 1], [-30, 4, "end", 1]];
       let scelta = null;
       for (const pr of prove) {
         const x0 = pr[2] === "start" ? hx + pr[0] : pr[2] === "end" ? hx + pr[0] - w : hx - w / 2;
@@ -320,6 +322,8 @@
         if (!occupati.some(o => !(rect[2] < o[0] || rect[0] > o[2] || rect[3] < o[1] || rect[1] > o[3]))) { scelta = pr; occupati.push(rect); break; }
       }
       if (!scelta) scelta = hx > m.l + pw - 60 ? prove[1] : prove[0];
+      if (scelta[3]) etichette.append(svg("line", { x1: hx + Math.sign(scelta[0]) * 7, y1: hy + (scelta[1] < 4 ? -6 : scelta[1] > 4 ? 6 : 0), x2: hx + scelta[0] * (scelta[2] === "middle" ? 0 : 0.85), y2: hy + scelta[1] + (scelta[1] < 4 ? 3 : scelta[1] > 4 ? -11 : -4),
+        class: "rt-guida" + (dim ? " dim" : "") }));
       etichette.append(svg("text", { x: hx + scelta[0], y: hy + scelta[1], "text-anchor": scelta[2], class: "rt-label" + (dim ? " dim" : "") + (attivo === t ? " on" : ""), "data-t": t }, nomeEt));
     }
     root.append(etichette);

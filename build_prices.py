@@ -309,8 +309,13 @@ def build_market(name: str, symbols: List[str], info: Dict[str, dict], start: st
     crypto = [s for s in symbols if is_crypto(s)]
 
     # ultimo prezzo di oggi per le borse europee (Yahoo lo mette in serie solo il giorno dopo)
+    quotes = {}
     if last_quotes is not None:
-        quotes = last_quotes([s for s in symbols if s not in crypto])
+        try:
+            quotes = last_quotes([s for s in symbols if s not in crypto])
+        except Exception as e:  # noqa: BLE001  (un di più: senza, restano le chiusure della serie giornaliera)
+            log(f"{name}: ultimi prezzi non disponibili ({e})")
+    if quotes:
         for sym, (day, price) in quotes.items():
             if sym not in raw.columns or not np.isfinite(price):
                 continue
@@ -617,7 +622,9 @@ def main() -> int:
         return r
 
     syms, info = usa_symbols(u)
+    # anche per gli USA: se Yahoo non ha ancora messo la chiusura nella serie giornaliera si usa l'ultimo prezzo scambiato
     r1 = passo("usa-prezzi", lambda: build_market("USA", syms, info, start, yahoo_prices, DATA_DIR / "prezzi_usa.json",
+                                                   last_quotes=lambda sy: yahoo_last_quotes(sy, tz="America/New_York"),
                                                    calendar_name="NYSE"))
     syms2, info2 = global_symbols(u)
     r2 = passo("globali", lambda: build_market("Globali", syms2, info2, start, yahoo_prices, DATA_DIR / "prezzi_globali.json",
@@ -638,6 +645,12 @@ def main() -> int:
         build_crypto.main()
     except Exception as e:  # noqa: BLE001
         log(f"Crypto: errore ({e}), resta il file già pubblicato")
+    # quadro macro (tassi, dollaro, materie prime, VIX): parte da qui, così non serve toccare l'aggiornamento su GitHub
+    try:
+        import build_macro
+        build_macro.main()
+    except Exception as e:  # noqa: BLE001
+        log(f"Macro: errore ({e}), resta il file già pubblicato")
     return 0 if ok else 1
 
 

@@ -17,6 +17,12 @@
 .chart-card .card-head { padding: 0 2px 12px; margin: 0; border-bottom: 1px solid var(--line); }
 .charts { position: relative; margin: 0 -4px; touch-action: pan-y; }
 .pane { position: relative; border-top: 1px solid var(--line); }
+.chart-reset {
+  position: absolute; top: 6px; right: 76px; z-index: 2; height: 26px; padding: 0 10px; border-radius: 999px; font: inherit; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--line-2); background: var(--surface-2); color: var(--ink); cursor: pointer;
+}
+.chart-reset:hover { background: var(--surface-3); }
+@media (hover: hover) and (pointer: fine) { .pane { cursor: crosshair; } }
 .pane:first-child { border-top: 0; }
 .pane canvas { position: absolute; inset: 0; display: block; }
 .pane-label { position: absolute; top: 10px; left: 12px; font-size: 12.5px; font-weight: 500; color: var(--muted); pointer-events: none; }
@@ -570,6 +576,75 @@ a.btn-primary { display: inline-flex; align-items: center; text-decoration: none
 
 .legend .leg-50 { margin-left: auto; }
 .legend .leg-50 .switch { font-size: 12.5px; }
+
+/* ============ salti nella pagina del settore (telefono e tablet) ============ */
+.salti { display: none; }
+@media (max-width: 960px) {
+  .salti {
+    display: flex; gap: 6px; position: sticky; top: var(--bar-h, 96px); z-index: 20; margin: 0 0 12px; padding: 8px 0;
+    background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); overflow-x: auto;
+  }
+  .salti button {
+    flex: none; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2);
+    font: inherit; font-size: 12.5px; font-weight: 500; cursor: pointer;
+  }
+  .salti button:active { background: var(--surface-3); }
+  #view-sec .chart-card, #titoli-card, #view-sec .episodes-card, #soglia-card { scroll-margin-top: calc(var(--bar-h, 96px) + 54px); }
+}
+
+/* ============ tabelle larghe sul telefono: la prima colonna resta ferma, un'ombra a destra dice che si scorre ============ */
+@media (max-width: 720px) {
+  .table-wrap {
+    background:
+      linear-gradient(to left, var(--surface) 40%, transparent) right center / 36px 100% no-repeat local,
+      linear-gradient(to left, color-mix(in srgb, var(--ink) 16%, transparent), transparent) right center / 14px 100% no-repeat scroll;
+  }
+  .table-wrap .tbl th:first-child, .table-wrap .tbl td:first-child {
+    position: sticky; left: 0; z-index: 1; background: var(--surface);
+    box-shadow: -16px 0 0 var(--surface), 6px 0 6px -6px color-mix(in srgb, var(--ink) 22%, transparent);
+  }
+  .table-wrap .tbl tr.grp th:first-child { box-shadow: none; }
+  /* copre la striscia a sinistra della colonna ferma (con i bordi uniti l'ombra non basta) */
+  .table-wrap .tbl th:first-child::before, .table-wrap .tbl td:first-child::before {
+    content: ""; position: absolute; left: -16px; top: 0; bottom: 0; width: 16px; background: var(--surface);
+  }
+}
+
+.rt-guida { stroke: var(--tail-line); stroke-width: 1; }
+.rt-guida.dim { opacity: .25; }
+
+/* ============ Home · Confronto fra zone ============ */
+#cfr-corpo { display: grid; gap: 16px; }
+#cfr-corpo > .card { margin: 0; }
+.cfr-zona { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.cfr-zona i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.cfr-tbl td { vertical-align: top; }
+.cfr-barra { display: block; position: relative; height: 4px; border-radius: 3px; background: var(--grid); margin: 6px 0 0 auto; width: 110px; }
+.cfr-barra i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; }
+.cfr-barra s { position: absolute; top: -3px; width: 2px; height: 10px; border-radius: 1px; background: var(--st-attenzione); }
+.cfr-stati { min-width: 190px; }
+.cfr-stati .stack { margin-top: 4px; }
+.cfr-legenda { gap: 8px 10px; align-items: center; margin-bottom: 6px; }
+.cfr-chip {
+  display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px; border-radius: 999px; font: inherit; font-size: 12.5px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--ink); cursor: pointer;
+}
+.cfr-chip i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.cfr-chip b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cfr-chip[aria-pressed="false"] { color: var(--muted); border-style: dashed; }
+.cfr-chip[aria-pressed="false"] i { opacity: .25; }
+.cfr-chip:hover { background: var(--surface-2); }
+.cfr-chip:focus-visible { outline: none; box-shadow: var(--ring); }
+.cfr-fasce { color: var(--muted); }
+.cfr-giorno + .cfr-giorno { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.cfr-giorno h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.cfr-giorno h3::first-letter { text-transform: uppercase; }
+.cfr-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--ink-2); padding: 1px 7px; border-radius: 999px; background: var(--surface-2); vertical-align: 1px; }
+.cfr-tag::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--c); }
+.cfr-cambi a { color: var(--ink); text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.novita-lista li.st-amp-attenzione i { background: var(--st-attenzione); }
+.novita-lista li.st-amp-rossa i { background: var(--neg); }
+.novita-lista li.st-amp-normale i { background: var(--st-normale); }
 
 /* ============ Home · Macro ============ */
 .mac-griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; margin-bottom: 16px; }

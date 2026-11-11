@@ -92,8 +92,11 @@
     // ampiezza storica di settori e indici europei (stessa forma dei settori USA): vedi R.mercati.eur
     europaStati: () => R.mercati.eur.stati(),
     // prezzi degli ultimi anni delle azioni di Asia ed Emergenti, e i loro elenchi
-    prezziZona: zona => (zona === "eur" ? R.dati.europa() : carica(`data/prezzi_${zona === "asi" ? "asia" : "emergenti"}.json`, { cache: "no-cache" })),
-    listaZona: zona => (zona === "eur" ? R.dati.europaLista() : carica(zona === "asi" ? "asia.json" : "emergenti.json", { cache: "no-cache" })),
+    // (negli USA le azioni dell'S&P 500: un solo indice, tutto in dollari)
+    prezziZona: zona => (zona === "eur" ? R.dati.europa() : carica(`data/prezzi_${{ usa: "sp500", asi: "asia", emg: "emergenti" }[zona]}.json`, { cache: "no-cache" })),
+    listaZona: zona => (zona === "eur" ? R.dati.europaLista()
+      : zona === "usa" ? Promise.resolve({ indici: [{ nome: "S&P 500", paese: "USA", yahoo: "SPY", valuta: "USD" }], confronto: null })
+      : carica(zona === "asi" ? "asia.json" : "emergenti.json", { cache: "no-cache" })),
     // tassi, dollaro, materie prime e VIX (build_macro.py)
     macro: () => carica("data/macro.json", { cache: "no-cache" }),
     // la lista personale così com'è nel file, anche i titoli che non hanno ancora i prezzi

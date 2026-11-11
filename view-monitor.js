@@ -267,7 +267,7 @@
     const primo = indice.b200.findIndex(v => v != null);
     const i0 = anni ? Math.max(primo, N - anni * 252) : primo;
     const stato = {
-      date: indice.date, i0, i1: N - 1,
+      date: indice.date, i0, i1: N - 1, chiave: m.zona,
       etichette: { prezzo: prezzo ? prezzo.nome : "", ampiezza: `% delle azioni sopra la media 200${usa50 ? " e 50" : ""}` },
       pannelli: {
         ampiezza: {
@@ -491,5 +491,5 @@
     return `Stato dell'ampiezza dell'intero indice: ${S.STATI_AMPIEZZA[sA.oggi] || "—"}${sA.oggi && sA.oggi !== "normale" ? ` dal ${dataIt(ultimoStorico.indice.date[sA.dal])}` : ""} (attenzione sotto il ${P.ampiezzaAttenzione}%, zona rossa sotto il ${P.ampiezzaRossa}%). Storico dell'ampiezza (${M.misto ? `azioni ${M.t.agg} del sito` : "S&P 500"} sopra la media 200, dal ${dataIt(a.dal)}): oggi ${num(a.x, 1)}%, un mese fa ${num(a.mese, 1)}%, 3 mesi fa ${num(a.trimestre, 1)}%, un anno fa ${num(a.anno, 1)}%; percentile ${num(a.percentile, 0)}°; media ${num(a.media, 1)}%, mediana ${num(a.mediana, 1)}%; minimo ${num(a.min, 1)}% il ${dataIt(a.dataMin)}, massimo ${num(a.max, 1)}% il ${dataIt(a.dataMax)}.`;
   }
 
-  R.viste.mon = { init, mostra, nascondi, daOsservare, panoramica, calcola, contesto: async () => [await panoramica(true, M), testoStorico()].filter(Boolean).join("\n"), mercato: () => M };
+  R.viste.mon = { init, mostra, nascondi, daOsservare, panoramica, calcola, statisticheStorico, contesto: async () => [await panoramica(true, M), testoStorico()].filter(Boolean).join("\n"), mercato: () => M };
 })();
