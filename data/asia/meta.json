@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-10",
- "generato": "2026-11-11T09:56:40Z",
+ "generato": "2026-11-11T09:59:32Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Asia",
@@ -94,7 +94,7 @@
    "sopra": 13,
    "soglia_default": 11,
    "dd": -13.9,
-   "ultimo": 28105.26,
+   "ultimo": 28105.25,
    "prezzo_tipo": "paniere",
    "titoli": 35,
    "m1_eur": -11.1,
