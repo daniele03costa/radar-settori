@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-10",
- "generato": "2026-11-11T07:45:33Z",
+ "generato": "2026-11-11T09:59:34Z",
  "ritardo": {
   "attesa": "2026-11-10",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-11",
- "ampiezza_indice": 69,
+ "ampiezza_indice": 68.8,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2022-10-17",
-  "ampiezza": 69,
+  "ampiezza": 68.8,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -39,26 +39,7 @@
    "titoli_che_mancano": 6,
    "punti_dal_livello": 41.9,
    "drawdown": -6.6,
-   "percentile_drawdown": 61
-  },
-  {
-   "etf": "COMUNICAZIONI",
-   "nome": "Comunicazioni",
-   "codice": "Comunicazioni",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2023-01-23",
-   "livello": 12,
-   "ampiezza": 50,
-   "ampiezza_un_mese_fa": 31.8,
-   "titoli_sopra": 11,
-   "titoli_totali": 22,
-   "titoli_al_livello": 2,
-   "titoli_che_mancano": 9,
-   "punti_dal_livello": 38,
-   "drawdown": -1.5,
-   "percentile_drawdown": 27
+   "percentile_drawdown": 60
   },
   {
    "etf": "OMX-HELSINKI-25",
@@ -114,8 +95,27 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 40,
-   "drawdown": -9,
+   "drawdown": -9.1,
    "percentile_drawdown": 74
+  },
+  {
+   "etf": "COMUNICAZIONI",
+   "nome": "Comunicazioni",
+   "codice": "Comunicazioni",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2023-01-23",
+   "livello": 12,
+   "ampiezza": 54.5,
+   "ampiezza_un_mese_fa": 31.8,
+   "titoli_sopra": 12,
+   "titoli_totali": 22,
+   "titoli_al_livello": 2,
+   "titoli_che_mancano": 10,
+   "punti_dal_livello": 42.5,
+   "drawdown": -1.6,
+   "percentile_drawdown": 28
   },
   {
    "etf": "ISEQ",
@@ -183,13 +183,13 @@
    "stato_nome": "Normale",
    "dal": "2025-05-09",
    "livello": 6,
-   "ampiezza": 78.9,
+   "ampiezza": 73.7,
    "ampiezza_un_mese_fa": 94.7,
-   "titoli_sopra": 15,
+   "titoli_sopra": 14,
    "titoli_totali": 19,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 14,
-   "punti_dal_livello": 72.9,
+   "titoli_che_mancano": 13,
+   "punti_dal_livello": 67.7,
    "drawdown": -10.1,
    "percentile_drawdown": 64
   },
@@ -342,8 +342,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 20,
    "punti_dal_livello": 65,
-   "drawdown": -0.7,
-   "percentile_drawdown": 20
+   "drawdown": -0.8,
+   "percentile_drawdown": 21
   },
   {
    "etf": "BENI-DI-PRIMA-NECESSITA",
@@ -361,8 +361,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 22,
    "punti_dal_livello": 60.6,
-   "drawdown": -0.3,
-   "percentile_drawdown": 19
+   "drawdown": -0.4,
+   "percentile_drawdown": 20
   },
   {
    "etf": "SANITA",
@@ -381,7 +381,7 @@
    "titoli_che_mancano": 22,
    "punti_dal_livello": 64.9,
    "drawdown": -0.6,
-   "percentile_drawdown": 24
+   "percentile_drawdown": 25
   },
   {
    "etf": "IBEX-35",
@@ -392,13 +392,13 @@
    "stato_nome": "Normale",
    "dal": "2022-10-13",
    "livello": 12,
-   "ampiezza": 77.1,
+   "ampiezza": 74.3,
    "ampiezza_un_mese_fa": 62.9,
-   "titoli_sopra": 27,
+   "titoli_sopra": 26,
    "titoli_totali": 35,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 23,
-   "punti_dal_livello": 65.1,
+   "titoli_che_mancano": 22,
+   "punti_dal_livello": 62.3,
    "drawdown": -1.4,
    "percentile_drawdown": 20
   },
@@ -411,15 +411,15 @@
    "stato_nome": "Normale",
    "dal": "2026-03-31",
    "livello": 13,
-   "ampiezza": 75.6,
+   "ampiezza": 73.2,
    "ampiezza_un_mese_fa": 46.3,
-   "titoli_sopra": 31,
+   "titoli_sopra": 30,
    "titoli_totali": 41,
    "titoli_al_livello": 5,
-   "titoli_che_mancano": 26,
-   "punti_dal_livello": 62.6,
-   "drawdown": -0.4,
-   "percentile_drawdown": 19
+   "titoli_che_mancano": 25,
+   "punti_dal_livello": 60.2,
+   "drawdown": -0.5,
+   "percentile_drawdown": 20
   },
   {
    "etf": "FTSE-MIB",
@@ -468,15 +468,15 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 13,
-   "ampiezza": 59.8,
+   "ampiezza": 58.8,
    "ampiezza_un_mese_fa": 55.7,
-   "titoli_sopra": 58,
+   "titoli_sopra": 57,
    "titoli_totali": 97,
    "titoli_al_livello": 12,
-   "titoli_che_mancano": 46,
-   "punti_dal_livello": 46.8,
-   "drawdown": -0.4,
-   "percentile_drawdown": 23
+   "titoli_che_mancano": 45,
+   "punti_dal_livello": 45.8,
+   "drawdown": -0.5,
+   "percentile_drawdown": 24
   },
   {
    "etf": "FTSE-100",
@@ -506,15 +506,15 @@
    "stato_nome": "Normale",
    "dal": "2022-10-13",
    "livello": 8,
-   "ampiezza": 83.2,
+   "ampiezza": 84.2,
    "ampiezza_un_mese_fa": 77.9,
-   "titoli_sopra": 79,
+   "titoli_sopra": 80,
    "titoli_totali": 95,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 72,
-   "punti_dal_livello": 75.2,
-   "drawdown": -0.6,
-   "percentile_drawdown": 21
+   "titoli_che_mancano": 73,
+   "punti_dal_livello": 76.2,
+   "drawdown": -0.7,
+   "percentile_drawdown": 22
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."

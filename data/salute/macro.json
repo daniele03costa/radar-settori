@@ -1,0 +1,36 @@
+{
+ "passo": "macro",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-11-11T09:59:44Z",
+ "ultimo_successo": "2026-11-11T09:59:44Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
+ "aggiornato": "2026-11-10",
+ "titoli": 9,
+ "totale": 9,
+ "mancanti": [],
+ "fermi": [
+  {
+   "t": "Bund 10 anni",
+   "nome": "Bund 10 anni",
+   "dal": "2026-08-03"
+  },
+  {
+   "t": "Differenziale USA–Bund",
+   "nome": "Differenziale USA–Bund",
+   "dal": "2026-08-10"
+  }
+ ],
+ "fonti": {
+  "us10": "Yahoo Finance (^TNX)",
+  "bund10": "Bundesbank",
+  "spread": "differenza delle due serie",
+  "dxy": "Yahoo Finance (DX-Y.NYB)",
+  "eurusd": "Yahoo Finance (EURUSD=X)",
+  "brent": "Yahoo Finance (BZ=F)",
+  "oro": "Yahoo Finance (GC=F)",
+  "rame": "Yahoo Finance (HG=F)",
+  "vix": "Yahoo Finance (^VIX)"
+ }
+}
