@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-11",
- "generato": "2026-11-11T12:51:21Z",
+ "generato": "2026-11-12T03:28:41Z",
  "ritardo": {
-  "attesa": "2026-11-10",
+  "attesa": "2026-11-11",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-12",
- "ampiezza_indice": 36.7,
+ "ampiezza_indice": 36.8,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 36.7,
+  "ampiezza": 36.8,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -19,37 +19,8 @@
   "cambi_ultima_seduta": [],
   "cambi_recenti": []
  },
- "cambi_ultima_seduta": [
-  {
-   "data": "2026-11-11",
-   "etf": "FTSE-TWSE-TAIWAN-50",
-   "nome": "FTSE TWSE Taiwan 50",
-   "codice": "Taiwan 50",
-   "da": "attenzione",
-   "a": "normale",
-   "da_nome": "Attenzione",
-   "a_nome": "Normale",
-   "ampiezza": 76,
-   "titoli_sopra": 38,
-   "titoli_totali": 50,
-   "drawdown": -13.9
-  }
- ],
+ "cambi_ultima_seduta": [],
  "cambi_recenti": [
-  {
-   "data": "2026-11-11",
-   "etf": "FTSE-TWSE-TAIWAN-50",
-   "nome": "FTSE TWSE Taiwan 50",
-   "codice": "Taiwan 50",
-   "da": "attenzione",
-   "a": "normale",
-   "da_nome": "Attenzione",
-   "a_nome": "Normale",
-   "ampiezza": 76,
-   "titoli_sopra": 38,
-   "titoli_totali": 50,
-   "drawdown": -13.9
-  },
   {
    "data": "2026-11-10",
    "etf": "NIFTY-50",
@@ -290,8 +261,8 @@
    "titoli_al_livello": 44,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -9,
-   "drawdown": -14.3,
-   "percentile_drawdown": 84,
+   "drawdown": -14.8,
+   "percentile_drawdown": 86,
    "per_il_trigger": {
     "punti_che_mancano": 14,
     "ampiezza_obiettivo": 27,
@@ -344,7 +315,7 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 2.1,
-   "drawdown": -14.3,
+   "drawdown": -14.4,
    "percentile_drawdown": 85
   },
   {
@@ -363,8 +334,27 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 10.2,
-   "drawdown": -17.4,
+   "drawdown": -17.8,
    "percentile_drawdown": 86
+  },
+  {
+   "etf": "FTSE-TWSE-TAIWAN-50",
+   "nome": "FTSE TWSE Taiwan 50",
+   "codice": "Taiwan 50",
+   "tipo": "indice",
+   "stato": "attenzione",
+   "stato_nome": "Attenzione",
+   "dal": "2026-11-04",
+   "livello": 18,
+   "ampiezza": 76,
+   "ampiezza_un_mese_fa": 100,
+   "titoli_sopra": 38,
+   "titoli_totali": 50,
+   "titoli_al_livello": 9,
+   "titoli_che_mancano": 29,
+   "punti_dal_livello": 58,
+   "drawdown": -14.4,
+   "percentile_drawdown": 85
   },
   {
    "etf": "NIFTY-50",
@@ -401,8 +391,8 @@
    "titoli_al_livello": 15,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 10.6,
-   "drawdown": -8.5,
-   "percentile_drawdown": 84
+   "drawdown": -8.3,
+   "percentile_drawdown": 83
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -420,8 +410,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 7,
    "punti_dal_livello": 25.5,
-   "drawdown": -8.8,
-   "percentile_drawdown": 59
+   "drawdown": -8.9,
+   "percentile_drawdown": 60
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -439,8 +429,8 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 24.3,
-   "drawdown": -14.1,
-   "percentile_drawdown": 80
+   "drawdown": -13.6,
+   "percentile_drawdown": 78
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -477,8 +467,8 @@
    "titoli_al_livello": 19,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 22.7,
-   "drawdown": -0.8,
-   "percentile_drawdown": 23
+   "drawdown": -1.2,
+   "percentile_drawdown": 27
   },
   {
    "etf": "ASIA-UTILITY",
@@ -496,8 +486,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 40.1,
-   "drawdown": -0.6,
-   "percentile_drawdown": 18
+   "drawdown": -0.5,
+   "percentile_drawdown": 17
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -515,8 +505,8 @@
    "titoli_al_livello": 22,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 17.1,
-   "drawdown": -2.9,
-   "percentile_drawdown": 47
+   "drawdown": -3.1,
+   "percentile_drawdown": 49
   },
   {
    "etf": "ASIA-INDUSTRIALI",
@@ -527,15 +517,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-09",
    "livello": 17,
-   "ampiezza": 28.3,
+   "ampiezza": 28.8,
    "ampiezza_un_mese_fa": 36.6,
-   "titoli_sopra": 54,
+   "titoli_sopra": 55,
    "titoli_totali": 191,
    "titoli_al_livello": 32,
-   "titoli_che_mancano": 22,
-   "punti_dal_livello": 11.3,
-   "drawdown": -9.6,
-   "percentile_drawdown": 76
+   "titoli_che_mancano": 23,
+   "punti_dal_livello": 11.8,
+   "drawdown": -9.9,
+   "percentile_drawdown": 77
   },
   {
    "etf": "HANG-SENG",
@@ -557,25 +547,6 @@
    "percentile_drawdown": 65
   },
   {
-   "etf": "FTSE-TWSE-TAIWAN-50",
-   "nome": "FTSE TWSE Taiwan 50",
-   "codice": "Taiwan 50",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-11-11",
-   "livello": 18,
-   "ampiezza": 76,
-   "ampiezza_un_mese_fa": 100,
-   "titoli_sopra": 38,
-   "titoli_totali": 50,
-   "titoli_al_livello": 9,
-   "titoli_che_mancano": 29,
-   "punti_dal_livello": 58,
-   "drawdown": -13.9,
-   "percentile_drawdown": 84
-  },
-  {
    "etf": "SET50",
    "nome": "SET50",
    "codice": "SET50",
@@ -591,8 +562,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 29,
    "punti_dal_livello": 57.5,
-   "drawdown": -4.1,
-   "percentile_drawdown": 44
+   "drawdown": -4.2,
+   "percentile_drawdown": 45
   },
   {
    "etf": "CSI-300",
@@ -603,15 +574,15 @@
    "stato_nome": "Normale",
    "dal": "2024-01-24",
    "livello": 12,
-   "ampiezza": 26.1,
+   "ampiezza": 26.4,
    "ampiezza_un_mese_fa": 29.4,
-   "titoli_sopra": 78,
+   "titoli_sopra": 79,
    "titoli_totali": 299,
    "titoli_al_livello": 36,
-   "titoli_che_mancano": 42,
-   "punti_dal_livello": 14.1,
-   "drawdown": -3.8,
-   "percentile_drawdown": 35
+   "titoli_che_mancano": 43,
+   "punti_dal_livello": 14.4,
+   "drawdown": -4.4,
+   "percentile_drawdown": 39
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -629,8 +600,8 @@
    "titoli_al_livello": 17,
    "titoli_che_mancano": 60,
    "punti_dal_livello": 41.1,
-   "drawdown": -1.2,
-   "percentile_drawdown": 31
+   "drawdown": -1.4,
+   "percentile_drawdown": 34
   },
   {
    "etf": "NIKKEI-225",
