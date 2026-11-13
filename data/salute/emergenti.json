@@ -1,20 +1,16 @@
 {
  "passo": "emergenti",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-12T13:55:54Z",
- "ultimo_successo": "2026-11-12T13:55:54Z",
+ "ultimo_tentativo": "2026-11-13T03:02:18Z",
+ "ultimo_successo": "2026-11-13T03:02:18Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
- "aggiornato": "2026-11-11",
- "titoli": 251,
+ "aggiornato": "2026-11-12",
+ "titoli": 252,
  "totale": 253,
  "indici": 6,
  "mancanti": [
-  {
-   "t": "VESTA.MX",
-   "nome": "Corporación Inmobiliaria Vesta"
-  },
   {
    "t": "OROBLANCO.SN",
    "nome": "Pampa Investments (ex Oro Blanco)"
