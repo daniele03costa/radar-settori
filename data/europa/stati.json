@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-13",
- "generato": "2026-11-14T07:34:14Z",
+ "generato": "2026-11-14T11:44:20Z",
  "ritardo": {
   "attesa": "2026-11-13",
   "sedute": 0
@@ -229,7 +229,7 @@
    "titoli_che_mancano": 15,
    "punti_dal_livello": 60.2,
    "drawdown": -4,
-   "percentile_drawdown": 48
+   "percentile_drawdown": 47
   },
   {
    "etf": "MATERIALI",
@@ -400,7 +400,7 @@
    "titoli_che_mancano": 24,
    "punti_dal_livello": 70.9,
    "drawdown": -0.4,
-   "percentile_drawdown": 20
+   "percentile_drawdown": 21
   },
   {
    "etf": "CONSUMI-DISCREZIONALI",
@@ -418,8 +418,8 @@
    "titoli_al_livello": 5,
    "titoli_che_mancano": 26,
    "punti_dal_livello": 62.6,
-   "drawdown": -0.8,
-   "percentile_drawdown": 24
+   "drawdown": -0.9,
+   "percentile_drawdown": 26
   },
   {
    "etf": "FTSE-MIB",
@@ -475,7 +475,7 @@
    "titoli_al_livello": 12,
    "titoli_che_mancano": 49,
    "punti_dal_livello": 49.9,
-   "drawdown": -0.4,
+   "drawdown": -0.5,
    "percentile_drawdown": 23
   },
   {
@@ -514,7 +514,7 @@
    "titoli_che_mancano": 70,
    "punti_dal_livello": 73.1,
    "drawdown": -0.2,
-   "percentile_drawdown": 15
+   "percentile_drawdown": 16
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
