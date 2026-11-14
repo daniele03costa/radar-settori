@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-13",
- "generato": "2026-11-14T02:49:42Z",
+ "generato": "2026-11-14T12:21:00Z",
  "ritardo": {
   "attesa": "2026-11-13",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-16",
- "ampiezza_indice": 37.3,
+ "ampiezza_indice": 37.2,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 37.3,
+  "ampiezza": 37.2,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -87,8 +87,8 @@
    "a": "normale",
    "da_nome": "Attenzione",
    "a_nome": "Normale",
-   "ampiezza": 51.6,
-   "titoli_sopra": 116,
+   "ampiezza": 51.1,
+   "titoli_sopra": 115,
    "titoli_totali": 225,
    "drawdown": -16.4
   },
@@ -304,7 +304,7 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 4.5,
-   "drawdown": -14.6,
+   "drawdown": -14.7,
    "percentile_drawdown": 86
   },
   {
@@ -354,13 +354,13 @@
    "stato_nome": "Cooldown",
    "dal": "2026-11-10",
    "livello": 21,
-   "ampiezza": 70,
+   "ampiezza": 68,
    "ampiezza_un_mese_fa": 24,
-   "titoli_sopra": 35,
+   "titoli_sopra": 34,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 25,
-   "punti_dal_livello": 49,
+   "titoli_che_mancano": 24,
+   "punti_dal_livello": 47,
    "drawdown": -0.7,
    "percentile_drawdown": 19
   },
@@ -371,7 +371,7 @@
    "tipo": "settore",
    "stato": "normale",
    "stato_nome": "Normale",
-   "dal": "2026-10-23",
+   "dal": "2026-10-26",
    "livello": 12,
    "ampiezza": 41.7,
    "ampiezza_un_mese_fa": 16.7,
@@ -380,7 +380,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 29.7,
-   "drawdown": -9.1,
+   "drawdown": -9.2,
    "percentile_drawdown": 61
   },
   {
@@ -430,13 +430,13 @@
    "stato_nome": "Normale",
    "dal": "2026-11-02",
    "livello": 30,
-   "ampiezza": 44.3,
+   "ampiezza": 43.2,
    "ampiezza_un_mese_fa": 38.6,
-   "titoli_sopra": 39,
+   "titoli_sopra": 38,
    "titoli_totali": 88,
    "titoli_al_livello": 26,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 14.3,
+   "titoli_che_mancano": 12,
+   "punti_dal_livello": 13.2,
    "drawdown": -0.7,
    "percentile_drawdown": 23
   },
