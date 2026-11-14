@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-13",
- "generato": "2026-11-14T02:42:27Z",
+ "generato": "2026-11-14T07:34:14Z",
  "ritardo": {
   "attesa": "2026-11-13",
   "sedute": 0
@@ -486,14 +486,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 18,
+   "livello": 19,
    "ampiezza": 71,
    "ampiezza_un_mese_fa": 65,
    "titoli_sopra": 71,
    "titoli_totali": 100,
-   "titoli_al_livello": 18,
-   "titoli_che_mancano": 53,
-   "punti_dal_livello": 53,
+   "titoli_al_livello": 19,
+   "titoli_che_mancano": 52,
+   "punti_dal_livello": 52,
    "drawdown": -0.1,
    "percentile_drawdown": 7
   },
