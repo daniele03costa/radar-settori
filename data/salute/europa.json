@@ -1,15 +1,15 @@
 {
  "passo": "europa",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-17T09:06:05Z",
- "ultimo_successo": "2026-11-17T09:06:05Z",
+ "ultimo_tentativo": "2026-11-17T13:47:09Z",
+ "ultimo_successo": "2026-11-17T13:47:09Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
  "aggiornato": "2026-11-16",
  "titoli": 467,
  "totale": 472,
- "indici": 14,
+ "indici": 15,
  "mancanti": [
   {
    "t": "IIA.VI",
@@ -37,10 +37,6 @@
   {
    "nome": "OMX Stockholm 30",
    "yahoo": "^OMXS30"
-  },
-  {
-   "nome": "OBX",
-   "yahoo": "OBXP.OL"
   }
  ],
  "indici_fermi": [],

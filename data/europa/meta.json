@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-16",
- "generato": "2026-11-17T09:06:05Z",
+ "generato": "2026-11-17T13:47:08Z",
  "inizio": "2005-01-03",
  "calendario": "milano",
  "regione": "Europa",
@@ -417,7 +417,7 @@
    "sopra": 18,
    "soglia_default": 19,
    "dd": -4.0,
-   "ultimo": 7276.78,
+   "ultimo": 7276.79,
    "prezzo_tipo": "paniere",
    "titoli": 24,
    "m1_eur": 0.8,
