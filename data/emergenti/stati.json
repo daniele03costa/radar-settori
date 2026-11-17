@@ -1,17 +1,17 @@
 {
- "aggiornato": "2026-11-13",
- "generato": "2026-11-17T04:51:27Z",
+ "aggiornato": "2026-11-16",
+ "generato": "2026-11-17T14:43:57Z",
  "ritardo": {
   "attesa": "2026-11-16",
   "sedute": 0
  },
- "prossima_seduta": "2026-11-16",
- "ampiezza_indice": 46,
+ "prossima_seduta": "2026-11-17",
+ "ampiezza_indice": 44.8,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-27",
-  "ampiezza": 46,
+  "ampiezza": 44.8,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -116,15 +116,15 @@
    "stato_nome": "Trigger",
    "dal": "2026-11-04",
    "livello": 24,
-   "ampiezza": 27.9,
-   "ampiezza_un_mese_fa": 30.2,
-   "titoli_sopra": 12,
+   "ampiezza": 23.3,
+   "ampiezza_un_mese_fa": 32.6,
+   "titoli_sopra": 10,
    "titoli_totali": 43,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 3.9,
-   "drawdown": -17.7,
-   "percentile_drawdown": 85,
+   "titoli_che_mancano": 0,
+   "punti_dal_livello": -0.7,
+   "drawdown": -18.6,
+   "percentile_drawdown": 86,
    "trigger": {
     "data": "2026-11-04",
     "conferme": [
@@ -142,14 +142,14 @@
    "stato_nome": "Trigger",
    "dal": "2026-11-09",
    "livello": 17,
-   "ampiezza": 30,
-   "ampiezza_un_mese_fa": 20,
-   "titoli_sopra": 9,
+   "ampiezza": 26.7,
+   "ampiezza_un_mese_fa": 16.7,
+   "titoli_sopra": 8,
    "titoli_totali": 30,
    "titoli_al_livello": 5,
-   "titoli_che_mancano": 4,
-   "punti_dal_livello": 13,
-   "drawdown": -14,
+   "titoli_che_mancano": 3,
+   "punti_dal_livello": 9.7,
+   "drawdown": -14.1,
    "percentile_drawdown": 69,
    "trigger": {
     "data": "2026-11-09",
@@ -175,8 +175,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1,
-   "drawdown": -28.5,
-   "percentile_drawdown": 70,
+   "drawdown": -32,
+   "percentile_drawdown": 76,
    "per_il_trigger": {
     "punti_che_mancano": 11,
     "ampiezza_obiettivo": 21,
@@ -194,15 +194,15 @@
    "stato_nome": "Zona blu",
    "dal": "2026-10-29",
    "livello": 19,
-   "ampiezza": 32.9,
+   "ampiezza": 30.3,
    "ampiezza_un_mese_fa": 75,
-   "titoli_sopra": 25,
+   "titoli_sopra": 23,
    "titoli_totali": 76,
    "titoli_al_livello": 14,
-   "titoli_che_mancano": 11,
-   "punti_dal_livello": 13.9,
-   "drawdown": -17.5,
-   "percentile_drawdown": 81,
+   "titoli_che_mancano": 9,
+   "punti_dal_livello": 11.3,
+   "drawdown": -19,
+   "percentile_drawdown": 85,
    "per_il_trigger": {
     "punti_che_mancano": 0,
     "ampiezza_obiettivo": 24,
@@ -227,8 +227,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 1,
    "punti_dal_livello": 6,
-   "drawdown": -14.6,
-   "percentile_drawdown": 76
+   "drawdown": -15,
+   "percentile_drawdown": 77
   },
   {
    "etf": "EM-UTILITY",
@@ -239,15 +239,15 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-27",
    "livello": 24,
-   "ampiezza": 29.6,
-   "ampiezza_un_mese_fa": 74.1,
-   "titoli_sopra": 8,
+   "ampiezza": 25.9,
+   "ampiezza_un_mese_fa": 70.4,
+   "titoli_sopra": 7,
    "titoli_totali": 27,
    "titoli_al_livello": 6,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 5.6,
-   "drawdown": -17.1,
-   "percentile_drawdown": 80
+   "titoli_che_mancano": 1,
+   "punti_dal_livello": 1.9,
+   "drawdown": -18.6,
+   "percentile_drawdown": 83
   },
   {
    "etf": "EM-ENERGIA",
@@ -265,8 +265,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 20.5,
-   "drawdown": -22.2,
-   "percentile_drawdown": 85
+   "drawdown": -24,
+   "percentile_drawdown": 88
   },
   {
    "etf": "FTSE-JSE-TOP-40",
@@ -277,14 +277,14 @@
    "stato_nome": "Attenzione",
    "dal": "2026-09-14",
    "livello": 25,
-   "ampiezza": 53.7,
-   "ampiezza_un_mese_fa": 36.6,
-   "titoli_sopra": 22,
+   "ampiezza": 51.2,
+   "ampiezza_un_mese_fa": 39,
+   "titoli_sopra": 21,
    "titoli_totali": 41,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 12,
-   "punti_dal_livello": 28.7,
-   "drawdown": -13.1,
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 26.2,
+   "drawdown": -13.9,
    "percentile_drawdown": 90
   },
   {
@@ -303,8 +303,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 45.6,
-   "drawdown": -3.5,
-   "percentile_drawdown": 41
+   "drawdown": -1.8,
+   "percentile_drawdown": 26
   },
   {
    "etf": "EM-SANITA",
@@ -322,8 +322,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 49.7,
-   "drawdown": -17.6,
-   "percentile_drawdown": 68
+   "drawdown": -18.8,
+   "percentile_drawdown": 71
   },
   {
    "etf": "EM-CONSUMI-DISCREZIONALI",
@@ -334,15 +334,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-06",
    "livello": 15,
-   "ampiezza": 35.7,
+   "ampiezza": 39.3,
    "ampiezza_un_mese_fa": 67.9,
-   "titoli_sopra": 10,
+   "titoli_sopra": 11,
    "titoli_totali": 28,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 6,
-   "punti_dal_livello": 20.7,
-   "drawdown": -17.9,
-   "percentile_drawdown": 80
+   "titoli_che_mancano": 7,
+   "punti_dal_livello": 24.3,
+   "drawdown": -18.4,
+   "percentile_drawdown": 81
   },
   {
    "etf": "EM-BENI-DI-PRIMA-NECESSITA",
@@ -353,15 +353,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-03",
    "livello": 29,
-   "ampiezza": 61.3,
-   "ampiezza_un_mese_fa": 51.6,
-   "titoli_sopra": 19,
+   "ampiezza": 64.5,
+   "ampiezza_un_mese_fa": 58.1,
+   "titoli_sopra": 20,
    "titoli_totali": 31,
    "titoli_al_livello": 9,
-   "titoli_che_mancano": 10,
-   "punti_dal_livello": 32.3,
-   "drawdown": -6.3,
-   "percentile_drawdown": 63
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 35.5,
+   "drawdown": -6.2,
+   "percentile_drawdown": 62
   },
   {
    "etf": "S-P-IPSA",
@@ -372,15 +372,15 @@
    "stato_nome": "Normale",
    "dal": "2022-03-04",
    "livello": 15,
-   "ampiezza": 46.7,
+   "ampiezza": 50,
    "ampiezza_un_mese_fa": 60,
-   "titoli_sopra": 14,
+   "titoli_sopra": 15,
    "titoli_totali": 30,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 10,
-   "punti_dal_livello": 31.7,
-   "drawdown": -13.9,
-   "percentile_drawdown": 68
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 35,
+   "drawdown": -13.6,
+   "percentile_drawdown": 67
   },
   {
    "etf": "EM-INDUSTRIALI",
@@ -391,15 +391,15 @@
    "stato_nome": "Normale",
    "dal": "2020-12-15",
    "livello": 18,
-   "ampiezza": 63,
-   "ampiezza_un_mese_fa": 44.4,
-   "titoli_sopra": 17,
+   "ampiezza": 59.3,
+   "ampiezza_un_mese_fa": 48.1,
+   "titoli_sopra": 16,
    "titoli_totali": 27,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 45,
-   "drawdown": -7,
-   "percentile_drawdown": 62
+   "titoli_che_mancano": 12,
+   "punti_dal_livello": 41.3,
+   "drawdown": -7.7,
+   "percentile_drawdown": 64
   },
   {
    "etf": "WIG20",
@@ -411,14 +411,14 @@
    "dal": "2022-12-20",
    "livello": 5,
    "ampiezza": 80,
-   "ampiezza_un_mese_fa": 80,
+   "ampiezza_un_mese_fa": 85,
    "titoli_sopra": 16,
    "titoli_totali": 20,
    "titoli_al_livello": 1,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 75,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "drawdown": -0.4,
+   "percentile_drawdown": 14
   },
   {
    "etf": "S-P-BMV-IPC",
@@ -430,7 +430,7 @@
    "dal": "2026-10-09",
    "livello": 23,
    "ampiezza": 80,
-   "ampiezza_un_mese_fa": 57.1,
+   "ampiezza_un_mese_fa": 60,
    "titoli_sopra": 28,
    "titoli_totali": 35,
    "titoli_al_livello": 8,
@@ -448,15 +448,15 @@
    "stato_nome": "Normale",
    "dal": "2020-12-02",
    "livello": 13,
-   "ampiezza": 58.2,
-   "ampiezza_un_mese_fa": 58.2,
-   "titoli_sopra": 32,
+   "ampiezza": 56.4,
+   "ampiezza_un_mese_fa": 56.4,
+   "titoli_sopra": 31,
    "titoli_totali": 55,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 25,
-   "punti_dal_livello": 45.2,
-   "drawdown": -5.3,
-   "percentile_drawdown": 53
+   "titoli_che_mancano": 24,
+   "punti_dal_livello": 43.4,
+   "drawdown": -6.6,
+   "percentile_drawdown": 59
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
