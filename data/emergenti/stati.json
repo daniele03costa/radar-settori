@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-17",
- "generato": "2026-11-18T03:56:51Z",
+ "generato": "2026-11-18T14:21:08Z",
  "ritardo": {
   "attesa": "2026-11-17",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-18",
- "ampiezza_indice": 44.8,
+ "ampiezza_indice": 45.6,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-27",
-  "ampiezza": 44.8,
+  "ampiezza": 45.6,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -109,7 +109,7 @@
    "titoli_al_livello": 10,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -3.1,
-   "drawdown": -19.1,
+   "drawdown": -19.5,
    "percentile_drawdown": 86,
    "trigger": {
     "data": "2026-11-04",
@@ -161,8 +161,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1,
-   "drawdown": -32.1,
-   "percentile_drawdown": 77,
+   "drawdown": -31.6,
+   "percentile_drawdown": 76,
    "per_il_trigger": {
     "punti_che_mancano": 11,
     "ampiezza_obiettivo": 21,
@@ -180,13 +180,13 @@
    "stato_nome": "Zona blu",
    "dal": "2026-10-29",
    "livello": 19,
-   "ampiezza": 30.3,
+   "ampiezza": 32.9,
    "ampiezza_un_mese_fa": 76.3,
-   "titoli_sopra": 23,
+   "titoli_sopra": 25,
    "titoli_totali": 76,
    "titoli_al_livello": 14,
-   "titoli_che_mancano": 9,
-   "punti_dal_livello": 11.3,
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 13.9,
    "drawdown": -18.8,
    "percentile_drawdown": 85,
    "per_il_trigger": {
@@ -225,15 +225,15 @@
    "stato_nome": "Attenzione",
    "dal": "2026-10-27",
    "livello": 24,
-   "ampiezza": 25.9,
+   "ampiezza": 29.6,
    "ampiezza_un_mese_fa": 70.4,
-   "titoli_sopra": 7,
+   "titoli_sopra": 8,
    "titoli_totali": 27,
    "titoli_al_livello": 6,
-   "titoli_che_mancano": 1,
-   "punti_dal_livello": 1.9,
-   "drawdown": -19.3,
-   "percentile_drawdown": 85
+   "titoli_che_mancano": 2,
+   "punti_dal_livello": 5.6,
+   "drawdown": -19.1,
+   "percentile_drawdown": 84
   },
   {
    "etf": "EM-ENERGIA",
@@ -251,7 +251,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 20.5,
-   "drawdown": -24.7,
+   "drawdown": -24.5,
    "percentile_drawdown": 88
   },
   {
@@ -282,15 +282,15 @@
    "stato_nome": "Cooldown",
    "dal": "2026-10-09",
    "livello": 18,
-   "ampiezza": 63.6,
+   "ampiezza": 72.7,
    "ampiezza_un_mese_fa": 45.5,
-   "titoli_sopra": 7,
+   "titoli_sopra": 8,
    "titoli_totali": 11,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 6,
-   "punti_dal_livello": 45.6,
-   "drawdown": -2.1,
-   "percentile_drawdown": 29
+   "titoli_che_mancano": 7,
+   "punti_dal_livello": 54.7,
+   "drawdown": -1.6,
+   "percentile_drawdown": 25
   },
   {
    "etf": "EM-SANITA",
@@ -308,8 +308,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 3,
    "punti_dal_livello": 49.7,
-   "drawdown": -19.9,
-   "percentile_drawdown": 73
+   "drawdown": -17.6,
+   "percentile_drawdown": 68
   },
   {
    "etf": "EM-CONSUMI-DISCREZIONALI",
@@ -327,7 +327,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 7,
    "punti_dal_livello": 24.3,
-   "drawdown": -19.1,
+   "drawdown": -19.6,
    "percentile_drawdown": 82
   },
   {
@@ -365,8 +365,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 38.7,
-   "drawdown": -6.2,
-   "percentile_drawdown": 62
+   "drawdown": -6.4,
+   "percentile_drawdown": 63
   },
   {
    "etf": "EM-INDUSTRIALI",
@@ -403,8 +403,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 75,
-   "drawdown": -0.3,
-   "percentile_drawdown": 13
+   "drawdown": -1.4,
+   "percentile_drawdown": 25
   },
   {
    "etf": "S-P-BMV-IPC",
@@ -441,8 +441,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 24,
    "punti_dal_livello": 43.4,
-   "drawdown": -6.9,
-   "percentile_drawdown": 60
+   "drawdown": -7.1,
+   "percentile_drawdown": 61
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."

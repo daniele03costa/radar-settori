@@ -1,12 +1,12 @@
 {
  "passo": "asia",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-18T03:56:23Z",
- "ultimo_successo": "2026-11-18T03:56:23Z",
+ "ultimo_tentativo": "2026-11-18T14:20:36Z",
+ "ultimo_successo": "2026-11-18T14:20:36Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
- "aggiornato": "2026-11-17",
+ "aggiornato": "2026-11-18",
  "titoli": 1044,
  "totale": 1045,
  "indici": 6,
@@ -16,13 +16,7 @@
    "nome": "Cinda Securities"
   }
  ],
- "fermi": [
-  {
-   "t": "BANPU.BK",
-   "nome": "Banpu",
-   "dal": "2026-08-11"
-  }
- ],
+ "fermi": [],
  "indici_mancanti": [
   {
    "nome": "CSI 300",
