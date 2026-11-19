@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-18",
- "generato": "2026-11-18T14:20:36Z",
+ "generato": "2026-11-19T03:55:14Z",
  "ritardo": {
-  "attesa": "2026-11-17",
+  "attesa": "2026-11-18",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-19",
- "ampiezza_indice": 35.8,
+ "ampiezza_indice": 35.9,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 35.8,
+  "ampiezza": 35.9,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -32,7 +32,7 @@
    "ampiezza": 14.6,
    "titoli_sopra": 18,
    "titoli_totali": 123,
-   "drawdown": -17.9
+   "drawdown": -18.1
   }
  ],
  "cambi_recenti": [
@@ -48,7 +48,7 @@
    "ampiezza": 14.6,
    "titoli_sopra": 18,
    "titoli_totali": 123,
-   "drawdown": -17.9
+   "drawdown": -18.1
   },
   {
    "data": "2026-11-16",
@@ -208,7 +208,7 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -0.4,
-   "drawdown": -17.9,
+   "drawdown": -18.1,
    "percentile_drawdown": 90,
    "per_il_trigger": {
     "punti_che_mancano": 5.4,
@@ -234,8 +234,8 @@
    "titoli_al_livello": 42,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -8,
-   "drawdown": -15.7,
-   "percentile_drawdown": 87,
+   "drawdown": -15.9,
+   "percentile_drawdown": 88,
    "per_il_trigger": {
     "punti_che_mancano": 13,
     "ampiezza_obiettivo": 26,
@@ -314,8 +314,8 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 1,
    "punti_dal_livello": 0.1,
-   "drawdown": -23.1,
-   "percentile_drawdown": 92
+   "drawdown": -23.3,
+   "percentile_drawdown": 93
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -333,7 +333,7 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 19,
    "punti_dal_livello": 38,
-   "drawdown": -21.9,
+   "drawdown": -22,
    "percentile_drawdown": 92
   },
   {
@@ -371,8 +371,8 @@
    "titoli_al_livello": 10,
    "titoli_che_mancano": 24,
    "punti_dal_livello": 47,
-   "drawdown": -0.1,
-   "percentile_drawdown": 12
+   "drawdown": -0.2,
+   "percentile_drawdown": 13
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -390,7 +390,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 21.3,
-   "drawdown": -10,
+   "drawdown": -10.1,
    "percentile_drawdown": 64
   },
   {
@@ -428,7 +428,7 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 24.3,
-   "drawdown": -13.5,
+   "drawdown": -13.6,
    "percentile_drawdown": 78
   },
   {
@@ -447,8 +447,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 37.5,
-   "drawdown": -0.7,
-   "percentile_drawdown": 20
+   "drawdown": -0.5,
+   "percentile_drawdown": 17
   },
   {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
@@ -466,8 +466,8 @@
    "titoli_al_livello": 22,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 17.1,
-   "drawdown": -3.2,
-   "percentile_drawdown": 49
+   "drawdown": -3.4,
+   "percentile_drawdown": 51
   },
   {
    "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
@@ -485,7 +485,7 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 20,
-   "drawdown": -0.2,
+   "drawdown": -0.1,
    "percentile_drawdown": 15
   },
   {
@@ -504,8 +504,8 @@
    "titoli_al_livello": 19,
    "titoli_che_mancano": 18,
    "punti_dal_livello": 25.6,
-   "drawdown": -1,
-   "percentile_drawdown": 25
+   "drawdown": -1.2,
+   "percentile_drawdown": 28
   },
   {
    "etf": "HANG-SENG",
@@ -535,15 +535,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-09",
    "livello": 17,
-   "ampiezza": 30.4,
+   "ampiezza": 30.9,
    "ampiezza_un_mese_fa": 28.3,
-   "titoli_sopra": 58,
+   "titoli_sopra": 59,
    "titoli_totali": 191,
    "titoli_al_livello": 32,
-   "titoli_che_mancano": 26,
-   "punti_dal_livello": 13.4,
-   "drawdown": -10.9,
-   "percentile_drawdown": 80
+   "titoli_che_mancano": 27,
+   "punti_dal_livello": 13.9,
+   "drawdown": -11,
+   "percentile_drawdown": 81
   },
   {
    "etf": "SET50",
@@ -561,8 +561,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 27,
    "punti_dal_livello": 53.4,
-   "drawdown": -4.8,
-   "percentile_drawdown": 49
+   "drawdown": -4.7,
+   "percentile_drawdown": 48
   },
   {
    "etf": "ASIA-FINANZIARI",
@@ -592,15 +592,15 @@
    "stato_nome": "Normale",
    "dal": "2024-01-24",
    "livello": 12,
-   "ampiezza": 33.1,
+   "ampiezza": 33.4,
    "ampiezza_un_mese_fa": 25.8,
-   "titoli_sopra": 99,
+   "titoli_sopra": 100,
    "titoli_totali": 299,
    "titoli_al_livello": 36,
-   "titoli_che_mancano": 63,
-   "punti_dal_livello": 21.1,
-   "drawdown": -4.4,
-   "percentile_drawdown": 39
+   "titoli_che_mancano": 64,
+   "punti_dal_livello": 21.4,
+   "drawdown": -4.6,
+   "percentile_drawdown": 40
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
