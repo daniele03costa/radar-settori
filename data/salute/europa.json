@@ -1,13 +1,15 @@
 {
  "passo": "europa",
- "esito": "errore",
- "ultimo_tentativo": "2026-11-19T08:42:14Z",
- "ultimo_successo": "2026-11-19T03:51:01Z",
- "errori_di_fila": 1,
- "messaggio": "Europa: i dati nuovi sono più vecchi di quelli pubblicati, resta il file già pubblicato",
+ "esito": "ok",
+ "ultimo_tentativo": "2026-11-19T13:44:55Z",
+ "ultimo_successo": "2026-11-19T13:44:55Z",
+ "errori_di_fila": 0,
+ "messaggio": "",
+ "avvisi": [],
  "aggiornato": "2026-11-18",
  "titoli": 467,
  "totale": 472,
+ "indici": 15,
  "mancanti": [
   {
    "t": "IIA.VI",
@@ -30,12 +32,13 @@
    "nome": "Roche"
   }
  ],
+ "fermi": [],
  "indici_mancanti": [
   {
    "nome": "OMX Stockholm 30",
    "yahoo": "^OMXS30"
   }
  ],
- "fermi": [],
- "indici_fermi": []
+ "indici_fermi": [],
+ "cambi_mancanti": []
 }
