@@ -1,17 +1,17 @@
 {
- "aggiornato": "2026-11-17",
- "generato": "2026-11-18T03:51:47Z",
+ "aggiornato": "2026-11-18",
+ "generato": "2026-11-19T03:49:46Z",
  "ritardo": {
-  "attesa": "2026-11-17",
+  "attesa": "2026-11-18",
   "sedute": 0
  },
- "prossima_seduta": "2026-11-18",
- "ampiezza_sp500": 55.8,
+ "prossima_seduta": "2026-11-19",
+ "ampiezza_sp500": 55.9,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2025-04-09",
-  "ampiezza": 55.8,
+  "ampiezza": 55.9,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -68,9 +68,9 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 36.8,
+   "ampiezza": 37.3,
    "titoli_sopra": 28,
-   "titoli_totali": 76,
+   "titoli_totali": 75,
    "drawdown": -19.6
   }
  ],
@@ -82,14 +82,14 @@
    "stato_nome": "Attenzione",
    "dal": "2026-11-05",
    "livello": 6,
-   "ampiezza": 42.1,
-   "ampiezza_un_mese_fa": 60,
-   "titoli_sopra": 32,
-   "titoli_totali": 76,
+   "ampiezza": 45.3,
+   "ampiezza_un_mese_fa": 64.9,
+   "titoli_sopra": 34,
+   "titoli_totali": 75,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 28,
-   "punti_dal_livello": 36.1,
-   "drawdown": -19.2,
+   "titoli_che_mancano": 30,
+   "punti_dal_livello": 39.3,
+   "drawdown": -18.9,
    "percentile_drawdown": 91
   },
   {
@@ -99,15 +99,15 @@
    "stato_nome": "Cooldown",
    "dal": "2026-11-09",
    "livello": 5,
-   "ampiezza": 45.2,
+   "ampiezza": 48.4,
    "ampiezza_un_mese_fa": 16.1,
-   "titoli_sopra": 14,
+   "titoli_sopra": 15,
    "titoli_totali": 31,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 13,
-   "punti_dal_livello": 40.2,
-   "drawdown": -9,
-   "percentile_drawdown": 71
+   "titoli_che_mancano": 14,
+   "punti_dal_livello": 43.4,
+   "drawdown": -8.8,
+   "percentile_drawdown": 70
   },
   {
    "etf": "XLC",
@@ -117,13 +117,13 @@
    "dal": "2023-03-14",
    "livello": 5,
    "ampiezza": 22.7,
-   "ampiezza_un_mese_fa": 45.5,
+   "ampiezza_un_mese_fa": 36.4,
    "titoli_sopra": 5,
    "titoli_totali": 22,
    "titoli_al_livello": 1,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 17.7,
-   "drawdown": -12.3,
+   "drawdown": -12.1,
    "percentile_drawdown": 79
   },
   {
@@ -140,8 +140,8 @@
    "titoli_al_livello": 0,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 41.9,
-   "drawdown": -9.5,
-   "percentile_drawdown": 54
+   "drawdown": -12.5,
+   "percentile_drawdown": 64
   },
   {
    "etf": "XLB",
@@ -151,14 +151,14 @@
    "dal": "2025-07-31",
    "livello": 10,
    "ampiezza": 50,
-   "ampiezza_un_mese_fa": 58.3,
+   "ampiezza_un_mese_fa": 62.5,
    "titoli_sopra": 12,
    "titoli_totali": 24,
    "titoli_al_livello": 2,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 40,
-   "drawdown": -5.7,
-   "percentile_drawdown": 51
+   "drawdown": -6.4,
+   "percentile_drawdown": 55
   },
   {
    "etf": "XLRE",
@@ -168,14 +168,14 @@
    "dal": "2026-10-20",
    "livello": 8,
    "ampiezza": 43.3,
-   "ampiezza_un_mese_fa": 10,
+   "ampiezza_un_mese_fa": 23.3,
    "titoli_sopra": 13,
    "titoli_totali": 30,
    "titoli_al_livello": 2,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 35.3,
-   "drawdown": -5.3,
-   "percentile_drawdown": 44
+   "drawdown": -5.2,
+   "percentile_drawdown": 43
   },
   {
    "etf": "XLP",
@@ -184,15 +184,15 @@
    "stato_nome": "Normale",
    "dal": "2026-10-08",
    "livello": 11,
-   "ampiezza": 71.9,
-   "ampiezza_un_mese_fa": 62.5,
-   "titoli_sopra": 23,
+   "ampiezza": 75,
+   "ampiezza_un_mese_fa": 59.4,
+   "titoli_sopra": 24,
    "titoli_totali": 32,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 60.9,
-   "drawdown": -1.2,
-   "percentile_drawdown": 29
+   "titoli_che_mancano": 21,
+   "punti_dal_livello": 64,
+   "drawdown": -1.5,
+   "percentile_drawdown": 34
   },
   {
    "etf": "XLY",
@@ -201,15 +201,15 @@
    "stato_nome": "Normale",
    "dal": "2025-05-07",
    "livello": 8,
-   "ampiezza": 55.3,
-   "ampiezza_un_mese_fa": 36.2,
-   "titoli_sopra": 26,
+   "ampiezza": 59.6,
+   "ampiezza_un_mese_fa": 38.3,
+   "titoli_sopra": 28,
    "titoli_totali": 47,
    "titoli_al_livello": 3,
-   "titoli_che_mancano": 23,
-   "punti_dal_livello": 47.3,
-   "drawdown": -6,
-   "percentile_drawdown": 64
+   "titoli_che_mancano": 25,
+   "punti_dal_livello": 51.6,
+   "drawdown": -4.3,
+   "percentile_drawdown": 53
   },
   {
    "etf": "XLI",
@@ -219,7 +219,7 @@
    "dal": "2026-11-09",
    "livello": 5,
    "ampiezza": 50.6,
-   "ampiezza_un_mese_fa": 38.3,
+   "ampiezza_un_mese_fa": 39.5,
    "titoli_sopra": 41,
    "titoli_totali": 81,
    "titoli_al_livello": 4,
@@ -235,15 +235,15 @@
    "stato_nome": "Normale",
    "dal": "2025-09-30",
    "livello": 11,
-   "ampiezza": 86.7,
+   "ampiezza": 81.7,
    "ampiezza_un_mese_fa": 81.7,
-   "titoli_sopra": 52,
+   "titoli_sopra": 49,
    "titoli_totali": 60,
    "titoli_al_livello": 6,
-   "titoli_che_mancano": 46,
-   "punti_dal_livello": 75.7,
-   "drawdown": -2.3,
-   "percentile_drawdown": 37
+   "titoli_che_mancano": 43,
+   "punti_dal_livello": 70.7,
+   "drawdown": -4.5,
+   "percentile_drawdown": 55
   },
   {
    "etf": "XLF",
@@ -252,15 +252,15 @@
    "stato_nome": "Normale",
    "dal": "2022-10-21",
    "livello": 6,
-   "ampiezza": 68.4,
-   "ampiezza_un_mese_fa": 57.9,
-   "titoli_sopra": 52,
+   "ampiezza": 64.5,
+   "ampiezza_un_mese_fa": 63.2,
+   "titoli_sopra": 49,
    "titoli_totali": 76,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 48,
-   "punti_dal_livello": 62.4,
-   "drawdown": -3.6,
-   "percentile_drawdown": 40
+   "titoli_che_mancano": 45,
+   "punti_dal_livello": 58.5,
+   "drawdown": -4.7,
+   "percentile_drawdown": 47
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti di settings.json e le regole di signals.js."

@@ -1,149 +1,149 @@
 {
- "aggiornato": "2026-11-17",
- "generato": "2026-11-18T08:28:39Z",
+ "aggiornato": "2026-11-18",
+ "generato": "2026-11-19T03:49:41Z",
  "settori": [
   {
    "etf": "XLK",
    "nome": "Tecnologia",
-   "b200": 42.1,
-   "b50": 21.1,
-   "b20": 14.5,
-   "n": 76,
-   "sopra": 32,
+   "b200": 45.3,
+   "b50": 21.3,
+   "b20": 17.3,
+   "n": 75,
+   "sopra": 34,
    "soglia_default": 6,
    "simbolo_breadth": null,
-   "dd": -19.2,
-   "ultimo": 163.26
+   "dd": -18.9,
+   "ultimo": 163.81
   },
   {
    "etf": "XLC",
    "nome": "Comunicazioni",
    "b200": 22.7,
-   "b50": 50.0,
+   "b50": 59.1,
    "b20": 54.5,
    "n": 22,
    "sopra": 5,
    "soglia_default": 5,
    "simbolo_breadth": null,
-   "dd": -12.3,
-   "ultimo": 105.26
+   "dd": -12.1,
+   "ultimo": 105.58
   },
   {
    "etf": "XLY",
    "nome": "Consumi discrezionali",
-   "b200": 55.3,
-   "b50": 74.5,
-   "b20": 44.7,
+   "b200": 59.6,
+   "b50": 76.6,
+   "b20": 59.6,
    "n": 47,
-   "sopra": 26,
+   "sopra": 28,
    "soglia_default": 8,
    "simbolo_breadth": null,
-   "dd": -6.0,
-   "ultimo": 117.1
+   "dd": -4.3,
+   "ultimo": 119.2
   },
   {
    "etf": "XLP",
    "nome": "Beni di prima necessità",
-   "b200": 71.9,
-   "b50": 81.2,
-   "b20": 66.7,
+   "b200": 75.0,
+   "b50": 84.4,
+   "b20": 63.6,
    "n": 32,
-   "sopra": 23,
+   "sopra": 24,
    "soglia_default": 11,
    "simbolo_breadth": null,
-   "dd": -1.2,
-   "ultimo": 91.46
+   "dd": -1.5,
+   "ultimo": 91.18
   },
   {
    "etf": "XLE",
    "nome": "Energia",
    "b200": 42.9,
-   "b50": 23.8,
+   "b50": 4.8,
    "b20": 0.0,
    "n": 21,
    "sopra": 9,
    "soglia_default": 1,
    "simbolo_breadth": null,
-   "dd": -9.5,
-   "ultimo": 63.36
+   "dd": -12.5,
+   "ultimo": 61.29
   },
   {
    "etf": "XLF",
    "nome": "Finanziari",
-   "b200": 68.4,
-   "b50": 60.5,
-   "b20": 48.7,
+   "b200": 64.5,
+   "b50": 56.6,
+   "b20": 35.5,
    "n": 76,
-   "sopra": 52,
+   "sopra": 49,
    "soglia_default": 6,
    "simbolo_breadth": null,
-   "dd": -3.6,
-   "ultimo": 57.07
+   "dd": -4.7,
+   "ultimo": 56.42
   },
   {
    "etf": "XLV",
    "nome": "Sanità",
-   "b200": 86.7,
-   "b50": 76.7,
-   "b20": 53.3,
+   "b200": 81.7,
+   "b50": 66.7,
+   "b20": 45.0,
    "n": 60,
-   "sopra": 52,
+   "sopra": 49,
    "soglia_default": 11,
    "simbolo_breadth": null,
-   "dd": -2.3,
-   "ultimo": 185.24
+   "dd": -4.5,
+   "ultimo": 181.17
   },
   {
    "etf": "XLI",
    "nome": "Industriali",
    "b200": 50.6,
-   "b50": 57.8,
-   "b20": 42.2,
+   "b50": 59.0,
+   "b20": 44.6,
    "n": 81,
    "sopra": 41,
    "soglia_default": 5,
    "simbolo_breadth": null,
    "dd": -11.7,
-   "ultimo": 164.75
+   "ultimo": 164.66
   },
   {
    "etf": "XLB",
    "nome": "Materiali",
    "b200": 50.0,
    "b50": 50.0,
-   "b20": 16.7,
+   "b20": 20.8,
    "n": 24,
    "sopra": 12,
    "soglia_default": 10,
    "simbolo_breadth": null,
-   "dd": -5.7,
-   "ultimo": 50.84
+   "dd": -6.4,
+   "ultimo": 50.46
   },
   {
    "etf": "XLRE",
    "nome": "Immobiliare",
    "b200": 43.3,
    "b50": 60.0,
-   "b20": 43.3,
+   "b20": 36.7,
    "n": 30,
    "sopra": 13,
    "soglia_default": 8,
    "simbolo_breadth": null,
-   "dd": -5.3,
-   "ultimo": 43.59
+   "dd": -5.2,
+   "ultimo": 43.62
   },
   {
    "etf": "XLU",
    "nome": "Utility",
-   "b200": 45.2,
+   "b200": 48.4,
    "b50": 87.1,
-   "b20": 61.3,
+   "b20": 67.7,
    "n": 31,
-   "sopra": 14,
+   "sopra": 15,
    "soglia_default": 5,
    "simbolo_breadth": "SUTH",
-   "dd": -9.0,
-   "ultimo": 43.42
+   "dd": -8.8,
+   "ultimo": 43.55
   }
  ],
  "fonti": {
@@ -152,9 +152,9 @@
  },
  "punto_nel_tempo": true,
  "indice": {
-  "b200": 55.8,
-  "b50": 57.8,
-  "n": 500
+  "b200": 55.9,
+  "b50": 56.3,
+  "n": 499
  },
  "parametri": {}
 }
