@@ -1,12 +1,10 @@
 {
  "passo": "usa-ampiezza",
- "esito": "ok",
- "ultimo_tentativo": "2026-11-19T13:43:50Z",
+ "esito": "errore",
+ "ultimo_tentativo": "2026-11-20T03:42:07Z",
  "ultimo_successo": "2026-11-19T13:43:50Z",
- "errori_di_fila": 0,
- "messaggio": "",
- "avvisi": [],
+ "errori_di_fila": 1,
+ "messaggio": "ERRORE: ETF senza dati: ['XLF']",
  "aggiornato": "2026-11-18",
- "settori": 11,
  "titoli": 499
 }
