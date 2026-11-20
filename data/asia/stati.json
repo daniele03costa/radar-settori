@@ -1,8 +1,8 @@
 {
  "aggiornato": "2026-11-19",
- "generato": "2026-11-19T14:34:08Z",
+ "generato": "2026-11-20T03:47:32Z",
  "ritardo": {
-  "attesa": "2026-11-18",
+  "attesa": "2026-11-19",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-20",
@@ -165,8 +165,8 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1.2,
-   "drawdown": -18.7,
-   "percentile_drawdown": 91,
+   "drawdown": -18.4,
+   "percentile_drawdown": 90,
    "per_il_trigger": {
     "punti_che_mancano": 6.2,
     "ampiezza_obiettivo": 20,
@@ -217,12 +217,14 @@
    "titoli_al_livello": 5,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1.9,
-   "drawdown": -39.5,
+   "drawdown": -39,
    "percentile_drawdown": 97,
    "per_il_trigger": {
     "punti_che_mancano": 6.9,
     "ampiezza_obiettivo": 18,
-    "conferme_presenti": [],
+    "conferme_presenti": [
+     "prezzo sopra la media 20 in salita"
+    ],
     "conferme_necessarie": 1,
     "rimbalzo_a_V_sopra": 40
    }
@@ -271,7 +273,7 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -3.2,
-   "drawdown": -24.2,
+   "drawdown": -24.1,
    "percentile_drawdown": 94
   },
   {
@@ -290,7 +292,7 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 30,
-   "drawdown": -26.4,
+   "drawdown": -26.1,
    "percentile_drawdown": 96
   },
   {
@@ -321,13 +323,13 @@
    "stato_nome": "Cooldown",
    "dal": "2026-11-10",
    "livello": 21,
-   "ampiezza": 72,
+   "ampiezza": 70,
    "ampiezza_un_mese_fa": 20,
-   "titoli_sopra": 36,
+   "titoli_sopra": 35,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 26,
-   "punti_dal_livello": 51,
+   "titoli_che_mancano": 25,
+   "punti_dal_livello": 49,
    "drawdown": 0,
    "percentile_drawdown": 0
   },
@@ -347,8 +349,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 5,
    "punti_dal_livello": 17.2,
-   "drawdown": -10.7,
-   "percentile_drawdown": 66
+   "drawdown": -10.3,
+   "percentile_drawdown": 65
   },
   {
    "etf": "ASIA-COMUNICAZIONI",
@@ -366,8 +368,8 @@
    "titoli_al_livello": 15,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 14.4,
-   "drawdown": -8.7,
-   "percentile_drawdown": 84
+   "drawdown": -8,
+   "percentile_drawdown": 81
   },
   {
    "etf": "ASIA-ENERGIA",
@@ -385,8 +387,8 @@
    "titoli_al_livello": 3,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 21.4,
-   "drawdown": -14.9,
-   "percentile_drawdown": 83
+   "drawdown": -14.1,
+   "percentile_drawdown": 80
   },
   {
    "etf": "ASIA-UTILITY",
@@ -404,8 +406,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 35,
-   "drawdown": -1.2,
-   "percentile_drawdown": 27
+   "drawdown": -0.6,
+   "percentile_drawdown": 19
   },
   {
    "etf": "ASIA-SANITA",
@@ -423,8 +425,27 @@
    "titoli_al_livello": 19,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 24.2,
-   "drawdown": -1.1,
-   "percentile_drawdown": 26
+   "drawdown": -0.9,
+   "percentile_drawdown": 24
+  },
+  {
+   "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
+   "nome": "Beni di prima necessità",
+   "codice": "Beni primari",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-11-02",
+   "livello": 30,
+   "ampiezza": 51.1,
+   "ampiezza_un_mese_fa": 39.8,
+   "titoli_sopra": 45,
+   "titoli_totali": 88,
+   "titoli_al_livello": 26,
+   "titoli_che_mancano": 19,
+   "punti_dal_livello": 21.1,
+   "drawdown": 0,
+   "percentile_drawdown": 0
   },
   {
    "etf": "HANG-SENG",
@@ -446,25 +467,6 @@
    "percentile_drawdown": 76
   },
   {
-   "etf": "ASIA-BENI-DI-PRIMA-NECESSITA",
-   "nome": "Beni di prima necessità",
-   "codice": "Beni primari",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-11-02",
-   "livello": 30,
-   "ampiezza": 52.3,
-   "ampiezza_un_mese_fa": 39.8,
-   "titoli_sopra": 46,
-   "titoli_totali": 88,
-   "titoli_al_livello": 26,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 22.3,
-   "drawdown": 0,
-   "percentile_drawdown": 0
-  },
-  {
    "etf": "ASIA-CONSUMI-DISCREZIONALI",
    "nome": "Consumi discrezionali",
    "codice": "Discrezionali",
@@ -480,27 +482,8 @@
    "titoli_al_livello": 22,
    "titoli_che_mancano": 22,
    "punti_dal_livello": 20.9,
-   "drawdown": -3,
-   "percentile_drawdown": 48
-  },
-  {
-   "etf": "ASIA-INDUSTRIALI",
-   "nome": "Industriali",
-   "codice": "Industriali",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-11-09",
-   "livello": 17,
-   "ampiezza": 29.8,
-   "ampiezza_un_mese_fa": 27.2,
-   "titoli_sopra": 57,
-   "titoli_totali": 191,
-   "titoli_al_livello": 32,
-   "titoli_che_mancano": 25,
-   "punti_dal_livello": 12.8,
-   "drawdown": -11.2,
-   "percentile_drawdown": 81
+   "drawdown": -2.7,
+   "percentile_drawdown": 45
   },
   {
    "etf": "SET50",
@@ -522,6 +505,25 @@
    "percentile_drawdown": 49
   },
   {
+   "etf": "ASIA-INDUSTRIALI",
+   "nome": "Industriali",
+   "codice": "Industriali",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-11-09",
+   "livello": 17,
+   "ampiezza": 30.4,
+   "ampiezza_un_mese_fa": 27.2,
+   "titoli_sopra": 58,
+   "titoli_totali": 191,
+   "titoli_al_livello": 32,
+   "titoli_che_mancano": 26,
+   "punti_dal_livello": 13.4,
+   "drawdown": -10.9,
+   "percentile_drawdown": 80
+  },
+  {
    "etf": "ASIA-FINANZIARI",
    "nome": "Finanziari",
    "codice": "Finanziari",
@@ -537,8 +539,8 @@
    "titoli_al_livello": 17,
    "titoli_che_mancano": 54,
    "punti_dal_livello": 37,
-   "drawdown": -1.8,
-   "percentile_drawdown": 39
+   "drawdown": -1.5,
+   "percentile_drawdown": 34
   },
   {
    "etf": "CSI-300",
@@ -549,13 +551,13 @@
    "stato_nome": "Normale",
    "dal": "2026-10-26",
    "livello": 13,
-   "ampiezza": 32.8,
+   "ampiezza": 33.1,
    "ampiezza_un_mese_fa": 23.1,
-   "titoli_sopra": 98,
+   "titoli_sopra": 99,
    "titoli_totali": 299,
    "titoli_al_livello": 39,
-   "titoli_che_mancano": 59,
-   "punti_dal_livello": 19.8,
+   "titoli_che_mancano": 60,
+   "punti_dal_livello": 20.1,
    "drawdown": -4.6,
    "percentile_drawdown": 40
   }

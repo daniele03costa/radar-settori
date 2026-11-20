@@ -1,17 +1,17 @@
 {
- "aggiornato": "2026-11-18",
- "generato": "2026-11-19T14:34:43Z",
+ "aggiornato": "2026-11-19",
+ "generato": "2026-11-20T03:48:00Z",
  "ritardo": {
-  "attesa": "2026-11-18",
+  "attesa": "2026-11-19",
   "sedute": 0
  },
- "prossima_seduta": "2026-11-19",
- "ampiezza_indice": 40.9,
+ "prossima_seduta": "2026-11-20",
+ "ampiezza_indice": 39.7,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-27",
-  "ampiezza": 40.9,
+  "ampiezza": 39.7,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -21,21 +21,35 @@
  },
  "cambi_ultima_seduta": [
   {
-   "data": "2026-11-18",
+   "data": "2026-11-19",
    "etf": "EM-MATERIALI",
    "nome": "Materiali",
    "codice": "Materiali",
-   "da": "trigger",
-   "a": "fallito",
-   "da_nome": "Trigger",
-   "a_nome": "Fallito",
-   "ampiezza": 16.3,
-   "titoli_sopra": 7,
+   "da": "fallito",
+   "a": "blu",
+   "da_nome": "Fallito",
+   "a_nome": "Zona blu",
+   "ampiezza": 18.6,
+   "titoli_sopra": 8,
    "titoli_totali": 43,
-   "drawdown": -21.5
+   "drawdown": -22.8
   }
  ],
  "cambi_recenti": [
+  {
+   "data": "2026-11-19",
+   "etf": "EM-MATERIALI",
+   "nome": "Materiali",
+   "codice": "Materiali",
+   "da": "fallito",
+   "a": "blu",
+   "da_nome": "Fallito",
+   "a_nome": "Zona blu",
+   "ampiezza": 18.6,
+   "titoli_sopra": 8,
+   "titoli_totali": 43,
+   "drawdown": -22.8
+  },
   {
    "data": "2026-11-18",
    "etf": "EM-MATERIALI",
@@ -77,63 +91,9 @@
    "titoli_sopra": 9,
    "titoli_totali": 28,
    "drawdown": -20.4
-  },
-  {
-   "data": "2026-11-05",
-   "etf": "EM-ENERGIA",
-   "nome": "Energia",
-   "codice": "Energia",
-   "da": "normale",
-   "a": "attenzione",
-   "da_nome": "Normale",
-   "a_nome": "Attenzione",
-   "ampiezza": 46.2,
-   "titoli_sopra": 6,
-   "titoli_totali": 13,
-   "drawdown": -23.5
-  },
-  {
-   "data": "2026-11-05",
-   "etf": "S-P-MERVAL",
-   "nome": "S&P Merval",
-   "codice": "Merval",
-   "da": "attenzione",
-   "a": "blu",
-   "da_nome": "Attenzione",
-   "a_nome": "Zona blu",
-   "ampiezza": 10,
-   "titoli_sopra": 2,
-   "titoli_totali": 20,
-   "drawdown": -30.9
   }
  ],
  "settori": [
-  {
-   "etf": "EM-MATERIALI",
-   "nome": "Materiali",
-   "codice": "Materiali",
-   "tipo": "settore",
-   "stato": "fallito",
-   "stato_nome": "Fallito",
-   "dal": "2026-11-18",
-   "livello": 24,
-   "ampiezza": 16.3,
-   "ampiezza_un_mese_fa": 32.6,
-   "titoli_sopra": 7,
-   "titoli_totali": 43,
-   "titoli_al_livello": 10,
-   "titoli_che_mancano": 0,
-   "punti_dal_livello": -7.7,
-   "drawdown": -21.5,
-   "percentile_drawdown": 88,
-   "per_il_trigger": {
-    "punti_che_mancano": 12.7,
-    "ampiezza_obiettivo": 29,
-    "conferme_presenti": [],
-    "conferme_necessarie": 2,
-    "rimbalzo_a_V_sopra": 49
-   }
-  },
   {
    "etf": "BIST-30",
    "nome": "BIST 30",
@@ -144,7 +104,7 @@
    "dal": "2026-11-09",
    "livello": 17,
    "ampiezza": 20,
-   "ampiezza_un_mese_fa": 20,
+   "ampiezza_un_mese_fa": 16.7,
    "titoli_sopra": 6,
    "titoli_totali": 30,
    "titoli_al_livello": 5,
@@ -158,6 +118,32 @@
      "spinta di ampiezza a 20 sedute"
     ],
     "annullato_se_chiude_sotto": 13183.49
+   }
+  },
+  {
+   "etf": "EM-MATERIALI",
+   "nome": "Materiali",
+   "codice": "Materiali",
+   "tipo": "settore",
+   "stato": "blu",
+   "stato_nome": "Zona blu",
+   "dal": "2026-11-19",
+   "livello": 24,
+   "ampiezza": 18.6,
+   "ampiezza_un_mese_fa": 30.2,
+   "titoli_sopra": 8,
+   "titoli_totali": 43,
+   "titoli_al_livello": 10,
+   "titoli_che_mancano": 0,
+   "punti_dal_livello": -5.4,
+   "drawdown": -22.8,
+   "percentile_drawdown": 89,
+   "per_il_trigger": {
+    "punti_che_mancano": 10.4,
+    "ampiezza_obiettivo": 29,
+    "conferme_presenti": [],
+    "conferme_necessarie": 2,
+    "rimbalzo_a_V_sopra": 49
    }
   },
   {
@@ -176,7 +162,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -1,
-   "drawdown": -30.9,
+   "drawdown": -31.1,
    "percentile_drawdown": 75,
    "per_il_trigger": {
     "punti_che_mancano": 11,
@@ -196,14 +182,14 @@
    "dal": "2026-10-29",
    "livello": 19,
    "ampiezza": 28.9,
-   "ampiezza_un_mese_fa": 80.3,
+   "ampiezza_un_mese_fa": 77.6,
    "titoli_sopra": 22,
    "titoli_totali": 76,
    "titoli_al_livello": 14,
    "titoli_che_mancano": 8,
    "punti_dal_livello": 9.9,
-   "drawdown": -19.9,
-   "percentile_drawdown": 87,
+   "drawdown": -20.4,
+   "percentile_drawdown": 89,
    "per_il_trigger": {
     "punti_che_mancano": 0,
     "ampiezza_obiettivo": 24,
@@ -211,6 +197,25 @@
     "conferme_necessarie": 1,
     "rimbalzo_a_V_sopra": 44
    }
+  },
+  {
+   "etf": "EM-ENERGIA",
+   "nome": "Energia",
+   "codice": "Energia",
+   "tipo": "settore",
+   "stato": "attenzione",
+   "stato_nome": "Attenzione",
+   "dal": "2026-11-05",
+   "livello": 18,
+   "ampiezza": 23.1,
+   "ampiezza_un_mese_fa": 84.6,
+   "titoli_sopra": 3,
+   "titoli_totali": 13,
+   "titoli_al_livello": 2,
+   "titoli_che_mancano": 1,
+   "punti_dal_livello": 5.1,
+   "drawdown": -26.3,
+   "percentile_drawdown": 90
   },
   {
    "etf": "EM-IMMOBILIARE",
@@ -228,27 +233,8 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 1,
    "punti_dal_livello": 6,
-   "drawdown": -16.7,
-   "percentile_drawdown": 79
-  },
-  {
-   "etf": "EM-ENERGIA",
-   "nome": "Energia",
-   "codice": "Energia",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-11-05",
-   "livello": 18,
-   "ampiezza": 30.8,
-   "ampiezza_un_mese_fa": 84.6,
-   "titoli_sopra": 4,
-   "titoli_totali": 13,
-   "titoli_al_livello": 2,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 12.8,
-   "drawdown": -25.6,
-   "percentile_drawdown": 89
+   "drawdown": -17.8,
+   "percentile_drawdown": 81
   },
   {
    "etf": "EM-UTILITY",
@@ -260,14 +246,14 @@
    "dal": "2026-10-27",
    "livello": 24,
    "ampiezza": 29.6,
-   "ampiezza_un_mese_fa": 70.4,
+   "ampiezza_un_mese_fa": 74.1,
    "titoli_sopra": 8,
    "titoli_totali": 27,
    "titoli_al_livello": 6,
    "titoli_che_mancano": 2,
    "punti_dal_livello": 5.6,
-   "drawdown": -19.1,
-   "percentile_drawdown": 84
+   "drawdown": -19.8,
+   "percentile_drawdown": 85
   },
   {
    "etf": "FTSE-JSE-TOP-40",
@@ -279,13 +265,13 @@
    "dal": "2026-09-14",
    "livello": 25,
    "ampiezza": 39,
-   "ampiezza_un_mese_fa": 46.3,
+   "ampiezza_un_mese_fa": 43.9,
    "titoli_sopra": 16,
    "titoli_totali": 41,
    "titoli_al_livello": 10,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 14,
-   "drawdown": -17.9,
+   "drawdown": -18.2,
    "percentile_drawdown": 95
   },
   {
@@ -297,15 +283,15 @@
    "stato_nome": "Cooldown",
    "dal": "2026-10-09",
    "livello": 18,
-   "ampiezza": 72.7,
+   "ampiezza": 63.6,
    "ampiezza_un_mese_fa": 45.5,
-   "titoli_sopra": 8,
+   "titoli_sopra": 7,
    "titoli_totali": 11,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 7,
-   "punti_dal_livello": 54.7,
-   "drawdown": -0.5,
-   "percentile_drawdown": 14
+   "titoli_che_mancano": 6,
+   "punti_dal_livello": 45.6,
+   "drawdown": -1.7,
+   "percentile_drawdown": 26
   },
   {
    "etf": "EM-SANITA",
@@ -316,15 +302,15 @@
    "stato_nome": "Normale",
    "dal": "2026-07-09",
    "livello": 17,
-   "ampiezza": 50,
+   "ampiezza": 33.3,
    "ampiezza_un_mese_fa": 66.7,
-   "titoli_sopra": 3,
+   "titoli_sopra": 2,
    "titoli_totali": 6,
    "titoli_al_livello": 1,
-   "titoli_che_mancano": 2,
-   "punti_dal_livello": 33,
-   "drawdown": -16.8,
-   "percentile_drawdown": 67
+   "titoli_che_mancano": 1,
+   "punti_dal_livello": 16.3,
+   "drawdown": -18.7,
+   "percentile_drawdown": 70
   },
   {
    "etf": "EM-CONSUMI-DISCREZIONALI",
@@ -335,15 +321,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-06",
    "livello": 15,
-   "ampiezza": 39.3,
+   "ampiezza": 35.7,
    "ampiezza_un_mese_fa": 75,
-   "titoli_sopra": 11,
+   "titoli_sopra": 10,
    "titoli_totali": 28,
    "titoli_al_livello": 4,
-   "titoli_che_mancano": 7,
-   "punti_dal_livello": 24.3,
-   "drawdown": -20.1,
-   "percentile_drawdown": 83
+   "titoli_che_mancano": 6,
+   "punti_dal_livello": 20.7,
+   "drawdown": -21.1,
+   "percentile_drawdown": 85
   },
   {
    "etf": "S-P-IPSA",
@@ -361,27 +347,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 10,
    "punti_dal_livello": 31.7,
-   "drawdown": -13.8,
-   "percentile_drawdown": 68
-  },
-  {
-   "etf": "EM-INDUSTRIALI",
-   "nome": "Industriali",
-   "codice": "Industriali",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2020-12-15",
-   "livello": 18,
-   "ampiezza": 55.6,
-   "ampiezza_un_mese_fa": 51.9,
-   "titoli_sopra": 15,
-   "titoli_totali": 27,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 11,
-   "punti_dal_livello": 37.6,
-   "drawdown": -8.8,
-   "percentile_drawdown": 68
+   "drawdown": -14.1,
+   "percentile_drawdown": 69
   },
   {
    "etf": "EM-BENI-DI-PRIMA-NECESSITA",
@@ -392,15 +359,34 @@
    "stato_nome": "Normale",
    "dal": "2026-11-03",
    "livello": 29,
-   "ampiezza": 67.7,
-   "ampiezza_un_mese_fa": 64.5,
-   "titoli_sopra": 21,
+   "ampiezza": 64.5,
+   "ampiezza_un_mese_fa": 58.1,
+   "titoli_sopra": 20,
    "titoli_totali": 31,
    "titoli_al_livello": 9,
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 35.5,
+   "drawdown": -7.8,
+   "percentile_drawdown": 70
+  },
+  {
+   "etf": "EM-INDUSTRIALI",
+   "nome": "Industriali",
+   "codice": "Industriali",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2020-12-15",
+   "livello": 18,
+   "ampiezza": 59.3,
+   "ampiezza_un_mese_fa": 48.1,
+   "titoli_sopra": 16,
+   "titoli_totali": 27,
+   "titoli_al_livello": 4,
    "titoli_che_mancano": 12,
-   "punti_dal_livello": 38.7,
-   "drawdown": -6.4,
-   "percentile_drawdown": 64
+   "punti_dal_livello": 41.3,
+   "drawdown": -9.5,
+   "percentile_drawdown": 70
   },
   {
    "etf": "WIG20",
@@ -412,14 +398,33 @@
    "dal": "2022-12-20",
    "livello": 5,
    "ampiezza": 80,
-   "ampiezza_un_mese_fa": 85,
+   "ampiezza_un_mese_fa": 90,
    "titoli_sopra": 16,
    "titoli_totali": 20,
    "titoli_al_livello": 1,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 75,
-   "drawdown": -1.6,
-   "percentile_drawdown": 27
+   "drawdown": -1.9,
+   "percentile_drawdown": 29
+  },
+  {
+   "etf": "S-P-BMV-IPC",
+   "nome": "S&P/BMV IPC",
+   "codice": "IPC",
+   "tipo": "indice",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-10-09",
+   "livello": 23,
+   "ampiezza": 68.6,
+   "ampiezza_un_mese_fa": 54.3,
+   "titoli_sopra": 24,
+   "titoli_totali": 35,
+   "titoli_al_livello": 8,
+   "titoli_che_mancano": 16,
+   "punti_dal_livello": 45.6,
+   "drawdown": -4.6,
+   "percentile_drawdown": 49
   },
   {
    "etf": "EM-FINANZIARI",
@@ -431,33 +436,14 @@
    "dal": "2020-12-02",
    "livello": 13,
    "ampiezza": 43.6,
-   "ampiezza_un_mese_fa": 60,
+   "ampiezza_un_mese_fa": 58.2,
    "titoli_sopra": 24,
    "titoli_totali": 55,
    "titoli_al_livello": 7,
    "titoli_che_mancano": 17,
    "punti_dal_livello": 30.6,
-   "drawdown": -8.7,
-   "percentile_drawdown": 65
-  },
-  {
-   "etf": "S-P-BMV-IPC",
-   "nome": "S&P/BMV IPC",
-   "codice": "IPC",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-10-09",
-   "livello": 23,
-   "ampiezza": 77.1,
-   "ampiezza_un_mese_fa": 57.1,
-   "titoli_sopra": 27,
-   "titoli_totali": 35,
-   "titoli_al_livello": 8,
-   "titoli_che_mancano": 19,
-   "punti_dal_livello": 54.1,
-   "drawdown": -4,
-   "percentile_drawdown": 44
+   "drawdown": -9.7,
+   "percentile_drawdown": 67
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
