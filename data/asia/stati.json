@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-20",
- "generato": "2026-11-20T14:12:31Z",
+ "generato": "2026-11-21T03:36:44Z",
  "ritardo": {
-  "attesa": "2026-11-19",
+  "attesa": "2026-11-20",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-23",
- "ampiezza_indice": 31.7,
+ "ampiezza_indice": 31.9,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 31.7,
+  "ampiezza": 31.9,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -32,21 +32,7 @@
    "ampiezza": 39.6,
    "titoli_sopra": 21,
    "titoli_totali": 53,
-   "drawdown": -11.3
-  },
-  {
-   "data": "2026-11-20",
-   "etf": "ASIA-ENERGIA",
-   "nome": "Energia",
-   "codice": "Energia",
-   "da": "normale",
-   "a": "attenzione",
-   "da_nome": "Normale",
-   "a_nome": "Attenzione",
-   "ampiezza": 32.4,
-   "titoli_sopra": 11,
-   "titoli_totali": 34,
-   "drawdown": -16.1
+   "drawdown": -10.8
   },
   {
    "data": "2026-11-20",
@@ -57,10 +43,10 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 27.2,
-   "titoli_sopra": 52,
+   "ampiezza": 27.7,
+   "titoli_sopra": 53,
    "titoli_totali": 191,
-   "drawdown": -13.9
+   "drawdown": -13.7
   },
   {
    "data": "2026-11-20",
@@ -74,7 +60,7 @@
    "ampiezza": 11.4,
    "titoli_sopra": 17,
    "titoli_totali": 149,
-   "drawdown": -28
+   "drawdown": -28.1
   }
  ],
  "cambi_recenti": [
@@ -90,21 +76,7 @@
    "ampiezza": 39.6,
    "titoli_sopra": 21,
    "titoli_totali": 53,
-   "drawdown": -11.3
-  },
-  {
-   "data": "2026-11-20",
-   "etf": "ASIA-ENERGIA",
-   "nome": "Energia",
-   "codice": "Energia",
-   "da": "normale",
-   "a": "attenzione",
-   "da_nome": "Normale",
-   "a_nome": "Attenzione",
-   "ampiezza": 32.4,
-   "titoli_sopra": 11,
-   "titoli_totali": 34,
-   "drawdown": -16.1
+   "drawdown": -10.8
   },
   {
    "data": "2026-11-20",
@@ -115,10 +87,10 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 27.2,
-   "titoli_sopra": 52,
+   "ampiezza": 27.7,
+   "titoli_sopra": 53,
    "titoli_totali": 191,
-   "drawdown": -13.9
+   "drawdown": -13.7
   },
   {
    "data": "2026-11-20",
@@ -132,7 +104,7 @@
    "ampiezza": 11.4,
    "titoli_sopra": 17,
    "titoli_totali": 149,
-   "drawdown": -28
+   "drawdown": -28.1
   },
   {
    "data": "2026-11-18",
@@ -250,7 +222,7 @@
    "titoli_al_livello": 26,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -6.6,
-   "drawdown": -28,
+   "drawdown": -28.1,
    "percentile_drawdown": 96,
    "per_il_trigger": {
     "punti_che_mancano": 11.6,
@@ -276,7 +248,7 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -4.4,
-   "drawdown": -21.1,
+   "drawdown": -20.9,
    "percentile_drawdown": 93,
    "per_il_trigger": {
     "punti_che_mancano": 9.4,
@@ -302,7 +274,7 @@
    "titoli_al_livello": 42,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -8.5,
-   "drawdown": -18.4,
+   "drawdown": -17.9,
    "percentile_drawdown": 91,
    "per_il_trigger": {
     "punti_che_mancano": 13.5,
@@ -380,27 +352,8 @@
    "titoli_al_livello": 15,
    "titoli_che_mancano": 6,
    "punti_dal_livello": 10.6,
-   "drawdown": -11.3,
-   "percentile_drawdown": 91
-  },
-  {
-   "etf": "ASIA-ENERGIA",
-   "nome": "Energia",
-   "codice": "Energia",
-   "tipo": "settore",
-   "stato": "attenzione",
-   "stato_nome": "Attenzione",
-   "dal": "2026-11-20",
-   "livello": 11,
-   "ampiezza": 32.4,
-   "ampiezza_un_mese_fa": 58.8,
-   "titoli_sopra": 11,
-   "titoli_totali": 34,
-   "titoli_al_livello": 3,
-   "titoli_che_mancano": 8,
-   "punti_dal_livello": 21.4,
-   "drawdown": -16.1,
-   "percentile_drawdown": 86
+   "drawdown": -10.8,
+   "percentile_drawdown": 89
   },
   {
    "etf": "FTSE-TWSE-TAIWAN-50",
@@ -430,15 +383,15 @@
    "stato_nome": "Attenzione",
    "dal": "2026-11-20",
    "livello": 17,
-   "ampiezza": 27.2,
+   "ampiezza": 27.7,
    "ampiezza_un_mese_fa": 25.7,
-   "titoli_sopra": 52,
+   "titoli_sopra": 53,
    "titoli_totali": 191,
    "titoli_al_livello": 32,
-   "titoli_che_mancano": 20,
-   "punti_dal_livello": 10.2,
-   "drawdown": -13.9,
-   "percentile_drawdown": 87
+   "titoli_che_mancano": 21,
+   "punti_dal_livello": 10.7,
+   "drawdown": -13.7,
+   "percentile_drawdown": 86
   },
   {
    "etf": "NIKKEI-225",
@@ -468,13 +421,13 @@
    "stato_nome": "Cooldown",
    "dal": "2026-11-10",
    "livello": 21,
-   "ampiezza": 74,
+   "ampiezza": 76,
    "ampiezza_un_mese_fa": 18,
-   "titoli_sopra": 37,
+   "titoli_sopra": 38,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 27,
-   "punti_dal_livello": 53,
+   "titoli_che_mancano": 28,
+   "punti_dal_livello": 55,
    "drawdown": 0,
    "percentile_drawdown": 0
   },
@@ -494,8 +447,27 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 4,
    "punti_dal_livello": 13,
-   "drawdown": -12.3,
-   "percentile_drawdown": 73
+   "drawdown": -12.2,
+   "percentile_drawdown": 72
+  },
+  {
+   "etf": "ASIA-ENERGIA",
+   "nome": "Energia",
+   "codice": "Energia",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-07-06",
+   "livello": 11,
+   "ampiezza": 32.4,
+   "ampiezza_un_mese_fa": 58.8,
+   "titoli_sopra": 11,
+   "titoli_totali": 34,
+   "titoli_al_livello": 3,
+   "titoli_che_mancano": 8,
+   "punti_dal_livello": 21.4,
+   "drawdown": -15.6,
+   "percentile_drawdown": 85
   },
   {
    "etf": "ASIA-SANITA",
@@ -532,7 +504,7 @@
    "titoli_al_livello": 22,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 13.3,
-   "drawdown": -4.9,
+   "drawdown": -4.8,
    "percentile_drawdown": 61
   },
   {
@@ -551,8 +523,8 @@
    "titoli_al_livello": 9,
    "titoli_che_mancano": 14,
    "punti_dal_livello": 35,
-   "drawdown": -0.8,
-   "percentile_drawdown": 22
+   "drawdown": -0.4,
+   "percentile_drawdown": 15
   },
   {
    "etf": "HANG-SENG",
@@ -582,15 +554,15 @@
    "stato_nome": "Normale",
    "dal": "2026-11-02",
    "livello": 30,
-   "ampiezza": 50,
+   "ampiezza": 51.1,
    "ampiezza_un_mese_fa": 39.8,
-   "titoli_sopra": 44,
+   "titoli_sopra": 45,
    "titoli_totali": 88,
    "titoli_al_livello": 26,
-   "titoli_che_mancano": 18,
-   "punti_dal_livello": 20,
-   "drawdown": -1.8,
-   "percentile_drawdown": 40
+   "titoli_che_mancano": 19,
+   "punti_dal_livello": 21.1,
+   "drawdown": -1.4,
+   "percentile_drawdown": 34
   },
   {
    "etf": "SET50",
@@ -627,8 +599,8 @@
    "titoli_al_livello": 17,
    "titoli_che_mancano": 51,
    "punti_dal_livello": 34.9,
-   "drawdown": -3,
-   "percentile_drawdown": 51
+   "drawdown": -2.8,
+   "percentile_drawdown": 49
   },
   {
    "etf": "CSI-300",
@@ -639,13 +611,13 @@
    "stato_nome": "Normale",
    "dal": "2026-10-26",
    "livello": 13,
-   "ampiezza": 31.4,
+   "ampiezza": 31.8,
    "ampiezza_un_mese_fa": 22.4,
-   "titoli_sopra": 94,
+   "titoli_sopra": 95,
    "titoli_totali": 299,
    "titoli_al_livello": 39,
-   "titoli_che_mancano": 55,
-   "punti_dal_livello": 18.4,
+   "titoli_che_mancano": 56,
+   "punti_dal_livello": 18.8,
    "drawdown": -5.7,
    "percentile_drawdown": 48
   }

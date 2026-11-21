@@ -1,6 +1,6 @@
 {
- "aggiornato": "2026-11-19",
- "generato": "2026-11-20T14:13:04Z",
+ "aggiornato": "2026-11-20",
+ "generato": "2026-11-21T03:37:07Z",
  "inizio": "2005-01-03",
  "calendario": "feriale",
  "regione": "Emergenti",
@@ -17,12 +17,12 @@
    "n": 11,
    "sopra": 6,
    "soglia_default": 18,
-   "dd": -2.7,
-   "ultimo": 3146.93,
+   "dd": -3.5,
+   "ultimo": 3121.18,
    "prezzo_tipo": "paniere",
    "titoli": 11,
-   "m1_eur": 3.2,
-   "m3_eur": 8.8
+   "m1_eur": 2.9,
+   "m3_eur": 8.4
   },
   {
    "etf": "EM-CONSUMI-DISCREZIONALI",
@@ -32,16 +32,16 @@
    "paese": "Emergenti",
    "b200": 35.7,
    "b50": 32.1,
-   "b20": 39.3,
+   "b20": 50.0,
    "n": 28,
    "sopra": 10,
    "soglia_default": 15,
-   "dd": -22.0,
-   "ultimo": 6307.7,
+   "dd": -22.6,
+   "ultimo": 6252.47,
    "prezzo_tipo": "paniere",
    "titoli": 28,
    "m1_eur": -20.9,
-   "m3_eur": 1.0
+   "m3_eur": -1.7
   },
   {
    "etf": "EM-BENI-DI-PRIMA-NECESSITA",
@@ -49,18 +49,18 @@
    "nome": "Beni di prima necessità",
    "tipo": "settore",
    "paese": "Emergenti",
-   "b200": 64.5,
+   "b200": 67.7,
    "b50": 64.5,
-   "b20": 61.3,
+   "b20": 58.1,
    "n": 31,
-   "sopra": 20,
+   "sopra": 21,
    "soglia_default": 29,
-   "dd": -8.4,
-   "ultimo": 3149.24,
+   "dd": -9.0,
+   "ultimo": 3126.99,
    "prezzo_tipo": "paniere",
    "titoli": 31,
-   "m1_eur": -5.7,
-   "m3_eur": -1.3
+   "m1_eur": -5.8,
+   "m3_eur": -3.1
   },
   {
    "etf": "EM-ENERGIA",
@@ -70,16 +70,16 @@
    "paese": "Emergenti",
    "b200": 15.4,
    "b50": 0.0,
-   "b20": 7.7,
+   "b20": 15.4,
    "n": 13,
    "sopra": 2,
    "soglia_default": 18,
-   "dd": -27.6,
-   "ultimo": 4805.46,
+   "dd": -28.1,
+   "ultimo": 4774.66,
    "prezzo_tipo": "paniere",
    "titoli": 13,
-   "m1_eur": -26.8,
-   "m3_eur": -15.0
+   "m1_eur": -26.7,
+   "m3_eur": -15.1
   },
   {
    "etf": "EM-FINANZIARI",
@@ -87,18 +87,18 @@
    "nome": "Finanziari",
    "tipo": "settore",
    "paese": "Emergenti",
-   "b200": 45.5,
+   "b200": 43.6,
    "b50": 29.1,
    "b20": 29.1,
    "n": 55,
-   "sopra": 25,
+   "sopra": 24,
    "soglia_default": 13,
-   "dd": -10.4,
-   "ultimo": 3887.62,
+   "dd": -11.2,
+   "ultimo": 3853.76,
    "prezzo_tipo": "paniere",
    "titoli": 55,
-   "m1_eur": -10.4,
-   "m3_eur": -4.5
+   "m1_eur": -10.2,
+   "m3_eur": -6.3
   },
   {
    "etf": "EM-SANITA",
@@ -112,12 +112,12 @@
    "n": 6,
    "sopra": 2,
    "soglia_default": 17,
-   "dd": -19.0,
-   "ultimo": 382.91,
+   "dd": -20.0,
+   "ultimo": 378.23,
    "prezzo_tipo": "paniere",
    "titoli": 6,
-   "m1_eur": -17.6,
-   "m3_eur": 8.2
+   "m1_eur": -18.3,
+   "m3_eur": 5.5
   },
   {
    "etf": "EM-INDUSTRIALI",
@@ -127,16 +127,16 @@
    "paese": "Emergenti",
    "b200": 59.3,
    "b50": 55.6,
-   "b20": 63.0,
+   "b20": 55.6,
    "n": 27,
    "sopra": 16,
    "soglia_default": 18,
-   "dd": -10.1,
-   "ultimo": 6671.43,
+   "dd": -10.7,
+   "ultimo": 6627.29,
    "prezzo_tipo": "paniere",
    "titoli": 27,
-   "m1_eur": -6.0,
-   "m3_eur": 0.0
+   "m1_eur": -4.8,
+   "m3_eur": -1.9
   },
   {
    "etf": "EM-MATERIALI",
@@ -144,18 +144,18 @@
    "nome": "Materiali",
    "tipo": "settore",
    "paese": "Emergenti",
-   "b200": 14.0,
+   "b200": 11.6,
    "b50": 11.6,
-   "b20": 16.3,
+   "b20": 18.6,
    "n": 43,
-   "sopra": 6,
+   "sopra": 5,
    "soglia_default": 24,
-   "dd": -22.6,
-   "ultimo": 3472.14,
+   "dd": -23.3,
+   "ultimo": 3440.08,
    "prezzo_tipo": "paniere",
    "titoli": 43,
-   "m1_eur": -13.3,
-   "m3_eur": -18.8
+   "m1_eur": -11.5,
+   "m3_eur": -19.1
   },
   {
    "etf": "EM-IMMOBILIARE",
@@ -165,16 +165,16 @@
    "paese": "Emergenti",
    "b200": 10.0,
    "b50": 20.0,
-   "b20": 10.0,
+   "b20": 20.0,
    "n": 10,
    "sopra": 1,
    "soglia_default": 14,
-   "dd": -18.3,
-   "ultimo": 735.92,
+   "dd": -19.0,
+   "ultimo": 729.66,
    "prezzo_tipo": "paniere",
    "titoli": 10,
    "m1_eur": -15.5,
-   "m3_eur": -7.4
+   "m3_eur": -8.7
   },
   {
    "etf": "EM-UTILITY",
@@ -184,16 +184,16 @@
    "paese": "Emergenti",
    "b200": 22.2,
    "b50": 11.1,
-   "b20": 44.4,
+   "b20": 48.1,
    "n": 27,
    "sopra": 6,
    "soglia_default": 24,
-   "dd": -20.3,
-   "ultimo": 3456.38,
+   "dd": -20.9,
+   "ultimo": 3431.27,
    "prezzo_tipo": "paniere",
    "titoli": 27,
-   "m1_eur": -18.0,
-   "m3_eur": -4.3
+   "m1_eur": -18.1,
+   "m3_eur": -6.8
   },
   {
    "etf": "IBOVESPA",
@@ -203,7 +203,7 @@
    "paese": "Brasile",
    "b200": 23.7,
    "b50": 17.1,
-   "b20": 39.5,
+   "b20": 48.7,
    "n": 76,
    "sopra": 18,
    "soglia_default": 19,
@@ -211,8 +211,8 @@
    "ultimo": 166376.0,
    "prezzo_tipo": "indice",
    "titoli": 76,
-   "m1_eur": -29.6,
-   "m3_eur": -10.0
+   "m1_eur": -29.3,
+   "m3_eur": -11.9
   },
   {
    "etf": "S-P-BMV-IPC",
@@ -220,18 +220,18 @@
    "nome": "S&P/BMV IPC",
    "tipo": "indice",
    "paese": "Messico",
-   "b200": 68.6,
+   "b200": 65.7,
    "b50": 68.6,
-   "b20": 54.3,
+   "b20": 42.9,
    "n": 35,
-   "sopra": 24,
+   "sopra": 23,
    "soglia_default": 23,
-   "dd": -4.6,
-   "ultimo": 68713.6,
+   "dd": -4.7,
+   "ultimo": 68629.46,
    "prezzo_tipo": "indice",
    "titoli": 35,
-   "m1_eur": -2.2,
-   "m3_eur": -0.2
+   "m1_eur": -1.5,
+   "m3_eur": -2.3
   },
   {
    "etf": "S-P-MERVAL",
@@ -241,16 +241,16 @@
    "paese": "Argentina",
    "b200": 5.0,
    "b50": 10.0,
-   "b20": 20.0,
+   "b20": 25.0,
    "n": 20,
    "sopra": 1,
    "soglia_default": 11,
-   "dd": -32.3,
-   "ultimo": 2104.25,
+   "dd": -32.6,
+   "ultimo": 2097.72,
    "prezzo_tipo": "paniere",
    "titoli": 20,
-   "m1_eur": -17.3,
-   "m3_eur": -20.6
+   "m1_eur": -16.2,
+   "m3_eur": -21.2
   },
   {
    "etf": "S-P-IPSA",
@@ -264,12 +264,12 @@
    "n": 30,
    "sopra": 14,
    "soglia_default": 15,
-   "dd": -14.1,
-   "ultimo": 485.96,
+   "dd": -14.9,
+   "ultimo": 481.34,
    "prezzo_tipo": "paniere",
    "titoli": 30,
-   "m1_eur": -4.3,
-   "m3_eur": -4.3
+   "m1_eur": -5.8,
+   "m3_eur": -6.3
   },
   {
    "etf": "FTSE-JSE-TOP-40",
@@ -283,12 +283,12 @@
    "n": 41,
    "sopra": 14,
    "soglia_default": 25,
-   "dd": -18.2,
-   "ultimo": 98385.1,
+   "dd": -19.5,
+   "ultimo": 96833.0,
    "prezzo_tipo": "indice",
    "titoli": 41,
-   "m1_eur": -6.1,
-   "m3_eur": -11.3
+   "m1_eur": -7.7,
+   "m3_eur": -14.0
   },
   {
    "etf": "BIST-30",
@@ -302,12 +302,12 @@
    "n": 30,
    "sopra": 7,
    "soglia_default": 17,
-   "dd": -17.2,
-   "ultimo": 14300.0,
+   "dd": -19.2,
+   "ultimo": 13957.1,
    "prezzo_tipo": "indice",
    "titoli": 30,
-   "m1_eur": -0.8,
-   "m3_eur": -13.7
+   "m1_eur": 0.1,
+   "m3_eur": -15.6
   },
   {
    "etf": "WIG20",
@@ -321,12 +321,12 @@
    "n": 20,
    "sopra": 16,
    "soglia_default": 5,
-   "dd": -1.9,
-   "ultimo": 5084.38,
+   "dd": -2.5,
+   "ultimo": 5055.01,
    "prezzo_tipo": "paniere",
    "titoli": 20,
-   "m1_eur": -0.5,
-   "m3_eur": 7.5
+   "m1_eur": 0.2,
+   "m3_eur": 6.3
   }
  ],
  "conta": {
@@ -334,7 +334,7 @@
   "indice": 7
  },
  "indice": {
-  "b200": 37.3,
+  "b200": 36.9,
   "b50": 31.7,
   "n": 252
  },
