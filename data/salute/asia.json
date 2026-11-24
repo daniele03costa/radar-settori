@@ -1,28 +1,26 @@
 {
  "passo": "asia",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-24T06:34:02Z",
- "ultimo_successo": "2026-11-24T06:34:02Z",
+ "ultimo_tentativo": "2026-11-24T16:02:20Z",
+ "ultimo_successo": "2026-11-24T16:02:20Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
  "aggiornato": "2026-11-23",
- "titoli": 1044,
+ "titoli": 1043,
  "totale": 1045,
  "indici": 6,
  "mancanti": [
+  {
+   "t": "6841.T",
+   "nome": "Yokogawa Electric"
+  },
   {
    "t": "601059.SS",
    "nome": "Cinda Securities"
   }
  ],
- "fermi": [
-  {
-   "t": "BANPU.BK",
-   "nome": "Banpu",
-   "dal": "2026-08-11"
-  }
- ],
+ "fermi": [],
  "indici_mancanti": [
   {
    "nome": "CSI 300",

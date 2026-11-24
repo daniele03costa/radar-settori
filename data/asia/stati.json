@@ -1,17 +1,17 @@
 {
  "aggiornato": "2026-11-23",
- "generato": "2026-11-24T06:34:02Z",
+ "generato": "2026-11-24T16:02:20Z",
  "ritardo": {
   "attesa": "2026-11-23",
   "sedute": 0
  },
  "prossima_seduta": "2026-11-24",
- "ampiezza_indice": 31.4,
+ "ampiezza_indice": 31.2,
  "ampiezza_stato": {
   "stato": "normale",
   "stato_nome": "Normale",
   "dal": "2020-04-07",
-  "ampiezza": 31.4,
+  "ampiezza": 31.2,
   "soglie": {
    "attenzione": 20,
    "zona_rossa": 15
@@ -58,9 +58,9 @@
    "a": "blu",
    "da_nome": "Attenzione",
    "a_nome": "Zona blu",
-   "ampiezza": 11.4,
+   "ampiezza": 11.5,
    "titoli_sopra": 17,
-   "titoli_totali": 149,
+   "titoli_totali": 148,
    "drawdown": -28.1
   },
   {
@@ -86,9 +86,9 @@
    "a": "attenzione",
    "da_nome": "Normale",
    "a_nome": "Attenzione",
-   "ampiezza": 55.1,
+   "ampiezza": 55.4,
    "titoli_sopra": 124,
-   "titoli_totali": 225,
+   "titoli_totali": 224,
    "drawdown": -17.6
   },
   {
@@ -142,9 +142,9 @@
    "a": "normale",
    "da_nome": "Attenzione",
    "a_nome": "Normale",
-   "ampiezza": 51.1,
+   "ampiezza": 51.3,
    "titoli_sopra": 115,
-   "titoli_totali": 225,
+   "titoli_totali": 224,
    "drawdown": -16.4
   }
  ],
@@ -157,22 +157,22 @@
    "stato": "blu",
    "stato_nome": "Zona blu",
    "dal": "2026-11-20",
-   "livello": 18,
-   "ampiezza": 12.1,
-   "ampiezza_un_mese_fa": 36.2,
+   "livello": 17,
+   "ampiezza": 12.2,
+   "ampiezza_un_mese_fa": 36.5,
    "titoli_sopra": 18,
-   "titoli_totali": 149,
-   "titoli_al_livello": 26,
+   "titoli_totali": 148,
+   "titoli_al_livello": 25,
    "titoli_che_mancano": 0,
-   "punti_dal_livello": -5.9,
-   "drawdown": -26.5,
+   "punti_dal_livello": -4.8,
+   "drawdown": -26.6,
    "percentile_drawdown": 96,
    "per_il_trigger": {
-    "punti_che_mancano": 10.9,
-    "ampiezza_obiettivo": 23,
+    "punti_che_mancano": 9.8,
+    "ampiezza_obiettivo": 22,
     "conferme_presenti": [],
     "conferme_necessarie": 1,
-    "rimbalzo_a_V_sopra": 43
+    "rimbalzo_a_V_sopra": 42
    }
   },
   {
@@ -191,7 +191,7 @@
    "titoli_al_livello": 18,
    "titoli_che_mancano": 0,
    "punti_dal_livello": -4.4,
-   "drawdown": -21.2,
+   "drawdown": -21.3,
    "percentile_drawdown": 93,
    "per_il_trigger": {
     "punti_che_mancano": 9.4,
@@ -345,13 +345,13 @@
    "stato_nome": "Attenzione",
    "dal": "2026-11-16",
    "livello": 15,
-   "ampiezza": 40.4,
-   "ampiezza_un_mese_fa": 52.9,
+   "ampiezza": 40.6,
+   "ampiezza_un_mese_fa": 53.1,
    "titoli_sopra": 91,
-   "titoli_totali": 225,
+   "titoli_totali": 224,
    "titoli_al_livello": 33,
    "titoli_che_mancano": 58,
-   "punti_dal_livello": 25.4,
+   "punti_dal_livello": 25.6,
    "drawdown": -22,
    "percentile_drawdown": 91
   },
@@ -364,15 +364,15 @@
    "stato_nome": "Cooldown",
    "dal": "2026-11-10",
    "livello": 21,
-   "ampiezza": 76,
+   "ampiezza": 72,
    "ampiezza_un_mese_fa": 16,
-   "titoli_sopra": 38,
+   "titoli_sopra": 36,
    "titoli_totali": 50,
    "titoli_al_livello": 10,
-   "titoli_che_mancano": 28,
-   "punti_dal_livello": 55,
-   "drawdown": 0,
-   "percentile_drawdown": 0
+   "titoli_che_mancano": 26,
+   "punti_dal_livello": 51,
+   "drawdown": -0.3,
+   "percentile_drawdown": 14
   },
   {
    "etf": "ASIA-IMMOBILIARE",
@@ -467,7 +467,7 @@
    "titoli_che_mancano": 14,
    "punti_dal_livello": 19.8,
    "drawdown": -2.6,
-   "percentile_drawdown": 40
+   "percentile_drawdown": 41
   },
   {
    "etf": "HANG-SENG",
@@ -535,13 +535,13 @@
    "stato_nome": "Normale",
    "dal": "2025-04-10",
    "livello": 12,
-   "ampiezza": 46.2,
+   "ampiezza": 44.8,
    "ampiezza_un_mese_fa": 44.8,
-   "titoli_sopra": 67,
+   "titoli_sopra": 65,
    "titoli_totali": 145,
    "titoli_al_livello": 17,
-   "titoli_che_mancano": 50,
-   "punti_dal_livello": 34.2,
+   "titoli_che_mancano": 48,
+   "punti_dal_livello": 32.8,
    "drawdown": -3.1,
    "percentile_drawdown": 52
   },
