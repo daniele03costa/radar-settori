@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-26",
- "generato": "2026-11-27T04:32:32Z",
+ "generato": "2026-11-27T09:39:05Z",
  "ritardo": {
   "attesa": "2026-11-26",
   "sedute": 0
@@ -32,7 +32,7 @@
    "ampiezza": 44,
    "titoli_sopra": 11,
    "titoli_totali": 25,
-   "drawdown": -14.8
+   "drawdown": -14.9
   }
  ],
  "cambi_recenti": [
@@ -48,7 +48,7 @@
    "ampiezza": 44,
    "titoli_sopra": 11,
    "titoli_totali": 25,
-   "drawdown": -14.8
+   "drawdown": -14.9
   },
   {
    "data": "2026-11-25",
@@ -82,7 +82,7 @@
    "titoli_al_livello": 0,
    "titoli_che_mancano": 5,
    "punti_dal_livello": 34.7,
-   "drawdown": -6.7,
+   "drawdown": -6.8,
    "percentile_drawdown": 61
   },
   {
@@ -158,7 +158,7 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 36,
-   "drawdown": -14.8,
+   "drawdown": -14.9,
    "percentile_drawdown": 83
   },
   {
@@ -177,8 +177,8 @@
    "titoli_al_livello": 2,
    "titoli_che_mancano": 9,
    "punti_dal_livello": 38,
-   "drawdown": -3.6,
-   "percentile_drawdown": 50
+   "drawdown": -3.7,
+   "percentile_drawdown": 51
   },
   {
    "etf": "BEL-20",
@@ -200,25 +200,6 @@
    "percentile_drawdown": 40
   },
   {
-   "etf": "ISEQ",
-   "nome": "ISEQ",
-   "codice": "ISEQ",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2022-10-25",
-   "livello": 10,
-   "ampiezza": 84.6,
-   "ampiezza_un_mese_fa": 71.4,
-   "titoli_sopra": 11,
-   "titoli_totali": 13,
-   "titoli_al_livello": 1,
-   "titoli_che_mancano": 10,
-   "punti_dal_livello": 74.6,
-   "drawdown": -4.3,
-   "percentile_drawdown": 43
-  },
-  {
    "etf": "ENERGIA",
    "nome": "Energia",
    "codice": "Energia",
@@ -234,7 +215,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 57.2,
-   "drawdown": -11.9,
+   "drawdown": -11.8,
    "percentile_drawdown": 71
   },
   {
@@ -253,8 +234,27 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 11,
    "punti_dal_livello": 43.5,
-   "drawdown": -8.9,
-   "percentile_drawdown": 71
+   "drawdown": -8.7,
+   "percentile_drawdown": 70
+  },
+  {
+   "etf": "ISEQ",
+   "nome": "ISEQ",
+   "codice": "ISEQ",
+   "tipo": "indice",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2022-10-25",
+   "livello": 10,
+   "ampiezza": 92.3,
+   "ampiezza_un_mese_fa": 71.4,
+   "titoli_sopra": 12,
+   "titoli_totali": 13,
+   "titoli_al_livello": 1,
+   "titoli_che_mancano": 11,
+   "punti_dal_livello": 82.3,
+   "drawdown": -4.3,
+   "percentile_drawdown": 43
   },
   {
    "etf": "MATERIALI",
@@ -272,7 +272,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 26.2,
-   "drawdown": -11.6,
+   "drawdown": -11.7,
    "percentile_drawdown": 80
   },
   {
@@ -367,8 +367,8 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 15,
    "punti_dal_livello": 48.3,
-   "drawdown": -3.1,
-   "percentile_drawdown": 45
+   "drawdown": -3.2,
+   "percentile_drawdown": 46
   },
   {
    "etf": "AEX",
@@ -409,6 +409,25 @@
    "percentile_drawdown": 59
   },
   {
+   "etf": "DAX",
+   "nome": "DAX",
+   "codice": "DAX",
+   "tipo": "indice",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2022-11-04",
+   "livello": 12,
+   "ampiezza": 60,
+   "ampiezza_un_mese_fa": 67.5,
+   "titoli_sopra": 24,
+   "titoli_totali": 40,
+   "titoli_al_livello": 4,
+   "titoli_che_mancano": 20,
+   "punti_dal_livello": 48,
+   "drawdown": -5.8,
+   "percentile_drawdown": 61
+  },
+  {
    "etf": "FTSE-MIB",
    "nome": "FTSE MIB",
    "codice": "FTSE MIB",
@@ -428,25 +447,6 @@
    "percentile_drawdown": 60
   },
   {
-   "etf": "DAX",
-   "nome": "DAX",
-   "codice": "DAX",
-   "tipo": "indice",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2022-11-04",
-   "livello": 12,
-   "ampiezza": 62.5,
-   "ampiezza_un_mese_fa": 67.5,
-   "titoli_sopra": 25,
-   "titoli_totali": 40,
-   "titoli_al_livello": 4,
-   "titoli_che_mancano": 21,
-   "punti_dal_livello": 50.5,
-   "drawdown": -5.8,
-   "percentile_drawdown": 61
-  },
-  {
    "etf": "SANITA",
    "nome": "Sanità",
    "codice": "Sanità",
@@ -462,8 +462,8 @@
    "titoli_al_livello": 7,
    "titoli_che_mancano": 22,
    "punti_dal_livello": 64.9,
-   "drawdown": -0.5,
-   "percentile_drawdown": 23
+   "drawdown": -0.6,
+   "percentile_drawdown": 24
   },
   {
    "etf": "CONSUMI-DISCREZIONALI",
@@ -474,13 +474,13 @@
    "stato_nome": "Normale",
    "dal": "2026-03-31",
    "livello": 13,
-   "ampiezza": 70.7,
+   "ampiezza": 68.3,
    "ampiezza_un_mese_fa": 58.5,
-   "titoli_sopra": 29,
+   "titoli_sopra": 28,
    "titoli_totali": 41,
    "titoli_al_livello": 5,
-   "titoli_che_mancano": 24,
-   "punti_dal_livello": 57.7,
+   "titoli_che_mancano": 23,
+   "punti_dal_livello": 55.3,
    "drawdown": -2.3,
    "percentile_drawdown": 40
   },
@@ -493,15 +493,15 @@
    "stato_nome": "Normale",
    "dal": "2026-06-09",
    "livello": 20,
-   "ampiezza": 88.9,
+   "ampiezza": 91.7,
    "ampiezza_un_mese_fa": 75,
-   "titoli_sopra": 32,
+   "titoli_sopra": 33,
    "titoli_totali": 36,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 25,
-   "punti_dal_livello": 68.9,
-   "drawdown": -0.8,
-   "percentile_drawdown": 28
+   "titoli_che_mancano": 26,
+   "punti_dal_livello": 71.7,
+   "drawdown": -0.6,
+   "percentile_drawdown": 26
   },
   {
    "etf": "INDUSTRIALI",
@@ -520,7 +520,7 @@
    "titoli_che_mancano": 30,
    "punti_dal_livello": 30.8,
    "drawdown": -4.4,
-   "percentile_drawdown": 61
+   "percentile_drawdown": 62
   },
   {
    "etf": "FTSE-100",
