@@ -1,6 +1,6 @@
 {
  "aggiornato": "2026-11-27",
- "generato": "2026-11-28T04:14:28Z",
+ "generato": "2026-11-28T08:52:54Z",
  "ritardo": {
   "attesa": "2026-11-27",
   "sedute": 0
@@ -144,7 +144,7 @@
    "titoli_che_mancano": 9,
    "punti_dal_livello": 38,
    "drawdown": -3,
-   "percentile_drawdown": 43
+   "percentile_drawdown": 44
   },
   {
    "etf": "BEL-20",
@@ -166,6 +166,25 @@
    "percentile_drawdown": 33
   },
   {
+   "etf": "TECNOLOGIA",
+   "nome": "Tecnologia",
+   "codice": "Tecnologia",
+   "tipo": "settore",
+   "stato": "normale",
+   "stato_nome": "Normale",
+   "dal": "2026-11-26",
+   "livello": 8,
+   "ampiezza": 48,
+   "ampiezza_un_mese_fa": 68,
+   "titoli_sopra": 12,
+   "titoli_totali": 25,
+   "titoli_al_livello": 2,
+   "titoli_che_mancano": 10,
+   "punti_dal_livello": 40,
+   "drawdown": -13,
+   "percentile_drawdown": 81
+  },
+  {
    "etf": "ISEQ",
    "nome": "ISEQ",
    "codice": "ISEQ",
@@ -185,25 +204,6 @@
    "percentile_drawdown": 38
   },
   {
-   "etf": "TECNOLOGIA",
-   "nome": "Tecnologia",
-   "codice": "Tecnologia",
-   "tipo": "settore",
-   "stato": "normale",
-   "stato_nome": "Normale",
-   "dal": "2026-11-26",
-   "livello": 8,
-   "ampiezza": 52,
-   "ampiezza_un_mese_fa": 68,
-   "titoli_sopra": 13,
-   "titoli_totali": 25,
-   "titoli_al_livello": 2,
-   "titoli_che_mancano": 11,
-   "punti_dal_livello": 44,
-   "drawdown": -13,
-   "percentile_drawdown": 81
-  },
-  {
    "etf": "ENERGIA",
    "nome": "Energia",
    "codice": "Energia",
@@ -219,7 +219,7 @@
    "titoli_al_livello": 1,
    "titoli_che_mancano": 12,
    "punti_dal_livello": 62.4,
-   "drawdown": -10.4,
+   "drawdown": -10.5,
    "percentile_drawdown": 66
   },
   {
@@ -257,7 +257,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 13,
    "punti_dal_livello": 28.5,
-   "drawdown": -10.4,
+   "drawdown": -10.5,
    "percentile_drawdown": 77
   },
   {
@@ -352,7 +352,7 @@
    "titoli_al_livello": 4,
    "titoli_che_mancano": 16,
    "punti_dal_livello": 51.7,
-   "drawdown": -2.5,
+   "drawdown": -2.6,
    "percentile_drawdown": 40
   },
   {
@@ -402,13 +402,13 @@
    "stato_nome": "Normale",
    "dal": "2026-07-07",
    "livello": 23,
-   "ampiezza": 84.8,
+   "ampiezza": 87.9,
    "ampiezza_un_mese_fa": 75.8,
-   "titoli_sopra": 28,
+   "titoli_sopra": 29,
    "titoli_totali": 33,
    "titoli_al_livello": 7,
-   "titoli_che_mancano": 21,
-   "punti_dal_livello": 61.8,
+   "titoli_che_mancano": 22,
+   "punti_dal_livello": 64.9,
    "drawdown": 0,
    "percentile_drawdown": 0
   },
@@ -486,7 +486,7 @@
    "titoli_che_mancano": 25,
    "punti_dal_livello": 68.9,
    "drawdown": -1.1,
-   "percentile_drawdown": 32
+   "percentile_drawdown": 33
   },
   {
    "etf": "INDUSTRIALI",
@@ -515,14 +515,14 @@
    "stato": "normale",
    "stato_nome": "Normale",
    "dal": "2025-04-10",
-   "livello": 19,
+   "livello": 18,
    "ampiezza": 61,
    "ampiezza_un_mese_fa": 65,
    "titoli_sopra": 61,
    "titoli_totali": 100,
-   "titoli_al_livello": 19,
-   "titoli_che_mancano": 42,
-   "punti_dal_livello": 42,
+   "titoli_al_livello": 18,
+   "titoli_che_mancano": 43,
+   "punti_dal_livello": 43,
    "drawdown": -1.9,
    "percentile_drawdown": 34
   },
@@ -543,7 +543,7 @@
    "titoli_che_mancano": 58,
    "punti_dal_livello": 60.4,
    "drawdown": -3.6,
-   "percentile_drawdown": 47
+   "percentile_drawdown": 46
   }
  ],
  "nota": "Stati calcolati con i livelli blu predefiniti (europa.json → soglie, altrimenti il 5° percentile dell'ampiezza dal 2005) e le regole di signals.js."
