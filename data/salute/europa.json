@@ -1,12 +1,12 @@
 {
  "passo": "europa",
  "esito": "ok",
- "ultimo_tentativo": "2026-11-27T14:12:13Z",
- "ultimo_successo": "2026-11-27T14:12:13Z",
+ "ultimo_tentativo": "2026-11-28T04:14:28Z",
+ "ultimo_successo": "2026-11-28T04:14:28Z",
  "errori_di_fila": 0,
  "messaggio": "",
  "avvisi": [],
- "aggiornato": "2026-11-26",
+ "aggiornato": "2026-11-27",
  "titoli": 467,
  "totale": 472,
  "indici": 15,
@@ -32,7 +32,13 @@
    "nome": "Roche"
   }
  ],
- "fermi": [],
+ "fermi": [
+  {
+   "t": "IR5B.IR",
+   "nome": "Irish Continental Group",
+   "dal": "2026-11-20"
+  }
+ ],
  "indici_mancanti": [
   {
    "nome": "OMX Stockholm 30",
